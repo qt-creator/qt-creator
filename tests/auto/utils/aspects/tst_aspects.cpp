@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/aspects.h>
+#include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
+#include <utils/pathchooser.h>
+#include <utils/theme/theme.h>
 #include <utils/layoutbuilder.h>
 
+#include <QAbstractButton>
 #include <QDoubleSpinBox>
 #include <QLabel>
 #include <QListWidget>
 #include <QSpinBox>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QWidget>
 
@@ -21,6 +27,8 @@ class tst_Aspects : public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
+    void cleanupTestCase();
     void integerAspectUpdatesEverySpinBox();
     void integerAspectTakesEditsFromEverySpinBox();
     void integerAspectKeepsUnscaledValue();
@@ -33,7 +41,23 @@ private slots:
     void multiSelectionAspectTakesEditsFromEveryList();
     void multiSelectionAspectEditKeepsValueOrder();
     void multiSelectionAspectKeepsValueOrder();
+    void filePathAspectDefaultValidation();
+    void filePathAspectReportsValidity();
+    void filePathAspectAddsButtons();
+    void filePathAspectUpdatesShownPlaceholder();
+    void filePathAspectExpandsVolatilePath();
 };
+
+void tst_Aspects::initTestCase()
+{
+    // Path choosers ask for themed icons, which needs a theme on Linux.
+    setCreatorTheme(new Theme("tst_aspects"));
+}
+
+void tst_Aspects::cleanupTestCase()
+{
+    setCreatorTheme(nullptr);
+}
 
 static std::unique_ptr<QWidget> createWidget(BaseAspect &aspect)
 {
@@ -66,6 +90,19 @@ static QStringList checkedItems(QListWidget *list)
             checked.append(list->item(i)->text());
     }
     return checked;
+}
+
+static PathChooser *pathChooser(const std::unique_ptr<QWidget> &widget)
+{
+    return widget->findChild<PathChooser *>();
+}
+
+static QStringList buttonTexts(PathChooser *chooser)
+{
+    QStringList texts;
+    for (const QAbstractButton *button : chooser->findChildren<QAbstractButton *>())
+        texts.append(button->text());
+    return texts;
 }
 
 static QDoubleSpinBox *doubleSpinBox(const std::unique_ptr<QWidget> &widget)
@@ -245,6 +282,97 @@ void tst_Aspects::multiSelectionAspectKeepsValueOrder()
 
     QCOMPARE(aspect.value(), QStringList({"c", "a"}));
     QCOMPARE(checkedItems(listWidget(widget)), QStringList({"a", "c"}));
+}
+
+void tst_Aspects::filePathAspectDefaultValidation()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FilePathAspect aspect;
+    aspect.setExpectedKind(PathChooserKind::ExistingDirectory);
+    const FancyLineEdit::AsyncValidationFunction validate = aspect.defaultValidationFunction();
+
+    const FancyLineEdit::AsyncValidationResult existing = validate(dir.path()).result();
+    if (!existing)
+        QFAIL(qPrintable(existing.error()));
+
+    const FancyLineEdit::AsyncValidationResult missing = validate(dir.filePath("missing")).result();
+    QVERIFY(!missing);
+    QVERIFY(missing.error().contains("does not exist"));
+
+    QVERIFY(!validate({}).result());
+}
+
+void tst_Aspects::filePathAspectReportsValidity()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    FilePathAspect aspect;
+    aspect.setExpectedKind(PathChooserKind::ExistingDirectory);
+    const auto widget = createWidget(aspect);
+    QVERIFY(pathChooser(widget));
+
+    aspect.setValue(dir.path());
+    QTRY_VERIFY(aspect.isValid());
+
+    aspect.setValue(dir.filePath("missing"));
+    QTRY_VERIFY(!aspect.isValid());
+}
+
+void tst_Aspects::filePathAspectAddsButtons()
+{
+    FilePathAspect aspect;
+    QObject context;
+    auto deadContext = std::make_unique<QObject>();
+    int clicks = 0;
+    aspect.addButton("Live", &context, [&clicks] { ++clicks; });
+    aspect.addButton("Dead", deadContext.get(), [] {});
+    deadContext.reset();
+
+    const auto widget = createWidget(aspect);
+    QVERIFY(pathChooser(widget));
+    const QStringList texts = buttonTexts(pathChooser(widget));
+
+    QVERIFY(texts.contains("Live"));
+    QVERIFY(!texts.contains("Dead"));
+    for (QAbstractButton *button : pathChooser(widget)->findChildren<QAbstractButton *>()) {
+        if (button->text() == "Live")
+            button->click();
+    }
+    QCOMPARE(clicks, 1);
+}
+
+void tst_Aspects::filePathAspectUpdatesShownPlaceholder()
+{
+    FilePathAspect aspect;
+    const auto widget = createWidget(aspect);
+    QVERIFY(pathChooser(widget));
+
+    aspect.setPlaceHolderText("Hint");
+
+    QCOMPARE(pathChooser(widget)->lineEdit()->placeholderText(), "Hint");
+
+    FilePathAspect withDefault;
+    withDefault.setDefaultValue("/default");
+    const auto defaultWidget = createWidget(withDefault);
+    QVERIFY(pathChooser(defaultWidget));
+
+    withDefault.setPlaceHolderText("Hint");
+
+    QCOMPARE(pathChooser(defaultWidget)->lineEdit()->placeholderText(),
+             FilePath::fromUserInput("/default").toUserOutput());
+}
+
+void tst_Aspects::filePathAspectExpandsVolatilePath()
+{
+    FilePathAspect aspect;
+    Environment env;
+    env.set("QTC_TST_ASPECTS_DIR", "/qtc-tst-aspects");
+    aspect.setEnvironment(env);
+    aspect.setVolatileValue(HostOsInfo::isWindowsHost() ? "%QTC_TST_ASPECTS_DIR%/sub"
+                                                        : "${QTC_TST_ASPECTS_DIR}/sub");
+
+    QCOMPARE(aspect.expandedVolatilePath().path(), "/qtc-tst-aspects/sub");
 }
 
 QTEST_MAIN(tst_Aspects)

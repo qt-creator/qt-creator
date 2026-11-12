@@ -81,6 +81,8 @@ public:
     static QString label();
 
     FancyLineEdit::AsyncValidationFunction defaultValidationFunction() const;
+    static FancyLineEdit::AsyncValidationFuture validateExpandedPath(
+        const QString &text, const FilePath &expandedPath, PathChooserKind expectedKind);
     void setValidationFunction(const FancyLineEdit::ValidationFunction &fn);
 
     /** Return the home directory, which needs some fixing under Windows. */

@@ -676,26 +676,36 @@ static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath, Path
 
 FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() const
 {
-    return [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
-        if (text.isEmpty()) {
-            return QtFuture::makeReadyValueFuture((Utils::Result<QString>(
-                ResultError(Tr::tr("The path must not be empty.")))));
-        }
-
-        const FilePath expanded = d->expandedPath(
-            text.isEmpty() ? d->m_defaultValue : FilePath::fromUserInput(text));
-
-        if (expanded.isEmpty()) {
-            return QtFuture::makeReadyValueFuture((Utils::Result<QString>(
-                ResultError(Tr::tr("The path \"%1\" expanded to an empty string.")
-                                    .arg(expanded.toUserOutput())))));
-        }
-
-        return Utils::asyncRun(
-            [expanded, kind = d->m_acceptingKind]() -> FancyLineEdit::AsyncValidationResult {
-                return validatePath(expanded, kind);
-            });
+    return [this](const QString &text) {
+        return validateExpandedPath(text,
+                                    d->expandedPath(FilePath::fromUserInput(text)),
+                                    d->m_acceptingKind);
     };
+}
+
+/*!
+    Validates \a text, which a path chooser expanded to \a expandedPath, the
+    way the default validation function of a path chooser expecting
+    \a expectedKind does.
+*/
+FancyLineEdit::AsyncValidationFuture PathChooser::validateExpandedPath(
+    const QString &text, const FilePath &expandedPath, PathChooserKind expectedKind)
+{
+    if (text.isEmpty()) {
+        return QtFuture::makeReadyValueFuture(
+            (Utils::Result<QString>(ResultError(Tr::tr("The path must not be empty.")))));
+    }
+
+    if (expandedPath.isEmpty()) {
+        return QtFuture::makeReadyValueFuture((Utils::Result<QString>(
+            ResultError(Tr::tr("The path \"%1\" expanded to an empty string.")
+                            .arg(expandedPath.toUserOutput())))));
+    }
+
+    return Utils::asyncRun(
+        [expandedPath, expectedKind]() -> FancyLineEdit::AsyncValidationResult {
+            return validatePath(expandedPath, expectedKind);
+        });
 }
 
 void PathChooser::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)

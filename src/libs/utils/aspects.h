@@ -828,6 +828,7 @@ public:
     FilePath effectiveBinary() const;
     FilePath expandedValue() const;
     FilePath expandedVolatileValue() const;
+    FilePath expandedVolatilePath() const;
     QString value() const;
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
     void setValue(const QString &filePath, Announcement howToAnnounce = DoEmit);
@@ -849,6 +850,9 @@ public:
 
     void setPlaceHolderText(const QString &placeHolderText);
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
+    FancyLineEdit::AsyncValidationFunction defaultValidationFunction() const;
+    bool isValid() const;
+    void addButton(const QString &text, QObject *context, const std::function<void()> &callback);
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setHistoryCompleter(const Key &historyCompleterKey);
     void setShowToolTipOnLabel(bool show);

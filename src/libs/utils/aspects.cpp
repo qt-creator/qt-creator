@@ -1653,6 +1653,14 @@ public:
     bool m_validatePlaceHolder = false;
     FilePaths m_valueAlternatives;
 
+    struct Button
+    {
+        QString text;
+        QPointer<QObject> context;
+        std::function<void()> callback;
+    };
+    QList<Button> m_buttons;
+
     Guard m_editFinishedGuard;
 };
 
@@ -1700,6 +1708,23 @@ FilePath FilePathAspect::expandedVolatileValue() const
             return FilePath::fromUserInput(expander->expand(value));
     }
     return FilePath::fromUserInput(value);
+}
+
+/*!
+    Returns the volatile value expanded the way the path choosers of this
+    aspect expand their input: environment variables and macros are expanded,
+    and a relative path is resolved according to the expected kind and the
+    base directory.
+
+    \sa expandedVolatileValue()
+*/
+FilePath FilePathAspect::expandedVolatilePath() const
+{
+    return PathChooser::expandPath(FilePath::fromUserInput(volatileValue()),
+                                   macroExpander(),
+                                   d->m_baseDirectory.value(),
+                                   d->m_environment,
+                                   d->m_expectedKind);
 }
 
 /*!
@@ -1858,6 +1883,11 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
     // do not override default value with placeholder, but use placeholder if default is empty
     if (d->m_pathChooserDisplay->lineEdit()->placeholderText().isEmpty())
         d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
+    d->m_buttons.removeIf([](const Internal::FilePathAspectPrivate::Button &button) {
+        return !button.context;
+    });
+    for (const Internal::FilePathAspectPrivate::Button &button : std::as_const(d->m_buttons))
+        d->m_pathChooserDisplay->addButton(button.text, button.context, button.callback);
     d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     addLabeledItem(parent, d->m_pathChooserDisplay);
     connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &FilePathAspect::validChanged);
@@ -2014,6 +2044,10 @@ void FilePathAspect::setInitialBrowsePathBackup(const FilePath &initialBrowsePat
 void FilePathAspect::setPlaceHolderText(const QString &placeHolderText)
 {
     d->m_placeHolderText = placeHolderText;
+    // A path chooser shows a default value that is in use as its placeholder.
+    const bool showsDefault = !defaultValue().isEmpty() && defaultValue() == value();
+    if (d->m_pathChooserDisplay && !showsDefault)
+        d->m_pathChooserDisplay->setPlaceholderText(placeHolderText);
 }
 
 void FilePathAspect::setValidationFunction(const FancyLineEdit::ValidationFunction &validator)
@@ -2021,6 +2055,50 @@ void FilePathAspect::setValidationFunction(const FancyLineEdit::ValidationFuncti
     d->m_validator = validator;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setValidationFunction(*d->m_validator);
+}
+
+/*!
+    Returns the validation a path chooser of this aspect performs when no
+    validation function was set, for use in a custom validation function.
+
+    \sa setValidationFunction()
+*/
+FancyLineEdit::AsyncValidationFunction FilePathAspect::defaultValidationFunction() const
+{
+    return [this](const QString &text) {
+        return PathChooser::validateExpandedPath(
+            text,
+            PathChooser::expandPath(FilePath::fromUserInput(text),
+                                    macroExpander(),
+                                    d->m_baseDirectory.value(),
+                                    d->m_environment,
+                                    d->m_expectedKind),
+            d->m_expectedKind);
+    };
+}
+
+/*!
+    Returns whether the input in the path choosers of this aspect passed
+    validation.
+
+    \sa validChanged()
+*/
+bool FilePathAspect::isValid() const
+{
+    return d->m_pathChooserDisplay && d->m_pathChooserDisplay->isValid();
+}
+
+/*!
+    Adds a button with \a text to the path choosers of this aspect that are
+    created from now on. Clicking it calls \a callback. The button is not
+    added anymore once \a context is destroyed.
+*/
+void FilePathAspect::addButton(const QString &text,
+                               QObject *context,
+                               const std::function<void()> &callback)
+{
+    QTC_ASSERT(context, return);
+    d->m_buttons.append({text, context, callback});
 }
 
 void FilePathAspect::setDisplayFilter(const std::function<QString (const QString &)> &displayFilter)
