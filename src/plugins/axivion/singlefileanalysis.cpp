@@ -30,7 +30,6 @@
 #include <utils/filepath.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
 #include <QDialog>
@@ -115,7 +114,7 @@ public:
 
         const bool canDerive = buildInfoForCurrentDocumentDerivable();
         auto updateOk = [okButton, canDerive] {
-            okButton->setEnabled(settings().lastBauhausConfig.pathChooser()->isValid()
+            okButton->setEnabled(settings().lastBauhausConfig.isValid()
                                  && (canDerive
                                      || !settings().lastSfaCommand.volatileValue().isEmpty()));
         };
