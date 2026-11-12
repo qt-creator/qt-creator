@@ -129,7 +129,7 @@ static Result<> testJavaC(const FilePath &jdkPath)
 
     const QString javacCommand("javac");
     const QString versionParameter("-version");
-    const FilePath bin = jdkPath / "bin" / (javacCommand + QTC_HOST_EXE_SUFFIX);
+    const FilePath bin = jdkPath / "bin" / Utils::HostOsInfo::withExecutableSuffix(javacCommand);
 
     if (!bin.isExecutableFile())
         return ResultError(

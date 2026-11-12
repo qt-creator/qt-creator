@@ -3,6 +3,7 @@
 
 #include "makefileparse.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
 #include <QDebug>
@@ -231,10 +232,7 @@ static FilePath findQMakeBinaryFromMakefile(const FilePath &makefile)
             if (match.hasMatch()) {
                 QFileInfo qmake(match.captured(1).trimmed());
                 QString qmakePath = qmake.filePath();
-                if (!QString::fromLatin1(QTC_HOST_EXE_SUFFIX).isEmpty()
-                        && !qmakePath.endsWith(QLatin1String(QTC_HOST_EXE_SUFFIX))) {
-                    qmakePath.append(QLatin1String(QTC_HOST_EXE_SUFFIX));
-                }
+                qmakePath = Utils::HostOsInfo::withExecutableSuffix(qmakePath);
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
                 if (fi.exists())

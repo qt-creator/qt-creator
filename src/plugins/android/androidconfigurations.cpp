@@ -210,9 +210,9 @@ static QLatin1String toolsPrefix(const Abi &abi)
 
 static FilePath lldbPathFromNdk(const FilePath &ndkLocation)
 {
-    const FilePath path = ndkLocation.pathAppended(
-        QString("toolchains/llvm/prebuilt/%1/bin/lldb%2")
-            .arg(AndroidConfig::toolchainHostFromNdk(ndkLocation), QString(QTC_HOST_EXE_SUFFIX)));
+    const FilePath path = ndkLocation.pathAppended(Utils::HostOsInfo::withExecutableSuffix(
+        QString("toolchains/llvm/prebuilt/%1/bin/lldb")
+            .arg(AndroidConfig::toolchainHostFromNdk(ndkLocation))));
     return path.exists() ? path : FilePath();
 }
 
@@ -663,9 +663,8 @@ FilePath clangPathFromNdk(const FilePath &ndkLocation)
 
 FilePath makePathFromNdk(const FilePath &ndkLocation)
 {
-    return ndkLocation.pathAppended(
-                QString("prebuilt/%1/bin/make%2").arg(toolchainHostFromNdk(ndkLocation),
-                                                      QString(QTC_HOST_EXE_SUFFIX)));
+    return ndkLocation.pathAppended(Utils::HostOsInfo::withExecutableSuffix(
+        QString("prebuilt/%1/bin/make").arg(toolchainHostFromNdk(ndkLocation))));
 }
 
 static FilePath openJDKBinPath()

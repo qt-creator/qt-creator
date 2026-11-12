@@ -4,6 +4,7 @@
 #include "clearcasesettings.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcsettings.h>
 
 using namespace Utils;
@@ -31,7 +32,7 @@ enum { defaultTimeOutS = 30, defaultHistoryCount = 50 };
 
 static QString defaultCommand()
 {
-    return QLatin1String("cleartool" QTC_HOST_EXE_SUFFIX);
+    return Utils::HostOsInfo::withExecutableSuffix("cleartool");
 }
 
 ClearCaseSettings::ClearCaseSettings() :

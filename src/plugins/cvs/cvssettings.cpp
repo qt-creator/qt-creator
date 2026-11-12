@@ -28,7 +28,7 @@ CvsSettings::CvsSettings()
     setAutoApply(false);
     setSettingsGroup("CVS");
 
-    binaryPath.setDefaultValue("cvs" QTC_HOST_EXE_SUFFIX);
+    binaryPath.setDefaultValue(Utils::HostOsInfo::withExecutableSuffix("cvs"));
     binaryPath.setExpectedKind(PathChooserKind::ExistingCommand);
     binaryPath.setHistoryCompleter("Cvs.Command.History");
     binaryPath.setDisplayName(Tr::tr("CVS Command"));

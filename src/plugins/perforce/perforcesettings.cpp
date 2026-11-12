@@ -30,7 +30,7 @@ namespace Perforce::Internal {
 
 static QString defaultCommand()
 {
-    return QLatin1String("p4" QTC_HOST_EXE_SUFFIX);
+    return Utils::HostOsInfo::withExecutableSuffix("p4");
 }
 
 PerforceSettings &settings()

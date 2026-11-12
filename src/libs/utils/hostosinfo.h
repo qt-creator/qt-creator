@@ -9,12 +9,6 @@
 
 #include <optional>
 
-#ifdef Q_OS_WIN
-#define QTC_HOST_EXE_SUFFIX QTC_WIN_EXE_SUFFIX
-#else
-#define QTC_HOST_EXE_SUFFIX ""
-#endif // Q_OS_WIN
-
 namespace Utils { class FilePath; }
 
 // The "Host" is the machine QtCreator is running on.

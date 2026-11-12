@@ -139,11 +139,9 @@ void showHintAboutBuildBeforeAnalysis()
 FilePath fullPath(const FilePath &executable)
 {
     FilePath candidate = executable;
-    const bool hasSuffix = candidate.endsWith(QTC_HOST_EXE_SUFFIX);
 
     if (candidate.isAbsolutePath()) {
-        if (!hasSuffix)
-            candidate = candidate.withExecutableSuffix();
+        candidate = candidate.withExecutableSuffix();
     } else {
         const Environment environment = Environment::systemEnvironment();
         const FilePath expandedPath = environment.searchInPath(candidate.fileName());
