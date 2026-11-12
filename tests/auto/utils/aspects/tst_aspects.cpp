@@ -46,6 +46,10 @@ private slots:
     void filePathAspectAddsButtons();
     void filePathAspectUpdatesShownPlaceholder();
     void filePathAspectExpandsVolatilePath();
+    void filePathAspectUpdatesEveryChooser();
+    void filePathAspectTakesEditsFromEveryChooser();
+    void filePathAspectAppliesOncePerEdit();
+    void filePathAspectConfiguresEveryChooser();
 };
 
 void tst_Aspects::initTestCase()
@@ -373,6 +377,69 @@ void tst_Aspects::filePathAspectExpandsVolatilePath()
                                                         : "${QTC_TST_ASPECTS_DIR}/sub");
 
     QCOMPARE(aspect.expandedVolatilePath().path(), "/qtc-tst-aspects/sub");
+}
+
+void tst_Aspects::filePathAspectUpdatesEveryChooser()
+{
+    FilePathAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QVERIFY(pathChooser(first));
+    QVERIFY(pathChooser(second));
+
+    aspect.setValue(QString("/some/path"));
+
+    QCOMPARE(pathChooser(first)->lineEdit()->text(), "/some/path");
+    QCOMPARE(pathChooser(second)->lineEdit()->text(), "/some/path");
+}
+
+void tst_Aspects::filePathAspectTakesEditsFromEveryChooser()
+{
+    FilePathAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QVERIFY(pathChooser(first));
+    QVERIFY(pathChooser(second));
+
+    pathChooser(first)->lineEdit()->setText("/typed/path");
+
+    QCOMPARE(aspect.value(), "/typed/path");
+    QCOMPARE(pathChooser(second)->lineEdit()->text(), "/typed/path");
+}
+
+void tst_Aspects::filePathAspectAppliesOncePerEdit()
+{
+    FilePathAspect aspect;
+    int acceptorCalls = 0;
+    aspect.setValueAcceptor([&acceptorCalls](const QString &, const QString &newValue) {
+        ++acceptorCalls;
+        return std::optional<QString>(newValue);
+    });
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QVERIFY(pathChooser(first));
+    QVERIFY(pathChooser(second));
+
+    QCOMPARE(acceptorCalls, 0);
+
+    pathChooser(first)->lineEdit()->setText("/typed/path");
+
+    QCOMPARE(acceptorCalls, 1);
+    QCOMPARE(aspect.value(), "/typed/path");
+}
+
+void tst_Aspects::filePathAspectConfiguresEveryChooser()
+{
+    FilePathAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QVERIFY(pathChooser(first));
+    QVERIFY(pathChooser(second));
+
+    aspect.setPlaceHolderText("Placeholder");
+
+    QCOMPARE(pathChooser(first)->lineEdit()->placeholderText(), "Placeholder");
+    QCOMPARE(pathChooser(second)->lineEdit()->placeholderText(), "Placeholder");
 }
 
 QTEST_MAIN(tst_Aspects)

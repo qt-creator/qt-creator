@@ -868,8 +868,6 @@ public:
     using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
 
-    PathChooser *pathChooser() const; // Avoid to use.
-
     void addToLayoutImpl(Layouting::Layout &parent) override;
 
     void fromMap(const Utils::Store &map) override;
@@ -881,6 +879,24 @@ public:
 
 signals:
     void validChanged(bool validState);
+
+    // Configuration changes, for the path choosers of this aspect.
+    void allowPathFromDeviceChanged(QPrivateSignal);
+    void baseDirectoryChanged(QPrivateSignal);
+    void commandVersionArgumentsChanged(QPrivateSignal);
+    void environmentChanged(QPrivateSignal);
+    void expectedKindChanged(QPrivateSignal);
+    void focusRequested(QPrivateSignal);
+    void historyCompleterChanged(QPrivateSignal);
+    void initialBrowsePathBackupChanged(QPrivateSignal);
+    void openTerminalHandlerChanged(QPrivateSignal);
+    void placeHolderTextChanged(QPrivateSignal);
+    void promptDialogFilterChanged(QPrivateSignal);
+    void promptDialogTitleChanged(QPrivateSignal);
+    void validatePlaceHolderChanged(QPrivateSignal);
+    void validationFunctionChanged(QPrivateSignal);
+    void validationRequested(QPrivateSignal);
+    void valueAlternativesChanged(QPrivateSignal);
 
 protected:
     bool isCheckable() const;
