@@ -15714,8 +15714,11 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
                                               [markerLine](const GdbMi &frame) {
         return frame["language"].data() == "js" && frame["line"].toInt() == markerLine;
     });
-    QVERIFY2(stoppedAtMarker, qPrintable(QString("no js frame at line %1 - stack: %2")
-                                             .arg(markerLine).arg(stack.toString())));
+    if (!stoppedAtMarker) {
+        QFAIL(qPrintable(QString("no js frame at line %1 - stack: %2\nwire traffic:\n  %3")
+                             .arg(markerLine)
+                             .arg(stack.toString(), wireTail(wire, wire.size()))));
+    }
 
     // The same stop as a plain stack refresh, where the QML frames are spliced
     // in rather than prepended. The stop lands in the service's notification
