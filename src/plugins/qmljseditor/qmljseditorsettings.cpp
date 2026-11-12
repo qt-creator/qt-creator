@@ -28,7 +28,6 @@
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/pathchooser.h>
 #include <utils/qtcsettings.h>
 #include <utils/treemodel.h>
 
@@ -417,8 +416,6 @@ void QdsInstallAspect::addToLayoutImpl(Layouting::Layout &parent)
         QmlJsEditingSettings &s = settings();
         const QString placeholder = s.defaultQdsCommand().toUserOutput();
         s.qdsCommand.setPlaceHolderText(placeholder);
-        if (PathChooser *chooser = s.qdsCommand.pathChooser())
-            chooser->setPlaceholderText(placeholder);
         row->setVisible(s.defaultQdsCommand().isEmpty() && updateInfoService());
     };
     // Do not show the not-yet-parented row; it would briefly pop up as a window.

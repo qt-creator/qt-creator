@@ -829,6 +829,18 @@ public:
     explicit QmllsClientSettingsWidget(QmllsClientSettings *settings, QWidget *parent = nullptr)
         : QWidget(parent)
     {
+        settings->executable.addButton(
+            Tr::tr("Download latest standalone qmlls"), this, [this, settings = QPointer(settings)] {
+                m_qmllsDownloader.start({downloadGithubQmlls()}, {}, [settings] {
+                    if (!settings)
+                        return;
+                    if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty()) {
+                        const_cast<QmllsClientSettings *>(settings.data())
+                            ->executable.setVolatileValue(path.toUserOutput());
+                    }
+                });
+            });
+
         using namespace Layouting;
         // clang-format off
         auto form = Column {
@@ -852,18 +864,6 @@ public:
             },
         };
         // clang-format on
-
-        settings->executable.pathChooser()->addButton(
-            Tr::tr("Download latest standalone qmlls"), this, [this, settings = QPointer(settings)] {
-                m_qmllsDownloader.start({downloadGithubQmlls()}, {}, [settings] {
-                    if (!settings)
-                        return;
-                    if (const Utils::FilePath path = evaluateGithubQmlls().first; !path.isEmpty()) {
-                        const_cast<QmllsClientSettings *>(settings.data())
-                            ->executable.setVolatileValue(path.toUserOutput());
-                    }
-                });
-            });
 
         auto updateExecutableEnabled = [settings]() {
             const bool enabled = settings->executableSelection.volatileValue() == QmllsClientSettings::FromUser;
