@@ -982,6 +982,9 @@ public:
                                               ? BoolAspect::LabelPlacement::InExtraLabel
                                               : BoolAspect::LabelPlacement::AtCheckBox);
         m_checked->setSettingsKey(checkerKey);
+        m_checked->setToolTip(aspect->toolTip());
+        QObject::connect(aspect, &BaseAspect::tooltipChanged,
+                         m_checked.get(), &BaseAspect::setToolTip);
         m_checked->addOnChanged(aspect, [aspect] {
             // FIXME: Check.
             aspect->valueToVolatileValue();
