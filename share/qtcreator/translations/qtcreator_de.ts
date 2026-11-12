@@ -60429,171 +60429,171 @@ Wählen Sie einen anderen Pfad.</translation>
     <name>QtC::QDoc</name>
     <message>
         <source>QDoc Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>QDoc-Editor</translation>
     </message>
     <message>
         <source>Show Editor</source>
-        <translation type="unfinished">Editor anzeigen</translation>
+        <translation>Editor anzeigen</translation>
     </message>
     <message>
         <source>Show Preview</source>
-        <translation type="unfinished">Vorschau anzeigen</translation>
+        <translation>Vorschau anzeigen</translation>
     </message>
     <message>
         <source>A command or macro QDoc does not know, usually a typo such as \macOS</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kommando oder Makro, das QDoc nicht kennt, meist ein Tippfehler wie \macOS</translation>
     </message>
     <message>
         <source>A command QDoc still accepts but advises replacing, such as \bold</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kommando, das QDoc noch akzeptiert, aber zu ersetzen empfiehlt, wie \bold</translation>
     </message>
     <message>
         <source>A missing &quot;}&quot;, \endcode, \endlist or other terminator</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein fehlendes &quot;}&quot;, \endcode, \endlist oder ein anderer Abschlussbefehl</translation>
     </message>
     <message>
         <source>\li outside a list or table, a stray \end..., \target outside a cell</source>
-        <translation type="unfinished"></translation>
+        <translation>\li außerhalb einer Liste oder Tabelle, ein verirrtes \end..., \target außerhalb einer Zelle</translation>
     </message>
     <message>
         <source>A command argument QDoc cannot use, or a required one that is missing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Kommandoargument, das QDoc nicht verwenden kann, oder ein fehlendes erforderliches Argument</translation>
     </message>
     <message>
         <source>An unrecognized \list style hint</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein unbekannter Stilhinweis für \list</translation>
     </message>
     <message>
         <source>\sa entries not separated by commas</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht durch Kommata getrennte \sa-Einträge</translation>
     </message>
     <message>
         <source>A full stop closing a \sa list, which QDoc drops and then reports as a missing comma</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Schlusspunkt am Ende einer \sa-Liste, den QDoc verwirft und dann als fehlendes Komma meldet</translation>
     </message>
     <message>
         <source>\sa naming no targets at all</source>
-        <translation type="unfinished"></translation>
+        <translation>\sa ohne jegliches Ziel</translation>
     </message>
     <message>
         <source>The same \target or \keyword name twice, making one unreachable</source>
-        <translation type="unfinished"></translation>
+        <translation>Derselbe Name für \target oder \keyword zweimal, wodurch einer unerreichbar wird</translation>
     </message>
     <message>
         <source>A macro invoked with too few arguments, or one with no definition</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Makro, das mit zu wenigen Argumenten aufgerufen wird, oder eines ohne Definition</translation>
     </message>
     <message>
         <source>A \code language not listed in codelanguages</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine \code-Sprache, die nicht in codelanguages aufgeführt ist</translation>
     </message>
     <message>
         <source>A \brief that does not end with a full stop, which is common in Qt</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein \brief, das nicht mit einem Schlusspunkt endet, was in Qt üblich ist</translation>
     </message>
     <message>
         <source>A .qdoc comment documenting nothing, with no \class, \page or similar</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein .qdoc-Kommentar, der nichts dokumentiert, ohne \class, \page oder Ähnliches</translation>
     </message>
     <message>
         <source>\a naming something absent from the signature</source>
-        <translation type="unfinished"></translation>
+        <translation>\a nennt etwas, das nicht in der Signatur vorkommt</translation>
     </message>
     <message>
         <source>\sa pointing at the thing being documented</source>
-        <translation type="unfinished"></translation>
+        <translation>\sa verweist auf das, was gerade dokumentiert wird</translation>
     </message>
     <message>
         <source>Problems inside text pulled in by a macro or \include, which is not written in this file</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme in Text, der durch ein Makro oder \include eingebunden wird und nicht in dieser Datei steht</translation>
     </message>
     <message>
         <source>An \image not found in imagedirs</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein \image, das nicht in imagedirs gefunden wird</translation>
     </message>
     <message>
         <source>A \snippet whose file or marker does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein \snippet, dessen Datei oder Markierung nicht existiert</translation>
     </message>
     <message>
         <source>An \include target that cannot be found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein \include-Ziel, das nicht gefunden werden kann</translation>
     </message>
     <message>
         <source>An \image with no textual description</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein \image ohne textuelle Beschreibung</translation>
     </message>
     <message>
         <source>A \printto or \skipto that matched nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein \printto oder \skipto ohne Treffer</translation>
     </message>
     <message>
         <source>A problem reading the .qdocconf: bad include(), missing =, unterminated string</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Problem beim Lesen der .qdocconf: fehlerhaftes include(), fehlendes =, nicht abgeschlossene Zeichenkette</translation>
     </message>
     <message>
         <source>A directory named by the .qdocconf that does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein in der .qdocconf genanntes Verzeichnis, das nicht existiert</translation>
     </message>
     <message>
         <source>A $variable the .qdocconf expands but nothing defines, which the documentation build usually passes in</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine $Variable, die die .qdocconf expandiert, aber nichts definiert, und die üblicherweise beim Erstellen der Dokumentation übergeben wird</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="unfinished">Aus</translation>
+        <translation>Aus</translation>
     </message>
     <message>
         <source>Hint</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Report markup problems</source>
-        <translation type="unfinished"></translation>
+        <translation>Markup-Probleme melden</translation>
     </message>
     <message>
         <source>Warnings the .qdocconf silences:</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnungen, die die .qdocconf unterdrückt:</translation>
     </message>
     <message>
         <source>Report One Level Quieter</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Stufe weniger strikt melden</translation>
     </message>
     <message>
         <source>Report as Usual</source>
-        <translation type="unfinished"></translation>
+        <translation>Wie üblich melden</translation>
     </message>
     <message>
         <source>Do Not Report</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht melden</translation>
     </message>
     <message>
         <source>in text pulled in by a macro or \include</source>
-        <translation type="unfinished"></translation>
+        <translation>in durch ein Makro oder \include eingebundenem Text</translation>
     </message>
     <message>
         <source>silenced by &quot;spurious&quot; in the .qdocconf</source>
-        <translation type="unfinished"></translation>
+        <translation>durch &quot;spurious&quot; in der .qdocconf unterdrückt</translation>
     </message>
     <message>
         <source>QDoc</source>
-        <translation type="unfinished"></translation>
+        <translation>QDoc</translation>
     </message>
     <message>
         <source>Problems in QDoc markup.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme im QDoc-Markup.</translation>
     </message>
 </context>
 <context>
@@ -60818,7 +60818,7 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>For qbs projects, mark the product installable (&quot;install: true&quot;) and set its install directory (&quot;qbs.installDir&quot;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Markieren Sie bei qbs-Projekten das Produkt als installierbar (&quot;install: true&quot;) und setzen Sie das Installationsverzeichnis (&quot;qbs.installDir&quot;).</translation>
     </message>
     <message>
         <source>Could not write project file &quot;%1&quot;: %2</source>
@@ -61338,7 +61338,7 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>The following snippet will be added to the file &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Der folgende Ausschnitt wird zur Datei &quot;%1&quot; hinzugefügt:</translation>
     </message>
     <message>
         <source>Platform:</source>
@@ -61712,7 +61712,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>For qmake projects, set &quot;target.path&quot; and add &quot;INSTALLS += target&quot; in the project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzen Sie bei qmake-Projekten &quot;target.path&quot; und fügen Sie &quot;INSTALLS += target&quot; in der Projektdatei hinzu.</translation>
     </message>
     <message>
         <source>Xcode Project (via qmake)</source>
@@ -61928,966 +61928,970 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Baking aborted: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Baking abgebrochen: %1</translation>
     </message>
     <message>
         <source>Baking finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Baking abgeschlossen.</translation>
     </message>
     <message>
         <source>Item</source>
-        <translation type="unfinished">Element</translation>
+        <translation>Element</translation>
     </message>
     <message>
         <source>Property</source>
-        <translation type="unfinished">Eigenschaft</translation>
+        <translation>Eigenschaft</translation>
     </message>
     <message>
         <source>Source Item</source>
-        <translation type="unfinished">Quell-Item</translation>
+        <translation>Quellelement</translation>
     </message>
     <message>
         <source>Source Property</source>
-        <translation type="unfinished">Quell-Eigenschaft</translation>
+        <translation>Quell-Eigenschaft</translation>
     </message>
     <message>
         <source>Cannot Create QtQuick View</source>
-        <translation type="unfinished">QtQuick View konnte nicht erzeugt werden</translation>
+        <translation>QtQuick View konnte nicht erzeugt werden</translation>
     </message>
     <message>
         <source>ConnectionsEditorWidget: %1 cannot be created: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>ConnectionsEditorWidget: %1 kann nicht erstellt werden: %2</translation>
     </message>
     <message>
         <source>Property Type</source>
-        <translation type="unfinished">Eigenschaftstyp</translation>
+        <translation>Eigenschaftstyp</translation>
     </message>
     <message>
         <source>Property Value</source>
-        <translation type="unfinished">Eigenschaftswert</translation>
+        <translation>Eigenschaftswert</translation>
     </message>
     <message>
         <source>Failed to Delete File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei konnte nicht gelöscht werden</translation>
     </message>
     <message>
         <source>Could not delete &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Assets Library</source>
         <comment>Title of assets library widget</comment>
-        <translation type="unfinished"></translation>
+        <translation>Asset-Bibliothek</translation>
     </message>
     <message>
         <source>Failed to Delete Effect Resources</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt-Ressourcen konnten nicht gelöscht werden</translation>
     </message>
     <message>
         <source>Failed to Move Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis konnte nicht verschoben werden</translation>
     </message>
     <message>
         <source>Failed to move folder &quot;%1&quot;. The folder might contain subfolders or one of its files is in use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis &quot;%1&quot; konnte nicht verschoben werden. Möglicherweise enthält es Unterverzeichnisse, oder eine seiner Dateien wird verwendet.</translation>
     </message>
     <message>
         <source>Failed to Add Files</source>
-        <translation type="unfinished">Dateien konnten nicht hinzugefügt werden</translation>
+        <translation>Dateien konnten nicht hinzugefügt werden</translation>
     </message>
     <message>
         <source>Could not add %1 to project.</source>
-        <translation type="unfinished">%1 konnte nicht zum Projekt hinzugefügt werden.</translation>
+        <translation>%1 konnte nicht zum Projekt hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Add Assets</source>
-        <translation type="unfinished">Assets hinzufügen</translation>
+        <translation>Assets hinzufügen</translation>
     </message>
     <message>
         <source>Could not add %1 to project. Unsupported file format.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht zum Projekt hinzugefügt werden. Nicht unterstütztes Dateiformat.</translation>
     </message>
     <message>
         <source>Binding Editor</source>
-        <translation type="unfinished">Binding-Editor</translation>
+        <translation>Binding-Editor</translation>
     </message>
     <message>
         <source>NOT</source>
         <extracomment>boolean expression (probably better do not translate)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>NOT</translation>
     </message>
     <message>
         <source>Invert the boolean expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>Den booleschen Ausdruck umkehren.</translation>
     </message>
     <message>
         <source>Item ID</source>
-        <translation type="unfinished"></translation>
+        <translation>Element-ID</translation>
     </message>
     <message>
         <source>Signal</source>
-        <translation type="unfinished">Signal</translation>
+        <translation>Signal</translation>
     </message>
     <message>
         <source>Signal List for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Signalliste für %1</translation>
     </message>
     <message>
         <source>&lt;Filter&gt;</source>
         <comment>Library search input hint text</comment>
-        <translation type="unfinished">&lt;Filter&gt;</translation>
+        <translation>&lt;Filter&gt;</translation>
     </message>
     <message>
         <source>File Name</source>
-        <translation type="unfinished">Dateiname</translation>
+        <translation>Dateiname</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Größe</translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <source>Add Resources</source>
-        <translation type="unfinished">Ressourcen hinzufügen</translation>
+        <translation>Ressourcen hinzufügen</translation>
     </message>
     <message>
         <source>Target Directory</source>
-        <translation type="unfinished">Zielverzeichnis</translation>
+        <translation>Zielverzeichnis</translation>
     </message>
     <message>
         <source>Failed to Add Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>Textur konnte nicht hinzugefügt werden</translation>
     </message>
     <message>
         <source>Document Has Errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument enthält Fehler</translation>
     </message>
     <message>
         <source>The document which contains the list model contains errors. So we cannot edit it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Dokument, das das Listenmodell enthält, enthält Fehler. Daher kann es nicht bearbeitet werden.</translation>
     </message>
     <message>
         <source>Document Cannot Be Written</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument kann nicht geschrieben werden</translation>
     </message>
     <message>
         <source>An error occurred during a write attemp.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Schreiben trat ein Fehler auf.</translation>
     </message>
     <message>
         <source>Invalid Id</source>
-        <translation type="unfinished">Ungültige ID</translation>
+        <translation>Ungültige ID</translation>
     </message>
     <message>
         <source>Go to Implementation</source>
-        <translation type="unfinished">Zu Implementierung gehen</translation>
+        <translation>Zu Implementierung gehen</translation>
     </message>
     <message>
         <source>Invalid component.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Komponente.</translation>
     </message>
     <message>
         <source>Cannot find an implementation.</source>
-        <translation type="unfinished">Keine Implementierung gefunden.</translation>
+        <translation>Keine Implementierung gefunden.</translation>
     </message>
     <message>
         <source>Cannot Set Property %1</source>
-        <translation type="unfinished">Eigenschaft %1 kann nicht zugewiesen werden</translation>
+        <translation>Eigenschaft %1 kann nicht zugewiesen werden</translation>
     </message>
     <message>
         <source>The property %1 is bound to an expression.</source>
-        <translation type="unfinished">Die Eigenschaft %1 ist an einen Ausdruck gebunden.</translation>
+        <translation>Die Eigenschaft %1 ist an einen Ausdruck gebunden.</translation>
     </message>
     <message>
         <source>Overwrite Existing File?</source>
-        <translation type="unfinished"></translation>
+        <translation>Existierende Datei überschreiben?</translation>
     </message>
     <message>
         <source>File already exists. Overwrite?
 &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei existiert bereits. Überschreiben?
+&quot;%1&quot;</translation>
     </message>
     <message>
         <source>Merge With Template</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Vorlage zusammenführen</translation>
     </message>
     <message>
         <source>Template:</source>
-        <translation type="unfinished">Template:</translation>
+        <translation>Vorlage:</translation>
     </message>
     <message>
         <source>Browse Template</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage auswählen</translation>
     </message>
     <message>
         <source>Effect file &quot;%1&quot; not found in the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Effekt-Datei &quot;%1&quot; wurde im Projekt nicht gefunden.</translation>
     </message>
     <message>
         <source>Asset %1 is not complete.</source>
-        <translation type="unfinished"></translation>
+        <translation>Asset %1 ist unvollständig.</translation>
     </message>
     <message>
         <source>Please reimport the asset.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte importieren Sie das Asset erneut.</translation>
     </message>
     <message>
         <source>Failed to Add Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild konnte nicht hinzugefügt werden</translation>
     </message>
     <message>
         <source>Effect %1 is not complete.</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekt %1 ist unvollständig.</translation>
     </message>
     <message>
         <source>Ensure that you have saved it in the Effect Composer.
 Do you want to edit this effect?</source>
-        <translation type="unfinished"></translation>
+        <translation>Stellen Sie sicher, dass Sie ihn im Effect Composer gespeichert haben.
+Möchten Sie diesen Effekt bearbeiten?</translation>
     </message>
     <message>
         <source>Exposed Custom Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Veröffentlichte benutzerdefinierte Eigenschaften</translation>
     </message>
     <message>
         <source>Start Nanotrace</source>
-        <translation type="unfinished"></translation>
+        <translation>Nanotrace starten</translation>
     </message>
     <message>
         <source>Shut Down Nanotrace</source>
-        <translation type="unfinished"></translation>
+        <translation>Nanotrace beenden</translation>
     </message>
     <message>
         <source>Bake Lights</source>
-        <translation type="unfinished"></translation>
+        <translation>Baking für Lichter durchführen</translation>
     </message>
     <message>
         <source>Bake lights for the current 3D scene.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt das Baking für die Lichter der aktuellen 3D-Szene durch.</translation>
     </message>
     <message>
         <source>Select Background Color</source>
-        <translation type="unfinished">Hintergrundfarbe auswählen</translation>
+        <translation>Hintergrundfarbe auswählen</translation>
     </message>
     <message>
         <source>Select a color for the background of the 3D view.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählt eine Farbe für den Hintergrund der 3D-Ansicht aus.</translation>
     </message>
     <message>
         <source>Select Grid Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Rasterfarbe auswählen</translation>
     </message>
     <message>
         <source>Select a color for the grid lines of the 3D view.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählt eine Farbe für die Rasterlinien der 3D-Ansicht aus.</translation>
     </message>
     <message>
         <source>Reset Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Farben zurücksetzen</translation>
     </message>
     <message>
         <source>Reset the background color and the color of the grid lines of the 3D view to the default values.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt die Hintergrundfarbe und die Farbe der Rasterlinien der 3D-Ansicht auf die Vorgabewerte zurück.</translation>
     </message>
     <message>
         <source>Use Scene Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Szenenumgebung verwenden</translation>
     </message>
     <message>
         <source>Sets the 3D view to use the Scene Environment color or skybox as background color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lässt die 3D-Ansicht die Farbe oder Skybox der Szenenumgebung als Hintergrund verwenden.</translation>
     </message>
     <message>
         <source>Single</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzeln</translation>
     </message>
     <message>
         <source>Quad</source>
-        <translation type="unfinished"></translation>
+        <translation>Vierfach</translation>
     </message>
     <message>
         <source>3 Left 1 Right</source>
-        <translation type="unfinished"></translation>
+        <translation>3 links 1 rechts</translation>
     </message>
     <message>
         <source>2 Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>2 horizontal</translation>
     </message>
     <message>
         <source>2 Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>2 vertikal</translation>
     </message>
     <message>
         <source>Toggle Group/Single Selection Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwischen Gruppen- und Einzelauswahl umschalten</translation>
     </message>
     <message>
         <source>Activate Move Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Verschiebewerkzeug aktivieren</translation>
     </message>
     <message>
         <source>Activate Rotate Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Drehwerkzeug aktivieren</translation>
     </message>
     <message>
         <source>Activate Scale Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Skalierungswerkzeug aktivieren</translation>
     </message>
     <message>
         <source>Fit Selected Object to View</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewähltes Objekt in Ansicht einpassen</translation>
     </message>
     <message>
         <source>Align Cameras to View</source>
-        <translation type="unfinished"></translation>
+        <translation>Kameras an Ansicht ausrichten</translation>
     </message>
     <message>
         <source>Align View to Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht an Kamera ausrichten</translation>
     </message>
     <message>
         <source>Toggle Perspective/Orthographic Camera Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwischen perspektivischer und orthografischer Kamera umschalten</translation>
     </message>
     <message>
         <source>Toggle Global/Local Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwischen globaler und lokaler Ausrichtung umschalten</translation>
     </message>
     <message>
         <source>Toggle Edit Light On/Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeitungslicht ein-/ausschalten</translation>
     </message>
     <message>
         <source>Show Grid</source>
-        <translation type="unfinished"></translation>
+        <translation>Raster anzeigen</translation>
     </message>
     <message>
         <source>Toggle the visibility of the helper grid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltet die Sichtbarkeit des Hilfsrasters um.</translation>
     </message>
     <message>
         <source>Show Look-at</source>
-        <translation type="unfinished"></translation>
+        <translation>Blickpunkt anzeigen</translation>
     </message>
     <message>
         <source>Toggle the visibility of the edit camera look-at indicator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltet die Sichtbarkeit der Blickpunktanzeige der Bearbeitungskamera um.</translation>
     </message>
     <message>
         <source>Show Selection Boxes</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahlrahmen anzeigen</translation>
     </message>
     <message>
         <source>Toggle the visibility of selection boxes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltet die Sichtbarkeit der Auswahlrahmen um.</translation>
     </message>
     <message>
         <source>Show Icon Gizmos</source>
-        <translation type="unfinished"></translation>
+        <translation>Icon-Gizmos anzeigen</translation>
     </message>
     <message>
         <source>Toggle the visibility of icon gizmos, such as light and camera icons.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltet die Sichtbarkeit von Icon-Gizmos wie Licht- und Kamerasymbolen um.</translation>
     </message>
     <message>
         <source>Always Show Camera Frustums</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera-Frustums immer anzeigen</translation>
     </message>
     <message>
         <source>Toggle between always showing the camera frustum visualization and only showing it when the camera is selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltet zwischen ständiger Anzeige des Kamera-Frustums und Anzeige nur bei ausgewählter Kamera um.</translation>
     </message>
     <message>
         <source>Always Show Particle Emitters and Attractors</source>
-        <translation type="unfinished"></translation>
+        <translation>Partikel-Emitter und -Attraktoren immer anzeigen</translation>
     </message>
     <message>
         <source>Toggle Particle Animation On/Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Partikelanimation ein-/ausschalten</translation>
     </message>
     <message>
         <source>Toggle Snapping During Node Drag</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrasten beim Ziehen von Knoten umschalten</translation>
     </message>
     <message>
         <source>Open Snap Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration des Einrastens öffnen</translation>
     </message>
     <message>
         <source>Show Viewport Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Viewport-Modi anzeigen</translation>
     </message>
     <message>
         <source>Open Camera Speed Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration der Kamerageschwindigkeit öffnen</translation>
     </message>
     <message>
         <source>Toggle between always showing the particle emitter and attractor visualizations and only showing them when the emitter or attractor is selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schaltet zwischen ständiger Anzeige von Partikel-Emittern und -Attraktoren und Anzeige nur bei ausgewähltem Emitter oder Attraktor um.</translation>
     </message>
     <message>
         <source>Play Particles</source>
-        <translation type="unfinished"></translation>
+        <translation>Partikel abspielen</translation>
     </message>
     <message>
         <source>Restart Particles</source>
-        <translation type="unfinished"></translation>
+        <translation>Partikel neu starten</translation>
     </message>
     <message>
         <source>Reset View</source>
-        <translation type="unfinished">Ansicht zurücksetzen</translation>
+        <translation>Ansicht zurücksetzen</translation>
     </message>
     <message>
         <source>Visibility Toggles</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtbarkeitsschalter</translation>
     </message>
     <message>
         <source>Background Color Actions</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktionen für Hintergrundfarbe</translation>
     </message>
     <message>
         <source>Show Event List</source>
-        <translation type="unfinished"></translation>
+        <translation>Ereignisliste anzeigen</translation>
     </message>
     <message>
         <source>Assign Events to Actions</source>
-        <translation type="unfinished"></translation>
+        <translation>Ereignisse Aktionen zuordnen</translation>
     </message>
     <message>
         <source>Set the color of the canvas.</source>
-        <translation type="unfinished">Die Farbe der Leinwand einstellen</translation>
+        <translation>Die Farbe der Leinwand einstellen.</translation>
     </message>
     <message>
         <source>Annotation</source>
-        <translation type="unfinished">Annotation</translation>
+        <translation>Annotation</translation>
     </message>
     <message>
         <source>Edit Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation bearbeiten</translation>
     </message>
     <message>
         <source>Remove Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation entfernen</translation>
     </message>
     <message>
         <source>By: </source>
-        <translation type="unfinished"></translation>
+        <translation>Von: </translation>
     </message>
     <message>
         <source>Edited: </source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeitet: </translation>
     </message>
     <message>
         <source>Delete this annotation?</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Annotation löschen?</translation>
     </message>
     <message>
         <source>2D</source>
-        <translation type="unfinished">2D</translation>
+        <translation>2D</translation>
     </message>
     <message>
         <source>2D view</source>
-        <translation type="unfinished"></translation>
+        <translation>2D-Ansicht</translation>
     </message>
     <message>
         <source>%1 is not supported as the root element by the 2D view.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wird von der 2D-Ansicht nicht als Wurzelelement unterstützt.</translation>
     </message>
     <message>
         <source>No Snapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Einrasten</translation>
     </message>
     <message>
         <source>Snap with Anchors</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Ankern einrasten</translation>
     </message>
     <message>
         <source>Snap Without Anchors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ohne Anker einrasten</translation>
     </message>
     <message>
         <source>Show Bounds</source>
-        <translation type="unfinished"></translation>
+        <translation>Begrenzungen anzeigen</translation>
     </message>
     <message>
         <source>Override Width</source>
-        <translation type="unfinished">Breite überschreiben</translation>
+        <translation>Breite überschreiben</translation>
     </message>
     <message>
         <source>Override width of root component.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibt die Breite der Wurzelkomponente.</translation>
     </message>
     <message>
         <source>Override Height</source>
-        <translation type="unfinished">Höhe überschreiben</translation>
+        <translation>Höhe überschreiben</translation>
     </message>
     <message>
         <source>Override height of root component.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibt die Höhe der Wurzelkomponente.</translation>
     </message>
     <message>
         <source>Ctrl+Alt+I</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+I</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <source>Start Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Startframe</translation>
     </message>
     <message>
         <source>End Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Endframe</translation>
     </message>
     <message>
         <source>Current Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Frame</translation>
     </message>
     <message>
         <source>Zoom In</source>
-        <translation type="unfinished">Vergrößern</translation>
+        <translation>Vergrößern</translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished">Verkleinern</translation>
+        <translation>Verkleinern</translation>
     </message>
     <message>
         <source>Zoom screen to fit all content.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht so zoomen, dass der gesamte Inhalt passt.</translation>
     </message>
     <message>
         <source>Ctrl+Alt+0</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+0</translation>
     </message>
     <message>
         <source>Zoom screen to fit current selection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht so zoomen, dass die aktuelle Auswahl passt.</translation>
     </message>
     <message>
         <source>Reload View</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht neu laden</translation>
     </message>
     <message>
         <source>Export Current QML File as Image</source>
-        <translation type="unfinished">Aktuelle QML-Datei als Bild exportieren</translation>
+        <translation>Aktuelle QML-Datei als Bild exportieren</translation>
     </message>
     <message>
         <source>PNG (*.png);;JPG (*.jpg)</source>
-        <translation type="unfinished">PNG (*.png);;JPG (*.jpg)</translation>
+        <translation>PNG (*.png);;JPG (*.jpg)</translation>
     </message>
     <message>
         <source>Asset import data file &quot;%1&quot; is invalid.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei mit Asset-Importdaten &quot;%1&quot; ist ungültig.</translation>
     </message>
     <message>
         <source>Unable to locate source scene &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Quellszene &quot;%1&quot; kann nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Opening asset import data file &quot;%1&quot; failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei mit Asset-Importdaten &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Unable to resolve asset import path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Asset-Importpfad kann nicht aufgelöst werden.</translation>
     </message>
     <message>
         <source>Import Update Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisierung des Imports fehlgeschlagen</translation>
     </message>
     <message>
         <source>Failed to update import.
 Error:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Import konnte nicht aktualisiert werden.
+Fehler:
+%1</translation>
     </message>
     <message>
         <source>%1 already exists.</source>
-        <translation type="unfinished">%1 existiert bereits.</translation>
+        <translation>%1 existiert bereits.</translation>
     </message>
     <message>
         <source>Unknown component: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannte Komponente: %1</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Reparenting the component %1 here will cause the component %2 to be deleted. Do you want to proceed?</source>
-        <translation type="unfinished">Das Verschieben der Komponente %1 an diese Stelle bewirkt das Löschen der Komponente %2. Möchten Sie den Vorgang fortsetzen?</translation>
+        <translation>Das Verschieben der Komponente %1 an diese Stelle bewirkt das Löschen der Komponente %2. Möchten Sie den Vorgang fortsetzen?</translation>
     </message>
     <message>
         <source>ref: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ref: %1</translation>
     </message>
     <message>
         <source>Edit Path</source>
-        <translation type="unfinished">Pfad bearbeiten</translation>
+        <translation>Pfad bearbeiten</translation>
     </message>
     <message>
         <source>Path Tool</source>
-        <translation type="unfinished">Pfad-Werkzeug</translation>
+        <translation>Pfad-Werkzeug</translation>
     </message>
     <message>
         <source>Text Tool</source>
-        <translation type="unfinished">Textwerkzeug</translation>
+        <translation>Textwerkzeug</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine</translation>
     </message>
     <message>
         <source>Base State</source>
-        <translation type="unfinished">Grundzustand</translation>
+        <translation>Grundzustand</translation>
     </message>
     <message>
         <source>QML Puppet, the process used to emulate the QML runtime, has stopped unexpectedly.</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Puppet, der Prozess zur Emulation der QML-Laufzeitumgebung, wurde unerwartet beendet.</translation>
     </message>
     <message>
         <source>Source item: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Quellelement: %1</translation>
     </message>
     <message>
         <source>Failed to generate QSB file for: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>QSB-Datei konnte nicht erzeugt werden für: %1.</translation>
     </message>
     <message>
         <source>Puppet is starting...</source>
-        <translation type="unfinished">Puppet wird gestartet...</translation>
+        <translation>Puppet wird gestartet...</translation>
     </message>
     <message>
         <source>You can now attach your debugger to the %1(%2) QML Puppet with process id: %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können Ihren Debugger jetzt an die %1(%2) QML Puppet mit der Prozess-ID %3 anhängen.</translation>
     </message>
     <message>
         <source>Qt Quick Designer</source>
-        <translation type="unfinished">Qt Quick-Designer</translation>
+        <translation>Qt Quick-Designer</translation>
     </message>
     <message>
         <source>Cannot Open Design Mode</source>
-        <translation type="unfinished">Design-Modus kann nicht geöffnet werden</translation>
+        <translation>Design-Modus kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>The QML file is not currently opened in a QML Editor.</source>
-        <translation type="unfinished">Die QML-Datei ist in keinem QML-Editor geöffnet.</translation>
+        <translation>Die QML-Datei ist in keinem QML-Editor geöffnet.</translation>
     </message>
     <message>
         <source>Enable smooth rendering in the 2D view.</source>
-        <translation type="unfinished"></translation>
+        <translation>Weiches Rendern in der 2D-Ansicht aktivieren.</translation>
     </message>
     <message>
         <source>Default style</source>
-        <translation type="unfinished">Vorgabestil</translation>
+        <translation>Vorgabestil</translation>
     </message>
     <message>
         <source>Reset Style</source>
-        <translation type="unfinished">Stil zurücksetzen</translation>
+        <translation>Stil zurücksetzen</translation>
     </message>
     <message>
         <source>Always save when leaving subcomponent in bread crumb</source>
-        <translation type="unfinished">Immer speichern, wenn eine Subkomponente per Breadcrumb Navigation verlassen wird</translation>
+        <translation>Immer speichern, wenn eine Subkomponente per Breadcrumb Navigation verlassen wird</translation>
     </message>
     <message>
         <source>Warn about unsupported features of .ui.qml files in code editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Code-Editor vor nicht unterstützten Funktionen in .ui.qml-Dateien warnen</translation>
     </message>
     <message>
         <source>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</source>
-        <translation type="unfinished">Zeigt auch im Code-Editor eine Warnung bei QML-Funktionen an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
+        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Funktionen an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
     </message>
     <message>
         <source>Warn about unsupported features in .ui.qml files</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor nicht unterstützten Funktionen in .ui.qml-Dateien warnen</translation>
     </message>
     <message>
         <source>Warns about QML features that are not properly supported by the Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnt vor QML-Funktionen, die von Qt Design Studio nicht vollständig unterstützt werden.</translation>
     </message>
     <message>
         <source>Warn about using .qml files instead of .ui.qml files</source>
-        <translation type="unfinished">Bei der Verwendung von .qml-Dateien statt .ui.qml-Dateien warnen</translation>
+        <translation>Bei der Verwendung von .qml-Dateien statt .ui.qml-Dateien warnen</translation>
     </message>
     <message>
         <source>Qt Quick Designer will propose to open .ui.qml files instead of opening a .qml file.</source>
-        <translation type="unfinished">Qt Quick Designer wird vorschlagen, .ui.qml-Dateien statt einer .qml-Datei zu öffnen.</translation>
+        <translation>Qt Quick Designer wird vorschlagen, .ui.qml-Dateien statt einer .qml-Datei zu öffnen.</translation>
     </message>
     <message>
         <source>qsTr()</source>
-        <translation type="unfinished">qsTr()</translation>
+        <translation>qsTr()</translation>
     </message>
     <message>
         <source>qsTrId()</source>
-        <translation type="unfinished">qsTrId()</translation>
+        <translation>qsTrId()</translation>
     </message>
     <message>
         <source>qsTranslate()</source>
-        <translation type="unfinished">qsTranslate()</translation>
+        <translation>qsTranslate()</translation>
     </message>
     <message>
         <source>Always open ui.qml files in Design mode</source>
-        <translation type="unfinished">ui.qml-Dateien immer im Design-Modus öffnen</translation>
+        <translation>ui.qml-Dateien immer im Design-Modus öffnen</translation>
     </message>
     <message>
         <source>Ask for confirmation before deleting asset</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Löschen eines Assets nachfragen</translation>
     </message>
     <message>
         <source>Ask for confirmation before deleting content library files</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Löschen von Dateien der Content-Bibliothek nachfragen</translation>
     </message>
     <message>
         <source>Always auto-format ui.qml files in Design mode</source>
-        <translation type="unfinished"></translation>
+        <translation>ui.qml-Dateien im Design-Modus immer automatisch formatieren</translation>
     </message>
     <message>
         <source>Enable Timeline editor</source>
-        <translation type="unfinished">Timeline-Editor aktivieren</translation>
+        <translation>Timeline-Editor aktivieren</translation>
     </message>
     <message>
         <source>Enable DockWidget content minimum size</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale Größe für DockWidget-Inhalte aktivieren</translation>
     </message>
     <message>
         <source>Debugging</source>
-        <translation type="unfinished">Debuggen</translation>
+        <translation>Debuggen</translation>
     </message>
     <message>
         <source>Show the debugging view</source>
-        <translation type="unfinished">Debugansicht anzeigen</translation>
+        <translation>Debugansicht anzeigen</translation>
     </message>
     <message>
         <source>Show property editor warnings</source>
-        <translation type="unfinished">Zeige Warnungen des Eigenschafteneditors</translation>
+        <translation>Zeige Warnungen des Eigenschafteneditors</translation>
     </message>
     <message>
         <source>Enable the debugging view</source>
-        <translation type="unfinished">Debugansicht aktivieren</translation>
+        <translation>Debugansicht aktivieren</translation>
     </message>
     <message>
         <source>Show warn exceptions</source>
-        <translation type="unfinished">Zeige Warnungsausnahmen</translation>
+        <translation>Zeige Warnungsausnahmen</translation>
     </message>
     <message>
         <source>Forward QML Puppet output:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe der QML Puppet weiterleiten:</translation>
     </message>
     <message>
         <source>Debug QML Puppet:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Puppet debuggen:</translation>
     </message>
     <message>
         <source>Snapping</source>
-        <translation type="unfinished">Raster</translation>
+        <translation>Einrasten</translation>
     </message>
     <message>
         <source>Parent component padding:</source>
-        <translation type="unfinished"></translation>
+        <translation>Innenabstand der Elternkomponente:</translation>
     </message>
     <message>
         <source>Sibling component spacing:</source>
-        <translation type="unfinished"></translation>
+        <translation>Abstand zwischen benachbarten Komponenten:</translation>
     </message>
     <message>
         <source>Canvas</source>
-        <translation type="unfinished">Leinwand</translation>
+        <translation>Leinwand</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished">Breite:</translation>
+        <translation>Breite:</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation type="unfinished">Höhe:</translation>
+        <translation>Höhe:</translation>
     </message>
     <message>
         <source>Smooth rendering:</source>
-        <translation type="unfinished"></translation>
+        <translation>Weiches Rendern:</translation>
     </message>
     <message>
         <source>Root Component Init Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfangsgröße der Wurzelkomponente</translation>
     </message>
     <message>
         <source>Styling</source>
-        <translation type="unfinished">Stil</translation>
+        <translation>Stil</translation>
     </message>
     <message>
         <source>Controls style:</source>
-        <translation type="unfinished">Controls Stil:</translation>
+        <translation>Controls Stil:</translation>
     </message>
     <message>
         <source>Controls 2 style:</source>
-        <translation type="unfinished">Controls-2-Stil:</translation>
+        <translation>Controls-2-Stil:</translation>
     </message>
     <message>
         <source>Subcomponents</source>
-        <translation type="unfinished">Subkomponenten</translation>
+        <translation>Subkomponenten</translation>
     </message>
     <message>
         <source>Warnings</source>
-        <translation type="unfinished">Warnungen</translation>
+        <translation>Warnungen</translation>
     </message>
     <message>
         <source>Internationalization</source>
-        <translation type="unfinished">Internationalisierung</translation>
+        <translation>Internationalisierung</translation>
     </message>
     <message>
         <source>Features</source>
-        <translation type="unfinished">Zusatzfunktionen</translation>
+        <translation>Funktionen</translation>
     </message>
     <message>
         <source>Restart Required</source>
-        <translation type="unfinished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>The made changes will take effect after a restart of the QML Puppet or %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderungen werden nach einem Neustart der QML Puppet oder von %1 wirksam.</translation>
     </message>
     <message>
         <source>Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotationseditor</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Titel</translation>
+        <translation>Titel</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <source>Global Annotation Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor für globale Annotationen</translation>
     </message>
     <message>
         <source>Global Annotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale Annotation</translation>
     </message>
     <message>
         <source>All Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Annotationen</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Release</translation>
+        <translation>Release</translation>
     </message>
     <message>
         <source>Connect</source>
-        <translation type="unfinished">Verbinden</translation>
+        <translation>Verbinden</translation>
     </message>
     <message>
         <source>Color Tool</source>
-        <translation type="unfinished">Farbwerkzeug</translation>
+        <translation>Farbwerkzeug</translation>
     </message>
     <message>
         <source>Failed to Add Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Import konnte nicht hinzugefügt werden</translation>
     </message>
     <message>
         <source>Could not add QtQuick3D import to the document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der QtQuick3D-Import konnte nicht zum Dokument hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Open Style Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Stil-Editor öffnen</translation>
     </message>
     <message>
         <source>Insert Keyframe</source>
-        <translation type="unfinished">Keyframe einfügen</translation>
+        <translation>Keyframe einfügen</translation>
     </message>
     <message>
         <source>Delete Selected Keyframes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Keyframes löschen</translation>
     </message>
     <message>
         <source>Invalid QML Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige QML-Quelle</translation>
     </message>
     <message>
         <source>Not Supported for MCUs</source>
-        <translation type="unfinished"></translation>
+        <translation>Für MCUs nicht unterstützt</translation>
     </message>
     <message>
         <source>Timeline Settings</source>
-        <translation type="unfinished">Timeline-Einstellungen</translation>
+        <translation>Zeitleiste-Einstellungen</translation>
     </message>
     <message>
         <source>Previous Frame</source>
-        <translation type="unfinished">Voriger Frame</translation>
+        <translation>Vorheriger Frame</translation>
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished">Abspielen</translation>
+        <translation>Abspielen</translation>
     </message>
     <message>
         <source>Next Frame</source>
-        <translation type="unfinished">Nächster Frame</translation>
+        <translation>Nächster Frame</translation>
     </message>
     <message>
         <source>Loop Playback</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedergabe wiederholen</translation>
     </message>
     <message>
         <source>Playback Speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiedergabegeschwindigkeit</translation>
     </message>
     <message>
         <source>Timeline Current Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktueller Frame der Timeline</translation>
     </message>
     <message>
         <source>Auto Key</source>
-        <translation type="unfinished">Auto Key</translation>
+        <translation>Auto Key</translation>
     </message>
     <message>
         <source>Timeline First Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Erster Frame der Zeitleiste</translation>
     </message>
     <message>
         <source>Timeline Last Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzter Frame der Zeitleiste</translation>
     </message>
     <message>
         <source>Missing type %1 name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlender Name des Typs %1.</translation>
     </message>
     <message>
         <source>Missing default property: %1 in type %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Vorgabe-Eigenschaft %1 in Typ %2.</translation>
     </message>
     <message>
         <source>Missing property %1 in type %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Eigenschaft %1 in Typ %2.</translation>
     </message>
     <message>
         <source>Not existing Qml Document %1 for type %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht existierendes QML-Dokument %1 für Typ %2.</translation>
     </message>
     <message>
         <source>Not existing Qmltypes File %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht existierende qmltypes-Datei %1.</translation>
     </message>
     <message>
         <source>Prototype cycle detected for type %1 in %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prototyp-Zyklus für Typ %1 in %2 erkannt.</translation>
     </message>
     <message>
         <source>Alias cycle detected for type %1 and property %2 in %3.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alias-Zyklus für Typ %1 und Eigenschaft %2 in %3 erkannt.</translation>
     </message>
     <message>
         <source>Exported name %1 is duplicate in module %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der exportierte Name %1 ist in Modul %2 mehrfach vorhanden.</translation>
     </message>
     <message>
         <source>Exported type %1 is in a different directory than the module %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der exportierte Typ %1 liegt in einem anderen Verzeichnis als das Modul %2.</translation>
     </message>
 </context>
 <context>
@@ -63960,7 +63964,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>No PySide import paths were found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine PySide-Importpfade gefunden.</translation>
     </message>
     <message>
         <source>Use Global Settings</source>
@@ -64037,11 +64041,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     <message>
         <source>Set the path to the Qt Design Studio application to enable the &quot;Open in Qt Design Studio&quot; feature. If Qt Design Studio was installed alongside Qt Creator with the Qt Online Installer, it is used by default. If Qt Creator was installed separately, select %1 to link it with a Qt installation from the Qt Online Installer.</source>
         <extracomment>%1 is a link labeled &quot;Link with Qt&quot;.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setzen Sie den Pfad zur Qt Design Studio-Anwendung, um die Funktion &quot;In Qt Design Studio öffnen&quot; zu aktivieren. Wenn Qt Design Studio zusammen mit Qt Creator über den Qt Online Installer installiert wurde, wird es standardmäßig verwendet. Wenn Qt Creator separat installiert wurde, wählen Sie %1, um es mit einer Qt-Installation aus dem Qt Online Installer zu verknüpfen.</translation>
     </message>
     <message>
         <source>Link with Qt</source>
-        <translation type="unfinished">Mit Qt verknüpfen</translation>
+        <translation>Mit Qt verknüpfen</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -64188,7 +64192,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QML runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Laufzeitumgebung</translation>
     </message>
     <message>
         <source>Qt Quick</source>
@@ -64316,7 +64320,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>qmlformat not found. Using fallback output options.</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlformat wurde nicht gefunden. Verwende Fallback-Ausgabeoptionen.</translation>
     </message>
     <message>
         <source>Preview</source>
@@ -64589,7 +64593,7 @@ Bereinigen Sie bitte vor dem erneuten Erstellen das Build-Verzeichnis.
     </message>
     <message>
         <source>Failed to generate deployable package.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das bereitstellbare Paket konnte nicht erzeugt werden.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -64633,13 +64637,15 @@ Bereinigen Sie bitte vor dem erneuten Erstellen das Build-Verzeichnis.
     </message>
     <message>
         <source>Generating deployable package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge bereitstellbares Paket...</translation>
     </message>
     <message>
         <source>Failed to generate deployable package.
 
 For more information, see General Messages.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das bereitstellbare Paket konnte nicht erzeugt werden.
+
+Weitere Informationen finden Sie in den Allgemeinen Ausgaben.</translation>
     </message>
     <message>
         <source>Successfully generated deployable package.</source>
@@ -64752,19 +64758,19 @@ For more information, see General Messages.</source>
     </message>
     <message>
         <source>QCC for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QCC für %1</translation>
     </message>
     <message>
         <source>QNX Debugger (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>QNX-Debugger (%1)</translation>
     </message>
     <message>
         <source>Found QNX debugger: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>QNX-Debugger gefunden: %1</translation>
     </message>
     <message>
         <source>Searching for QNX debuggers...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche QNX-Debugger...</translation>
     </message>
     <message>
         <source>Remote QNX process %1</source>
@@ -64780,7 +64786,7 @@ For more information, see General Messages.</source>
     </message>
     <message>
         <source>QNX sdpenv.sh</source>
-        <translation type="unfinished"></translation>
+        <translation>QNX sdpenv.sh</translation>
     </message>
     <message>
         <source>File suffix does not match OS type.</source>
@@ -64853,7 +64859,7 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Deployment failed. Make sure the device has enough free disk space and that the remote directory &quot;%1&quot; is writable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Deployment ist fehlgeschlagen. Stellen Sie sicher, dass das Gerät genügend freien Speicherplatz hat und dass das entfernte Verzeichnis &quot;%1&quot; schreibbar ist.</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
@@ -65030,7 +65036,7 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>%1 (reading information...)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (lese Informationen...)</translation>
     </message>
     <message>
         <source>Error</source>
@@ -65068,7 +65074,7 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Select a qtpaths or qmake Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare qtpaths- oder qmake-Datei auswählen</translation>
     </message>
     <message>
         <source>Qt Version Already Known</source>
@@ -65076,7 +65082,7 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Clone</source>
-        <translation type="unfinished">Klonen</translation>
+        <translation>Klonen</translation>
     </message>
     <message>
         <source>Incompatible Qt Versions</source>
@@ -65112,15 +65118,15 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>%1 Not Executable</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nicht ausführbar</translation>
     </message>
     <message>
         <source>The %1 executable &quot;%2&quot; could not be added: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare %1-Datei &quot;%2&quot; konnte nicht hinzugefügt werden: %3</translation>
     </message>
     <message>
         <source>Reading Qt version information...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lese Informationen zur Qt-Version...</translation>
     </message>
     <message>
         <source>Qt installation information was not found in &quot;%1&quot;. Choose a directory that contains one of the files %2</source>
@@ -65393,16 +65399,16 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>No qtpaths or qmake path set</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Pfad zu qtpaths oder qmake gesetzt</translation>
     </message>
     <message>
         <source>&quot;%1&quot; does not exist or is not executable</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; existiert nicht oder ist nicht ausführbar</translation>
     </message>
     <message>
         <source>The qtpaths or qmake command &quot;%1&quot; was not found or is not executable.</source>
         <extracomment>%1: Path to qtpaths or qmake executable</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Das qtpaths- oder qmake-Kommando &quot;%1&quot; wurde nicht gefunden oder ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Timeout running &quot;%1&quot;.</source>
@@ -65586,15 +65592,15 @@ Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Searching for Qt versions...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche Qt-Versionen...</translation>
     </message>
     <message>
         <source>Found Qt version: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version gefunden: %1</translation>
     </message>
     <message>
         <source>No new Qt versions found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine neuen Qt-Versionen gefunden.</translation>
     </message>
 </context>
 <context>
@@ -66053,7 +66059,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device is not connected.</source>
-        <translation type="unfinished">Gerät ist nicht verbunden.</translation>
+        <translation>Gerät ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Accessible host paths:</source>
@@ -66069,11 +66075,11 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Failed to connect to the device and run &quot;uname&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Verbindung zum Gerät hergestellt und &quot;uname&quot; ausgeführt werden.</translation>
     </message>
     <message>
         <source>Failed to connect to the device and run &quot;uname&quot;: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Verbindung zum Gerät hergestellt und &quot;uname&quot; ausgeführt werden: %1</translation>
     </message>
     <message>
         <source>Establishing a Connection</source>
@@ -66125,7 +66131,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation type="unfinished">Verbinde...</translation>
+        <translation>Verbinde...</translation>
     </message>
     <message>
         <source>Auto-connection to device &quot;%1&quot; failed.</source>
@@ -66423,7 +66429,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Rsync</source>
-        <translation type="unfinished"></translation>
+        <translation>Rsync</translation>
     </message>
     <message>
         <source>No device configured for the run configuration.</source>
@@ -66447,147 +66453,147 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Remote macOS</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes macOS</translation>
     </message>
     <message>
         <source>Remote macOS Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes macOS-Gerät</translation>
     </message>
     <message>
         <source>New Remote macOS Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichtung der Konfiguration eines neuen entfernten macOS-Geräts</translation>
     </message>
     <message>
         <source>No free port found on the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf dem Gerät wurde kein freier Port gefunden.</translation>
     </message>
     <message>
         <source>No free port found on this host.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf diesem Host wurde kein freier Port gefunden.</translation>
     </message>
     <message>
         <source>Deploy to Remote Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment auf entfernten Host</translation>
     </message>
     <message>
         <source>Command failed (exit code %1): %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando fehlgeschlagen (Rückgabewert %1): %2</translation>
     </message>
     <message>
         <source>Failed to copy file &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; konnte nicht nach &quot;%2&quot; kopiert werden: %3</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht nach &quot;%2&quot; kopiert werden: %3</translation>
     </message>
     <message>
         <source>Failed to rename file &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; konnte nicht in &quot;%2&quot; umbenannt werden: %3</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht in &quot;%2&quot; umbenannt werden: %3</translation>
     </message>
     <message>
         <source>Cannot determine size of &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Größe von &quot;%1&quot; kann nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Cannot parse the size of &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Größe von &quot;%1&quot; kann nicht ausgewertet werden.</translation>
     </message>
     <message>
         <source>Cannot determine free space for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der freie Speicherplatz für &quot;%1&quot; kann nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Cannot parse the free space for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der freie Speicherplatz für &quot;%1&quot; kann nicht ausgewertet werden.</translation>
     </message>
     <message>
         <source>Cannot determine modification time of &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Änderungszeitpunkt von &quot;%1&quot; kann nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Cannot determine permissions of &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Berechtigungen von &quot;%1&quot; können nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Cannot determine information about &quot;%1&quot; (exit code %2): %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Informationen zu &quot;%1&quot; können nicht bestimmt werden (Rückgabewert %2): %3</translation>
     </message>
     <message>
         <source>Cannot read the device environment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Umgebung des Geräts kann nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Failed reading file &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Die Datei &quot;%1&quot; konnte nicht gelesen werden: %2</translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht gelesen werden: %2</translation>
     </message>
     <message>
         <source>Cannot write file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; kann nicht geschrieben werden: %2</translation>
     </message>
     <message>
         <source>Failed to run PowerShell on the device: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>PowerShell konnte auf dem Gerät nicht ausgeführt werden: %1</translation>
     </message>
     <message>
         <source>The remote host does not appear to be a Windows machine with PowerShell available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der entfernte Host scheint kein Windows-Rechner mit verfügbarer PowerShell zu sein.</translation>
     </message>
     <message>
         <source>Unsupported remote architecture &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht unterstützte entfernte Architektur &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>No SFTP client is configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist kein SFTP-Client konfiguriert.</translation>
     </message>
     <message>
         <source>Failed to transfer the CmdBridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die CmdBridge konnte nicht übertragen werden: %1</translation>
     </message>
     <message>
         <source>Remote Windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Windows</translation>
     </message>
     <message>
         <source>Remote Windows Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Windows-Gerät</translation>
     </message>
     <message>
         <source>CDB extension directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis der CDB-Erweiterung:</translation>
     </message>
     <message>
         <source>Device directory holding the qtcreatorcdbext subdirectories, that is, the &quot;lib&quot; directory of a Qt Creator installed on the device. Required to debug the device&apos;s binaries with CDB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis auf dem Gerät, das die qtcreatorcdbext-Unterverzeichnisse enthält, also das &quot;lib&quot;-Verzeichnis eines auf dem Gerät installierten Qt Creator. Erforderlich, um die Binärdateien des Geräts mit CDB zu debuggen.</translation>
     </message>
     <message>
         <source>No file access for device &quot;%1&quot;.</source>
-        <translation type="unfinished">Kein Dateizugriff für Gerät &quot;%1&quot;.</translation>
+        <translation>Kein Dateizugriff für Gerät &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Interrupting a process is not supported on a remote Windows device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Unterbrechen eines Prozesses wird auf einem entfernten Windows-Gerät nicht unterstützt.</translation>
     </message>
     <message>
         <source>Auto-connection to device &quot;%1&quot; failed. Switching auto-connection off.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die automatische Verbindung zu Gerät &quot;%1&quot; ist fehlgeschlagen. Die automatische Verbindung wird deaktiviert.</translation>
     </message>
     <message>
         <source>CDB for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>CDB für %1</translation>
     </message>
     <message>
         <source>Registered CDB debugger &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>CDB-Debugger &quot;%1&quot; registriert.</translation>
     </message>
     <message>
         <source>New Remote Windows Device Configuration Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>Einrichtung der Konfiguration eines neuen entfernten Windows-Geräts</translation>
     </message>
     <message>
         <source>Connecting to device and checking for Windows...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinde mit Gerät und prüfe auf Windows...</translation>
     </message>
     <message>
         <source>The device is a Windows machine and is reachable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät ist ein Windows-Rechner und ist erreichbar.</translation>
     </message>
 </context>
 <context>
@@ -66754,26 +66760,26 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Remove Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien entfernen</translation>
     </message>
     <message numerus="yes">
         <source>Remove these %n files from the resource file?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Diese Datei aus der Ressourcendatei entfernen?</numerusform>
+            <numerusform>Diese %n Dateien aus der Ressourcendatei entfernen?</numerusform>
         </translation>
     </message>
     <message>
         <source>&amp;Delete files permanently</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien &amp;endgültig löschen</translation>
     </message>
     <message>
         <source>Files Already Present</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien bereits vorhanden</translation>
     </message>
     <message>
         <source>The following files are already in the resource and were not added again:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien sind bereits in der Ressource enthalten und wurden nicht erneut hinzugefügt:</translation>
     </message>
     <message>
         <source>All files (*)</source>
@@ -68777,7 +68783,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot revert &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht rückgängig gemacht werden: %2</translation>
     </message>
     <message>
         <source>Another commit is currently being executed.</source>
@@ -69083,43 +69089,43 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Allow programs to set the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Programmen erlauben, die Zwischenablage zu setzen</translation>
     </message>
     <message>
         <source>Lets a program running in the terminal replace the clipboard contents using an escape sequence. Reading the clipboard is never allowed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubt einem im Terminal laufenden Programm, den Inhalt der Zwischenablage über eine Escape-Sequenz zu ersetzen. Das Lesen der Zwischenablage ist nie erlaubt.</translation>
     </message>
     <message>
         <source>Confirm pasting control characters</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügen von Steuerzeichen bestätigen lassen</translation>
     </message>
     <message>
         <source>Asks before pasting text that contains control characters into a program that did not announce it can handle them. Such a paste can run commands the text only appears to contain.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragt nach, bevor Text mit Steuerzeichen in ein Programm eingefügt wird, das nicht angekündigt hat, dass es damit umgehen kann. Ein solches Einfügen kann Kommandos ausführen, die der Text nur scheinbar enthält.</translation>
     </message>
     <message>
         <source>Console host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Konsolen-Host:</translation>
     </message>
     <message>
         <source>A directory holding conpty.dll and OpenConsole.exe to run the terminals through. If empty, the downloaded console host is used, or the one that comes with Windows if none was downloaded.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Verzeichnis mit conpty.dll und OpenConsole.exe, über die die Terminals ausgeführt werden. Wenn leer, wird der heruntergeladene Konsolen-Host verwendet oder, falls keiner heruntergeladen wurde, der von Windows mitgelieferte.</translation>
     </message>
     <message>
         <source>Download...</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen...</translation>
     </message>
     <message>
         <source>A picture that a program prints into the terminal is not shown: the console host that comes with Windows passes on only the text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Bild, das ein Programm im Terminal ausgibt, wird nicht angezeigt: Der von Windows mitgelieferte Konsolen-Host gibt nur den Text weiter.</translation>
     </message>
     <message>
         <source>A picture that a program prints into the terminal is shown.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Bild, das ein Programm im Terminal ausgibt, wird angezeigt.</translation>
     </message>
     <message>
         <source>Console Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Konsolen-Host</translation>
     </message>
     <message>
         <source>Load Theme...</source>
@@ -69191,13 +69197,15 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Unsafe Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Unsicheres Einfügen</translation>
     </message>
     <message>
         <source>The text to paste contains control characters, and the program running in the terminal did not announce that it handles a paste as one. Pasting it can run commands that the text only appears to contain.
 %1
 Paste anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der einzufügende Text enthält Steuerzeichen, und das im Terminal laufende Programm hat nicht angekündigt, dass es eingefügten Text als Ganzes behandelt. Das Einfügen kann Kommandos ausführen, die der Text nur scheinbar enthält.
+%1
+Trotzdem einfügen?</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -69241,59 +69249,59 @@ Paste anyway?</source>
     </message>
     <message>
         <source>Download Console Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Konsolen-Host herunterladen</translation>
     </message>
     <message>
         <source>Download the console host %1 from nuget.org?</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Konsolen-Host %1 von nuget.org herunterladen?</translation>
     </message>
     <message>
         <source>A program running in the terminal can print a picture as well as text. The console host that comes with Windows passes on only the text, so the picture never arrives. This one, which Microsoft publishes under the MIT license, passes on both.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein im Terminal laufendes Programm kann sowohl Bilder als auch Text ausgeben. Der von Windows mitgelieferte Konsolen-Host gibt nur den Text weiter, daher kommt das Bild nie an. Dieser hier, den Microsoft unter der MIT-Lizenz veröffentlicht, gibt beides weiter.</translation>
     </message>
     <message>
         <source>Project: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt: %1</translation>
     </message>
     <message>
         <source>License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz: %1</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen</translation>
     </message>
     <message>
         <source>The package holds no console host for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Paket enthält keinen Konsolen-Host für %1.</translation>
     </message>
     <message>
         <source>There is no console host for this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für diese Plattform gibt es keinen Konsolen-Host.</translation>
     </message>
     <message>
         <source>Downloading console host...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Konsolen-Host herunter...</translation>
     </message>
     <message>
         <source>Downloading the console host failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen des Konsolen-Hosts ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Verifying package integrity...</source>
-        <translation type="unfinished">Prüfe die Integrität des Pakets...</translation>
+        <translation>Prüfe die Integrität des Pakets...</translation>
     </message>
     <message>
         <source>The downloaded package is not the one that was expected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das heruntergeladene Paket ist nicht das erwartete.</translation>
     </message>
     <message>
         <source>Unpacking console host...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entpacke Konsolen-Host...</translation>
     </message>
     <message>
         <source>Unpacking the console host failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Entpacken des Konsolen-Hosts ist fehlgeschlagen: %1</translation>
     </message>
 </context>
 <context>
@@ -69987,19 +69995,19 @@ Außer: %3
     </message>
     <message>
         <source>Specifies how backspace interacts with indentation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmt, wie die Rücktaste mit der Einrückung interagiert.</translation>
     </message>
     <message>
         <source>None: No interaction at all. Regular plain backspace behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine: Keine Interaktion. Normales Verhalten der Rücktaste.</translation>
     </message>
     <message>
         <source>Follows Previous Indents: In leading whitespace, moves the cursor back to the nearest indentation level used in previous lines.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorangehender Einrückung folgen: Bewegt die Einfügemarke in führenden Leerzeichen zurück zur nächstgelegenen Einrückungsebene, die in vorangehenden Zeilen verwendet wird.</translation>
     </message>
     <message>
         <source>Unindents: If the character behind the cursor is a space, works like Backtab.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausrücken: Wenn das Zeichen hinter der Einfügemarke ein Leerzeichen ist, verhält sie sich wie Backtab.</translation>
     </message>
     <message>
         <source>Prefer single line comments</source>
@@ -70196,7 +70204,7 @@ Außer: %3
     </message>
     <message>
         <source>For the file patterns listed, do not clean whitespace: neither trailing whitespace nor indentation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die aufgeführten Dateimuster keine Leerzeichen bereinigen: weder Leerzeichen am Zeilenende noch die Einrückung.</translation>
     </message>
     <message>
         <source>List of wildcard-aware file patterns, separated by commas or semicolons.</source>
@@ -70320,43 +70328,43 @@ Außer: %3
     </message>
     <message>
         <source>Indent wrapped lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebrochene Zeilen einrücken</translation>
     </message>
     <message>
         <source>Aligns the continuation of a wrapped line with the indentation of the line (vim&apos;s &quot;breakindent&quot;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Richtet die Fortsetzung einer umgebrochenen Zeile an der Einrückung der Zeile aus (&quot;breakindent&quot; in Vim).</translation>
     </message>
     <message>
         <source>Minimum text width:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimale Textbreite:</translation>
     </message>
     <message>
         <source>Columns of text kept after the indent of a wrapped line (vim&apos;s &quot;breakindentopt=min&quot;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Textspalten, die nach der Einrückung einer umgebrochenen Zeile erhalten bleiben (&quot;breakindentopt=min&quot; in Vim).</translation>
     </message>
     <message>
         <source>Extra indent:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Einrückung:</translation>
     </message>
     <message>
         <source>Columns added to (or, if negative, removed from) the indent of a wrapped line (vim&apos;s &quot;breakindentopt=shift&quot;).</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalten, die zur Einrückung einer umgebrochenen Zeile hinzugefügt (oder, wenn negativ, davon entfernt) werden (&quot;breakindentopt=shift&quot; in Vim).</translation>
     </message>
     <message>
         <source>Wrapped line marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Markierung für umgebrochene Zeilen</translation>
     </message>
     <message>
         <source>Text shown at the beginning of a wrapped line (vim&apos;s &quot;showbreak&quot;). Applies whether or not wrapped lines are indented.</source>
-        <translation type="unfinished"></translation>
+        <translation>Text, der am Anfang einer umgebrochenen Zeile angezeigt wird (&quot;showbreak&quot; in Vim). Gilt unabhängig davon, ob umgebrochene Zeilen eingerückt werden.</translation>
     </message>
     <message>
         <source>Show marker before the indent</source>
-        <translation type="unfinished"></translation>
+        <translation>Markierung vor der Einrückung anzeigen</translation>
     </message>
     <message>
         <source>Draws the wrapped line marker before the indent of the wrapped line instead of in front of its text (vim&apos;s &quot;breakindentopt=sbr&quot;). Has no visible effect unless &quot;Indent wrapped lines&quot; is also enabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichnet die Markierung für umgebrochene Zeilen vor der Einrückung der umgebrochenen Zeile statt vor ihrem Text (&quot;breakindentopt=sbr&quot; in Vim). Hat keine sichtbare Wirkung, wenn nicht auch &quot;Umgebrochene Zeilen einrücken&quot; aktiviert ist.</translation>
     </message>
     <message>
         <source>Display file line ending</source>
@@ -70376,11 +70384,11 @@ Außer: %3
     </message>
     <message>
         <source>Mark diff changes with +/- &amp;signs</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff-Änderungen mit +/- &amp;Zeichen markieren</translation>
     </message>
     <message>
         <source>Shows &quot;+&quot; and &quot;-&quot; signs next to added and removed lines in the inline diff, so the changes can be told apart without relying on color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt &quot;+&quot;- und &quot;-&quot;-Zeichen neben hinzugefügten und entfernten Zeilen im eingebetteten Diff an, sodass die Änderungen ohne Farben unterschieden werden können.</translation>
     </message>
     <message>
         <source>Next to editor content</source>
@@ -70400,7 +70408,7 @@ Außer: %3
     </message>
     <message>
         <source>Check Spelling</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechtschreibung prüfen</translation>
     </message>
     <message>
         <source>Enable minimap</source>
@@ -70807,7 +70815,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Delete Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen löschen</translation>
     </message>
     <message>
         <source>Delete Line from Cursor On</source>
@@ -71119,7 +71127,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Cut Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen ausschneiden</translation>
     </message>
     <message>
         <source>Copy &amp;Line</source>
@@ -71131,7 +71139,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Copy Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen kopieren</translation>
     </message>
     <message>
         <source>Copy With Highlighting</source>
@@ -71211,7 +71219,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Paste &amp;Without Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ohne Formatierung einfügen</translation>
     </message>
     <message>
         <source>Alt+Shift+S</source>
@@ -71487,7 +71495,9 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
         By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
         if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Doxygen erlaubt &quot;@&quot; und &quot;\&quot; als Beginn von Kommandos.
+        Standardmäßig wird &quot;@&quot; verwendet, wenn der umgebende Kommentar mit &quot;/**&quot; oder &quot;///&quot; beginnt, und &quot;\&quot;,
+        wenn der Kommentar mit &quot;/*!&quot; oder &quot;//!&quot; beginnt.</translation>
     </message>
     <message>
         <source>Generate brief description</source>
@@ -71701,11 +71711,11 @@ Wird verwendet um die Funktion zu markieren, die ein gesuchtes Symbol verwendet.
     </message>
     <message>
         <source>Template Parameter</source>
-        <translation type="unfinished"></translation>
+        <translation>Template-Parameter</translation>
     </message>
     <message>
         <source>Name of a template type parameter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Name eines Template-Typparameters.</translation>
     </message>
     <message>
         <source>Namespace</source>
@@ -72049,27 +72059,27 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Merge Conflict Current Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Merge-Konflikt: aktuelle Änderung</translation>
     </message>
     <message>
         <source>Applied to the current (&quot;ours&quot;) side of a merge conflict.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird auf die aktuelle Seite (&quot;ours&quot;) eines Merge-Konflikts angewendet.</translation>
     </message>
     <message>
         <source>Merge Conflict Incoming Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Merge-Konflikt: eingehende Änderung</translation>
     </message>
     <message>
         <source>Applied to the incoming (&quot;theirs&quot;) side of a merge conflict.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird auf die eingehende Seite (&quot;theirs&quot;) eines Merge-Konflikts angewendet.</translation>
     </message>
     <message>
         <source>Merge Conflict Base</source>
-        <translation type="unfinished"></translation>
+        <translation>Merge-Konflikt: Basis</translation>
     </message>
     <message>
         <source>Applied to the common ancestor (&quot;base&quot;) section of a merge conflict, shown with diff3 conflict style.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird auf den Abschnitt des gemeinsamen Vorfahren (&quot;base&quot;) eines Merge-Konflikts angewendet, der beim Konfliktstil diff3 angezeigt wird.</translation>
     </message>
     <message>
         <source>Log Change Line</source>
@@ -72141,11 +72151,11 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Spelling Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechtschreibfehler</translation>
     </message>
     <message>
         <source>Underline color of misspelled words.</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe der Unterstreichung falsch geschriebener Wörter.</translation>
     </message>
     <message>
         <source>Static Member</source>
@@ -72245,27 +72255,27 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Applied to lines describing changes in version control log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird im Log der Versionskontrolle auf Zeilen angewendet, die Änderungen beschreiben.</translation>
     </message>
     <message>
         <source>Applied to author names in version control log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird im Log der Versionskontrolle auf Autorennamen angewendet.</translation>
     </message>
     <message>
         <source>Applied to commit dates in version control log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird im Log der Versionskontrolle auf Commit-Daten angewendet.</translation>
     </message>
     <message>
         <source>Applied to commit hashes in version control log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird im Log der Versionskontrolle auf Commit-Hashes angewendet.</translation>
     </message>
     <message>
         <source>Applied to commit decorations in version control log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird im Log der Versionskontrolle auf Commit-Dekorationen angewendet.</translation>
     </message>
     <message>
         <source>Applied to commit subjects in version control log.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird im Log der Versionskontrolle auf Commit-Titel angewendet.</translation>
     </message>
     <message>
         <source>Output Argument</source>
@@ -72497,66 +72507,66 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message numerus="yes">
         <source>... (%n more removed lines)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>... (eine weitere entfernte Zeile)</numerusform>
+            <numerusform>... (%n weitere entfernte Zeilen)</numerusform>
         </translation>
     </message>
     <message>
         <source>Choose Current Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle Änderung wählen</translation>
     </message>
     <message>
         <source>Choose Incoming Change</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingehende Änderung wählen</translation>
     </message>
     <message>
         <source>Choose Both</source>
-        <translation type="unfinished"></translation>
+        <translation>Beide wählen</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot; to Dictionary</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; zum Wörterbuch hinzufügen</translation>
     </message>
     <message>
         <source>No Spelling Suggestions</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Rechtschreibvorschläge</translation>
     </message>
     <message>
         <source>Ignore &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ignorieren</translation>
     </message>
     <message>
         <source>&lt;Default&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Vorgabe&gt;</translation>
     </message>
     <message>
         <source>English, if a dictionary for it is installed, otherwise the system language.</source>
-        <translation type="unfinished"></translation>
+        <translation>Englisch, falls ein Wörterbuch dafür installiert ist, ansonsten die Systemsprache.</translation>
     </message>
     <message>
         <source>Check comments and text files</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentare und Textdateien prüfen</translation>
     </message>
     <message>
         <source>Marks misspelled words in the comments of source files and in the text of files that are prose, such as Markdown.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert falsch geschriebene Wörter in den Kommentaren von Quelldateien und im Text von Fließtextdateien, wie Markdown.</translation>
     </message>
     <message>
         <source>Check string literals</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichenkettenliterale prüfen</translation>
     </message>
     <message>
         <source>Marks misspelled words in string literals as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert falsch geschriebene Wörter auch in Zeichenkettenliteralen.</translation>
     </message>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">Sprache:</translation>
+        <translation>Sprache:</translation>
     </message>
     <message>
         <source>The dictionary to check against. It applies to submit messages as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Wörterbuch, gegen das geprüft wird. Es gilt auch für Commit-Beschreibungen.</translation>
     </message>
 </context>
 <context>
@@ -72696,71 +72706,71 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Reset Flame Graph</source>
-        <translation type="unfinished">Flame Graph zurücksetzen</translation>
+        <translation>Flame Graph zurücksetzen</translation>
     </message>
     <message>
         <source>Paused</source>
-        <translation type="unfinished"></translation>
+        <translation>Angehalten</translation>
     </message>
     <message>
         <source>Show All Categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kategorien anzeigen</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished">Nach oben</translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished">Nach unten</translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
         <source>Hide &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; verbergen</translation>
     </message>
     <message>
         <source>Show Only &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur &quot;%1&quot; anzeigen</translation>
     </message>
     <message>
         <source>Categories</source>
-        <translation type="unfinished">Kategorien</translation>
+        <translation>Kategorien</translation>
     </message>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
         <source>Copy Value</source>
-        <translation type="unfinished">Wert kopieren</translation>
+        <translation>Wert kopieren</translation>
     </message>
     <message>
         <source>Range start: %1, end: %2, duration: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereichsanfang: %1, Ende: %2, Dauer: %3</translation>
     </message>
     <message>
         <source>No item selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Element ausgewählt</translation>
     </message>
     <message>
         <source>Show or Hide Categories (%1 hidden)</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien anzeigen oder verbergen (%1 verborgen)</translation>
     </message>
     <message>
         <source>Show or Hide Categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien anzeigen oder verbergen</translation>
     </message>
     <message>
         <source>Drag to move this category. Right-click for more options.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziehen, um diese Kategorie zu verschieben. Rechtsklick für weitere Optionen.</translation>
     </message>
     <message>
         <source>Some categories are hidden from the timeline. Click to choose which ones to show.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einige Kategorien sind in der Timeline verborgen. Klicken Sie, um auszuwählen, welche angezeigt werden.</translation>
     </message>
     <message>
         <source>%1 hidden</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 verborgen</translation>
     </message>
 </context>
 <context>
@@ -73100,171 +73110,173 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Favorites</source>
-        <translation type="unfinished"></translation>
+        <translation>Favoriten</translation>
     </message>
     <message>
         <source>Locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Orte</translation>
     </message>
     <message>
         <source>Devices</source>
-        <translation type="unfinished">Geräte</translation>
+        <translation>Geräte</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished">Verzeichnis</translation>
+        <translation>Verzeichnis</translation>
     </message>
     <message>
         <source>%1 File</source>
-        <translation type="unfinished"></translation>
+        <translation>%1-Datei</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished">Datei</translation>
+        <translation>Datei</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="unfinished">Größe</translation>
+        <translation>Größe</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Date Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungsdatum</translation>
     </message>
     <message>
         <source>/path/to/folder</source>
-        <translation type="unfinished"></translation>
+        <translation>/pfad/zum/verzeichnis</translation>
     </message>
     <message>
         <source>Go to the folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu Verzeichnis:</translation>
     </message>
     <message>
         <source>Save As:</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern unter:</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation type="unfinished">Datei öffnen</translation>
+        <translation>Datei öffnen</translation>
     </message>
     <message>
         <source>New Folder</source>
-        <translation type="unfinished">Neues Verzeichnis</translation>
+        <translation>Neues Verzeichnis</translation>
     </message>
     <message>
         <source>Name of new folder inside &quot;%1&quot;:</source>
-        <translation type="unfinished"></translation>
+        <translation>Name des neuen Verzeichnisses in &quot;%1&quot;:</translation>
     </message>
     <message>
         <source>untitled folder</source>
-        <translation type="unfinished"></translation>
+        <translation>unbenanntes Verzeichnis</translation>
     </message>
     <message>
         <source>A file or folder named &quot;%1&quot; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Datei oder ein Verzeichnis namens &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Could not create folder &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Move to Bin</source>
-        <translation type="unfinished"></translation>
+        <translation>In den Papierkorb verschieben</translation>
     </message>
     <message>
         <source>Could not move the following to the bin:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Folgendes konnte nicht in den Papierkorb verschoben werden:
+%1</translation>
     </message>
     <message>
         <source>%1 copy</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kopie</translation>
     </message>
     <message>
         <source>%1 copy %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Kopie %2</translation>
     </message>
     <message>
         <source>Copying Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiere Dateien</translation>
     </message>
     <message>
         <source>Copying
 %1</source>
-        <translation type="unfinished">Kopiere
+        <translation>Kopiere
 %1</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Could not paste the following:
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Folgendes konnte nicht eingefügt werden:
+%1</translation>
     </message>
     <message>
         <source>Icons view</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolansicht</translation>
     </message>
     <message>
         <source>List view</source>
-        <translation type="unfinished"></translation>
+        <translation>Listenansicht</translation>
     </message>
     <message>
         <source>Show hidden files</source>
-        <translation type="unfinished"></translation>
+        <translation>Versteckte Dateien anzeigen</translation>
     </message>
     <message>
         <source>Hide filtered files</source>
-        <translation type="unfinished"></translation>
+        <translation>Gefilterte Dateien verbergen</translation>
     </message>
     <message>
         <source>Show full paths in ComboBox</source>
-        <translation type="unfinished"></translation>
+        <translation>Vollständige Pfade im Auswahlfeld anzeigen</translation>
     </message>
     <message>
         <source>Use classic layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Klassisches Layout verwenden</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="unfinished">Zurück</translation>
+        <translation>Zurück</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation type="unfinished">Nächstes</translation>
+        <translation>Vorwärts</translation>
     </message>
     <message>
         <source>Go to parent directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum übergeordneten Verzeichnis gehen</translation>
     </message>
     <message>
         <source>Go to folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Verzeichnis gehen</translation>
     </message>
     <message>
         <source>View options</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansichtsoptionen</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suche</translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <source>File Name</source>
-        <translation type="unfinished">Dateiname</translation>
+        <translation>Dateiname</translation>
     </message>
     <message>
         <source>Files of type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien vom Typ:</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -73272,11 +73284,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Rename...</source>
-        <translation type="unfinished">Umbenennen...</translation>
+        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Open Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis öffnen</translation>
     </message>
     <message>
         <source>Enter project name</source>
@@ -73524,7 +73536,7 @@ Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Determining the home directory is not supported for this device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Bestimmen des Benutzerverzeichnisses wird für dieses Gerät nicht unterstützt.</translation>
     </message>
     <message>
         <source>createSymLink is not implemented for &quot;%1&quot;.</source>
@@ -73540,7 +73552,7 @@ Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Cannot determine the home directory of user &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Benutzerverzeichnis von &quot;%1&quot; kann nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Could not create file &quot;%1&quot;.</source>
@@ -73608,11 +73620,11 @@ Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Invalid user name &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Benutzername &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Cannot determine the home directory of &quot;~%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Benutzerverzeichnis von &quot;~%1&quot; kann nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Failed creating temporary directory &quot;%1&quot; (too many tries).</source>
@@ -73675,7 +73687,7 @@ Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>File was not opened for writing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei wurde nicht zum Schreiben geöffnet.</translation>
     </message>
     <message>
         <source>Cannot write file %1. Disk full?</source>
@@ -73793,7 +73805,7 @@ Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>&quot;%1&quot; cannot be read as an ELF object</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht als ELF-Objekt gelesen werden</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is not an ELF object (file too small)</source>
@@ -73836,23 +73848,23 @@ Drücken Sie Return, um dieses Fenster zu schließen...</translation>
     </message>
     <message>
         <source>Compressed section &quot;%1&quot; is too small.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die komprimierte Sektion &quot;%1&quot; ist zu klein.</translation>
     </message>
     <message>
         <source>Section &quot;%1&quot; uses unsupported compression type %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Sektion &quot;%1&quot; verwendet den nicht unterstützten Komprimierungstyp %2.</translation>
     </message>
     <message>
         <source>Compressed section &quot;%1&quot; is too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die komprimierte Sektion &quot;%1&quot; ist zu groß.</translation>
     </message>
     <message>
         <source>Could not uncompress section &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Sektion &quot;%1&quot; konnte nicht dekomprimiert werden.</translation>
     </message>
     <message>
         <source>section &quot;%1&quot; reaches beyond the end of the file</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Sektion &quot;%1&quot; reicht über das Dateiende hinaus</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -74149,11 +74161,11 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
     </message>
     <message>
         <source>Get variables from file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen aus Datei übernehmen:</translation>
     </message>
     <message>
         <source>File is a shell script</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei ist ein Shell-Skript</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -74345,19 +74357,19 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
     </message>
     <message>
         <source>Archive expands to more than %1 bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Archiv wird auf mehr als %1 Bytes entpackt.</translation>
     </message>
     <message>
         <source>The name is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name ist leer.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; is absolute.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; ist absolut.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; points outside the destination.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; zeigt aus dem Ziel heraus.</translation>
     </message>
     <message>
         <source>Not an archive.</source>
@@ -74365,43 +74377,43 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
     </message>
     <message>
         <source>Archive contains more than %1 entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Archiv enthält mehr als %1 Einträge.</translation>
     </message>
     <message>
         <source>Rejected archive entry: The name is not valid UTF-8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiveintrag abgelehnt: Der Name ist kein gültiges UTF-8.</translation>
     </message>
     <message>
         <source>Rejected archive entry: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiveintrag abgelehnt: %1</translation>
     </message>
     <message>
         <source>Rejected archive link target: The name is not valid UTF-8.</source>
-        <translation type="unfinished"></translation>
+        <translation>Linkziel im Archiv abgelehnt: Der Name ist kein gültiges UTF-8.</translation>
     </message>
     <message>
         <source>Rejected archive link target: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Linkziel im Archiv abgelehnt: %1</translation>
     </message>
     <message>
         <source>Out of memory while extracting &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Speicher mehr beim Entpacken von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Archive extraction is not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Entpacken von Archiven wird auf dieser Plattform nicht unterstützt.</translation>
     </message>
     <message>
         <source>Not compressed data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine komprimierten Daten.</translation>
     </message>
     <message>
         <source>Compressed data expands to more than %1 bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die komprimierten Daten werden zu mehr als %1 Bytes entpackt.</translation>
     </message>
     <message>
         <source>gzip decompression is not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip-Dekomprimierung wird auf dieser Plattform nicht unterstützt.</translation>
     </message>
     <message>
         <source>Canceled.</source>
@@ -74510,43 +74522,43 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alle aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Copy JSON</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON kopieren</translation>
     </message>
     <message>
         <source>Client Message</source>
-        <translation type="unfinished">Client-Nachricht</translation>
+        <translation>Client-Nachricht</translation>
     </message>
     <message>
         <source>Messages</source>
-        <translation type="unfinished">Nachrichten</translation>
+        <translation>Nachrichten</translation>
     </message>
     <message>
         <source>Server Message</source>
-        <translation type="unfinished">Server-Nachricht</translation>
+        <translation>Server-Nachricht</translation>
     </message>
     <message>
         <source>Log File</source>
-        <translation type="unfinished">Logdatei</translation>
+        <translation>Logdatei</translation>
     </message>
     <message>
         <source>&lt;Select&gt;</source>
-        <translation type="unfinished">&lt;Auswählen&gt;</translation>
+        <translation>&lt;Auswählen&gt;</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation type="unfinished">Log</translation>
+        <translation>Log</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
-        <translation type="unfinished">Vergrößerung: %1%</translation>
+        <translation>Vergrößerung: %1%</translation>
     </message>
 </context>
 <context>
@@ -74750,19 +74762,19 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.
     <message>
         <source>No</source>
         <comment>Detect self-modifying code?</comment>
-        <translation type="unfinished">Nein</translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <source>Only on Stack</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur auf dem Stack</translation>
     </message>
     <message>
         <source>Everywhere</source>
-        <translation type="unfinished"></translation>
+        <translation>Überall</translation>
     </message>
     <message>
         <source>Everywhere Except in File-Backed Mappings</source>
-        <translation type="unfinished"></translation>
+        <translation>Überall außer in dateibasierten Mappings</translation>
     </message>
     <message>
         <source>Enable cache simulation</source>
@@ -75468,23 +75480,23 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished. %n issue(s) found.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Speicheranalyse beendet. Ein Problem gefunden.</numerusform>
+            <numerusform>Speicheranalyse beendet. %n Probleme gefunden.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n issue(s) hidden by the current filter.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ein Problem durch den aktuellen Filter verborgen.</numerusform>
+            <numerusform>%n Probleme durch den aktuellen Filter verborgen.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Log file processed. %n issue(s) found.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Logdatei verarbeitet. Ein Problem gefunden.</numerusform>
+            <numerusform>Logdatei verarbeitet. %n Probleme gefunden.</numerusform>
         </translation>
     </message>
     <message>
@@ -75890,7 +75902,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Version Control Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung für die Versionskontrolle</translation>
     </message>
     <message>
         <source>Send to CodePaster...</source>
@@ -75930,7 +75942,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Configure %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konfigurieren.</translation>
     </message>
     <message>
         <source>No known version control selected.</source>
@@ -76045,7 +76057,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Cannot open user/alias configuration file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Konfigurationsdatei für Benutzer/Aliase kann nicht geöffnet werden: %1</translation>
     </message>
     <message>
         <source>Name of the version control system in use by the current project.</source>
@@ -76129,15 +76141,15 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Cannot open user fields file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei mit Benutzerfeldern kann nicht geöffnet werden: %1</translation>
     </message>
     <message>
         <source>Submit message check failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der Beschreibung ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Submit message check cannot run remotely.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Überprüfung der Beschreibung kann nicht entfernt ausgeführt werden.</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -76163,7 +76175,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the version control system.</comment>
         <extracomment>Name of the &quot;commit&quot; action of the version control system</extracomment>
-        <translation type="unfinished">Commit</translation>
+        <translation>Commit</translation>
     </message>
     <message>
         <source>Close Commit Editor</source>
@@ -76251,15 +76263,15 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Check spelling of submit messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Rechtschreibung von Beschreibungen prüfen</translation>
     </message>
     <message>
         <source>Marks misspelled words in a submit message. Set the language in Preferences &gt; Text Editor &gt; Display.</source>
-        <translation type="unfinished"></translation>
+        <translation>Markiert falsch geschriebene Wörter in einer Beschreibung. Legen Sie die Sprache unter Einstellungen &gt; Texteditor &gt; Anzeige fest.</translation>
     </message>
     <message>
         <source>Reset Version Control Cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Cache der Versionskontrolle zurücksetzen</translation>
     </message>
     <message>
         <source> characters</source>
@@ -76267,7 +76279,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Show file status with refresh interval</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateistatus mit Aktualisierungsintervall anzeigen</translation>
     </message>
     <message>
         <source>Request file status updates from files and reflect them on the project tree.</source>
@@ -76307,78 +76319,78 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Staged Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgemerkte Änderungen</translation>
     </message>
     <message>
         <source>Conflicts</source>
-        <translation type="unfinished"></translation>
+        <translation>Konflikte</translation>
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished">Änderungen</translation>
+        <translation>Änderungen</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished">Commit</translation>
+        <translation>Commit</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished">Aktualisieren</translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>No changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Änderungen</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation type="unfinished">Datei öffnen</translation>
+        <translation>Datei öffnen</translation>
     </message>
     <message>
         <source>Diff</source>
-        <translation type="unfinished">Diff</translation>
+        <translation>Diff</translation>
     </message>
     <message>
         <source>Unstage</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht mehr vormerken</translation>
     </message>
     <message>
         <source>Stage</source>
-        <translation type="unfinished">Phase</translation>
+        <translation>Vormerken</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Revert...</source>
-        <translation type="unfinished">Rückgängig machen...</translation>
+        <translation>Rückgängig machen...</translation>
     </message>
     <message>
         <source>Discard the changes to &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderungen an &quot;%1&quot; verwerfen?</translation>
     </message>
     <message numerus="yes">
         <source>Discard the changes to %n selected files?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Die Änderungen an der ausgewählten Datei verwerfen?</numerusform>
+            <numerusform>Die Änderungen an %n ausgewählten Dateien verwerfen?</numerusform>
         </translation>
     </message>
     <message>
         <source>Revert</source>
-        <translation type="unfinished">Rückgängig machen</translation>
+        <translation>Rückgängig machen</translation>
     </message>
     <message>
         <source>Log</source>
-        <translation type="unfinished">Log</translation>
+        <translation>Log</translation>
     </message>
     <message>
         <source>Annotate</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation</translation>
     </message>
 </context>
 <context>
@@ -76707,11 +76719,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Determines the style to use for the global mode selector in %1 (see View &gt; Modes) when Zen mode or distraction free mode is active.</source>
         <extracomment>%1=Qt Creator</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmt den Stil der globalen Moduswahl in %1 (siehe Ansicht &gt; Modi), wenn der Zen-Modus oder der ablenkungsfreie Modus aktiv ist.</translation>
     </message>
     <message>
         <source>When Zen Mode or Distraction Free Mode Is Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn der Zen-Modus oder der ablenkungsfreie Modus aktiv ist</translation>
     </message>
     <message>
         <source>Mode selector:</source>
@@ -76722,91 +76734,91 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>QtC::Zephyr</name>
     <message>
         <source>Zephyr SDK (toolchain) not installed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zephyr-SDK (Toolchain) ist nicht installiert.</translation>
     </message>
     <message>
         <source>Run &quot;west sdk install&quot; in &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Führen Sie &quot;west sdk install&quot; in &quot;%1&quot; aus</translation>
     </message>
     <message>
         <source>Board:</source>
-        <translation type="unfinished"></translation>
+        <translation>Board:</translation>
     </message>
     <message>
         <source>For example, qemu_x86</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Beispiel qemu_x86</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>West Build</source>
-        <translation type="unfinished"></translation>
+        <translation>West-Build</translation>
     </message>
     <message>
         <source>QML project file:</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Projektdatei:</translation>
     </message>
     <message>
         <source>QML Project Export</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Projektexport</translation>
     </message>
     <message>
         <source>West Clean</source>
-        <translation type="unfinished"></translation>
+        <translation>West-Bereinigung</translation>
     </message>
     <message>
         <source>West Flash</source>
-        <translation type="unfinished"></translation>
+        <translation>West-Flash</translation>
     </message>
     <message>
         <source>Flash with West</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit West flashen</translation>
     </message>
     <message>
         <source>Zephyr</source>
-        <translation type="unfinished"></translation>
+        <translation>Zephyr</translation>
     </message>
     <message>
         <source>Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>Run with West</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit West ausführen</translation>
     </message>
     <message>
         <source>west executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare west-Datei:</translation>
     </message>
     <message>
         <source>west</source>
-        <translation type="unfinished"></translation>
+        <translation>west</translation>
     </message>
     <message>
         <source>Workspace directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace-Verzeichnis:</translation>
     </message>
     <message>
         <source>Directory containing .west/</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis, das .west/ enthält</translation>
     </message>
     <message>
         <source>qmlprojectexporter:</source>
-        <translation type="unfinished"></translation>
+        <translation>qmlprojectexporter:</translation>
     </message>
     <message>
         <source>Optional, for Qt for MCUs projects</source>
-        <translation type="unfinished"></translation>
+        <translation>Optional, für Projekte mit Qt for MCUs</translation>
     </message>
     <message>
         <source>West Build Tool</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Werkzeug West</translation>
     </message>
 </context>
 <context>
