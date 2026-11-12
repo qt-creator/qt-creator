@@ -71,7 +71,7 @@ Fixed
 
 Added
 
-* Support for version 2 of the protocol, including elicitation
+* Support for elicitation, so that agents can ask for input in the chat
 * Automatic updating of agents from the registry
   ([QTCREATORBUG-34760](https://bugreports.qt.io/browse/QTCREATORBUG-34760))
 * The option to create a new session for a workspace from the history
