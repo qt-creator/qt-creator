@@ -19,5 +19,6 @@ Project {
         "valgrindfake/valgrindfake.qbs",
         "iostool/iostool.qbs",
         "qtprofiler/qtprofiler.qbs",
+        "qtprofiler-cli/qtprofilercli.qbs",
     ].concat(project.additionalTools)
 }

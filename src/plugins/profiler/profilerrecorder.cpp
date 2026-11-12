@@ -228,7 +228,12 @@ void ProfilerRecorderPrivate::startRecording(const QString &target)
     // The recipe (or the user) ends the capture; either way that is the switch
     // from recording to post-processing. Reported from the request itself, so
     // nothing has to watch the flag for it.
-    session->onStopRequested(this, [this] { emit q->processingStarted(); });
+    // A recording that failed to start can still be asked to stop as it is torn
+    // down, after it has finished.
+    session->onStopRequested(this, [this] {
+        if (recording)
+            emit q->processingStarted();
+    });
     // Likewise for progress, the debug-info download and capture going live:
     // the session says when they move, rather than being asked.
     connect(session->reporter(), &RecordingReporter::changed,

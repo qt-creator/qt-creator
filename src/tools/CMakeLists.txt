@@ -43,5 +43,6 @@ add_subdirectory(wininterrupt) ## windows only
 
 add_subdirectory(process_stub)
 add_subdirectory(qtprofiler)
+add_subdirectory(qtprofiler-cli)
 add_subdirectory(dlwrapper)
 add_subdirectory(etwcapture)

@@ -5,6 +5,7 @@
 
 #include "qtcsettings.h"
 
+class QtProfilerCliSettings;
 class tst_PluginManager;
 int main(int, char *[]);
 
@@ -14,6 +15,7 @@ class QTCREATOR_UTILS_EXPORT SettingsSetup final
 {
     // Restrict access to items that need it.
     friend int ::main(int, char*[]);
+    friend class ::QtProfilerCliSettings;
     friend class ::tst_PluginManager;
 
     static void setupSettings(QtcSettings *userSettings, QtcSettings *installSettings);
