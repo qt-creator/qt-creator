@@ -112,6 +112,7 @@ private slots:
     void fromJsonWrongType();
     void fromJsonMissingMultipleRequired();
     void emptyObjectForRequiredFields();
+    void skipInvalidListItems();
 
     // --- Protocol v2 ---
     void v2PatchAbsent();
@@ -121,6 +122,7 @@ private slots:
     void v2OpenUnionUnknownSessionUpdate();
     void v2OpenUnionKnownVariant();
     void v2StateUpdateRoundtrip();
+    void v2StateUpdateUnknownStopReason();
     void v2AuthMethodUnknownType();
     void v2InitializeResponseRoundtrip();
     void v2PromptResponseEmpty();
@@ -243,10 +245,13 @@ void tst_Acp::structEnumFieldInvalidType()
     QVERIFY(!required.has_value());
     QCOMPARE(required.error(), "kind: Expected JSON string for PermissionOptionKind");
 
+    // ToolCall::kind is marked x-deserialize-default-on-error, so a value
+    // it cannot read leaves the field unset instead of failing the object.
     const auto optional = fromJson<ToolCall>(QJsonValue(
         QJsonObject{{"toolCallId", "t1"}, {"title", "Read"}, {"kind", 42}}));
-    QVERIFY(!optional.has_value());
-    QCOMPARE(optional.error(), "kind: Expected JSON string for ToolKind");
+    QVERIFY_RESULT(optional);
+    QCOMPARE(optional->toolCallId(), "t1");
+    QVERIFY(!optional->kind().has_value());
 }
 
 // =============================================================================
@@ -838,6 +843,21 @@ void tst_Acp::emptyObjectForRequiredFields()
     QVERIFY(r4.has_value());
 }
 
+// Plan.entries is marked x-deserialize-skip-invalid-items: an entry that
+// does not parse is dropped, and the entries after it are kept.
+void tst_Acp::skipInvalidListItems()
+{
+    const QJsonObject plan = jsonObj(R"({"entries": [
+        {"content": "a", "priority": "high", "status": "pending"},
+        {"content": "b", "priority": "urgent", "status": "pending"},
+        {"content": "c", "priority": "low", "status": "pending"}]})");
+    auto parsed = fromJson<Plan>(QJsonValue(plan));
+    QVERIFY_RESULT(parsed);
+    QCOMPARE(parsed->entries().size(), 2);
+    QCOMPARE(parsed->entries().at(0).content(), "a");
+    QCOMPARE(parsed->entries().at(1).content(), "c");
+}
+
 // =============================================================================
 // Protocol v2
 // =============================================================================
@@ -950,6 +970,20 @@ void tst_Acp::v2StateUpdateRoundtrip()
     QVERIFY(std::get_if<Acp::V2::RunningStateUpdate>(&*parsedRunning));
     QCOMPARE(Acp::V2::toJson(*parsedRunning), running);
 }
+
+// StopReason is open in the schema, and the field is marked
+// x-deserialize-default-on-error: a reason this version does not know must
+// leave the field unset rather than void the state update around it.
+void tst_Acp::v2StateUpdateUnknownStopReason()
+{
+    const QJsonObject idle = jsonObj(R"({"state": "idle", "stopReason": "error"})");
+    auto parsed = Acp::V2::fromJson<Acp::V2::StateUpdate>(QJsonValue(idle));
+    QVERIFY_RESULT(parsed);
+    const auto *idleState = std::get_if<Acp::V2::IdleStateUpdate>(&*parsed);
+    QVERIFY(idleState);
+    QVERIFY(!idleState->stopReason().has_value());
+}
+
 
 void tst_Acp::v2AuthMethodUnknownType()
 {

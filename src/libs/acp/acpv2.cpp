@@ -805,12 +805,16 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
         return Utils::ResultError("Expected JSON object for ElicitationSchema");
     const QJsonObject obj = val.toObject();
     ElicitationSchema result;
-    if (obj.contains("type")) {
-        const auto res0 = fromJson<ElicitationSchemaType>("type", obj["type"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._type = *res0;
-    }
+    // "type": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("type")) {
+            const auto typeRes0 = fromJson<ElicitationSchemaType>("type", obj["type"]);
+            if (!typeRes0)
+                return Utils::ResultError(typeRes0.error());
+            result._type = *typeRes0;
+        }
+        return {};
+    }();
     if (obj.contains("title")) {
         if (!obj["title"].isNull()) {
             result._title = obj.value("title").toString();
@@ -822,10 +826,10 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
         const QJsonObject mapObj_properties = obj["properties"].toObject();
         QMap<QString, ElicitationPropertySchema> map_properties;
         for (auto it = mapObj_properties.constBegin(); it != mapObj_properties.constEnd(); ++it) {
-            const auto res1 = fromJson<ElicitationPropertySchema>("properties", it.value());
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            map_properties.insert(it.key(), *res1);
+            const auto res0 = fromJson<ElicitationPropertySchema>("properties", it.value());
+            if (!res0)
+                return Utils::ResultError(res0.error());
+            map_properties.insert(it.key(), *res0);
         }
         result._properties = map_properties;
     }
@@ -904,14 +908,18 @@ Utils::Result<ElicitationSessionScope> fromJson<ElicitationSessionScope>(const Q
     if (!res0)
         return Utils::ResultError(res0.error());
     result._sessionId = *res0;
-    if (obj.contains("toolCallId") && !obj["toolCallId"].isNull()) {
-        const auto res1 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._toolCallId = *res1;
-    }
-    else if (obj.contains("toolCallId"))
-        result._toolCallId = std::nullopt;
+    // "toolCallId": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("toolCallId") && !obj["toolCallId"].isNull()) {
+            const auto toolCallIdRes0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
+            if (!toolCallIdRes0)
+                return Utils::ResultError(toolCallIdRes0.error());
+            result._toolCallId = *toolCallIdRes0;
+        }
+        else if (obj.contains("toolCallId"))
+            result._toolCallId = std::nullopt;
+        return {};
+    }();
     return result;
 }
 
@@ -1139,22 +1147,30 @@ Utils::Result<CommandPermissionSubject> fromJson<CommandPermissionSubject>(const
     if (!res0)
         return Utils::ResultError(res0.error());
     result._cwd = *res0;
-    if (obj.contains("toolCallId") && !obj["toolCallId"].isNull()) {
-        const auto res1 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._toolCallId = *res1;
-    }
-    else if (obj.contains("toolCallId"))
-        result._toolCallId = std::nullopt;
-    if (obj.contains("terminalId") && !obj["terminalId"].isNull()) {
-        const auto res2 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._terminalId = *res2;
-    }
-    else if (obj.contains("terminalId"))
-        result._terminalId = std::nullopt;
+    // "toolCallId": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("toolCallId") && !obj["toolCallId"].isNull()) {
+            const auto toolCallIdRes0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
+            if (!toolCallIdRes0)
+                return Utils::ResultError(toolCallIdRes0.error());
+            result._toolCallId = *toolCallIdRes0;
+        }
+        else if (obj.contains("toolCallId"))
+            result._toolCallId = std::nullopt;
+        return {};
+    }();
+    // "terminalId": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("terminalId") && !obj["terminalId"].isNull()) {
+            const auto terminalIdRes0 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+            if (!terminalIdRes0)
+                return Utils::ResultError(terminalIdRes0.error());
+            result._terminalId = *terminalIdRes0;
+        }
+        else if (obj.contains("terminalId"))
+            result._terminalId = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1222,10 +1238,10 @@ Utils::Result<Annotations> fromJson<Annotations>(const QJsonValue &val)
         const QJsonArray arr = obj["audience"].toArray();
         QList<Role> list_audience;
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<Role>("audience", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            list_audience.append(*res0);
+            const auto audienceItem = fromJson<Role>("audience", v);
+            if (!audienceItem)
+                continue;
+            list_audience.append(*audienceItem);
         }
         result._audience = list_audience;
     }
@@ -1300,14 +1316,18 @@ Utils::Result<AudioContent> fromJson<AudioContent>(const QJsonValue &val)
     if (!res0)
         return Utils::ResultError(res0.error());
     result._mimeType = *res0;
-    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
-        const auto res1 = fromJson<Annotations>("annotations", obj["annotations"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._annotations = *res1;
-    }
-    else if (obj.contains("annotations"))
-        result._annotations = std::nullopt;
+    // "annotations": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+            const auto annotationsRes0 = fromJson<Annotations>("annotations", obj["annotations"]);
+            if (!annotationsRes0)
+                return Utils::ResultError(annotationsRes0.error());
+            result._annotations = *annotationsRes0;
+        }
+        else if (obj.contains("annotations"))
+            result._annotations = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1352,14 +1372,18 @@ Utils::Result<BlobResourceContents> fromJson<BlobResourceContents>(const QJsonVa
     BlobResourceContents result;
     result._blob = obj.value("blob").toString();
     result._uri = obj.value("uri").toString();
-    if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
-        const auto res0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._mimeType = *res0;
-    }
-    else if (obj.contains("mimeType"))
-        result._mimeType = std::nullopt;
+    // "mimeType": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
+            const auto mimeTypeRes0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
+            if (!mimeTypeRes0)
+                return Utils::ResultError(mimeTypeRes0.error());
+            result._mimeType = *mimeTypeRes0;
+        }
+        else if (obj.contains("mimeType"))
+            result._mimeType = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1404,14 +1428,18 @@ Utils::Result<TextResourceContents> fromJson<TextResourceContents>(const QJsonVa
     TextResourceContents result;
     result._text = obj.value("text").toString();
     result._uri = obj.value("uri").toString();
-    if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
-        const auto res0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._mimeType = *res0;
-    }
-    else if (obj.contains("mimeType"))
-        result._mimeType = std::nullopt;
+    // "mimeType": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
+            const auto mimeTypeRes0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
+            if (!mimeTypeRes0)
+                return Utils::ResultError(mimeTypeRes0.error());
+            result._mimeType = *mimeTypeRes0;
+        }
+        else if (obj.contains("mimeType"))
+            result._mimeType = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1495,14 +1523,18 @@ Utils::Result<EmbeddedResource> fromJson<EmbeddedResource>(const QJsonValue &val
     if (!res0)
         return Utils::ResultError(res0.error());
     result._resource = *res0;
-    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
-        const auto res1 = fromJson<Annotations>("annotations", obj["annotations"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._annotations = *res1;
-    }
-    else if (obj.contains("annotations"))
-        result._annotations = std::nullopt;
+    // "annotations": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+            const auto annotationsRes0 = fromJson<Annotations>("annotations", obj["annotations"]);
+            if (!annotationsRes0)
+                return Utils::ResultError(annotationsRes0.error());
+            result._annotations = *annotationsRes0;
+        }
+        else if (obj.contains("annotations"))
+            result._annotations = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1554,14 +1586,18 @@ Utils::Result<ImageContent> fromJson<ImageContent>(const QJsonValue &val)
             result._uri = std::nullopt;
         }
     }
-    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
-        const auto res1 = fromJson<Annotations>("annotations", obj["annotations"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._annotations = *res1;
-    }
-    else if (obj.contains("annotations"))
-        result._annotations = std::nullopt;
+    // "annotations": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+            const auto annotationsRes0 = fromJson<Annotations>("annotations", obj["annotations"]);
+            if (!annotationsRes0)
+                return Utils::ResultError(annotationsRes0.error());
+            result._annotations = *annotationsRes0;
+        }
+        else if (obj.contains("annotations"))
+            result._annotations = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1630,14 +1666,18 @@ Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val)
         return Utils::ResultError("Invalid type for field: src");
     Icon result;
     result._src = obj.value("src").toString();
-    if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
-        const auto res0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._mimeType = *res0;
-    }
-    else if (obj.contains("mimeType"))
-        result._mimeType = std::nullopt;
+    // "mimeType": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
+            const auto mimeTypeRes0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
+            if (!mimeTypeRes0)
+                return Utils::ResultError(mimeTypeRes0.error());
+            result._mimeType = *mimeTypeRes0;
+        }
+        else if (obj.contains("mimeType"))
+            result._mimeType = std::nullopt;
+        return {};
+    }();
     if (obj.contains("sizes")) {
         if (!obj["sizes"].isNull()) {
             result._sizes = obj.value("sizes").toArray();
@@ -1645,14 +1685,18 @@ Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val)
             result._sizes = std::nullopt;
         }
     }
-    if (obj.contains("theme") && !obj["theme"].isNull()) {
-        const auto res1 = fromJson<IconTheme>("theme", obj["theme"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._theme = *res1;
-    }
-    else if (obj.contains("theme"))
-        result._theme = std::nullopt;
+    // "theme": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("theme") && !obj["theme"].isNull()) {
+            const auto themeRes0 = fromJson<IconTheme>("theme", obj["theme"]);
+            if (!themeRes0)
+                return Utils::ResultError(themeRes0.error());
+            result._theme = *themeRes0;
+        }
+        else if (obj.contains("theme"))
+            result._theme = std::nullopt;
+        return {};
+    }();
     return result;
 }
 
@@ -1709,23 +1753,27 @@ Utils::Result<ResourceLink> fromJson<ResourceLink>(const QJsonValue &val)
         const QJsonArray arr = obj["icons"].toArray();
         QList<Icon> list_icons;
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<Icon>("icons", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            list_icons.append(*res0);
+            const auto iconsItem = fromJson<Icon>("icons", v);
+            if (!iconsItem)
+                continue;
+            list_icons.append(*iconsItem);
         }
         result._icons = list_icons;
     }
     else if (obj.contains("icons") && obj["icons"].isNull())
         result._icons = std::nullopt;
-    if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
-        const auto res1 = fromJson<MediaType>("mimeType", obj["mimeType"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._mimeType = *res1;
-    }
-    else if (obj.contains("mimeType"))
-        result._mimeType = std::nullopt;
+    // "mimeType": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
+            const auto mimeTypeRes0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
+            if (!mimeTypeRes0)
+                return Utils::ResultError(mimeTypeRes0.error());
+            result._mimeType = *mimeTypeRes0;
+        }
+        else if (obj.contains("mimeType"))
+            result._mimeType = std::nullopt;
+        return {};
+    }();
     if (obj.contains("size")) {
         if (!obj["size"].isNull()) {
             result._size = obj.value("size").toInt();
@@ -1733,14 +1781,18 @@ Utils::Result<ResourceLink> fromJson<ResourceLink>(const QJsonValue &val)
             result._size = std::nullopt;
         }
     }
-    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
-        const auto res2 = fromJson<Annotations>("annotations", obj["annotations"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._annotations = *res2;
-    }
-    else if (obj.contains("annotations"))
-        result._annotations = std::nullopt;
+    // "annotations": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+            const auto annotationsRes0 = fromJson<Annotations>("annotations", obj["annotations"]);
+            if (!annotationsRes0)
+                return Utils::ResultError(annotationsRes0.error());
+            result._annotations = *annotationsRes0;
+        }
+        else if (obj.contains("annotations"))
+            result._annotations = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -1803,14 +1855,18 @@ Utils::Result<TextContent> fromJson<TextContent>(const QJsonValue &val)
         return Utils::ResultError("Invalid type for field: text");
     TextContent result;
     result._text = obj.value("text").toString();
-    if (obj.contains("annotations") && !obj["annotations"].isNull()) {
-        const auto res0 = fromJson<Annotations>("annotations", obj["annotations"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._annotations = *res0;
-    }
-    else if (obj.contains("annotations"))
-        result._annotations = std::nullopt;
+    // "annotations": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("annotations") && !obj["annotations"].isNull()) {
+            const auto annotationsRes0 = fromJson<Annotations>("annotations", obj["annotations"]);
+            if (!annotationsRes0)
+                return Utils::ResultError(annotationsRes0.error());
+            result._annotations = *annotationsRes0;
+        }
+        else if (obj.contains("annotations"))
+            result._annotations = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2037,22 +2093,30 @@ Utils::Result<DiffChange> fromJson<DiffChange>(const QJsonValue &val)
         return Utils::ResultError("Expected JSON object for DiffChange");
     const QJsonObject obj = val.toObject();
     DiffChange result;
-    if (obj.contains("fileType") && !obj["fileType"].isNull()) {
-        const auto res0 = fromJson<DiffFileType>("fileType", obj["fileType"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._fileType = *res0;
-    }
-    else if (obj.contains("fileType"))
-        result._fileType = std::nullopt;
-    if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
-        const auto res1 = fromJson<MediaType>("mimeType", obj["mimeType"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._mimeType = *res1;
-    }
-    else if (obj.contains("mimeType"))
-        result._mimeType = std::nullopt;
+    // "fileType": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("fileType") && !obj["fileType"].isNull()) {
+            const auto fileTypeRes0 = fromJson<DiffFileType>("fileType", obj["fileType"]);
+            if (!fileTypeRes0)
+                return Utils::ResultError(fileTypeRes0.error());
+            result._fileType = *fileTypeRes0;
+        }
+        else if (obj.contains("fileType"))
+            result._fileType = std::nullopt;
+        return {};
+    }();
+    // "mimeType": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mimeType") && !obj["mimeType"].isNull()) {
+            const auto mimeTypeRes0 = fromJson<MediaType>("mimeType", obj["mimeType"]);
+            if (!mimeTypeRes0)
+                return Utils::ResultError(mimeTypeRes0.error());
+            result._mimeType = *mimeTypeRes0;
+        }
+        else if (obj.contains("mimeType"))
+            result._mimeType = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2157,20 +2221,24 @@ Utils::Result<Diff> fromJson<Diff>(const QJsonValue &val)
     {
         const QJsonArray arr = obj["changes"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<DiffChange>("changes", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            result._changes.append(*res0);
+            const auto changesItem = fromJson<DiffChange>("changes", v);
+            if (!changesItem)
+                continue;
+            result._changes.append(*changesItem);
         }
     }
-    if (obj.contains("patch") && !obj["patch"].isNull()) {
-        const auto res1 = fromJson<DiffPatch>("patch", obj["patch"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._patch = *res1;
-    }
-    else if (obj.contains("patch"))
-        result._patch = std::nullopt;
+    // "patch": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("patch") && !obj["patch"].isNull()) {
+            const auto patchRes0 = fromJson<DiffPatch>("patch", obj["patch"]);
+            if (!patchRes0)
+                return Utils::ResultError(patchRes0.error());
+            result._patch = *patchRes0;
+        }
+        else if (obj.contains("patch"))
+            result._patch = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2433,30 +2501,38 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
             result._title = std::nullopt;
         }
     }
-    if (obj.contains("kind") && !obj["kind"].isNull()) {
-        const auto res1 = fromJson<ToolKind>("kind", obj["kind"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._kind = *res1;
-    }
-    else if (obj.contains("kind"))
-        result._kind = std::nullopt;
-    if (obj.contains("status") && !obj["status"].isNull()) {
-        const auto res2 = fromJson<ToolCallStatus>("status", obj["status"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._status = *res2;
-    }
-    else if (obj.contains("status"))
-        result._status = std::nullopt;
+    // "kind": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("kind") && !obj["kind"].isNull()) {
+            const auto kindRes0 = fromJson<ToolKind>("kind", obj["kind"]);
+            if (!kindRes0)
+                return Utils::ResultError(kindRes0.error());
+            result._kind = *kindRes0;
+        }
+        else if (obj.contains("kind"))
+            result._kind = std::nullopt;
+        return {};
+    }();
+    // "status": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("status") && !obj["status"].isNull()) {
+            const auto statusRes0 = fromJson<ToolCallStatus>("status", obj["status"]);
+            if (!statusRes0)
+                return Utils::ResultError(statusRes0.error());
+            result._status = *statusRes0;
+        }
+        else if (obj.contains("status"))
+            result._status = std::nullopt;
+        return {};
+    }();
     if (obj.contains("content") && obj["content"].isArray()) {
         const QJsonArray arr = obj["content"].toArray();
         QList<ToolCallContent> list_content;
         for (const QJsonValue &v : arr) {
-            const auto res3 = fromJson<ToolCallContent>("content", v);
-            if (!res3)
-                return Utils::ResultError(res3.error());
-            list_content.append(*res3);
+            const auto contentItem = fromJson<ToolCallContent>("content", v);
+            if (!contentItem)
+                continue;
+            list_content.append(*contentItem);
         }
         result._content = list_content;
     }
@@ -2466,10 +2542,10 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
         const QJsonArray arr = obj["locations"].toArray();
         QList<ToolCallLocation> list_locations;
         for (const QJsonValue &v : arr) {
-            const auto res4 = fromJson<ToolCallLocation>("locations", v);
-            if (!res4)
-                return Utils::ResultError(res4.error());
-            list_locations.append(*res4);
+            const auto locationsItem = fromJson<ToolCallLocation>("locations", v);
+            if (!locationsItem)
+                continue;
+            list_locations.append(*locationsItem);
         }
         result._locations = list_locations;
     }
@@ -2897,22 +2973,30 @@ Utils::Result<McpCapabilities> fromJson<McpCapabilities>(const QJsonValue &val)
         return Utils::ResultError("Expected JSON object for McpCapabilities");
     const QJsonObject obj = val.toObject();
     McpCapabilities result;
-    if (obj.contains("stdio") && !obj["stdio"].isNull()) {
-        const auto res0 = fromJson<McpStdioCapabilities>("stdio", obj["stdio"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._stdio = *res0;
-    }
-    else if (obj.contains("stdio"))
-        result._stdio = std::nullopt;
-    if (obj.contains("http") && !obj["http"].isNull()) {
-        const auto res1 = fromJson<McpHttpCapabilities>("http", obj["http"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._http = *res1;
-    }
-    else if (obj.contains("http"))
-        result._http = std::nullopt;
+    // "stdio": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("stdio") && !obj["stdio"].isNull()) {
+            const auto stdioRes0 = fromJson<McpStdioCapabilities>("stdio", obj["stdio"]);
+            if (!stdioRes0)
+                return Utils::ResultError(stdioRes0.error());
+            result._stdio = *stdioRes0;
+        }
+        else if (obj.contains("stdio"))
+            result._stdio = std::nullopt;
+        return {};
+    }();
+    // "http": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("http") && !obj["http"].isNull()) {
+            const auto httpRes0 = fromJson<McpHttpCapabilities>("http", obj["http"]);
+            if (!httpRes0)
+                return Utils::ResultError(httpRes0.error());
+            result._http = *httpRes0;
+        }
+        else if (obj.contains("http"))
+            result._http = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3029,30 +3113,42 @@ Utils::Result<PromptCapabilities> fromJson<PromptCapabilities>(const QJsonValue 
         return Utils::ResultError("Expected JSON object for PromptCapabilities");
     const QJsonObject obj = val.toObject();
     PromptCapabilities result;
-    if (obj.contains("image") && !obj["image"].isNull()) {
-        const auto res0 = fromJson<PromptImageCapabilities>("image", obj["image"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._image = *res0;
-    }
-    else if (obj.contains("image"))
-        result._image = std::nullopt;
-    if (obj.contains("audio") && !obj["audio"].isNull()) {
-        const auto res1 = fromJson<PromptAudioCapabilities>("audio", obj["audio"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._audio = *res1;
-    }
-    else if (obj.contains("audio"))
-        result._audio = std::nullopt;
-    if (obj.contains("embeddedContext") && !obj["embeddedContext"].isNull()) {
-        const auto res2 = fromJson<PromptEmbeddedContextCapabilities>("embeddedContext", obj["embeddedContext"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._embeddedContext = *res2;
-    }
-    else if (obj.contains("embeddedContext"))
-        result._embeddedContext = std::nullopt;
+    // "image": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("image") && !obj["image"].isNull()) {
+            const auto imageRes0 = fromJson<PromptImageCapabilities>("image", obj["image"]);
+            if (!imageRes0)
+                return Utils::ResultError(imageRes0.error());
+            result._image = *imageRes0;
+        }
+        else if (obj.contains("image"))
+            result._image = std::nullopt;
+        return {};
+    }();
+    // "audio": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("audio") && !obj["audio"].isNull()) {
+            const auto audioRes0 = fromJson<PromptAudioCapabilities>("audio", obj["audio"]);
+            if (!audioRes0)
+                return Utils::ResultError(audioRes0.error());
+            result._audio = *audioRes0;
+        }
+        else if (obj.contains("audio"))
+            result._audio = std::nullopt;
+        return {};
+    }();
+    // "embeddedContext": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("embeddedContext") && !obj["embeddedContext"].isNull()) {
+            const auto embeddedContextRes0 = fromJson<PromptEmbeddedContextCapabilities>("embeddedContext", obj["embeddedContext"]);
+            if (!embeddedContextRes0)
+                return Utils::ResultError(embeddedContextRes0.error());
+            result._embeddedContext = *embeddedContextRes0;
+        }
+        else if (obj.contains("embeddedContext"))
+            result._embeddedContext = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3146,38 +3242,54 @@ Utils::Result<SessionCapabilities> fromJson<SessionCapabilities>(const QJsonValu
         return Utils::ResultError("Expected JSON object for SessionCapabilities");
     const QJsonObject obj = val.toObject();
     SessionCapabilities result;
-    if (obj.contains("prompt") && !obj["prompt"].isNull()) {
-        const auto res0 = fromJson<PromptCapabilities>("prompt", obj["prompt"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._prompt = *res0;
-    }
-    else if (obj.contains("prompt"))
-        result._prompt = std::nullopt;
-    if (obj.contains("mcp") && !obj["mcp"].isNull()) {
-        const auto res1 = fromJson<McpCapabilities>("mcp", obj["mcp"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._mcp = *res1;
-    }
-    else if (obj.contains("mcp"))
-        result._mcp = std::nullopt;
-    if (obj.contains("delete") && !obj["delete"].isNull()) {
-        const auto res2 = fromJson<SessionDeleteCapabilities>("delete", obj["delete"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._delete_ = *res2;
-    }
-    else if (obj.contains("delete"))
-        result._delete_ = std::nullopt;
-    if (obj.contains("additionalDirectories") && !obj["additionalDirectories"].isNull()) {
-        const auto res3 = fromJson<SessionAdditionalDirectoriesCapabilities>("additionalDirectories", obj["additionalDirectories"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._additionalDirectories = *res3;
-    }
-    else if (obj.contains("additionalDirectories"))
-        result._additionalDirectories = std::nullopt;
+    // "prompt": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("prompt") && !obj["prompt"].isNull()) {
+            const auto promptRes0 = fromJson<PromptCapabilities>("prompt", obj["prompt"]);
+            if (!promptRes0)
+                return Utils::ResultError(promptRes0.error());
+            result._prompt = *promptRes0;
+        }
+        else if (obj.contains("prompt"))
+            result._prompt = std::nullopt;
+        return {};
+    }();
+    // "mcp": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mcp") && !obj["mcp"].isNull()) {
+            const auto mcpRes0 = fromJson<McpCapabilities>("mcp", obj["mcp"]);
+            if (!mcpRes0)
+                return Utils::ResultError(mcpRes0.error());
+            result._mcp = *mcpRes0;
+        }
+        else if (obj.contains("mcp"))
+            result._mcp = std::nullopt;
+        return {};
+    }();
+    // "delete": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("delete") && !obj["delete"].isNull()) {
+            const auto delete_Res0 = fromJson<SessionDeleteCapabilities>("delete", obj["delete"]);
+            if (!delete_Res0)
+                return Utils::ResultError(delete_Res0.error());
+            result._delete_ = *delete_Res0;
+        }
+        else if (obj.contains("delete"))
+            result._delete_ = std::nullopt;
+        return {};
+    }();
+    // "additionalDirectories": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("additionalDirectories") && !obj["additionalDirectories"].isNull()) {
+            const auto additionalDirectoriesRes0 = fromJson<SessionAdditionalDirectoriesCapabilities>("additionalDirectories", obj["additionalDirectories"]);
+            if (!additionalDirectoriesRes0)
+                return Utils::ResultError(additionalDirectoriesRes0.error());
+            result._additionalDirectories = *additionalDirectoriesRes0;
+        }
+        else if (obj.contains("additionalDirectories"))
+            result._additionalDirectories = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3221,22 +3333,30 @@ Utils::Result<AgentCapabilities> fromJson<AgentCapabilities>(const QJsonValue &v
         return Utils::ResultError("Expected JSON object for AgentCapabilities");
     const QJsonObject obj = val.toObject();
     AgentCapabilities result;
-    if (obj.contains("session") && !obj["session"].isNull()) {
-        const auto res0 = fromJson<SessionCapabilities>("session", obj["session"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._session = *res0;
-    }
-    else if (obj.contains("session"))
-        result._session = std::nullopt;
-    if (obj.contains("auth") && !obj["auth"].isNull()) {
-        const auto res1 = fromJson<AgentAuthCapabilities>("auth", obj["auth"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._auth = *res1;
-    }
-    else if (obj.contains("auth"))
-        result._auth = std::nullopt;
+    // "session": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("session") && !obj["session"].isNull()) {
+            const auto sessionRes0 = fromJson<SessionCapabilities>("session", obj["session"]);
+            if (!sessionRes0)
+                return Utils::ResultError(sessionRes0.error());
+            result._session = *sessionRes0;
+        }
+        else if (obj.contains("session"))
+            result._session = std::nullopt;
+        return {};
+    }();
+    // "auth": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("auth") && !obj["auth"].isNull()) {
+            const auto authRes0 = fromJson<AgentAuthCapabilities>("auth", obj["auth"]);
+            if (!authRes0)
+                return Utils::ResultError(authRes0.error());
+            result._auth = *authRes0;
+        }
+        else if (obj.contains("auth"))
+            result._auth = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3398,10 +3518,10 @@ Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue 
         const QJsonArray arr = obj["env"].toArray();
         QList<EnvVariable> list_env;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<EnvVariable>("env", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            list_env.append(*res1);
+            const auto envItem = fromJson<EnvVariable>("env", v);
+            if (!envItem)
+                continue;
+            list_env.append(*envItem);
         }
         result._env = list_env;
     }
@@ -3575,20 +3695,24 @@ Utils::Result<InitializeResponse> fromJson<InitializeResponse>(const QJsonValue 
     if (!res1)
         return Utils::ResultError(res1.error());
     result._info = *res1;
-    if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
-        const auto res2 = fromJson<AgentCapabilities>("capabilities", obj["capabilities"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._capabilities = *res2;
-    }
+    // "capabilities": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
+            const auto capabilitiesRes0 = fromJson<AgentCapabilities>("capabilities", obj["capabilities"]);
+            if (!capabilitiesRes0)
+                return Utils::ResultError(capabilitiesRes0.error());
+            result._capabilities = *capabilitiesRes0;
+        }
+        return {};
+    }();
     if (obj.contains("authMethods") && obj["authMethods"].isArray()) {
         const QJsonArray arr = obj["authMethods"].toArray();
         QList<AuthMethod> list_authMethods;
         for (const QJsonValue &v : arr) {
-            const auto res3 = fromJson<AuthMethod>("authMethods", v);
-            if (!res3)
-                return Utils::ResultError(res3.error());
-            list_authMethods.append(*res3);
+            const auto authMethodsItem = fromJson<AuthMethod>("authMethods", v);
+            if (!authMethodsItem)
+                continue;
+            list_authMethods.append(*authMethodsItem);
         }
         result._authMethods = list_authMethods;
     }
@@ -3649,10 +3773,10 @@ Utils::Result<SessionInfo> fromJson<SessionInfo>(const QJsonValue &val)
         const QJsonArray arr = obj["additionalDirectories"].toArray();
         QList<AbsolutePath> list_additionalDirectories;
         for (const QJsonValue &v : arr) {
-            const auto res2 = fromJson<AbsolutePath>("additionalDirectories", v);
-            if (!res2)
-                return Utils::ResultError(res2.error());
-            list_additionalDirectories.append(*res2);
+            const auto additionalDirectoriesItem = fromJson<AbsolutePath>("additionalDirectories", v);
+            if (!additionalDirectoriesItem)
+                continue;
+            list_additionalDirectories.append(*additionalDirectoriesItem);
         }
         result._additionalDirectories = list_additionalDirectories;
     }
@@ -3720,20 +3844,24 @@ Utils::Result<ListSessionsResponse> fromJson<ListSessionsResponse>(const QJsonVa
     {
         const QJsonArray arr = obj["sessions"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<SessionInfo>("sessions", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            result._sessions.append(*res0);
+            const auto sessionsItem = fromJson<SessionInfo>("sessions", v);
+            if (!sessionsItem)
+                continue;
+            result._sessions.append(*sessionsItem);
         }
     }
-    if (obj.contains("nextCursor") && !obj["nextCursor"].isNull()) {
-        const auto res1 = fromJson<SessionListCursor>("nextCursor", obj["nextCursor"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._nextCursor = *res1;
-    }
-    else if (obj.contains("nextCursor"))
-        result._nextCursor = std::nullopt;
+    // "nextCursor": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("nextCursor") && !obj["nextCursor"].isNull()) {
+            const auto nextCursorRes0 = fromJson<SessionListCursor>("nextCursor", obj["nextCursor"]);
+            if (!nextCursorRes0)
+                return Utils::ResultError(nextCursorRes0.error());
+            result._nextCursor = *nextCursorRes0;
+        }
+        else if (obj.contains("nextCursor"))
+            result._nextCursor = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3946,10 +4074,10 @@ Utils::Result<SessionConfigSelectGroup> fromJson<SessionConfigSelectGroup>(const
     {
         const QJsonArray arr = obj["options"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<SessionConfigSelectOption>("options", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            result._options.append(*res1);
+            const auto optionsItem = fromJson<SessionConfigSelectOption>("options", v);
+            if (!optionsItem)
+                continue;
+            result._options.append(*optionsItem);
         }
     }
     if (obj.contains("_meta")) {
@@ -4086,14 +4214,18 @@ Utils::Result<SessionConfigOption> fromJson<SessionConfigOption>(const QJsonValu
             result._description = std::nullopt;
         }
     }
-    if (obj.contains("category") && !obj["category"].isNull()) {
-        const auto res1 = fromJson<SessionConfigOptionCategory>("category", obj["category"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._category = *res1;
-    }
-    else if (obj.contains("category"))
-        result._category = std::nullopt;
+    // "category": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("category") && !obj["category"].isNull()) {
+            const auto categoryRes0 = fromJson<SessionConfigOptionCategory>("category", obj["category"]);
+            if (!categoryRes0)
+                return Utils::ResultError(categoryRes0.error());
+            result._category = *categoryRes0;
+        }
+        else if (obj.contains("category"))
+            result._category = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4153,10 +4285,10 @@ Utils::Result<NewSessionResponse> fromJson<NewSessionResponse>(const QJsonValue 
         const QJsonArray arr = obj["configOptions"].toArray();
         QList<SessionConfigOption> list_configOptions;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<SessionConfigOption>("configOptions", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            list_configOptions.append(*res1);
+            const auto configOptionsItem = fromJson<SessionConfigOption>("configOptions", v);
+            if (!configOptionsItem)
+                continue;
+            list_configOptions.append(*configOptionsItem);
         }
         result._configOptions = list_configOptions;
     }
@@ -4223,10 +4355,10 @@ Utils::Result<ResumeSessionResponse> fromJson<ResumeSessionResponse>(const QJson
         const QJsonArray arr = obj["configOptions"].toArray();
         QList<SessionConfigOption> list_configOptions;
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<SessionConfigOption>("configOptions", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            list_configOptions.append(*res0);
+            const auto configOptionsItem = fromJson<SessionConfigOption>("configOptions", v);
+            if (!configOptionsItem)
+                continue;
+            list_configOptions.append(*configOptionsItem);
         }
         result._configOptions = list_configOptions;
     }
@@ -4269,10 +4401,10 @@ Utils::Result<SetSessionConfigOptionResponse> fromJson<SetSessionConfigOptionRes
     {
         const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<SessionConfigOption>("configOptions", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            result._configOptions.append(*res0);
+            const auto configOptionsItem = fromJson<SessionConfigOption>("configOptions", v);
+            if (!configOptionsItem)
+                continue;
+            result._configOptions.append(*configOptionsItem);
         }
     }
     if (obj.contains("_meta")) {
@@ -4369,10 +4501,10 @@ Utils::Result<AgentMessage> fromJson<AgentMessage>(const QJsonValue &val)
         const QJsonArray arr = obj["content"].toArray();
         QList<ContentBlock> list_content;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<ContentBlock>("content", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            list_content.append(*res1);
+            const auto contentItem = fromJson<ContentBlock>("content", v);
+            if (!contentItem)
+                continue;
+            list_content.append(*contentItem);
         }
         result._content = list_content;
     }
@@ -4424,10 +4556,10 @@ Utils::Result<AgentThought> fromJson<AgentThought>(const QJsonValue &val)
         const QJsonArray arr = obj["content"].toArray();
         QList<ContentBlock> list_content;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<ContentBlock>("content", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            list_content.append(*res1);
+            const auto contentItem = fromJson<ContentBlock>("content", v);
+            if (!contentItem)
+                continue;
+            list_content.append(*contentItem);
         }
         result._content = list_content;
     }
@@ -4543,14 +4675,18 @@ Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val
     AvailableCommand result;
     result._name = obj.value("name").toString();
     result._description = obj.value("description").toString();
-    if (obj.contains("input") && !obj["input"].isNull()) {
-        const auto res0 = fromJson<AvailableCommandInput>("input", obj["input"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._input = *res0;
-    }
-    else if (obj.contains("input"))
-        result._input = std::nullopt;
+    // "input": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("input") && !obj["input"].isNull()) {
+            const auto inputRes0 = fromJson<AvailableCommandInput>("input", obj["input"]);
+            if (!inputRes0)
+                return Utils::ResultError(inputRes0.error());
+            result._input = *inputRes0;
+        }
+        else if (obj.contains("input"))
+            result._input = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4592,10 +4728,10 @@ Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsUpdate>(const Q
     {
         const QJsonArray arr = obj["availableCommands"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<AvailableCommand>("availableCommands", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            result._availableCommands.append(*res0);
+            const auto availableCommandsItem = fromJson<AvailableCommand>("availableCommands", v);
+            if (!availableCommandsItem)
+                continue;
+            result._availableCommands.append(*availableCommandsItem);
         }
     }
     if (obj.contains("_meta")) {
@@ -4635,10 +4771,10 @@ Utils::Result<ConfigOptionUpdate> fromJson<ConfigOptionUpdate>(const QJsonValue 
     {
         const QJsonArray arr = obj["configOptions"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res0 = fromJson<SessionConfigOption>("configOptions", v);
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            result._configOptions.append(*res0);
+            const auto configOptionsItem = fromJson<SessionConfigOption>("configOptions", v);
+            if (!configOptionsItem)
+                continue;
+            result._configOptions.append(*configOptionsItem);
         }
     }
     if (obj.contains("_meta")) {
@@ -4834,10 +4970,10 @@ Utils::Result<PlanItems> fromJson<PlanItems>(const QJsonValue &val)
     {
         const QJsonArray arr = obj["entries"].toArray();
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<PlanEntry>("entries", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            result._entries.append(*res1);
+            const auto entriesItem = fromJson<PlanEntry>("entries", v);
+            if (!entriesItem)
+                continue;
+            result._entries.append(*entriesItem);
         }
     }
     if (obj.contains("_meta")) {
@@ -5017,14 +5153,18 @@ Utils::Result<IdleStateUpdate> fromJson<IdleStateUpdate>(const QJsonValue &val)
         return Utils::ResultError("Expected JSON object for IdleStateUpdate");
     const QJsonObject obj = val.toObject();
     IdleStateUpdate result;
-    if (obj.contains("stopReason") && !obj["stopReason"].isNull()) {
-        const auto res0 = fromJson<StopReason>("stopReason", obj["stopReason"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._stopReason = *res0;
-    }
-    else if (obj.contains("stopReason"))
-        result._stopReason = std::nullopt;
+    // "stopReason": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("stopReason") && !obj["stopReason"].isNull()) {
+            const auto stopReasonRes0 = fromJson<StopReason>("stopReason", obj["stopReason"]);
+            if (!stopReasonRes0)
+                return Utils::ResultError(stopReasonRes0.error());
+            result._stopReason = *stopReasonRes0;
+        }
+        else if (obj.contains("stopReason"))
+            result._stopReason = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5309,30 +5449,42 @@ Utils::Result<TerminalUpdate> fromJson<TerminalUpdate>(const QJsonValue &val)
             result._command = std::nullopt;
         }
     }
-    if (obj.contains("cwd") && !obj["cwd"].isNull()) {
-        const auto res1 = fromJson<AbsolutePath>("cwd", obj["cwd"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._cwd = *res1;
-    }
-    else if (obj.contains("cwd"))
-        result._cwd = std::nullopt;
-    if (obj.contains("output") && !obj["output"].isNull()) {
-        const auto res2 = fromJson<TerminalOutput>("output", obj["output"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._output = *res2;
-    }
-    else if (obj.contains("output"))
-        result._output = std::nullopt;
-    if (obj.contains("exitStatus") && !obj["exitStatus"].isNull()) {
-        const auto res3 = fromJson<TerminalExitStatus>("exitStatus", obj["exitStatus"]);
-        if (!res3)
-            return Utils::ResultError(res3.error());
-        result._exitStatus = *res3;
-    }
-    else if (obj.contains("exitStatus"))
-        result._exitStatus = std::nullopt;
+    // "cwd": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("cwd") && !obj["cwd"].isNull()) {
+            const auto cwdRes0 = fromJson<AbsolutePath>("cwd", obj["cwd"]);
+            if (!cwdRes0)
+                return Utils::ResultError(cwdRes0.error());
+            result._cwd = *cwdRes0;
+        }
+        else if (obj.contains("cwd"))
+            result._cwd = std::nullopt;
+        return {};
+    }();
+    // "output": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("output") && !obj["output"].isNull()) {
+            const auto outputRes0 = fromJson<TerminalOutput>("output", obj["output"]);
+            if (!outputRes0)
+                return Utils::ResultError(outputRes0.error());
+            result._output = *outputRes0;
+        }
+        else if (obj.contains("output"))
+            result._output = std::nullopt;
+        return {};
+    }();
+    // "exitStatus": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("exitStatus") && !obj["exitStatus"].isNull()) {
+            const auto exitStatusRes0 = fromJson<TerminalExitStatus>("exitStatus", obj["exitStatus"]);
+            if (!exitStatusRes0)
+                return Utils::ResultError(exitStatusRes0.error());
+            result._exitStatus = *exitStatusRes0;
+        }
+        else if (obj.contains("exitStatus"))
+            result._exitStatus = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5470,14 +5622,18 @@ Utils::Result<UsageUpdate> fromJson<UsageUpdate>(const QJsonValue &val)
     UsageUpdate result;
     result._used = obj.value("used").toInt();
     result._size = obj.value("size").toInt();
-    if (obj.contains("cost") && !obj["cost"].isNull()) {
-        const auto res0 = fromJson<Cost>("cost", obj["cost"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._cost = *res0;
-    }
-    else if (obj.contains("cost"))
-        result._cost = std::nullopt;
+    // "cost": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("cost") && !obj["cost"].isNull()) {
+            const auto costRes0 = fromJson<Cost>("cost", obj["cost"]);
+            if (!costRes0)
+                return Utils::ResultError(costRes0.error());
+            result._cost = *costRes0;
+        }
+        else if (obj.contains("cost"))
+            result._cost = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5524,10 +5680,10 @@ Utils::Result<UserMessage> fromJson<UserMessage>(const QJsonValue &val)
         const QJsonArray arr = obj["content"].toArray();
         QList<ContentBlock> list_content;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<ContentBlock>("content", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            list_content.append(*res1);
+            const auto contentItem = fromJson<ContentBlock>("content", v);
+            if (!contentItem)
+                continue;
+            list_content.append(*contentItem);
         }
         result._content = list_content;
     }
@@ -5861,14 +6017,18 @@ Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val
         return Utils::ResultError("Expected JSON object for AuthCapabilities");
     const QJsonObject obj = val.toObject();
     AuthCapabilities result;
-    if (obj.contains("terminal") && !obj["terminal"].isNull()) {
-        const auto res0 = fromJson<TerminalAuthCapabilities>("terminal", obj["terminal"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._terminal = *res0;
-    }
-    else if (obj.contains("terminal"))
-        result._terminal = std::nullopt;
+    // "terminal": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("terminal") && !obj["terminal"].isNull()) {
+            const auto terminalRes0 = fromJson<TerminalAuthCapabilities>("terminal", obj["terminal"]);
+            if (!terminalRes0)
+                return Utils::ResultError(terminalRes0.error());
+            result._terminal = *terminalRes0;
+        }
+        else if (obj.contains("terminal"))
+            result._terminal = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5954,22 +6114,30 @@ Utils::Result<ElicitationCapabilities> fromJson<ElicitationCapabilities>(const Q
         return Utils::ResultError("Expected JSON object for ElicitationCapabilities");
     const QJsonObject obj = val.toObject();
     ElicitationCapabilities result;
-    if (obj.contains("form") && !obj["form"].isNull()) {
-        const auto res0 = fromJson<ElicitationFormCapabilities>("form", obj["form"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._form = *res0;
-    }
-    else if (obj.contains("form"))
-        result._form = std::nullopt;
-    if (obj.contains("url") && !obj["url"].isNull()) {
-        const auto res1 = fromJson<ElicitationUrlCapabilities>("url", obj["url"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._url = *res1;
-    }
-    else if (obj.contains("url"))
-        result._url = std::nullopt;
+    // "form": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("form") && !obj["form"].isNull()) {
+            const auto formRes0 = fromJson<ElicitationFormCapabilities>("form", obj["form"]);
+            if (!formRes0)
+                return Utils::ResultError(formRes0.error());
+            result._form = *formRes0;
+        }
+        else if (obj.contains("form"))
+            result._form = std::nullopt;
+        return {};
+    }();
+    // "url": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("url") && !obj["url"].isNull()) {
+            const auto urlRes0 = fromJson<ElicitationUrlCapabilities>("url", obj["url"]);
+            if (!urlRes0)
+                return Utils::ResultError(urlRes0.error());
+            result._url = *urlRes0;
+        }
+        else if (obj.contains("url"))
+            result._url = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -6005,22 +6173,30 @@ Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue 
         return Utils::ResultError("Expected JSON object for ClientCapabilities");
     const QJsonObject obj = val.toObject();
     ClientCapabilities result;
-    if (obj.contains("auth") && !obj["auth"].isNull()) {
-        const auto res0 = fromJson<AuthCapabilities>("auth", obj["auth"]);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        result._auth = *res0;
-    }
-    else if (obj.contains("auth"))
-        result._auth = std::nullopt;
-    if (obj.contains("elicitation") && !obj["elicitation"].isNull()) {
-        const auto res1 = fromJson<ElicitationCapabilities>("elicitation", obj["elicitation"]);
-        if (!res1)
-            return Utils::ResultError(res1.error());
-        result._elicitation = *res1;
-    }
-    else if (obj.contains("elicitation"))
-        result._elicitation = std::nullopt;
+    // "auth": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("auth") && !obj["auth"].isNull()) {
+            const auto authRes0 = fromJson<AuthCapabilities>("auth", obj["auth"]);
+            if (!authRes0)
+                return Utils::ResultError(authRes0.error());
+            result._auth = *authRes0;
+        }
+        else if (obj.contains("auth"))
+            result._auth = std::nullopt;
+        return {};
+    }();
+    // "elicitation": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("elicitation") && !obj["elicitation"].isNull()) {
+            const auto elicitationRes0 = fromJson<ElicitationCapabilities>("elicitation", obj["elicitation"]);
+            if (!elicitationRes0)
+                return Utils::ResultError(elicitationRes0.error());
+            result._elicitation = *elicitationRes0;
+        }
+        else if (obj.contains("elicitation"))
+            result._elicitation = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -6072,12 +6248,16 @@ Utils::Result<InitializeRequest> fromJson<InitializeRequest>(const QJsonValue &v
     if (!res1)
         return Utils::ResultError(res1.error());
     result._info = *res1;
-    if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
-        const auto res2 = fromJson<ClientCapabilities>("capabilities", obj["capabilities"]);
-        if (!res2)
-            return Utils::ResultError(res2.error());
-        result._capabilities = *res2;
-    }
+    // "capabilities": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("capabilities") && obj["capabilities"].isObject()) {
+            const auto capabilitiesRes0 = fromJson<ClientCapabilities>("capabilities", obj["capabilities"]);
+            if (!capabilitiesRes0)
+                return Utils::ResultError(capabilitiesRes0.error());
+            result._capabilities = *capabilitiesRes0;
+        }
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -6456,10 +6636,10 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
         const QJsonArray arr = obj["additionalDirectories"].toArray();
         QList<AbsolutePath> list_additionalDirectories;
         for (const QJsonValue &v : arr) {
-            const auto res1 = fromJson<AbsolutePath>("additionalDirectories", v);
-            if (!res1)
-                return Utils::ResultError(res1.error());
-            list_additionalDirectories.append(*res1);
+            const auto additionalDirectoriesItem = fromJson<AbsolutePath>("additionalDirectories", v);
+            if (!additionalDirectoriesItem)
+                continue;
+            list_additionalDirectories.append(*additionalDirectoriesItem);
         }
         result._additionalDirectories = list_additionalDirectories;
     }
@@ -6467,10 +6647,10 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
         const QJsonArray arr = obj["mcpServers"].toArray();
         QList<McpServer> list_mcpServers;
         for (const QJsonValue &v : arr) {
-            const auto res2 = fromJson<McpServer>("mcpServers", v);
-            if (!res2)
-                return Utils::ResultError(res2.error());
-            list_mcpServers.append(*res2);
+            const auto mcpServersItem = fromJson<McpServer>("mcpServers", v);
+            if (!mcpServersItem)
+                continue;
+            list_mcpServers.append(*mcpServersItem);
         }
         result._mcpServers = list_mcpServers;
     }
@@ -6638,10 +6818,10 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
         const QJsonArray arr = obj["additionalDirectories"].toArray();
         QList<AbsolutePath> list_additionalDirectories;
         for (const QJsonValue &v : arr) {
-            const auto res2 = fromJson<AbsolutePath>("additionalDirectories", v);
-            if (!res2)
-                return Utils::ResultError(res2.error());
-            list_additionalDirectories.append(*res2);
+            const auto additionalDirectoriesItem = fromJson<AbsolutePath>("additionalDirectories", v);
+            if (!additionalDirectoriesItem)
+                continue;
+            list_additionalDirectories.append(*additionalDirectoriesItem);
         }
         result._additionalDirectories = list_additionalDirectories;
     }
@@ -6649,21 +6829,25 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
         const QJsonArray arr = obj["mcpServers"].toArray();
         QList<McpServer> list_mcpServers;
         for (const QJsonValue &v : arr) {
-            const auto res3 = fromJson<McpServer>("mcpServers", v);
-            if (!res3)
-                return Utils::ResultError(res3.error());
-            list_mcpServers.append(*res3);
+            const auto mcpServersItem = fromJson<McpServer>("mcpServers", v);
+            if (!mcpServersItem)
+                continue;
+            list_mcpServers.append(*mcpServersItem);
         }
         result._mcpServers = list_mcpServers;
     }
-    if (obj.contains("replayFrom") && !obj["replayFrom"].isNull()) {
-        const auto res4 = fromJson<ReplayFrom>("replayFrom", obj["replayFrom"]);
-        if (!res4)
-            return Utils::ResultError(res4.error());
-        result._replayFrom = *res4;
-    }
-    else if (obj.contains("replayFrom"))
-        result._replayFrom = std::nullopt;
+    // "replayFrom": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("replayFrom") && !obj["replayFrom"].isNull()) {
+            const auto replayFromRes0 = fromJson<ReplayFrom>("replayFrom", obj["replayFrom"]);
+            if (!replayFromRes0)
+                return Utils::ResultError(replayFromRes0.error());
+            result._replayFrom = *replayFromRes0;
+        }
+        else if (obj.contains("replayFrom"))
+            result._replayFrom = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();

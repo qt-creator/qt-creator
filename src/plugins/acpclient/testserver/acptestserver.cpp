@@ -844,6 +844,27 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
     if (m_scenario.emitUnknownUpdate)
         sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "_test_future_kind"},
                                                    {"x", 1}});
+    if (m_scenario.idleError) {
+        // An unknown stop reason next to an error outside the v2 schema,
+        // as Claude Code reports a turn that could not run.
+        sendSessionUpdateV2(sessionId,
+                            QJsonObject{{"sessionUpdate", "state_update"},
+                                        {"state", "idle"},
+                                        {"stopReason", "error"},
+                                        {"error", QJsonObject{{"code", -32000},
+                                                              {"message", "Authentication required"}}}});
+        return;
+    }
+    if (m_scenario.idleUnparseable) {
+        // Without the sessionUpdate discriminator the update is no
+        // SessionUpdate at all.
+        sendSessionUpdateV2(sessionId,
+                            QJsonObject{{"state", "idle"},
+                                        {"error", QJsonObject{{"code", -32000},
+                                                              {"message", "Turn failed"}}}});
+        return;
+    }
+
     sendStateUpdate(sessionId, "idle", "end_turn");
 }
 

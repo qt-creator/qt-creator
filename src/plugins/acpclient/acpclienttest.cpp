@@ -565,6 +565,8 @@ private slots:
     void testV2InitializeNegotiation();
     void testV2PromptLifecycle();
     void testV2PromptCancel();
+    void testV2PromptIdleError();
+    void testV2PromptIdleUnparseable();
     void testV2PermissionRequest();
     void testV2SessionResume();
     void testV2UnknownSessionUpdateIgnored();
@@ -2295,6 +2297,47 @@ void AcpClientTest::testV2PromptCancel()
     QVERIFY(*idle->stopReason() == V2::StopReason::cancelled);
     QVERIFY(fixture.errors.isEmpty());
 }
+
+// An idle state update may carry a stop reason from outside the schema next
+// to an error. The unknown reason must not void the update: the turn still
+// ends, and the error reaches the chat.
+void AcpClientTest::testV2PromptIdleError()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--idle-error"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+    QCOMPARE(fixture.errors, QStringList("Authentication required"));
+
+    const int idleIndex = indexOfStateUpdate(fixture.updates, "idle");
+    QVERIFY(idleIndex >= 0);
+    const auto *idleState = fixture.updates.at(idleIndex).get<V2::StateUpdate>();
+    QVERIFY(idleState);
+    const auto *idle = std::get_if<V2::IdleStateUpdate>(idleState);
+    QVERIFY(idle);
+    QVERIFY(!idle->stopReason().has_value());
+}
+
+// An idle state update that cannot be read at all still ends the turn and
+// reports its error, instead of leaving the turn running.
+void AcpClientTest::testV2PromptIdleUnparseable()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--idle-unparseable"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+    QCOMPARE(fixture.errors, QStringList("Turn failed"));
+    QCOMPARE(indexOfStateUpdate(fixture.updates, "idle"), -1);
+}
+
 
 // A v2 permission request carries title, subject, and options; answering with
 // the allow option completes the tool call and ends the turn.

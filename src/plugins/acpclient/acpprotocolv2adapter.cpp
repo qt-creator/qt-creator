@@ -216,6 +216,19 @@ void AcpProtocolV2Adapter::finishTurn(const std::optional<StopReason> &stopReaso
     emit promptFinished(stopReason);
 }
 
+// An agent may attach an error to the idle state update that ends a turn.
+// That field is outside the v2 schema, so it is read off the raw notification.
+// Only the update that ends the turn reports it: a failed acknowledgement has
+// already reported its own error.
+void AcpProtocolV2Adapter::reportIdleError(const QJsonObject &update)
+{
+    if (!m_turnActive)
+        return;
+    const QString message = update.value("error").toObject().value("message").toString();
+    if (!message.isEmpty())
+        emit errorOccurred(message);
+}
+
 void AcpProtocolV2Adapter::cancel(const QString &sessionId)
 {
     m_client->sendNotification(QStringLiteral("session/cancel"), {{"sessionId", sessionId}});
@@ -264,16 +277,25 @@ void AcpProtocolV2Adapter::handleNotification(const QString &method, const QJson
         return;
 
     const QString sessionId = params.value("sessionId").toString();
+    const QJsonObject rawUpdate = params.value("update").toObject();
     const auto update = fromJson<SessionUpdate>(params.value("update"));
     if (!update) {
         qCWarning(logAdapter) << "Invalid session update:" << params << update.error();
+        // An idle update that cannot be read still ends the turn: leaving it
+        // active would hang the session on a notification we dropped.
+        if (rawUpdate.value("state").toString() == QLatin1String("idle")) {
+            reportIdleError(rawUpdate);
+            finishTurn({});
+        }
         return;
     }
 
     if (update->kind() == QLatin1String("state_update")) {
         if (const StateUpdate *state = update->get<StateUpdate>()) {
-            if (const auto *idle = std::get_if<IdleStateUpdate>(state))
+            if (const auto *idle = std::get_if<IdleStateUpdate>(state)) {
+                reportIdleError(rawUpdate);
                 finishTurn(idle->stopReason().asOptional());
+            }
         }
     }
 

@@ -40,6 +40,7 @@ public:
 
 private:
     void finishTurn(const std::optional<Acp::V2::StopReason> &stopReason);
+    void reportIdleError(const QJsonObject &update);
     void handleNotification(const QString &method, const QJsonObject &params);
     void handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params);
     void emitConfigOptions(const QJsonArray &options);

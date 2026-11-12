@@ -365,11 +365,12 @@ def _indent_of(line):
     return line[:len(line) - len(line.lstrip())]
 
 
-def lower_co_await(lines):
+def lower_co_await(lines, prefix="res"):
     """Rewrite each `co_await <call>` as a temporary plus an early return.
 
     Where the awaiting statement is the unbraced body of an if or a loop, that
-    body gains braces so the added statements stay part of it.
+    body gains braces so the added statements stay part of it. prefix names the
+    temporaries, so that a nested lowering does not shadow the enclosing one.
     """
     out = []
     awaited = 0
@@ -384,7 +385,7 @@ def lower_co_await(lines):
         indent = _indent_of(line)
         while match:
             call, end = _awaited_call(line, match.end())
-            tmp = f"res{awaited}"
+            tmp = f"{prefix}{awaited}"
             awaited += 1
             out.append(f"{indent}const auto {tmp} = {call};")
             out.append(f"{indent}if (!{tmp})")
@@ -394,6 +395,51 @@ def lower_co_await(lines):
         out.append(line.replace('co_return', 'return'))
         if header is not None:
             out.append(_indent_of(out[header]) + '}')
+    return out
+
+
+_AWAITED_APPEND = re.compile(r'^(\s*)(\S+)\.append\(co_await (fromJson<.*)\);$')
+
+
+def skip_invalid_items(lines, prop_name):
+    """Make the item loop of an array property skip an element it cannot read,
+    which is what the schema asks for with `x-deserialize-skip-invalid-items`.
+    """
+    out = []
+    for line in lines:
+        match = _AWAITED_APPEND.match(line)
+        if not match:
+            out.append(line)
+            continue
+        indent, target, call = match.groups()
+        item = f"{prop_name}Item"
+        out.append(f"{indent}const auto {item} = {call};")
+        out.append(f"{indent}if (!{item})")
+        out.append(f"{indent}    continue;")
+        out.append(f"{indent}{target}.append(*{item});")
+    return out
+
+
+def tolerate_parse_errors(lines, prop, prop_name):
+    """Wrap a property's parse lines so that a failure leaves the field at its
+    default instead of failing the whole object, which is what the schema asks
+    for with `x-deserialize-default-on-error`.
+
+    The awaits are lowered here rather than by finalize_from_json, so that the
+    early returns they turn into leave the lambda instead of the enclosing
+    fromJson, in both the C++17 and the C++20 flavour.
+    """
+    if not any('co_await' in line for line in lines):
+        return lines
+    partial = [line for line in lines if re.search(r'\bresult\._\w+\.append\(co_await ', line)]
+    if partial:
+        sys.exit(f'error: "{prop}" sets x-deserialize-default-on-error, but a failing item '
+                 f'would leave its list partly filled: {partial[0].strip()}')
+    out = [f'    // "{prop}": a parse failure leaves the field at its default.',
+           "    (void) [&]() -> Utils::Result<> {"]
+    out.extend("    " + line for line in lower_co_await(lines, prefix=f"{prop_name}Res"))
+    out.append("        return {};")
+    out.append("    }();")
     return out
 
 
@@ -3128,6 +3174,7 @@ def parse_struct(name, props, types, required=None, description='', nested_child
     for prop, spec in props.items():
         prop_name = sanitize_identifier(prop)
         is_optional = prop not in required
+        prop_start = len(fj_lines)
         if prop in inline_enum_names:
             t_fj = f"{name}::{inline_enum_names[prop]}"
             if is_optional:
@@ -3369,6 +3416,13 @@ def parse_struct(name, props, types, required=None, description='', nested_child
                 fj_lines.append(f"{indent}// Unknown property type: {ct}")
             if braced_presence:
                 fj_lines.append(f"    }}")
+        block = fj_lines[prop_start:]
+        del fj_lines[prop_start:]
+        if spec.get("x-deserialize-skip-invalid-items"):
+            block = skip_invalid_items(block, prop_name)
+        if spec.get("x-deserialize-default-on-error"):
+            block = tolerate_parse_errors(block, prop, prop_name)
+        fj_lines.extend(block)
     if has_additional_props:
         known_keys = list(props.keys())
         fj_lines.append(f"    {{")

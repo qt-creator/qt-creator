@@ -35,6 +35,8 @@ public:
     int chunks = 3;                // --chunks <N>
     int protocolVersion = -1;      // --protocol-version <N>, -1 negotiates
     bool omitProtocolVersion = false; // --omit-protocol-version
+    bool idleError = false;        // --idle-error
+    bool idleUnparseable = false;  // --idle-unparseable
 
 };
 

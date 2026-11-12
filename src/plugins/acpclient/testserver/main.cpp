@@ -51,6 +51,12 @@ int main(int argc, char *argv[])
                                           "instead of negotiating one.", "version"});
     parser.addOption({"omit-protocol-version",
                       "Answer initialize without a protocolVersion field."});
+    parser.addOption({"idle-error",
+                      "End the v2 turn with an idle state update carrying an unknown "
+                      "stop reason and an error."});
+    parser.addOption({"idle-unparseable",
+                      "End the v2 turn with an idle state update that does not parse, "
+                      "carrying an error."});
     parser.process(app);
 
     AcpTestServer::ServerScenario scenario;
@@ -76,6 +82,8 @@ int main(int argc, char *argv[])
     if (parser.isSet("protocol-version"))
         scenario.protocolVersion = parser.value("protocol-version").toInt();
     scenario.omitProtocolVersion = parser.isSet("omit-protocol-version");
+    scenario.idleError = parser.isSet("idle-error");
+    scenario.idleUnparseable = parser.isSet("idle-unparseable");
 
     AcpTestServer::Server server(scenario);
     return server.run();
