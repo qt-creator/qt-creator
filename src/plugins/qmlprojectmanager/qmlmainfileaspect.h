@@ -13,10 +13,6 @@ namespace Core {
 class IEditor;
 }
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
-
 namespace QmlProjectManager {
 
 namespace Internal { QObject *createQmlMainFileAspectTest(); }
@@ -60,9 +56,13 @@ public:
     bool isQmlFilePresent();
     QmlBuildSystem *qmlBuildSystem() const;
 
+signals:
+    void fileSelectionChanged(QPrivateSignal);
+
 public:
-    QPointer<QComboBox> m_fileListCombo;
     QStandardItemModel m_fileListModel;
+    bool m_fileListEnabled = true;
+    int m_currentFileRow = 0;
     QString m_scriptFile;
     // absolute path to current file (if being used)
     Utils::FilePath m_currentFileFilename;

@@ -64,21 +64,23 @@ QmlMainFileAspect::QmlMainFileAspect(AspectContainer *container)
             &QmlMainFileAspect::updateFileComboBox);
 }
 
-QmlMainFileAspect::~QmlMainFileAspect()
-{
-    delete m_fileListCombo;
-}
+QmlMainFileAspect::~QmlMainFileAspect() = default;
 
 void QmlMainFileAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QTC_ASSERT(!m_fileListCombo, delete m_fileListCombo);
-    m_fileListCombo = new QComboBox;
-    m_fileListCombo->setModel(&m_fileListModel);
+    auto fileListCombo = new QComboBox;
+    fileListCombo->setModel(&m_fileListModel);
+    const auto showSelection = [this, fileListCombo] {
+        fileListCombo->setEnabled(m_fileListEnabled);
+        fileListCombo->setCurrentIndex(m_currentFileRow);
+    };
+    connect(this, &QmlMainFileAspect::fileSelectionChanged, fileListCombo, showSelection);
 
     updateFileComboBox();
-    connect(m_fileListCombo, &QComboBox::activated, this, &QmlMainFileAspect::setMainScript);
+    showSelection();
+    connect(fileListCombo, &QComboBox::activated, this, &QmlMainFileAspect::setMainScript);
 
-    parent.addItems({Tr::tr("Main QML file:"), m_fileListCombo.data()});
+    parent.addItems({Tr::tr("Main QML file:"), fileListCombo});
 }
 
 void QmlMainFileAspect::toMap(Store &map) const
@@ -108,13 +110,13 @@ void QmlMainFileAspect::updateFileComboBox()
         const QString mainScriptInFilePath = mainScript().relativePathFromDir(projectDir);
         m_fileListModel.clear();
         m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath));
-        if (m_fileListCombo)
-            m_fileListCombo->setEnabled(false);
+        m_fileListEnabled = false;
+        m_currentFileRow = 0;
+        emit fileSelectionChanged(QPrivateSignal());
         return;
     }
 
-    if (m_fileListCombo)
-        m_fileListCombo->setEnabled(true);
+    m_fileListEnabled = true;
     m_fileListModel.clear();
     m_fileListModel.appendRow(new QStandardItem(CURRENT_FILE));
     QModelIndex currentIndex;
@@ -144,12 +146,8 @@ void QmlMainFileAspect::updateFileComboBox()
             currentIndex = item->index();
     }
 
-    if (m_fileListCombo) {
-        if (currentIndex.isValid())
-            m_fileListCombo->setCurrentIndex(currentIndex.row());
-        else
-            m_fileListCombo->setCurrentIndex(0);
-    }
+    m_currentFileRow = currentIndex.isValid() ? currentIndex.row() : 0;
+    emit fileSelectionChanged(QPrivateSignal());
 }
 
 QmlMainFileAspect::MainScriptSource QmlMainFileAspect::mainScriptSource() const
@@ -164,6 +162,8 @@ QmlMainFileAspect::MainScriptSource QmlMainFileAspect::mainScriptSource() const
 
 void QmlMainFileAspect::setMainScript(int index)
 {
+    m_currentFileRow = index;
+    emit fileSelectionChanged(QPrivateSignal());
     if (index == 0) {
         setScriptSource(FileInEditor);
     } else {
@@ -318,6 +318,26 @@ private slots:
         QCOMPARE(comboBox->count(), 3);
         QCOMPARE(comboBox->itemText(1), "first.qml");
         QCOMPARE(comboBox->itemText(2), "second.qml");
+    }
+
+    void testUpdatesEveryComboBox()
+    {
+        const std::unique_ptr<QWidget> first(Layouting::Column{*m_aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{*m_aspect}.emerge());
+        QComboBox *firstBox = first->findChild<QComboBox *>();
+        QComboBox *secondBox = second->findChild<QComboBox *>();
+        QVERIFY(firstBox);
+        QVERIFY(secondBox);
+
+        firstBox->setCurrentIndex(2);
+        emit firstBox->activated(2);
+
+        QCOMPARE(m_aspect->mainScript(), m_dir / "second.qml");
+        QCOMPARE(secondBox->currentIndex(), 2);
+
+        m_aspect->updateFileComboBox();
+        QCOMPARE(firstBox->currentIndex(), 2);
+        QCOMPARE(secondBox->currentIndex(), 2);
     }
 
 private:
