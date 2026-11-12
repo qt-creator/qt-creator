@@ -683,6 +683,7 @@ private slots:
     void testInlineDiffGoToSource();
     void testInlineDiffGhostSelection();
     void testInlineDiffChunkActions();
+    void testInlineDiffBaselineMargin();
 #endif // WITH_TESTS
 };
 
@@ -3217,9 +3218,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testRangeComparisonActions()
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/inlinediffdecorator.h>
+#include <texteditor/marginsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textindenter.h>
 
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/icore.h>
@@ -5334,6 +5337,99 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffChunkActions()
     QCOMPARE(enabledAt(baselineWidget, 9, revert), 0);
     triggerAt(baselineWidget, 12, revert);
     QTRY_COMPARE(sourceDocument->plainText(), baselineText);
+
+    const QPointer<QWidget> diffWidgetGuard = diffWidget;
+    QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
+    QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+namespace DiffEditor::Internal {
+
+class FixedMarginIndenter final : public TextEditor::TextIndenter
+{
+public:
+    using TextIndenter::TextIndenter;
+
+    std::optional<int> margin() const override { return 99; }
+};
+
+} // namespace DiffEditor::Internal
+
+// The baseline view of the side by side mode shows the margin of the document
+// side, also when that comes from the indenter of the source document, which
+// the baseline document does not have.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffBaselineMargin()
+{
+    using namespace TextEditor;
+
+    const InlineDiffViewGuard inlineDiffViewGuard;
+
+    const QString baselineText = "one\ntwo\nthree\n";
+    const QString editorText = "one\n2\nthree\n";
+
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath sourceFile
+        = FilePath::fromString(temporaryDir.path()) / "testInlineDiffBaselineMargin.txt";
+    QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
+    IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
+    QVERIFY(sourceEditor);
+    auto sourceTextEditor = qobject_cast<BaseTextEditor *>(sourceEditor);
+    QVERIFY(sourceTextEditor);
+    const TextDocumentPtr sourceDocument = sourceTextEditor->editorWidget()->textDocumentPtr();
+    QVERIFY(sourceDocument);
+
+    InlineDiffBaseline baseline;
+    baseline.id = "test";
+    baseline.displayName = "Test";
+    baseline.fetchText = [baselineText](const InlineDiffBaseline::TextCallback &callback) {
+        callback(baselineText);
+    };
+
+    IEditor *diffEditor
+        = openInlineDiffEditor(sourceDocument, baseline, "testInlineDiffBaselineMargin.txt");
+    QVERIFY(diffEditor);
+    TextEditorWidget *diffWidget = inlineDiffEditorWidget(diffEditor);
+    QVERIFY(diffWidget);
+
+    // a margin set before the baseline view exists
+    MarginSettingsData margin;
+    margin.m_showMargin = true;
+    margin.m_marginColumn = 42;
+    diffWidget->setMarginSettings(margin);
+
+    setInlineDiffViewMode(diffEditor, InlineDiffViewMode::SideBySide);
+    const QList<TextEditorWidget *> sideWidgets
+        = diffEditor->widget()->findChildren<TextEditorWidget *>();
+    QCOMPARE(sideWidgets.size(), 2);
+    TextEditorWidget *baselineWidget = sideWidgets.first() == diffWidget ? sideWidgets.last()
+                                                                         : sideWidgets.first();
+    QVERIFY(baselineWidget->isReadOnly());
+    QVERIFY(baselineWidget->marginSettings().m_showMargin);
+    QCOMPARE(baselineWidget->marginSettings().m_marginColumn, 42);
+
+    // a margin set while the baseline view exists
+    margin.m_marginColumn = 57;
+    diffWidget->setMarginSettings(margin);
+    QCOMPARE(baselineWidget->marginSettings().m_marginColumn, 57);
+    margin.m_showMargin = false;
+    diffWidget->setMarginSettings(margin);
+    QVERIFY(!baselineWidget->marginSettings().m_showMargin);
+
+    // the margin of the source document's indenter
+    sourceDocument->setIndenter(new FixedMarginIndenter(sourceDocument->document()));
+    margin.m_showMargin = true;
+    margin.m_useIndenter = true;
+    diffWidget->setMarginSettings(margin);
+    QVERIFY(baselineWidget->marginSettings().m_showMargin);
+    QVERIFY(!baselineWidget->marginSettings().m_useIndenter);
+    QCOMPARE(baselineWidget->marginSettings().m_marginColumn, 99);
+
+    // settings applied to the baseline view itself, e.g. the configured ones,
+    // do not override the margin of the document side
+    baselineWidget->setMarginSettings({});
+    QVERIFY(baselineWidget->marginSettings().m_showMargin);
+    QCOMPARE(baselineWidget->marginSettings().m_marginColumn, 99);
 
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));

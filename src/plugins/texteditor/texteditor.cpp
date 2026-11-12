@@ -3093,9 +3093,10 @@ void TextEditorWidget::openFinishedSuccessfully()
     d->moveCursor(QTextCursor::Start);
     d->updateCannotDecodeInfo();
     updateTextCodecLabel();
-    textDocument()->editorConfig().applyTo(d->m_marginSettings);
+    MarginSettingsData marginSettings = d->m_marginSettings;
+    textDocument()->editorConfig().applyTo(marginSettings);
     d->m_appliedMaxLineLength = textDocument()->editorConfig().maxLineLength;
-    updateVisualWrapColumn();
+    setMarginSettings(marginSettings);
 }
 
 TextDocumentPtr TextEditorWidget::textDocumentPtr() const

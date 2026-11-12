@@ -25,7 +25,10 @@
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/indenter.h>
+#include <texteditor/marginsettings.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -1663,6 +1666,42 @@ public:
     void setContextMenuProvider(const MenuProvider &filler) { m_menuProvider = filler; }
     void setFocusInHandler(const std::function<void()> &handler) { m_focusInHandler = handler; }
     void setDoubleClickHandler(const CursorHandler &handler) { m_doubleClickHandler = handler; }
+    void setMarginSettingsHandler(const std::function<void()> &handler)
+    {
+        m_marginSettingsHandler = handler;
+    }
+
+    // Shows the margin of the source view instead of its own
+    void setMarginSource(TextEditorWidget *source)
+    {
+        m_marginSource = source;
+        syncMarginSettings();
+    }
+
+    // Takes over the current margin of the source view
+    void syncMarginSettings()
+    {
+        QTC_ASSERT(m_marginSource, return);
+        MarginSettingsData sourceSettings = m_marginSource->marginSettings();
+        if (sourceSettings.m_useIndenter) {
+            const Indenter *indenter = m_marginSource->textDocument()->indenter();
+            if (const std::optional<int> margin = indenter->margin())
+                sourceSettings.m_marginColumn = *margin;
+            sourceSettings.m_useIndenter = false;
+        }
+        TextEditorWidget::setMarginSettings(sourceSettings);
+    }
+
+    void setMarginSettings(const MarginSettingsData &settings) override
+    {
+        if (m_marginSource) {
+            syncMarginSettings();
+            return;
+        }
+        TextEditorWidget::setMarginSettings(settings);
+        if (m_marginSettingsHandler)
+            m_marginSettingsHandler();
+    }
 
     // the diff specific entries for the given position
     void fillContextMenu(QMenu *menu, const QTextCursor &cursor)
@@ -2019,6 +2058,8 @@ private:
     MenuProvider m_menuProvider;
     std::function<void()> m_focusInHandler;
     CursorHandler m_doubleClickHandler;
+    std::function<void()> m_marginSettingsHandler;
+    QPointer<TextEditorWidget> m_marginSource;
     // the ghost row selection: the item is only dereferenced once it is
     // found among the items of the tracked block again
     QTextCursor m_ghostBlock;
@@ -2693,6 +2734,11 @@ private:
         m_baselineWidget->setReadOnly(true);
         m_baselineWidget->setupGenericHighlighter();
         m_baselineDocument->resetSyntaxHighlighter([] { return new SyntaxHighlighter; });
+        m_baselineWidget->setMarginSource(m_diffWidget);
+        m_diffWidget->setMarginSettingsHandler([this] {
+            if (m_baselineWidget)
+                m_baselineWidget->syncMarginSettings();
+        });
         m_baselineDecorator = new InlineDiffDecorator(m_baselineWidget,
                                                       InlineDiffDecorator::DiffSide::Baseline);
         setupContextMenu(m_baselineWidget);
