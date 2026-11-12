@@ -19,12 +19,14 @@
 #include <QAction>
 #include <QApplication>
 #include <QDialog>
+#include <QDockWidget>
 #include <QEventLoop>
 #include <QGuiApplication>
 #include <QHeaderView>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLayout>
 #include <QLineEdit>
 #include <QListView>
 #include <QMainWindow>
@@ -113,6 +115,7 @@ private slots:
     void testClickWidgetRefusesAWidgetGoneBeforeThePress();
     void testMouseEventRightClickRequestsAContextMenu();
     void testMouseEventAnswersWhileTheContextMenuRunsALoop();
+    void testResizeDockResizesTheDockAroundAWidget();
 
 private:
     QMap<QString, bool> m_uiToolStates;
@@ -1255,6 +1258,34 @@ void McpCommandsTest::testMouseEventAnswersWhileTheContextMenuRunsALoop()
     }
     QVERIFY(answeredInsideLoop);
     QVERIFY(blocking);
+}
+
+// The query may name a widget inside the dock, as the debugger's views are.
+void McpCommandsTest::testResizeDockResizesTheDockAroundAWidget()
+{
+    QMainWindow mainWindow;
+    mainWindow.setCentralWidget(new QLabel("central"));
+    auto dock = new QDockWidget("Dock", &mainWindow);
+    auto inner = new QListView;
+    inner->setObjectName("mcpCommandsTestDockedList");
+    dock->setWidget(inner);
+    mainWindow.addDockWidget(Qt::RightDockWidgetArea, dock);
+    mainWindow.resize(800, 400);
+    mainWindow.show();
+    const QScopeGuard hideWindow([&mainWindow] { mainWindow.hide(); });
+    QTRY_VERIFY(dock->isVisible());
+
+    for (int width : {150, 400}) {
+        QString error;
+        const QJsonObject result = callTool(
+            "ui_resize_dock",
+            {{"object_name", "mcpCommandsTestDockedList"}, {"width", width}},
+            &error);
+        QVERIFY2(error.isEmpty(), qPrintable(error));
+        QVERIFY2(!result.contains("reason"), qPrintable(result.value("reason").toString()));
+        QCOMPARE(dock->width(), width);
+        QCOMPARE(result.value("width").toInt(), width);
+    }
 }
 
 QObject *createMcpCommandsTest()

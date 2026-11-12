@@ -97,6 +97,8 @@
 #include <QTextEdit>
 #include <QAction>
 #include <QDateTime>
+#include <QDockWidget>
+#include <QLayout>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMetaEnum>
@@ -3830,6 +3832,60 @@ void McpCommands::registerCommands()
                 return ResultError(index.error());
             tree->setExpanded(*index, p.value("expanded").toBool(true));
             return CallToolResult{}.isError(false).structuredContent(describeItem(tree, *index));
+        });
+
+    ToolRegistry::registerTool(
+        Tool{}
+            .name("ui_resize_dock")
+            .title("Resize a dock widget")
+            .description(
+                "Resizes the docked QDockWidget that is or contains the widget matching the "
+                "query, as dragging the separator next to it would, and returns the dock. A "
+                "dock's width does not follow its contents, so a view in a narrow dock can keep "
+                "a column out of sight however wide the main window is.")
+            .annotations(ToolAnnotations{}.readOnlyHint(false))
+            .inputSchema(
+                addWidgetQueryProps(Tool::InputSchema{})
+                    .addProperty("width", QJsonObject{{"type", "integer"},
+                                                      {"description", "The new width."}})
+                    .addProperty("height", QJsonObject{{"type", "integer"},
+                                                       {"description", "The new height."}})),
+        [](const Schema::CallToolRequestParams &params) -> Utils::Result<CallToolResult> {
+            const QJsonObject p = params.argumentsAsObject();
+            if (!p.contains("width") && !p.contains("height"))
+                return ResultError(QString("Give a width, a height, or both."));
+            const Utils::Result<QWidget *> w = resolveSingleWidget(widgetQueryFromJson(p));
+            if (!w)
+                return ResultError(w.error());
+            QWidget *widget = *w;
+            while (widget && !qobject_cast<QDockWidget *>(widget))
+                widget = widget->parentWidget();
+            auto dock = static_cast<QDockWidget *>(widget);
+            if (!dock) {
+                return ResultError(
+                    QString("No dock widget around %1.").arg(describeWidgetShort(*w)));
+            }
+            auto mainWindow = qobject_cast<QMainWindow *>(dock->parentWidget());
+            if (!mainWindow || dock->isFloating()) {
+                return ResultError(
+                    QString("The dock is not docked in a main window: %1.")
+                        .arg(describeWidgetShort(dock)));
+            }
+            // Work around QTBUG-149228: a debug build of Qt 6.12 before the fix
+            // asserts that the index of the dock's area is below the number of
+            // docks passed, so pass this one once per area.
+            const QList<QDockWidget *> docks(4, dock);
+            if (p.contains("width")) {
+                mainWindow->resizeDocks(docks, QList<int>(4, p.value("width").toInt()),
+                                        Qt::Horizontal);
+            }
+            if (p.contains("height")) {
+                mainWindow->resizeDocks(docks, QList<int>(4, p.value("height").toInt()),
+                                        Qt::Vertical);
+            }
+            // Apply it now, so the answer reports the new size.
+            mainWindow->layout()->activate();
+            return CallToolResult{}.isError(false).structuredContent(describeWidget(dock));
         });
 
     ToolRegistry::registerTool(
