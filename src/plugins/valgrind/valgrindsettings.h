@@ -7,6 +7,8 @@
 
 namespace Valgrind::Internal {
 
+QObject *createSuppressionAspectTest();
+
 inline constexpr char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 
 class SuppressionAspectPrivate;

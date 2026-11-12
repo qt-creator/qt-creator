@@ -25,6 +25,10 @@
 #include <QPushButton>
 #include <QStandardItemModel>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 namespace Valgrind::Internal {
@@ -39,15 +43,10 @@ public:
     SuppressionAspectPrivate(SuppressionAspect *q, bool global) : q(q), isGlobal(global) {}
 
     void slotAddSuppression();
-    void slotRemoveSuppression();
-    void slotSuppressionSelectionChanged();
+    void removeSelectedSuppressions(QListView *entryList);
 
     SuppressionAspect *q;
     const bool isGlobal;
-
-    QPointer<QPushButton> addEntry;
-    QPointer<QPushButton> removeEntry;
-    QPointer<QListView> entryList;
 
     QStandardItemModel m_model; // The volatile value of this aspect.
 };
@@ -80,7 +79,7 @@ void SuppressionAspectPrivate::slotAddSuppression()
     }
 }
 
-void SuppressionAspectPrivate::slotRemoveSuppression()
+void SuppressionAspectPrivate::removeSelectedSuppressions(QListView *entryList)
 {
     // remove from end so no rows get invalidated
     QList<int> rows;
@@ -104,11 +103,6 @@ void SuppressionAspectPrivate::slotRemoveSuppression()
         markSettingsDirty();
 }
 
-void SuppressionAspectPrivate::slotSuppressionSelectionChanged()
-{
-    removeEntry->setEnabled(entryList->selectionModel()->hasSelection());
-}
-
 //
 // SuppressionAspect
 //
@@ -127,30 +121,29 @@ SuppressionAspect::~SuppressionAspect()
 
 void SuppressionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    QTC_CHECK(!d->addEntry);
-    QTC_CHECK(!d->removeEntry);
-    QTC_CHECK(!d->entryList);
-
     using namespace Layouting;
 
-    d->addEntry = new QPushButton(Tr::tr("Add..."));
-    d->removeEntry = new QPushButton(Tr::tr("Remove"));
+    auto addEntry = new QPushButton(Tr::tr("Add..."));
+    auto removeEntry = new QPushButton(Tr::tr("Remove"));
 
-    d->entryList = createSubWidget<QListView>();
-    d->entryList->setModel(&d->m_model);
-    d->entryList->setSelectionMode(QAbstractItemView::MultiSelection);
+    auto entryList = createSubWidget<QListView>();
+    entryList->setModel(&d->m_model);
+    entryList->setSelectionMode(QAbstractItemView::MultiSelection);
 
-    connect(d->addEntry, &QPushButton::clicked,
+    connect(addEntry, &QPushButton::clicked,
             d, &SuppressionAspectPrivate::slotAddSuppression);
-    connect(d->removeEntry, &QPushButton::clicked,
-            d, &SuppressionAspectPrivate::slotRemoveSuppression);
-    connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
-            d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
+    connect(removeEntry, &QPushButton::clicked, d, [this, entryList] {
+        d->removeSelectedSuppressions(entryList);
+    });
+    connect(entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
+            removeEntry, [entryList, removeEntry] {
+        removeEntry->setEnabled(entryList->selectionModel()->hasSelection());
+    });
 
     parent.addItem(Column { Tr::tr("Suppression files:"), st });
     Row group {
-        d->entryList.data(),
-        Column { d->addEntry.data(), d->removeEntry.data(), st }
+        entryList,
+        Column { addEntry, removeEntry, st }
     };
     parent.addItem(Span { 2, group });
 }
@@ -453,4 +446,43 @@ public:
 
 const ValgrindSettingsPage settingsPage;
 
+#ifdef WITH_TESTS
+class SuppressionAspectTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testRemovesSelectionOfItsOwnList()
+    {
+        SuppressionAspect aspect(nullptr, true);
+        aspect.setValue({FilePath::fromString("/first.supp"), FilePath::fromString("/second.supp")});
+        const std::unique_ptr<QWidget> first(Layouting::Grid{aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Grid{aspect}.emerge());
+        QListView *firstList = first->findChild<QListView *>();
+        QVERIFY(firstList);
+        QPushButton *firstRemove = Utils::findOrDefault(first->findChildren<QPushButton *>(),
+                                                        [](const QPushButton *button) {
+            return button->text() == Tr::tr("Remove");
+        });
+        QVERIFY(firstRemove);
+
+        firstList->selectionModel()->select(firstList->model()->index(0, 0),
+                                            QItemSelectionModel::Select);
+        QVERIFY(firstRemove->isEnabled());
+        firstRemove->click();
+
+        QCOMPARE(aspect.volatileValue(), FilePaths{FilePath::fromString("/second.supp")});
+    }
+};
+
+QObject *createSuppressionAspectTest()
+{
+    return new SuppressionAspectTest;
+}
+#endif // WITH_TESTS
+
 } // Valgrind::Internal
+
+#ifdef WITH_TESTS
+#include <valgrindsettings.moc>
+#endif
