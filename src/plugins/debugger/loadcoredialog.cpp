@@ -139,8 +139,8 @@ private:
     {
         State st;
         st.validKit = (m_kitChooser->currentKit() != nullptr);
-        st.validSymbolFilename = m_data.symbolFile.pathChooser()->isValid();
-        st.validCoreFilename = m_data.coreFile.pathChooser()->isValid();
+        st.validSymbolFilename = m_data.symbolFile.isValid();
+        st.validCoreFilename = m_data.coreFile.isValid();
         return st;
     }
 };
@@ -230,9 +230,9 @@ int AttachCoreDialog::exec()
     if (!st.validKit) {
         m_kitChooser->setFocus();
     } else if (!st.validCoreFilename) {
-        m_data.coreFile.pathChooser()->setFocus();
+        m_data.coreFile.setFocusToInputField();
     } else if (!st.validSymbolFilename) {
-        m_data.symbolFile.pathChooser()->setFocus();
+        m_data.symbolFile.setFocusToInputField();
     }
 
     return QDialog::exec();
@@ -306,7 +306,7 @@ void AttachCoreDialog::coreFileChanged(const FilePath &coreFile)
         CoreInfo cinfo = CoreInfo::readExecutableNameFromCore(debugger, coreFile);
         if (!cinfo.foundExecutableName.isEmpty())
             m_data.symbolFile.setValue(cinfo.foundExecutableName);
-        else if (!m_data.symbolFile.pathChooser()->isValid() && !cinfo.rawStringFromCore.isEmpty())
+        else if (!m_data.symbolFile.isValid() && !cinfo.rawStringFromCore.isEmpty())
             m_data.symbolFile.setValue(FilePath::fromString(cinfo.rawStringFromCore));
     }
     changed();
