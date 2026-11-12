@@ -36,6 +36,7 @@ public:
     Utils::BoolAspect packageManagerAutoSetup{this};
     Utils::BoolAspect askBeforeReConfigureInitialParams{this};
     Utils::BoolAspect askBeforePresetsReload{this};
+    Utils::StringAspect presetKitNameTemplate{this};
     Utils::BoolAspect askBeforeApplyingConfigurationChanges{this};
     Utils::BoolAspect showSourceSubFolders{this};
     Utils::BoolAspect scanHeaderDependencies{this};
@@ -49,5 +50,11 @@ public:
 };
 
 CMakeSpecificSettings &cmakeSettingsForProject(ProjectExplorer::Project *project);
+
+QString expandPresetKitNameTemplate(
+    const QString &nameTemplate,
+    const QString &projectName,
+    const QString &presetName,
+    const QString &presetDisplayName);
 
 } // CMakeProjectManager::Internal

@@ -16,6 +16,7 @@
 
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QGuiApplication>
@@ -36,6 +37,40 @@ CMakeSpecificSettings &cmakeSettingsForProject(Project *project)
         return theSettings;
 
     return cmakeProject->settings();
+}
+
+static void registerPresetKitNameVariables(
+    MacroExpander &expander,
+    const QString &projectName,
+    const QString &presetName,
+    const QString &presetDisplayName)
+{
+    expander.registerVariable(
+        "Project:Name", ::CMakeProjectManager::Tr::tr("The name of the project."), [projectName] {
+            return projectName;
+        });
+    expander.registerVariable(
+        "Preset:Name", ::CMakeProjectManager::Tr::tr("The name of the CMake preset."), [presetName] {
+            return presetName;
+        });
+    expander.registerVariable(
+        "Preset:DisplayName",
+        ::CMakeProjectManager::Tr::tr(
+            "The display name of the CMake preset, or its name if it has none."),
+        [presetDisplayName] { return presetDisplayName; });
+    expander.registerSubProvider(MacroExpanderProvider(globalMacroExpander()));
+}
+
+QString expandPresetKitNameTemplate(
+    const QString &nameTemplate,
+    const QString &projectName,
+    const QString &presetName,
+    const QString &presetDisplayName)
+{
+    MacroExpander expander;
+    registerPresetKitNameVariables(expander, projectName, presetName, presetDisplayName);
+    const QString name = expander.expand(nameTemplate).trimmed();
+    return name.isEmpty() ? presetDisplayName : name;
 }
 
 QVariant NinjaPathAspect::fromSettingsValue(const QVariant &savedValue) const
@@ -67,6 +102,7 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
             maintenanceToolDependencyProvider,
             askBeforeReConfigureInitialParams,
             askBeforePresetsReload,
+            presetKitNameTemplate,
             showSourceSubFolders,
             scanHeaderDependencies,
             showAdvancedOptionsByDefault,
@@ -117,6 +153,17 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
     askBeforePresetsReload.setSettingsKey("AskBeforePresetsReload");
     askBeforePresetsReload.setDefaultValue(true);
     askBeforePresetsReload.setLabelText(::CMakeProjectManager::Tr::tr("Ask before reloading CMake Presets"));
+
+    presetKitNameTemplate.setSettingsKey("PresetKitNameTemplate");
+    presetKitNameTemplate.setDefaultValue("%{Project:Name}: %{Preset:DisplayName}");
+    presetKitNameTemplate.setDisplayStyle(StringAspect::LineEditDisplay);
+    presetKitNameTemplate.setAutoApplyOnEditingFinished(true);
+    presetKitNameTemplate.setUseResetButton();
+    presetKitNameTemplate.setLabelText(::CMakeProjectManager::Tr::tr("CMake preset kit name:"));
+    presetKitNameTemplate.setToolTip(::CMakeProjectManager::Tr::tr(
+        "Names the kits created from CMake presets. Keep the project name in it to tell "
+        "apart the kits of projects that have presets with the same name."));
+    registerPresetKitNameVariables(*presetKitNameTemplate.macroExpander(), {}, {}, {});
 
     askBeforeApplyingConfigurationChanges.setSettingsKey("AskApplyConfigurationChanges");
     askBeforeApplyingConfigurationChanges.setDefaultValue(true);

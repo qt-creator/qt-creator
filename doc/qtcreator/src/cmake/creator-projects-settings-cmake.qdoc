@@ -58,6 +58,14 @@
             \uicontrol {Reload CMake Presets}.
         \li \l{CMake presets}
     \row
+        \li \uicontrol {CMake preset kit name}
+        \li Names the kits created from CMake presets. Use the variables
+            \c {%{Project:Name}}, \c {%{Preset:Name}}, and
+            \c {%{Preset:DisplayName}}. The default value,
+            \c {%{Project:Name}: %{Preset:DisplayName}}, tells apart the
+            kits of projects that have presets with the same name.
+        \li \l{CMake presets}
+    \row
         \li \uicontrol {Show subfolders inside source group folders}
         \li Hides subfolder names and arranges the files according to their
             source group in the \uicontrol Projects view.

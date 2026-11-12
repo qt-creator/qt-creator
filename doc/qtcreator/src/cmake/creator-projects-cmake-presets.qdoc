@@ -371,6 +371,13 @@
             \l {Set up vcpkg package manager}{vcpkg} package manager for use with CMake.
         \li \l{Using CMake with Package Managers}
     \row
+        \li \c {PresetKitNameTemplate}
+        \li Names the kits created from CMake presets. Supports the variables
+            \c {%{Project:Name}}, \c {%{Preset:Name}}, and
+            \c {%{Preset:DisplayName}}. The default value is
+            \c {%{Project:Name}: %{Preset:DisplayName}}.
+        \li \l{CMake presets}
+    \row
         \li \c {ScanHeaderDependencies}
         \li Runs the compiler in dependency mode over the source files to find
             the header files that are not listed in the CMake files, and adds

@@ -41,9 +41,12 @@ public:
     const QList<Utils::Id> &presetKitIds() const;
 
     Internal::CMakeSpecificSettings &settings();
+    QString presetKitDisplayName(
+        const QString &presetName, const QString &presetDisplayName) const;
     static QString projectDisplayName(const Utils::FilePath &projectFilePath);
 
 private:
+    void updatePresetKitDisplayNames();
 
     ProjectExplorer::Tasks m_issues;
     Internal::PresetsData m_presetsData;

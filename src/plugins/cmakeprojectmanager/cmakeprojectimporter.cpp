@@ -2201,8 +2201,10 @@ void CMakeProjectImporter::applyDirectoryDataToKit(const DirectoryData &data, Pr
     }
 
     if (!data.cmakePresetDisplayname.isEmpty()) {
+        k->setValueSilently(Constants::KIT_PRESET_NAME, data.cmakePreset);
+        k->setValueSilently(Constants::KIT_PRESET_DISPLAY_NAME, data.cmakePresetDisplayname);
         k->setUnexpandedDisplayName(
-            QString("%1: %2").arg(m_project->displayName()).arg(data.cmakePresetDisplayname));
+            m_project->presetKitDisplayName(data.cmakePreset, data.cmakePresetDisplayname));
 
         CMakeConfigurationKitAspect::setCMakePreset(k, data.cmakePreset);
     }
@@ -2297,6 +2299,7 @@ private slots:
     void testSetupPagePrefersPresetKits();
     void testQtFromFilesIsFoundByPrefixPath();
     void testPresetQmakeNotInPathFindsNoQt();
+    void testPresetKitNameFollowsTheTemplate();
 };
 
 void CMakeProjectImporterTest::testCMakeProjectImporterQt_data()
@@ -2814,6 +2817,52 @@ void CMakeProjectImporterTest::testPresetQmakeNotInPathFindsNoQt()
         = findOrRegisterQtVersion(PresetMacroExpander(preset, env, root), "project");
 
     QVERIFY(!data.qt);
+}
+
+void CMakeProjectImporterTest::testPresetKitNameFollowsTheTemplate()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-kit-name");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "preset",
+                "displayName": "Preset Display Name",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const auto deregisterKits = qScopeGuard([&project] { deregisterPresetKits(project); });
+    const QList<Id> presetKitIds = project.presetKitIds();
+    QCOMPARE(presetKitIds.size(), 1);
+    Kit *kit = KitManager::kit(presetKitIds.first());
+    QVERIFY(kit);
+
+    CMakeSpecificSettings &settings = project.settings();
+    settings.useGlobalSettings.setValue(false);
+    settings.presetKitNameTemplate.setValue(settings.presetKitNameTemplate.defaultValue());
+    QCOMPARE(kit->displayName(), project.displayName() + ": Preset Display Name");
+
+    settings.presetKitNameTemplate.setValue("%{Preset:DisplayName} (%{Preset:Name})");
+    QCOMPARE(kit->displayName(), QString("Preset Display Name (preset)"));
+
+    // A template that expands to nothing falls back to the display name of the preset.
+    settings.presetKitNameTemplate.setValue("");
+    QCOMPARE(kit->displayName(), QString("Preset Display Name"));
 }
 
 QObject *createCMakeProjectImporterTest()

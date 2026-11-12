@@ -87,6 +87,12 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setProjectImporter(importer);
     if (m_presetsData.havePresets)
         importer->createKitsFromPresets();
+
+    const auto updateNames = [this] { updatePresetKitDisplayNames(); };
+    cmakeSettingsForProject(nullptr).presetKitNameTemplate.addOnChanged(this, updateNames);
+    m_settings.presetKitNameTemplate.addOnChanged(this, updateNames);
+    m_settings.useGlobalSettings.addOnChanged(this, updateNames);
+    connect(this, &Project::settingsLoaded, this, updateNames);
 }
 
 Tasks CMakeProject::projectIssues(const Kit *k) const
@@ -163,6 +169,30 @@ QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
 Internal::CMakeSpecificSettings &CMakeProject::settings()
 {
     return m_settings;
+}
+
+QString CMakeProject::presetKitDisplayName(
+    const QString &presetName, const QString &presetDisplayName) const
+{
+    const CMakeSpecificSettings &settings = m_settings.useGlobalSettings()
+                                                ? cmakeSettingsForProject(nullptr)
+                                                : m_settings;
+    return expandPresetKitNameTemplate(
+        settings.presetKitNameTemplate.value(), displayName(), presetName, presetDisplayName);
+}
+
+void CMakeProject::updatePresetKitDisplayNames()
+{
+    for (const Id &kitId : std::as_const(m_presetKitIds)) {
+        Kit *kit = KitManager::kit(kitId);
+        if (!kit)
+            continue;
+        const QString presetName = kit->value(Constants::KIT_PRESET_NAME).toString();
+        const QString presetDisplayName
+            = kit->value(Constants::KIT_PRESET_DISPLAY_NAME).toString();
+        if (!presetDisplayName.isEmpty())
+            kit->setUnexpandedDisplayName(presetKitDisplayName(presetName, presetDisplayName));
+    }
 }
 
 void CMakeProject::readPresets()
