@@ -166,49 +166,54 @@ public:
 private:
     void addToLayoutImpl(Layouting::Layout &parent) final
     {
-        m_comboBox = createSubWidget<QComboBox>();
-        m_comboBox->setToolTip(
+        auto comboBox = createSubWidget<QComboBox>();
+        comboBox->setToolTip(
             Tr::tr("Kits created for toolchains that target the operating system of \"%1\" use "
                    "it as build device and the selected device as run device.")
                 .arg(m_device->displayName()));
-        populate();
-        const auto repopulate = [this] {
-            populate();
-            volatileValueToGui();
+        const auto showCurrent = [this, comboBox] {
+            const QSignalBlocker blocker(comboBox);
+            comboBox->setCurrentIndex(std::max(0, comboBox->findData(m_undoable.get())));
         };
-        connect(DeviceManager::instance(), &DeviceManager::deviceAdded, m_comboBox, repopulate);
-        connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, m_comboBox, repopulate);
-        connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, m_comboBox, repopulate);
-        connect(m_comboBox, &QComboBox::activated, this, &RunDeviceForKitsAspect::handleGuiChanged);
-        parent.addItem(m_comboBox.data());
-    }
-
-    void populate()
-    {
-        const QSignalBlocker blocker(m_comboBox);
-        m_comboBox->clear();
-        m_comboBox->addItem(Tr::tr("This device"), QString());
-        DeviceManager::forEachDevice([this](const IDeviceConstPtr &dev) {
-            if (dev->id() != m_device->id() && dev->osType() == m_device->osType())
-                m_comboBox->addItem(dev->displayName(), dev->id().toString());
+        const auto populate = [this, comboBox, showCurrent] {
+            {
+                const QSignalBlocker blocker(comboBox);
+                comboBox->clear();
+                comboBox->addItem(Tr::tr("This device"), QString());
+                DeviceManager::forEachDevice([this, comboBox](const IDeviceConstPtr &dev) {
+                    if (dev->id() != m_device->id() && dev->osType() == m_device->osType())
+                        comboBox->addItem(dev->displayName(), dev->id().toString());
+                });
+            }
+            showCurrent();
+        };
+        m_undoable.setSilently(m_volatileValue);
+        populate();
+        connect(DeviceManager::instance(), &DeviceManager::deviceAdded, comboBox, populate);
+        connect(DeviceManager::instance(), &DeviceManager::deviceRemoved, comboBox, populate);
+        connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, comboBox, populate);
+        connect(comboBox, &QComboBox::activated, this, [this, comboBox] {
+            m_undoable.set(undoStack(), comboBox->currentData().toString());
         });
+        connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, showCurrent);
+        // Once per change however many combo boxes there are.
+        connect(&m_undoable.m_signal, &UndoSignaller::changed,
+                this, &RunDeviceForKitsAspect::handleGuiChanged, Qt::UniqueConnection);
+        parent.addItem(comboBox);
     }
 
     void volatileValueToGui() final
     {
-        if (m_comboBox)
-            m_comboBox->setCurrentIndex(std::max(0, m_comboBox->findData(m_volatileValue)));
+        m_undoable.setWithoutUndo(m_volatileValue);
     }
 
     bool guiToVolatileValue() final
     {
-        if (!m_comboBox)
-            return false;
-        return updateStorage(m_volatileValue, m_comboBox->currentData().toString());
+        return updateStorage(m_volatileValue, m_undoable.get());
     }
 
     IDevice *m_device;
-    QPointer<QComboBox> m_comboBox;
+    UndoableValue<QString> m_undoable;
 };
 
 class IDevicePrivate

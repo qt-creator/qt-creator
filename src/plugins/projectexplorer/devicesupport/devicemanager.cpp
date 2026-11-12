@@ -41,6 +41,7 @@
 #include "../kitmanager.h"
 #include "devicekitaspects.h"
 
+#include <QComboBox>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTest>
@@ -849,6 +850,43 @@ class DeviceManagerTest : public QObject
     Q_OBJECT
 
 private slots:
+
+    void testRunDeviceForKitsUpdatesEveryComboBox()
+    {
+        TestDeviceFactory factory;
+        const IDevice::Ptr dev(new TestDevice);
+        dev->setDisplayName("Device With Run Device");
+        const IDevice::Ptr runDevice(new TestDevice);
+        runDevice->setDisplayName("Run Device For Kits");
+        DeviceManager::addDevice(dev);
+        DeviceManager::addDevice(runDevice);
+        const auto removeDevices = qScopeGuard([dev, runDevice] {
+            DeviceManager::removeDevice(dev->id());
+            DeviceManager::removeDevice(runDevice->id());
+        });
+
+        BaseAspect *aspect = Utils::findOrDefault(dev->aspects(), [](BaseAspect *a) {
+            return a->settingsKey() == "RunDeviceForKits";
+        });
+        QVERIFY(aspect);
+        const std::unique_ptr<QWidget> first(Layouting::Column{*aspect}.emerge());
+        const std::unique_ptr<QWidget> second(Layouting::Column{*aspect}.emerge());
+        QComboBox *firstBox = first->findChild<QComboBox *>();
+        QComboBox *secondBox = second->findChild<QComboBox *>();
+        QVERIFY(firstBox);
+        QVERIFY(secondBox);
+        const int runDeviceIndex = firstBox->findData(runDevice->id().toString());
+        QVERIFY(runDeviceIndex > 0);
+
+        aspect->setVariantValue(runDevice->id().toString());
+        QCOMPARE(firstBox->currentIndex(), runDeviceIndex);
+        QCOMPARE(secondBox->currentIndex(), runDeviceIndex);
+
+        firstBox->setCurrentIndex(0);
+        emit firstBox->activated(0);
+        QCOMPARE(dev->runDeviceForKits(), dev);
+        QCOMPARE(secondBox->currentIndex(), 0);
+    }
 
     void test()
     {
