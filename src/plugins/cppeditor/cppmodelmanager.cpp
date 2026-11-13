@@ -1549,6 +1549,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
         return {};
 
     ProjectData *projectData = nullptr;
+    bool wasFullyIndexed = false;
 
     d->m_lockedProjectData.write([&newProjectInfo,
                                   project,
@@ -1556,7 +1557,8 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
                                   &addedFiles,
                                   &removedProjectParts,
                                   &filesRemoved,
-                                  &projectData](auto &ld) {
+                                  &projectData,
+                                  &wasFullyIndexed](auto &ld) {
         const QSet<FilePath> newSourceFiles = newProjectInfo->sourceFiles();
 
         // Check if we can avoid a full reindexing
@@ -1613,6 +1615,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
             if (it->indexer)
                 it->indexer->cancel();
             it->projectInfo = newProjectInfo;
+            wasFullyIndexed = it->fullyIndexed;
             it->fullyIndexed = false;
         }
         projectData = it == ld.m_projectData.end() ? &(
@@ -1650,6 +1653,17 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
     updateCppEditorDocuments(/*projectsUpdated = */ true);
 
     filesToReindex.unite(additionalFiles);
+
+    // An update with nothing to index leaves the project as indexed as it was.
+    if (filesToReindex.isEmpty()) {
+        d->m_lockedProjectData.write([project, wasFullyIndexed](auto &ld) {
+            const auto it = ld.m_projectData.find(project);
+            if (it != ld.m_projectData.end())
+                it->fullyIndexed = wasFullyIndexed;
+        });
+        return {};
+    }
+
     // Trigger reindexing
     const QFuture<void> indexingFuture = updateSourceFiles(filesToReindex,
                                                            ForcedProgressNotification);

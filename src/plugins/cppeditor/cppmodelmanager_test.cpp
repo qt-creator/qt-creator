@@ -2229,4 +2229,38 @@ void ModelManagerTest::testASwitchedConfigurationIsNotAnsweredWithTheOldOne()
     QVERIFY2(!indexHas(readFirst), "the old configuration's reading was kept");
 }
 
+void ModelManagerTest::testAnUpdateThatChangesNothingKeepsTheNextOneIncremental()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath first = projectDir / "first.cpp";
+    const FilePath second = projectDir / "second.cpp";
+    QVERIFY(first.writeFileContents("class First {};\n"));
+    QVERIFY(second.writeFileContents("class Second {};\n"));
+
+    const auto project = helper.createProject("test_modelmanager_noop_update",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto projectInfo = [&](const ProjectFiles &files) {
+        return ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                   {ProjectPart::create(project->projectFilePath(), rpp, {},
+                                                        files)});
+    };
+    const ProjectFile firstFile(first, ProjectFile::CXXSource);
+    const ProjectFile secondFile(second, ProjectFile::CXXSource);
+    QCOMPARE(helper.updateProjectInfo(projectInfo({firstFile})), QSet<FilePath>{first});
+
+    // Like a reparse of the project that finds nothing changed. It indexes nothing, so
+    // there is no refresh to wait for, only the watcher's report.
+    CppModelManager::updateProjectInfo(projectInfo({firstFile})).waitForFinished();
+    QCoreApplication::processEvents();
+
+    QCOMPARE(helper.updateProjectInfo(projectInfo({firstFile, secondFile})),
+             QSet<FilePath>{second});
+}
+
 } // CppEditor::Internal

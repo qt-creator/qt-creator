@@ -53,6 +53,7 @@ private slots:
     void testASecondSessionFindsTheSameDefinition();
     void testAFileChangedInASecondSessionIsIndexedAgain();
     void testASwitchedConfigurationIsNotAnsweredWithTheOldOne();
+    void testAnUpdateThatChangesNothingKeepsTheNextOneIncremental();
 };
 
 } // namespace CppEditor::Internal
