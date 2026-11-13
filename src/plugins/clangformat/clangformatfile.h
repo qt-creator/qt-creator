@@ -41,7 +41,7 @@ private:
 private:
     Utils::FilePath m_filePath;
     clang::format::FormatStyle m_style;
-    bool m_isReadOnly;
+    bool m_isReadOnly = false;
 };
 
 } // namespace ClangFormat
