@@ -81,12 +81,11 @@ static FilePath cmakeForNewKit(const IDevice::ConstPtr &device)
 {
     if (!device)
         return {};
-    if (const FilePath fromDevice = deviceCMake(device); !fromDevice.isEmpty())
-        return fromDevice;
+    // A default registered by hand or by the installer is a choice, the device's is not.
     const CMakeTool *def = CMakeToolManager::defaultCMakeTool();
-    if (!def || isFoundOnPath(*def) || !def->filePath().isSameDevice(device->rootPath()))
-        return {};
-    return def->filePath();
+    if (def && !isFoundOnPath(*def) && def->filePath().isSameDevice(device->rootPath()))
+        return def->filePath();
+    return deviceCMake(device);
 }
 
 static bool isIos(const Kit *k)
@@ -319,8 +318,8 @@ void CMakeKitAspectFactory::setup(Kit *k)
     if (k->hasValue(Constants::TOOL_ID))
         return;
     const IDevice::ConstPtr device = BuildDeviceKitAspect::device(k);
-    if (deviceCMake(device).isEmpty())
-        CMakeKitAspect::setCMakeExecutable(k, cmakeForNewKit(device));
+    if (const FilePath cmake = cmakeForNewKit(device); cmake != deviceCMake(device))
+        CMakeKitAspect::setCMakeExecutable(k, cmake);
 }
 
 void CMakeKitAspectFactory::upgrade(Kit *k)
@@ -1854,8 +1853,14 @@ private slots:
         QTest::addColumn<bool>("pathDefault"); // Whether the default was found on the PATH.
         QTest::addColumn<QString>("expected"); // On the build device, empty for no value.
 
-        QTest::newRow("device tool") << "/opt/cmake/bin/cmake" << "/usr/local/bin/cmake"
-                                     << false << "";
+        QTest::newRow("registered default over device tool")
+            << "/opt/cmake/bin/cmake" << "/usr/local/bin/cmake" << false << "/usr/local/bin/cmake";
+        QTest::newRow("device tool over default from PATH")
+            << "/opt/cmake/bin/cmake" << "/usr/local/bin/cmake" << true << "";
+        QTest::newRow("registered default is device tool")
+            << "/opt/cmake/bin/cmake" << "/opt/cmake/bin/cmake" << false << "";
+        QTest::newRow("device tool over default on other device")
+            << "/opt/cmake/bin/cmake" << "local:/usr/local/bin/cmake" << false << "";
         QTest::newRow("registered default") << "" << "/usr/local/bin/cmake" << false
                                             << "/usr/local/bin/cmake";
         QTest::newRow("default from PATH") << "" << "/usr/local/bin/cmake" << true << "";
