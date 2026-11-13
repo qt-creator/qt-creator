@@ -87,9 +87,12 @@ static bool isMostlyHarmlessMessage(const QStringView msg)
 
 static QMessageBox *showMessageBox(QMessageBox::Icon icon,
                                    const QString &title, const QString &text,
-                                   QMessageBox::StandardButtons buttons)
+                                   const QString &okButtonText, const QString &cancelButtonText)
 {
-    auto mb = new QMessageBox(icon, title, text, buttons, ICore::dialogParent());
+    auto mb = new QMessageBox(
+        icon, title, text, QMessageBox::Ok | QMessageBox::Cancel, ICore::dialogParent());
+    mb->button(QMessageBox::Ok)->setText(okButtonText);
+    mb->button(QMessageBox::Cancel)->setText(cancelButtonText);
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->setTextInteractionFlags(Qt::TextSelectableByMouse);
     mb->show();
@@ -903,10 +906,7 @@ void GdbEngine::commandTimeout()
                 "the operation.\nYou can choose between waiting "
                 "longer or aborting debugging.", nullptr, timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
-            title, msg,
-            QMessageBox::Ok | QMessageBox::Cancel);
-        mb->button(QMessageBox::Cancel)->setText(Tr::tr("Give GDB More Time"));
-        mb->button(QMessageBox::Ok)->setText(Tr::tr("Stop Debugging"));
+            title, msg, Tr::tr("Stop Debugging"), Tr::tr("Give GDB More Time"));
         connect(mb, &QDialog::finished, this, [this](int result) {
             m_commandTimeoutPending = false;
             if (result == QMessageBox::Ok) {
@@ -4872,9 +4872,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
                 "&nbsp;&nbsp;&nbsp;&nbsp;INSTALLS += target</p>"
                 "to your .pro file.");
             QMessageBox *mb = showMessageBox(QMessageBox::Critical, title, msg,
-                QMessageBox::Ok | QMessageBox::Cancel);
-            mb->button(QMessageBox::Cancel)->setText(Tr::tr("Continue Debugging"));
-            mb->button(QMessageBox::Ok)->setText(Tr::tr("Stop Debugging"));
+                Tr::tr("Stop Debugging"), Tr::tr("Continue Debugging"));
             if (mb->exec() == QMessageBox::Ok) {
                 showMessage("KILLING DEBUGGER AS REQUESTED BY USER");
                 notifyInferiorSetupFailedHelper(title);
