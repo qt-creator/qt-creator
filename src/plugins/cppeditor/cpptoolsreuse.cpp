@@ -322,8 +322,7 @@ bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
     if (sizeLimitInMb <= 0)
         return false;
 
-    const qint64 fileSizeInMB = filePath.fileSize() / (1000 * 1000);
-    if (fileSizeInMB > sizeLimitInMb) {
+    if (filePath.fileSize() > qint64(sizeLimitInMb) * 1000 * 1000) {
         Core::MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" because "
                                                    "it is too big.").arg(filePath.displayName()));
         return true;

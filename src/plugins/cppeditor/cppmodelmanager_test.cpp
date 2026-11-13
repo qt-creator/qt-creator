@@ -5,6 +5,7 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
+#include "cppcodemodelsettings.h"
 #include "cppindexingsupport.h"
 #include "cppindexqueries.h"
 #include "cpplocatordata.h"
@@ -2261,6 +2262,39 @@ void ModelManagerTest::testAnUpdateThatChangesNothingKeepsTheNextOneIncremental(
 
     QCOMPARE(helper.updateProjectInfo(projectInfo({firstFile, secondFile})),
              QSet<FilePath>{second});
+}
+
+void ModelManagerTest::testAFileJustOverTheSizeLimitIsNotIndexed()
+{
+    const CppCodeModelSettingsData globalSettingsBackup
+        = CppCodeModelSettings::settingsForProject(nullptr);
+    const QScopeGuard restoreGlobalSettings(
+        [&] { CppCodeModelSettings::setGlobal(globalSettingsBackup); });
+    CppCodeModelSettingsData settings = globalSettingsBackup;
+    settings.skipIndexingBigFiles = true;
+    settings.indexerFileSizeLimitInMb = 1;
+    CppCodeModelSettings::setGlobal(settings);
+
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath small = projectDir / "small.cpp";
+    const FilePath tooBig = projectDir / "too_big.cpp";
+    QVERIFY(small.writeFileContents("class Small {};\n"));
+    QVERIFY(tooBig.writeFileContents("//" + QByteArray(1500 * 1000, 'x') + '\n'));
+
+    const auto project = helper.createProject("test_modelmanager_size_limit",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {{small, ProjectFile::CXXSource},
+                                           {tooBig, ProjectFile::CXXSource}});
+    QCOMPARE(helper.updateProjectInfo(
+                 ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part})),
+             QSet<FilePath>{small});
 }
 
 } // CppEditor::Internal

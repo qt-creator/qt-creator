@@ -54,6 +54,7 @@ private slots:
     void testAFileChangedInASecondSessionIsIndexedAgain();
     void testASwitchedConfigurationIsNotAnsweredWithTheOldOne();
     void testAnUpdateThatChangesNothingKeepsTheNextOneIncremental();
+    void testAFileJustOverTheSizeLimitIsNotIndexed();
 };
 
 } // namespace CppEditor::Internal
