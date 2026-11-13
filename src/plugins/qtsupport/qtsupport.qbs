@@ -124,4 +124,10 @@ QtcPlugin {
         files: ["images/*", "images/**/*"]
         fileTags: "qt.core.resource_data"
     }
+
+    Group {
+        name: "tutorials"
+        files: "qtcreator_tutorials.xml"
+        fileTags: "qt.core.resource_data"
+    }
 }
