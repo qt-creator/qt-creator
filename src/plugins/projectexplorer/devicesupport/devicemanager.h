@@ -92,12 +92,14 @@ private:
     static Utils::Store toMap();
     static void deviceFactoryAdded();
     static void restoreDevicesWithUnknownType();
+    static void deviceToolFactoryAdded();
 
     // For SettingsWidget.
     static IDevice::Ptr mutableDevice(Utils::Id id);
     static void setDefaultDevice(Utils::Id id);
 
     friend class Internal::DeviceManagerPrivate;
+    friend class DeviceToolAspectFactory;
     friend class IDeviceFactory;
     friend class ProjectExplorerPlugin;
     friend class ProjectExplorerPluginPrivate;

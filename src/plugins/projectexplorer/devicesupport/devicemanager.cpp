@@ -359,6 +359,33 @@ void DeviceManager::deviceFactoryAdded()
         Qt::QueuedConnection);
 }
 
+void DeviceManager::deviceToolFactoryAdded()
+{
+    // Devices that exist already lack the aspect of a factory registered later (e.g. by a
+    // soft-loaded plugin). This runs from the DeviceToolAspectFactory base-class constructor,
+    // before the derived class has set its tool id, so defer adding it to the event loop.
+    if (!s_instance)
+        return;
+    static bool scheduled = false;
+    if (scheduled)
+        return;
+    scheduled = true;
+    QMetaObject::invokeMethod(
+        s_instance,
+        [] {
+            scheduled = false;
+            if (!d)
+                return;
+            for (const IDevice::Ptr &device : d->deviceList()) {
+                if (!device->lacksDeviceToolAspects())
+                    continue;
+                device->addMissingDeviceToolAspects();
+                announceDeviceUpdate(device->id());
+            }
+        },
+        Qt::QueuedConnection);
+}
+
 Store DeviceManager::toMap()
 {
     Store map;
@@ -819,6 +846,15 @@ public:
 
     void initToolAspects() { initDeviceToolAspects(); }
 
+    Store toStore() const
+    {
+        Store map;
+        toMap(map);
+        return map;
+    }
+
+    void restore(const Store &map) { fromMap(map); }
+
 private:
     IDeviceWidget *createWidget() override { return nullptr; }
 };
@@ -1093,6 +1129,25 @@ private slots:
         const FilePath toolPath = dev->deviceToolPath(TestToolFactory::testToolId());
         DeviceManager::removeDevice(dev->id());
         QCOMPARE(toolPath, dev->filePath(DeviceOnlyToolFileAccess::toolPath()));
+    }
+
+    void testDeviceToolRestoredWhenFactoryAppears()
+    {
+        const Key toolKey = TestToolFactory::testToolId().name();
+        const QString storedPath = "/opt/qtc-test-tool";
+        const auto dev = std::make_shared<DeviceOnlyToolDevice>(HostOsInfo::hostOs());
+        dev->initToolAspects();
+        Store stored = dev->toStore();
+        stored.insert(toolKey, storedPath);
+        dev->restore(stored);
+        QCOMPARE(dev->toStore().value(toolKey).toString(), storedPath);
+
+        DeviceManager::addDevice(dev);
+        const QScopeGuard cleanup([&dev] { DeviceManager::removeDevice(dev->id()); });
+        QVERIFY(!findTestToolAspect(dev));
+        const TestToolFactory toolFactory;
+        QTRY_VERIFY(findTestToolAspect(dev));
+        QCOMPARE(findTestToolAspect(dev)->value(), storedPath);
     }
 
     void testDeviceToolSpelledTheDevicesWay()

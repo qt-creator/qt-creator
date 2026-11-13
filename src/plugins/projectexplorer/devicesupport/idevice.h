@@ -418,6 +418,8 @@ private:
     int version() const;
     void setFromSdk();
     bool kitCreationEnabled() const;
+    bool lacksDeviceToolAspects() const;
+    void addMissingDeviceToolAspects();
     quint64 startToolDetection(const Utils::FilePaths &searchPaths,
                                const ToolDetectionLogger &logger);
 

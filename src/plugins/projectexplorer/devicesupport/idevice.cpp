@@ -313,6 +313,7 @@ public:
 
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
+    Store unclaimedSettings;
     IDevice::OpenTerminal openTerminal;
 
     StringAspect displayName;
@@ -416,6 +417,7 @@ static QList<DeviceToolAspectFactory *> theDeviceToolFactories;
 DeviceToolAspectFactory::DeviceToolAspectFactory()
 {
     theDeviceToolFactories.append(this);
+    DeviceManager::deviceToolFactoryAdded();
 }
 
 DeviceToolAspectFactory::~DeviceToolAspectFactory()
@@ -834,13 +836,32 @@ IDevice::~IDevice() = default;
 
 void IDevice::initDeviceToolAspects()
 {
+    addMissingDeviceToolAspects();
+}
+
+void IDevice::addMissingDeviceToolAspects()
+{
     // shared_from_this doesn't work in the ctor.
     for (const DeviceToolAspectFactory *factory : std::as_const(theDeviceToolFactories)) {
+        if (d->deviceToolAspects.contains(factory->toolId()))
+            continue;
         DeviceToolAspect *toolAspect = factory->createAspect(shared_from_this());
         registerAspect(toolAspect, true);
         toolAspect->setBaseDirectory([this] { return rootPath(); });
+        // The factory may have been registered only after the device was restored.
+        if (d->unclaimedSettings.contains(toolAspect->settingsKey())) {
+            toolAspect->fromMap(d->unclaimedSettings);
+            d->unclaimedSettings.remove(toolAspect->settingsKey());
+        }
         d->deviceToolAspects.insert(factory->toolId(), toolAspect);
     }
+}
+
+bool IDevice::lacksDeviceToolAspects() const
+{
+    return Utils::anyOf(theDeviceToolFactories, [this](const DeviceToolAspectFactory *factory) {
+        return !d->deviceToolAspects.contains(factory->toolId());
+    });
 }
 
 void IDevice::setOpenTerminal(const IDevice::OpenTerminal &openTerminal)
@@ -1300,6 +1321,15 @@ static void backwardsToExtraData(const IDevice *const device, Store &map)
     map.insert(SSH_FORWARD_DEBUGSERVER_PORT, device->sshForwardDebugServerPort());
 }
 
+static void removeClaimedSettings(const AspectContainer &container, Store &map)
+{
+    for (const BaseAspect *aspect : container.aspects()) {
+        map.remove(aspect->settingsKey());
+        if (const auto subContainer = qobject_cast<const AspectContainer *>(aspect))
+            removeClaimedSettings(*subContainer, map);
+    }
+}
+
 } // namespace
 
 /*!
@@ -1310,6 +1340,8 @@ static void backwardsToExtraData(const IDevice *const device, Store &map)
 void IDevice::fromMap(const Store &map)
 {
     AspectContainer::fromMap(map);
+    d->unclaimedSettings = map;
+    removeClaimedSettings(*this, d->unclaimedSettings);
     d->type = typeFromMap(map);
 
     d->id = Id::fromSetting(map.value(IdKey));
@@ -1382,6 +1414,10 @@ void IDevice::toMap(Store &map) const
     map.insert(TimeoutKey, ssh.timeout());
     map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode());
     map.insert(X11ForwardToDisplayKey, ssh.x11DisplayName());
+
+    Store merged = d->unclaimedSettings;
+    merged.insert(map);
+    map = std::move(merged);
 }
 
 QString IDevice::displayName() const
