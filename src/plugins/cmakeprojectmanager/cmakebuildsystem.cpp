@@ -3439,7 +3439,8 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     Column {
         Tr::tr("Run CMake with configuration changes?"),
         If (!note.isEmpty()) >> Then {
-            Label { text(note), wordWrap(true) },
+            // Created only when used, a skipped label would leak.
+            [&note] { return Label { text(note), wordWrap(true) }.emerge(); },
         },
         TextEdit {
             markdown("```\n" +
