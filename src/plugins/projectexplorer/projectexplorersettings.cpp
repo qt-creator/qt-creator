@@ -260,14 +260,17 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
                             reaperTimeoutInSeconds, st, br,
                         },
                         If (HostOsInfo::isWindowsHost()) >> Then {
-                            Label {
-                                text("<i>jom</i> is a drop-in replacement for <i>nmake</i> which "
-                                     "distributes the compilation process to multiple CPU core "
-                                     "The latest binary is available at "
-                                     "<a href=\"http://download.qt.io/official_releases/jom/\">"
-                                     "http://download.qt.io/official_releases/jom/</a>. "
-                                     "Disable it if you experience problems with your builds."),
-                                wordWrap(true)
+                            // Created only when used, a skipped label would leak.
+                            [] {
+                                return Label {
+                                    text("<i>jom</i> is a drop-in replacement for <i>nmake</i> which "
+                                         "distributes the compilation process to multiple CPU core "
+                                         "The latest binary is available at "
+                                         "<a href=\"http://download.qt.io/official_releases/jom/\">"
+                                         "http://download.qt.io/official_releases/jom/</a>. "
+                                         "Disable it if you experience problems with your builds."),
+                                    wordWrap(true)
+                                }.emerge();
                             },
                             useJom,
                         }
