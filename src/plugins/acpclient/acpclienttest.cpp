@@ -30,8 +30,13 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/documentmodel.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/rightpane.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -630,6 +635,7 @@ private slots:
     void testChatWidgetOverview();
     void testChatWidgetServerIconClearedOnDisconnect();
     void testChatWidgetOverviewHeight();
+    void testChatEditorRoundTrip();
 
     // Tier 6: agent registry
     void testRegistryRememberedDenial();
@@ -4797,6 +4803,155 @@ void AcpClientTest::testChatWidgetServerIconClearedOnDisconnect()
     QVERIFY(tab->serverIcon().isNull());
     QVERIFY(switcher->entry().serverIcon.isNull());
     QVERIFY(switcher->icon().isNull());
+}
+
+static QList<Core::IDocument *> chatEditorDocuments()
+{
+    return Utils::filtered(Core::DocumentModel::openedDocuments(), [](Core::IDocument *document) {
+        return document->id() == Constants::CHAT_EDITOR_ID;
+    });
+}
+
+// The current chat moves from the side panel into an editor, keeping its
+// session and showing its tool bar in the editor's, and from there back into
+// the side panel.
+void AcpClientTest::testChatEditorRoundTrip()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+    QVERIFY(chatEditorDocuments().isEmpty());
+
+    AcpChatWidget widget;
+    QAbstractButton *addButton = widget.findChild<QAbstractButton *>("newChatButton");
+    QVERIFY(addButton);
+    addButton->click();
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 2);
+
+    QAbstractButton *toEditorButton = widget.findChild<QAbstractButton *>("moveChatToEditorButton");
+    QVERIFY(toEditorButton);
+    QVERIFY(toEditorButton->isEnabled());
+    QVERIFY(!toEditorButton->toolTip().isEmpty());
+
+    QPointer<AcpChatTab> tab = widget.findChildren<AcpChatTab *>().last();
+    QVERIFY(tab);
+    QPointer<QWidget> tabToolBar = tab->toolBarWidget();
+    toEditorButton->click();
+
+    QVERIFY(tab);
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
+    QVERIFY(!widget.isAncestorOf(tab));
+    const QList<Core::IDocument *> documents = chatEditorDocuments();
+    QCOMPARE(documents.size(), 1);
+    QCOMPARE(documents.first()->displayName(), tab->title());
+    const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(documents.first());
+    QCOMPARE(editors.size(), 1);
+    QPointer<Core::IEditor> editor = editors.first();
+    QVERIFY(editor->widget()->isAncestorOf(tab));
+    // The editor is wider than the side panel: the chat keeps to a column of
+    // readable width in its middle.
+    QCOMPARE_LT(tab->maximumWidth(), QWIDGETSIZE_MAX);
+    editor->widget()->resize(3 * tab->maximumWidth(), editor->widget()->height());
+    editor->widget()->layout()->activate();
+    QCOMPARE(tab->width(), tab->maximumWidth());
+    QVERIFY(qAbs(tab->geometry().center().x() - editor->widget()->rect().center().x()) <= 1);
+
+    // Dragging either side of the column changes its width, keeps it centered,
+    // and is remembered. A double-click restores the default width.
+    const Utils::Key columnsKey("AcpClient/ChatEditorColumns");
+    const QVariant savedColumns = Core::ICore::settings()->value(columnsKey);
+    const QScopeGuard restoreColumns([&] {
+        if (savedColumns.isValid())
+            Core::ICore::settings()->setValue(columnsKey, savedColumns);
+        else
+            Core::ICore::settings()->remove(columnsKey);
+    });
+    const auto dragHandle = [&](const char *name, int dx) {
+        auto *handle = editor->widget()->findChild<QWidget *>(name);
+        QVERIFY(handle);
+        QVERIFY(handle->isVisible());
+        const QPoint start = handle->rect().center();
+        QTest::mousePress(handle, Qt::LeftButton, {}, start);
+        const int widthBefore = tab->width();
+        QTest::mouseMove(handle, start + QPoint(dx, 0));
+        // A long chat is expensive to lay out: while dragging, only a preview
+        // moves, and the chat keeps its width.
+        editor->widget()->layout()->activate();
+        QCOMPARE(tab->width(), widthBefore);
+        auto *preview = editor->widget()->findChild<QWidget *>("chatColumnPreview");
+        QVERIFY(preview);
+        QVERIFY(preview->isVisible());
+        QTest::mouseRelease(handle, Qt::LeftButton, {}, start + QPoint(dx, 0));
+        QVERIFY(!preview->isVisible());
+        editor->widget()->layout()->activate();
+    };
+    const int startWidth = tab->width();
+    dragHandle("chatColumnRightHandle", 20);
+    QCOMPARE(tab->width(), startWidth + 40);
+    QVERIFY(qAbs(tab->geometry().center().x() - editor->widget()->rect().center().x()) <= 1);
+    dragHandle("chatColumnLeftHandle", 30);
+    QCOMPARE(tab->width(), startWidth - 20);
+    QVERIFY(qAbs(tab->geometry().center().x() - editor->widget()->rect().center().x()) <= 1);
+    const double storedColumns = Core::ICore::settings()->value(columnsKey).toDouble();
+    QCOMPARE(qRound(storedColumns * tab->fontMetrics().averageCharWidth()), startWidth - 20);
+
+    auto *rightHandle = editor->widget()->findChild<QWidget *>("chatColumnRightHandle");
+    QTest::mouseDClick(rightHandle, Qt::LeftButton);
+    editor->widget()->layout()->activate();
+    QCOMPARE(tab->width(), tab->fontMetrics().averageCharWidth() * 100);
+
+    // In an editor narrower than the column, widening the chat keeps the column.
+    const int columnWidth = editor->widget()->width() + 100;
+    tab->setMaximumWidth(columnWidth);
+    const QVariant columnsBefore = Core::ICore::settings()->value(columnsKey);
+    editor->widget()->layout()->activate();
+    QCOMPARE_LT(tab->width(), columnWidth);
+    dragHandle("chatColumnRightHandle", 20);
+    QCOMPARE(tab->maximumWidth(), columnWidth);
+    QCOMPARE(Core::ICore::settings()->value(columnsKey), columnsBefore);
+
+    // Activating the editor gives the focus to the chat.
+    QWidget *window = editor->widget()->window();
+    window->activateWindow();
+    if (QTest::qWaitForWindowActive(window)) {
+        Core::EditorManager::activateEditor(editor);
+        QVERIFY(tab->isAncestorOf(QApplication::focusWidget()));
+    } else {
+        qWarning("The window does not become active, so the focus is not checked.");
+    }
+
+    QVERIFY(tabToolBar);
+    QVERIFY(editor->toolBar()->isAncestorOf(tabToolBar));
+
+    auto *toSidePanelButton
+        = editor->toolBar()->findChild<QAbstractButton *>("moveChatToSidePanelButton");
+    QVERIFY(toSidePanelButton);
+    QVERIFY(!toSidePanelButton->toolTip().isEmpty());
+    toSidePanelButton->click();
+
+    QTRY_VERIFY(!editor);
+    QVERIFY(tab);
+    QVERIFY(chatEditorDocuments().isEmpty());
+    auto *sidePanelWidget
+        = qobject_cast<AcpChatWidget *>(Core::RightPaneWidget::instance()->widget());
+    QVERIFY(sidePanelWidget);
+    QVERIFY(sidePanelWidget->isAncestorOf(tab));
+    QCOMPARE(tab->maximumWidth(), QWIDGETSIZE_MAX);
+    QVERIFY(tabToolBar);
+    QVERIFY(sidePanelWidget->isAncestorOf(tabToolBar));
+    QVERIFY(Core::RightPaneWidget::instance()->isShown());
+
+    // Hand the chat back to an editor and close that, which ends it.
+    auto *sidePanelToEditorButton
+        = sidePanelWidget->findChild<QAbstractButton *>("moveChatToEditorButton");
+    QVERIFY(sidePanelToEditorButton);
+    sidePanelToEditorButton->click();
+    QVERIFY(tab);
+    QVERIFY(!sidePanelWidget->isAncestorOf(tab));
+    QCOMPARE(chatEditorDocuments().size(), 1);
+    QVERIFY(Core::EditorManager::closeDocuments(chatEditorDocuments(), false));
+    QTRY_VERIFY(!tab);
+    Core::RightPaneWidget::instance()->setShown(false);
 }
 
 // The list of chats is as tall as its entries, but never takes more than a

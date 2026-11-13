@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "acpchatwidget.h"
+
+#include "acpchateditor.h"
 #include "acpchattab.h"
 #include "acpclienttr.h"
 #include "acpsettings.h"
@@ -54,6 +56,14 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
     toolBarLayout->addWidget(m_toolBarWidgetStack);
 
     toolBarLayout->addStretch();
+
+    m_moveToEditorButton = new QToolButton(toolBar);
+    m_moveToEditorButton->setIcon(Utils::Icons::EXPAND_TOOLBAR.icon());
+    m_moveToEditorButton->setObjectName("moveChatToEditorButton");
+    m_moveToEditorButton->setToolTip(Tr::tr("Move Chat to Editor"));
+    connect(m_moveToEditorButton, &QToolButton::clicked,
+            this, &AcpChatWidget::moveCurrentTabToEditor);
+    toolBarLayout->addWidget(m_moveToEditorButton);
 
     auto *closeButton = new QToolButton(toolBar);
     closeButton->setIcon(Utils::Icons::CLOSE_SPLIT_RIGHT.icon());
@@ -108,6 +118,7 @@ void AcpChatWidget::updateTermsState()
         m_termsWidget->setVisible(gated);
     updateContentVisibility();
     m_addButton->setEnabled(!gated);
+    m_moveToEditorButton->setEnabled(!gated);
     if (!gated && m_stack->count() == 0)
         addNewTab();
 }
@@ -204,14 +215,26 @@ void AcpChatWidget::closeTab(int index)
     if (index < 0)
         return;
 
-    QWidget *w = m_stack->widget(index);
+    delete takeTab(index);
+    handleTabRemoved();
+}
+
+AcpChatTab *AcpChatWidget::takeTab(int index)
+{
+    auto *tab = qobject_cast<AcpChatTab *>(m_stack->widget(index));
     m_blockIndexChanges = true;
-    m_stack->removeWidget(w);
+    m_stack->removeWidget(m_stack->widget(index));
     // Only detaches it from display; the owning ChatPanel deletes it.
     m_toolBarWidgetStack->removeWidget(m_toolBarWidgetStack->widget(index));
     m_blockIndexChanges = false;
+    if (tab)
+        disconnect(tab, nullptr, this, nullptr);
     setCurrentIndex(m_stack->currentIndex());
-    delete w;
+    return tab;
+}
+
+void AcpChatWidget::handleTabRemoved()
+{
     updateOverview();
 
     emit navigateStateUpdate();
@@ -220,6 +243,22 @@ void AcpChatWidget::closeTab(int index)
         updateTermsState();
         Core::RightPaneWidget::instance()->setShown(false);
     }
+}
+
+void AcpChatWidget::moveCurrentTabToEditor()
+{
+    const int index = m_stack->currentIndex();
+    if (index < 0)
+        return;
+    AcpChatTab *tab = takeTab(index);
+    if (!tab)
+        return;
+    if (!openChatInEditor(tab)) {
+        addTab(tab);
+        return;
+    }
+    setOverviewShown(false);
+    handleTabRemoved();
 }
 
 void AcpChatWidget::setFocus()
@@ -233,7 +272,12 @@ AcpChatTab *AcpChatWidget::addNewTab()
     auto *tab = new AcpChatTab;
     if (m_inspector)
         tab->setInspector(m_inspector);
+    addTab(tab);
+    return tab;
+}
 
+void AcpChatWidget::addTab(AcpChatTab *tab)
+{
     m_blockIndexChanges = true;
     const int index = m_stack->addWidget(tab);
     m_toolBarWidgetStack->insertWidget(index, tab->toolBarWidget());
@@ -246,7 +290,6 @@ AcpChatTab *AcpChatWidget::addNewTab()
     updateOverview();
 
     emit navigateStateUpdate();
-    return tab;
 }
 
 } // namespace AcpClient::Internal

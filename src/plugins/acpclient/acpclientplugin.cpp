@@ -1,6 +1,8 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "acpchateditor.h"
+#include "acpchattab.h"
 #include "acpchatwidget.h"
 #include "acpclientconstants.h"
 #include "acpclienttr.h"
@@ -73,6 +75,14 @@ public:
 
         m_inspector = new AcpInspector;
 
+        setupAcpChatEditor(m_inspector, [this](AcpChatTab *tab) {
+            createRightPaneChatWidget();
+            m_rightPaneChatWidget->addTab(tab);
+            RightPaneWidget::instance()->setWidget(m_rightPaneChatWidget);
+            RightPaneWidget::instance()->setShown(true);
+            tab->setFocus();
+        });
+
         // Create the ACP Client menu under Tools
         ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
         menu->menu()->setTitle(Tr::tr("ACP Client"));
@@ -133,6 +143,7 @@ public:
 
     ShutdownFlag aboutToShutdown() final
     {
+        closeAllChatEditors();
         return SynchronousShutdown;
     }
 

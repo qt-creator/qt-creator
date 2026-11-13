@@ -22,6 +22,8 @@ Project {
         files: [
             "acpchatcontroller.cpp",
             "acpchatcontroller.h",
+            "acpchateditor.cpp",
+            "acpchateditor.h",
             "acpchattab.cpp",
             "acpchattab.h",
             "acpchatwidget.cpp",

@@ -30,6 +30,8 @@ public:
 
     void setFocus();
 
+    void addTab(AcpChatTab *tab);
+
 signals:
     void navigateStateUpdate();
 
@@ -39,6 +41,9 @@ protected:
 private:
     AcpChatTab *addNewTab();
     void closeTab(int index);
+    AcpChatTab *takeTab(int index);
+    void handleTabRemoved();
+    void moveCurrentTabToEditor();
     void setCurrentIndex(int index);
     void addNewTabFromUser();
 
@@ -53,6 +58,7 @@ private:
     QVBoxLayout *m_layout = nullptr;
     SessionSwitcherButton *m_switcherButton = nullptr;
     QToolButton *m_addButton = nullptr;
+    QToolButton *m_moveToEditorButton = nullptr;
 
     QStackedWidget *m_stack = nullptr;
     QStackedWidget *m_toolBarWidgetStack = nullptr; // kept in sync with m_stack
