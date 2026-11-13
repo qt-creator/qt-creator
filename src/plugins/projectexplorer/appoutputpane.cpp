@@ -1481,15 +1481,18 @@ AppOutputSettings::AppOutputSettings()
             Row { parts.at(0).trimmed(), maxCharCount, parts.at(1).trimmed(), st },
             Row { overwriteBackground, backgroundColor, st },
             If (ExtensionSystem::PluginManager::specExistsAndIsEnabled("android")) >> Then {
-                Group {
-                    title(Tr::tr("Android Logcat")),
-                    Column {
-                        Row { logcat.viewMode, st },
-                        logcat.showTimestamp,
-                        logcat.showPid,
-                        logcat.showTag,
-                        logcat.showPackage,
-                    },
+                // Created only when used, a skipped group would leak.
+                [this] {
+                    return Group {
+                        title(Tr::tr("Android Logcat")),
+                        Column {
+                            Row { logcat.viewMode, st },
+                            logcat.showTimestamp,
+                            logcat.showPid,
+                            logcat.showTag,
+                            logcat.showPackage,
+                        },
+                    }.emerge();
                 },
             },
             st,
