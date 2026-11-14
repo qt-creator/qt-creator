@@ -126,7 +126,7 @@ def main():
         mainRect = getQModelIndexStr("text='Rectangle'", rootIndex)
         doubleClick(waitForObject(mainRect))
         if not object.exists(":DebugModeWidget_Debugger::Internal::ConsoleView"):
-            invokeMenuItem("View", "Output", "QML Debugger Console")
+            invokeMenuItem("View", "Output", "Debugger Console")
         # Window might be too small to show Locals, so close what we don't need
         for view in ("Stack", "Breakpoints", "Expressions"):
             invokeMenuItem("View", "Views", view)

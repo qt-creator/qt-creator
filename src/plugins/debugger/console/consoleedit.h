@@ -16,6 +16,7 @@ class ConsoleEdit : public QTextEdit
 public:
     ConsoleEdit(const QModelIndex &index, QWidget *parent);
     QString getCurrentScript() const;
+    void setInputOffset(int left, int top) { setViewportMargins(left, top, 0, 0); }
 
 protected:
     void keyPressEvent(QKeyEvent *e) override;
@@ -30,8 +31,11 @@ protected:
     void replaceCurrentScript(const QString &script);
 
 private:
+    void updateHistoryContext();
+
     QModelIndex m_historyIndex;
     QString m_cachedScript;
+    int m_historyContext = 0;
 };
 
 } // Debugger::Internal

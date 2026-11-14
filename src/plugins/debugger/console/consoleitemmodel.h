@@ -21,7 +21,8 @@ public:
 
     explicit ConsoleItemModel(QObject *parent = nullptr);
 
-    void shiftEditableRow();
+    void shiftEditableRow(int historyContext);
+    void setHistoryContext(int historyContext);
 
     void appendItem(ConsoleItem *item, int position = -1);
 
@@ -39,6 +40,7 @@ signals:
 private:
     int m_maxSizeOfFileName = 0;
     bool m_canFetchMore = false;
+    int m_historyContext = 0;
 };
 
 } // Debugger::Internal

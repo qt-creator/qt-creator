@@ -1525,9 +1525,9 @@ void registerMcpTools()
     ToolRegistry::registerTool(
         Tool{}
             .name("debugger_print_console_message")
-            .title("Print a message to the QML Debugger Console")
+            .title("Print a message to the Debugger Console")
             .description(
-                "Appends a message of the given type to the QML Debugger Console, exactly as the "
+                "Appends a message of the given type to the Debugger Console, exactly as the "
                 "debugger would. Useful for exercising the console's auto-popup behavior. Does not "
                 "require an active debug session.")
             .annotations(ToolAnnotations{}.readOnlyHint(false))

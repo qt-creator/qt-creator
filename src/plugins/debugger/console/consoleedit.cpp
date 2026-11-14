@@ -16,6 +16,7 @@ ConsoleEdit::ConsoleEdit(const QModelIndex &index, QWidget *parent) :
     QTextEdit(parent),
     m_historyIndex(index)
 {
+    m_historyContext = index.data(ConsoleItem::HistoryContextRole).toInt();
     setFrameStyle(QFrame::NoFrame);
     setUndoRedoEnabled(false);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -62,6 +63,7 @@ void ConsoleEdit::focusOutEvent(QFocusEvent * /*e*/)
 
 void ConsoleEdit::handleUpKey()
 {
+    updateHistoryContext();
     QTC_ASSERT(m_historyIndex.isValid(), return);
     int currentRow = m_historyIndex.row();
     const QAbstractItemModel *model = m_historyIndex.model();
@@ -72,8 +74,8 @@ void ConsoleEdit::handleUpKey()
         currentRow--;
         if (model->hasIndex(currentRow, 0)) {
             QModelIndex index = model->index(currentRow, 0);
-            if (ConsoleItem::InputType == (ConsoleItem::ItemType)model->data(
-                        index, ConsoleItem::TypeRole).toInt()) {
+            if (model->data(index, ConsoleItem::TypeRole).toInt() == ConsoleItem::InputType
+                && model->data(index, ConsoleItem::HistoryContextRole).toInt() == m_historyContext) {
                 m_historyIndex = index;
                 replaceCurrentScript(
                             model->data(index, ConsoleItem::ExpressionRole).toString());
@@ -85,6 +87,7 @@ void ConsoleEdit::handleUpKey()
 
 void ConsoleEdit::handleDownKey()
 {
+    updateHistoryContext();
     QTC_ASSERT(m_historyIndex.isValid(), return);
     int currentRow = m_historyIndex.row();
     const QAbstractItemModel *model = m_historyIndex.model();
@@ -92,8 +95,8 @@ void ConsoleEdit::handleDownKey()
         currentRow++;
         if (model->hasIndex(currentRow, 0)) {
             QModelIndex index = model->index(currentRow, 0);
-            if (ConsoleItem::InputType == (ConsoleItem::ItemType)model->data(
-                        index, ConsoleItem::TypeRole).toInt()) {
+            if (model->data(index, ConsoleItem::TypeRole).toInt() == ConsoleItem::InputType
+                && model->data(index, ConsoleItem::HistoryContextRole).toInt() == m_historyContext) {
                 m_historyIndex = index;
                 if (currentRow == model->rowCount() - 1) {
                     replaceCurrentScript(m_cachedScript);
@@ -105,6 +108,20 @@ void ConsoleEdit::handleDownKey()
             }
         }
     }
+}
+
+void ConsoleEdit::updateHistoryContext()
+{
+    const int historyContext = int(debuggerConsole()->mode());
+    if (m_historyContext == historyContext)
+        return;
+
+    QTC_ASSERT(m_historyIndex.isValid(), return);
+    const QAbstractItemModel *model = m_historyIndex.model();
+    QTC_ASSERT(model->rowCount() > 0, return);
+    m_historyContext = historyContext;
+    m_historyIndex = model->index(model->rowCount() - 1, 0);
+    m_cachedScript = getCurrentScript();
 }
 
 QString ConsoleEdit::getCurrentScript() const

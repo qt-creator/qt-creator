@@ -80,23 +80,36 @@ void ConsoleView::mousePressEvent(QMouseEvent *event)
     if (index.isValid()) {
         ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
                     ConsoleItem::TypeRole).toInt();
-        bool handled = false;
-        if (type == ConsoleItem::DefaultType) {
-            bool showTypeIcon = index.parent() == QModelIndex();
-            QStyleOptionViewItem option;
-            initViewItemOption(&option);
-            ConsoleItemPositions positions(m_model, visualRect(index), option.font, showTypeIcon, true);
+        const bool showTypeIcon = index.parent() == QModelIndex();
+        const bool showExpandableIcon = type == ConsoleItem::DefaultType;
+        QStyleOptionViewItem option;
+        initViewItemOption(&option);
+        ConsoleItemPositions positions(m_model, visualRect(index), option.font,
+                                       showTypeIcon, showExpandableIcon);
 
-            if (positions.expandCollapseIcon().contains(pos)) {
-                if (isExpanded(index))
-                    setExpanded(index, false);
-                else
-                    setExpanded(index, true);
-                handled = true;
-            }
+        if ((positions.fileArea().contains(pos) || positions.lineArea().contains(pos))
+            && canShowItemInTextEditor(index)) {
+            onRowActivated(index);
+            return;
         }
-        if (!handled)
+
+        bool handled = false;
+        if (showExpandableIcon && positions.expandCollapseIcon().contains(pos)) {
+            if (isExpanded(index))
+                setExpanded(index, false);
+            else
+                setExpanded(index, true);
+            handled = true;
+        }
+        if (!handled) {
             Utils::TreeView::mousePressEvent(event);
+            if (index.flags().testFlag(Qt::ItemIsEditable))
+                edit(index);
+        }
+    } else {
+        Utils::TreeView::mousePressEvent(event);
+        selectEditableInput();
+        edit(currentIndex());
     }
 }
 
@@ -147,9 +160,19 @@ void ConsoleView::contextMenuEvent(QContextMenuEvent *event)
 
 void ConsoleView::focusInEvent(QFocusEvent *event)
 {
-    Q_UNUSED(event)
-    selectionModel()->setCurrentIndex(model()->index(model()->rowCount() - 1, 0),
-                                      QItemSelectionModel::ClearAndSelect);
+    Utils::TreeView::focusInEvent(event);
+}
+
+void ConsoleView::focusInput()
+{
+    selectEditableInput();
+    edit(currentIndex());
+}
+
+void ConsoleView::selectEditableInput()
+{
+    const QModelIndex input = model()->index(model()->rowCount() - 1, 0);
+    selectionModel()->setCurrentIndex(input, QItemSelectionModel::ClearAndSelect);
 }
 
 void ConsoleView::onRowActivated(const QModelIndex &index)
@@ -157,10 +180,11 @@ void ConsoleView::onRowActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    const Utils::FilePath fp
-        = m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString()).constFirst();
-    if (fp.isReadableFile())
-        Core::EditorManager::openEditorAt({fp, model()->data(index, ConsoleItem::LineRole).toInt()});
+    const Utils::FilePaths files
+        = m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString());
+    if (!files.isEmpty() && files.constFirst().isReadableFile())
+        Core::EditorManager::openEditorAt(
+            {files.constFirst(), model()->data(index, ConsoleItem::LineRole).toInt()});
 }
 
 void ConsoleView::copyToClipboard(const QModelIndex &index)
@@ -186,9 +210,9 @@ bool ConsoleView::canShowItemInTextEditor(const QModelIndex &index)
     if (!index.isValid())
         return false;
 
-    bool success = false;
-    m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString(), &success);
-    return success;
+    const Utils::FilePaths files
+        = m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString());
+    return !files.isEmpty() && files.constFirst().isReadableFile();
 }
 
 } // Debugger::Internal

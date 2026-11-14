@@ -261,8 +261,7 @@ QmlEngine::QmlEngine()
     connect(&d->process, &Process::done, this, &QmlEngine::disconnected);
     connect(&d->process, &Process::started, this, &QmlEngine::handleLauncherStarted);
 
-    debuggerConsole()->populateFileFinder();
-    debuggerConsole()->setScriptEvaluator([this](const QString &expr) {
+    debuggerConsole()->setScriptEvaluator(this, [this](const QString &expr) {
         executeDebuggerCommand(expr);
     });
 
@@ -579,7 +578,7 @@ void QmlEngine::shutdownEngine()
 {
     clearExceptionSelection();
 
-    debuggerConsole()->setScriptEvaluator(ScriptEvaluator());
+    debuggerConsole()->setScriptEvaluator(this, ScriptEvaluator());
 
    // double check (ill engine?):
     stopProcess();

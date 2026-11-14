@@ -17,6 +17,7 @@
 
 #include <texteditor/textmark.h>
 
+#include <functional>
 #include <memory>
 #include <optional>
 
@@ -115,6 +116,7 @@ public:
     void setInferiorArguments(const QString &arguments) {
         m_inferior.command.setArguments(arguments);
     }
+    void setInferiorUserArguments(const QString &arguments);
     void setInferiorEnvironment(const Utils::Environment &env) { m_inferior.environment = env; }
     Utils::ProcessRunData inferior() const { return m_inferior; }
 
@@ -397,6 +399,7 @@ private:
 
     ProjectExplorer::Abi m_toolChainAbi;
     Utils::ProcessRunData m_inferior;
+    QString m_qmlDebugArgument;
     Utils::ProcessRunData m_debugger;
     Utils::FileInProjectFinder m_qmlFileFinder;
     DebuggerStartMode m_startMode = NoStartMode;
@@ -520,6 +523,21 @@ private:
     quint64 m_address = 0;
 };
 
+enum class DebuggerConsoleOutputKind { Normal, Error };
+using DebuggerConsoleOutputHandler
+    = std::function<void(const QString &, DebuggerConsoleOutputKind)>;
+
+class DEBUGGER_EXPORT DebuggerConsoleCommandAdapter
+{
+public:
+    virtual ~DebuggerConsoleCommandAdapter();
+
+    virtual QString commandModeName() const = 0;
+    // Implementations must return promptly; output may be delivered asynchronously.
+    virtual void executeCommand(const QString &command,
+                                const DebuggerConsoleOutputHandler &outputHandler) = 0;
+};
+
 class DEBUGGER_EXPORT DebuggerEngine : public QObject
 {
     Q_OBJECT
@@ -618,6 +636,7 @@ public:
     virtual void enableSubBreakpoint(const SubBreakpoint &sbp, bool enabled);
 
     virtual void executeDebuggerCommand(const QString &command);
+    virtual DebuggerConsoleCommandAdapter *consoleCommandAdapter() { return nullptr; }
 
     virtual void assignValueInDebugger(WatchItem *item,
         const QString &expr, const QVariant &value);
@@ -682,6 +701,9 @@ public:
 signals:
     void engineStarted();
     void engineFinished();
+    void consoleOutputRequested(const QString &message);
+    void locationNavigationStarted();
+    void locationNavigationFinished();
     void requestRunControlStop();
     void attachToCoreRequested(const Utils::FilePath &coreFile);
     void postMessageRequested(const QString &msg, Utils::OutputFormat format, bool appendNewLine) const;

@@ -213,7 +213,7 @@ QSize ConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
         height = layoutText(tl, positions.textAreaWidth());
     }
 
-    height += 2 * ConsoleItemPositions::ITEM_PADDING;
+    height += 2 * ConsoleItemPositions::ITEM_PADDING_V;
 
     if (height < positions.minimumHeight())
         height = positions.minimumHeight();
@@ -232,12 +232,13 @@ QWidget *ConsoleItemDelegate::createEditor(QWidget *parent,
 
 {
     auto editor = new ConsoleEdit(index, parent);
+    editor->document()->setDocumentMargin(0);
+    editor->setInputOffset(
+        ConsoleItemPositions::ITEM_PADDING_H + ConsoleItemPositions::TASK_ICON_SIZE
+            + ConsoleItemPositions::ITEM_SPACING,
+        ConsoleItemPositions::ITEM_EDITOR_PADDING_V);
     // Make the background transparent so that the prompt shines through
-    editor->setStyleSheet("QTextEdit {"
-                          "margin-left: 24px;"
-                          "margin-top: 4px;"
-                          "background-color: transparent;"
-                          "}");
+    editor->setStyleSheet("QTextEdit { background-color: transparent; }");
     return editor;
 }
 
@@ -245,7 +246,7 @@ void ConsoleItemDelegate::setEditorData(QWidget *editor,
                                            const QModelIndex &index) const
 {
     auto edtr = qobject_cast<ConsoleEdit*>(editor);
-    edtr->insertPlainText(index.data(ConsoleItem::ExpressionRole).toString());
+    edtr->setPlainText(index.data(ConsoleItem::ExpressionRole).toString());
 }
 
 void ConsoleItemDelegate::setModelData(QWidget *editor,
@@ -261,7 +262,7 @@ void ConsoleItemDelegate::updateEditorGeometry(QWidget *editor,
                                                   const QStyleOptionViewItem &option,
                                                   const QModelIndex &/*index*/) const
 {
-    editor->setGeometry(QRect(option.rect.x(), option.rect.top(), option.rect.width(), option.rect.bottom()));
+    editor->setGeometry(option.rect);
 }
 
 void ConsoleItemDelegate::currentChanged(const QModelIndex &current,

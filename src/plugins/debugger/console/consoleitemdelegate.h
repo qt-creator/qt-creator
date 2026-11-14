@@ -5,6 +5,8 @@
 
 #include "consoleitemmodel.h"
 
+#include <utils/stylehelper.h>
+
 #include <QStyledItemDelegate>
 
 QT_FORWARD_DECLARE_CLASS(QTextLayout)
@@ -79,12 +81,12 @@ public:
         m_maxLineLength = model->sizeOfLineNumber(font);
     }
 
-    int adjustedTop() const { return m_top + ITEM_PADDING; }
-    int adjustedLeft() const { return m_x + ITEM_PADDING; }
-    int adjustedRight() const { return m_width - ITEM_PADDING; }
+    int adjustedTop() const { return m_top + ITEM_PADDING_V; }
+    int adjustedLeft() const { return m_x + ITEM_PADDING_H; }
+    int adjustedRight() const { return m_width - ITEM_PADDING_H; }
     int adjustedBottom() const { return m_bottom; }
     int lineHeight() const { return m_fontHeight + 1; }
-    int minimumHeight() const { return typeIconHeight() + 2 * ITEM_PADDING; }
+    int minimumHeight() const { return typeIconHeight() + 2 * ITEM_PADDING_V; }
 
     // PROMPTAREA is same as TYPEICONAREA
     int typeIconLeft() const { return adjustedLeft(); }
@@ -135,7 +137,9 @@ private:
 
 public:
     static const int TASK_ICON_SIZE = 16;
-    static const int ITEM_PADDING = 8;
+    static const int ITEM_PADDING_V = Utils::StyleHelper::SpacingTokens::PaddingVXs;
+    static const int ITEM_EDITOR_PADDING_V = Utils::StyleHelper::SpacingTokens::PaddingVXxs;
+    static const int ITEM_PADDING_H = Utils::StyleHelper::SpacingTokens::PaddingHM;
     static const int ITEM_SPACING = 4;
 };
 

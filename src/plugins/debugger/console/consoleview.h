@@ -17,6 +17,7 @@ public:
 
     void onScrollToBottom();
     void populateFileFinder();
+    void focusInput();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -27,6 +28,7 @@ protected:
     void focusInEvent(QFocusEvent *event) override;
 
 private:
+    void selectEditableInput();
     void onRowActivated(const QModelIndex &index);
     void copyToClipboard(const QModelIndex &index);
     bool canShowItemInTextEditor(const QModelIndex &index);

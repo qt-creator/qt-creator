@@ -200,6 +200,33 @@
 
     You can customize and add debugging helpers.
 
+    \section1 Debugger Console
+
+    The \uicontrol {Debugger Console} provides command input for the active
+    debugger. Select a mode in the console toolbar. In \uicontrol {QML / JavaScript}
+    mode, enter JavaScript expressions to evaluate them in the current QML
+    context. In \uicontrol {GDB commands} mode, enter commands from the GDB
+    command set; command output appears in the console, and source locations in
+    the output can be opened by clicking their file name or line number. GDB
+    watchpoint change messages also appear in the console history.
+    When no debug session is active, enter \c run to start debugging the
+    startup project's active run configuration and run until a breakpoint.
+    Enter \c start to start debugging and stop at \c main().
+    During an active debug session, \c run continues execution.
+
+    To trace a variable without stopping at each breakpoint hit, edit the
+    breakpoint and enter a GDB command list, for example:
+
+    \code
+    silent
+    printf "k = %d\n", k
+    continue
+    \endcode
+
+    The printed values appear in the \uicontrol {Debugger Console} history.
+    The variable must be in scope at the breakpoint location. A breakpoint
+    before an assignment prints the value before that assignment executes.
+
     \section1 QML and Qt Quick
 
     When debugging a Qt Quick application, you can inspect the state of

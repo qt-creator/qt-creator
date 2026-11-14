@@ -9,9 +9,15 @@
 #include "cdb/cdbengine.h"
 #include "cdb/cdbimpl.h"
 #include "cdb/cdbparsehelpers.h"
+#include "console/console.h"
+#include "console/consoleedit.h"
+#include "console/consoleitemdelegate.h"
+#include "console/consoleitemmodel.h"
+#include "console/consoleview.h"
 #include "debuggeractions.h"
 #include "disassembleragent.h"
 #include "disassemblerlines.h"
+#include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
@@ -48,6 +54,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/modemanager.h>
 
 #include <cppeditor/cpptoolstestcase.h>
 
@@ -60,7 +67,9 @@
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
@@ -80,6 +89,9 @@
 #include <utils/store.h>
 #include <utils/url.h>
 
+#include <QAbstractProxyModel>
+#include <QApplication>
+#include <QComboBox>
 #include <QElapsedTimer>
 #include <QEventLoop>
 #include <QJsonArray>
@@ -94,6 +106,7 @@
 #include <QTest>
 #include <QTestEventLoop>
 #include <QTextBlock>
+#include <QTreeView>
 #include <QTimer>
 #include <QVersionNumber>
 #include <QtEndian>
@@ -136,6 +149,22 @@ private slots:
     void testBenchmark();
     void testStateMachine();
     void testGdbDapEngineRunsASession();
+    void testConsoleInputHistoryContexts();
+    void testConsoleQmlCompatibilityMode();
+    void testConsoleOutputNavigation();
+    void testConsoleOutputNavigationClick();
+    void testConsoleClickReturnsToPrompt();
+    void testConsoleStartupHistory();
+    void testConsoleStartupBuildFailure();
+    void testConsoleRestartKeepsQmlArguments();
+    void testConsoleBreakOnMainOnce();
+    void testConsoleStartupFocus_data();
+    void testConsoleStartupFocus();
+    void testGdbConsoleCommands();
+    void testGdbConsoleFinish();
+    void testGdbConsoleBreakpointCommands_data();
+    void testGdbConsoleBreakpointCommands();
+    void testGdbConsoleInterrupt();
 
     void testRegisterValue_data();
     void testRegisterValue();
@@ -399,6 +428,420 @@ void DebuggerUnitTests::testStateMachine()
     runControl->initiateStop();
     QTestEventLoop::instance().enterLoop(30);
     QVERIFY(!QTestEventLoop::instance().timeout());
+}
+
+void DebuggerUnitTests::testConsoleInputHistoryContexts()
+{
+    Console *console = debuggerConsole();
+    auto *modeSelector = qobject_cast<QComboBox *>(console->toolBarWidgets().value(0));
+    QVERIFY(modeSelector);
+    const int originalMode = modeSelector->currentIndex();
+    const QScopeGuard restoreMode([modeSelector, originalMode] {
+        modeSelector->setCurrentIndex(originalMode);
+    });
+
+    ConsoleItemModel model;
+    modeSelector->setCurrentIndex(int(ConsoleMode::Qml));
+    model.setHistoryContext(int(ConsoleMode::Qml));
+    QCOMPARE(model.index(0, 0).data(ConsoleItem::HistoryContextRole).toInt(),
+             int(ConsoleMode::Qml));
+
+    model.setData(model.index(0, 0), QString("qml expression"), ConsoleItem::ExpressionRole);
+    model.shiftEditableRow(int(ConsoleMode::Qml));
+    model.setHistoryContext(int(ConsoleMode::Backend));
+    model.setData(model.index(1, 0), QString("gdb command"), ConsoleItem::ExpressionRole);
+    model.shiftEditableRow(int(ConsoleMode::Backend));
+
+    QCOMPARE(model.rowCount(), 3);
+    QCOMPARE(model.index(0, 0).data(ConsoleItem::ExpressionRole).toString(),
+             QString("qml expression"));
+    QCOMPARE(model.index(0, 0).data(ConsoleItem::HistoryContextRole).toInt(),
+             int(ConsoleMode::Qml));
+    QCOMPARE(model.index(1, 0).data(ConsoleItem::HistoryContextRole).toInt(),
+             int(ConsoleMode::Backend));
+    QCOMPARE(model.index(2, 0).data(ConsoleItem::HistoryContextRole).toInt(),
+             int(ConsoleMode::Backend));
+
+    ConsoleEdit edit(model.index(2, 0), nullptr);
+    modeSelector->setCurrentIndex(int(ConsoleMode::Backend));
+    QTest::keyClick(&edit, Qt::Key_Up);
+    QCOMPARE(edit.toPlainText(), QString("gdb command"));
+    modeSelector->setCurrentIndex(int(ConsoleMode::Qml));
+    QTest::keyClick(&edit, Qt::Key_Up);
+    QCOMPARE(edit.toPlainText(), QString("qml expression"));
+
+    model.clear();
+    QCOMPARE(model.rowCount(), 1);
+    QCOMPARE(model.index(0, 0).data(ConsoleItem::HistoryContextRole).toInt(),
+             int(ConsoleMode::Backend));
+}
+
+void DebuggerUnitTests::testConsoleOutputNavigation()
+{
+    Console *console = debuggerConsole();
+    console->clearContents();
+    const QScopeGuard cleanup([console] { console->clearContents(); });
+    console->printCommandOutput("Breakpoint 1 at main.cpp:42:3\n"
+                                "Breakpoint 2 at C:/work tree/file.cpp:7\n",
+                                ConsoleItem::DefaultType);
+    console->printCommandOutput("Breakpoint 3 at 0x000000: file C:/work tree/file.cpp, line 8.\n",
+                                ConsoleItem::DefaultType);
+    console->printCommandOutput("Error in other.cpp:9\n", ConsoleItem::ErrorType);
+    console->printCommandOutput(QString(20000, 'x'), ConsoleItem::DefaultType);
+
+    auto *view = console->outputWidget(nullptr)->findChild<QTreeView *>();
+    QVERIFY(view);
+    QAbstractItemModel *model = view->model();
+    QTRY_COMPARE(model->rowCount(), 8);
+    QCOMPARE(model->index(0, 0).data(ConsoleItem::FileRole).toString(), QString("main.cpp"));
+    QCOMPARE(model->index(0, 0).data(ConsoleItem::LineRole).toInt(), 42);
+    QCOMPARE(model->index(1, 0).data(ConsoleItem::FileRole).toString(),
+             QString("C:/work tree/file.cpp"));
+    QCOMPARE(model->index(1, 0).data(ConsoleItem::LineRole).toInt(), 7);
+    QCOMPARE(model->index(2, 0).data(ConsoleItem::FileRole).toString(),
+             QString("C:/work tree/file.cpp"));
+    QCOMPARE(model->index(2, 0).data(ConsoleItem::LineRole).toInt(), 8);
+    QCOMPARE(model->index(3, 0).data(ConsoleItem::TypeRole).toInt(), ConsoleItem::ErrorType);
+    QCOMPARE(model->index(3, 0).data(ConsoleItem::FileRole).toString(), QString("other.cpp"));
+    QCOMPARE(model->index(3, 0).data(ConsoleItem::LineRole).toInt(), 9);
+    QCOMPARE(model->index(4, 0).data(Qt::DisplayRole).toString().size(), 8192);
+    QCOMPARE(model->index(5, 0).data(Qt::DisplayRole).toString().size(), 8192);
+    QCOMPARE(model->index(6, 0).data(Qt::DisplayRole).toString().size(), 3616);
+}
+
+void DebuggerUnitTests::testConsoleQmlCompatibilityMode()
+{
+    Console *console = debuggerConsole();
+    console->clearContents();
+    const QScopeGuard clearConsole([console] { console->clearContents(); });
+
+    auto *modeSelector = qobject_cast<QComboBox *>(console->toolBarWidgets().value(0));
+    QVERIFY(modeSelector);
+    const int originalMode = modeSelector->currentIndex();
+    const QScopeGuard restoreMode([modeSelector, originalMode] {
+        modeSelector->setCurrentIndex(originalMode);
+    });
+
+    QObject evaluatorOwner;
+    const QScopeGuard clearEvaluator([console, &evaluatorOwner] {
+        console->setScriptEvaluator(&evaluatorOwner, {});
+    });
+    QString evaluatedExpression;
+    console->setScriptEvaluator(&evaluatorOwner, [&](const QString &expression) {
+        evaluatedExpression = expression;
+    });
+
+    QCOMPARE(modeSelector->itemText(int(ConsoleMode::Qml)), QString("QML / JavaScript"));
+    QVERIFY(modeSelector->isEnabled());
+    modeSelector->setCurrentIndex(int(ConsoleMode::Qml));
+    QCOMPARE(console->mode(), ConsoleMode::Qml);
+    console->evaluate("1 + 1");
+    QCOMPARE(evaluatedExpression, QString("1 + 1"));
+}
+
+void DebuggerUnitTests::testConsoleOutputNavigationClick()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const Utils::FilePath sourceFile = Utils::FilePath::fromString(
+        tempDir.filePath("console-navigation.cpp"));
+    QVERIFY(sourceFile.writeFileContents("int main()\n{\n    return 0;\n}\n"));
+
+    Console *console = debuggerConsole();
+    console->clearContents();
+    QWidget *consoleWidget = console->outputWidget(nullptr);
+    const bool wasVisible = consoleWidget->isVisible();
+    auto cleanup = qScopeGuard([&] {
+        if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
+            if (document->filePath() == sourceFile)
+                Core::EditorManager::closeDocuments({document}, false);
+        }
+        console->clearContents();
+        if (!wasVisible)
+            consoleWidget->hide();
+    });
+    console->printCommandOutput("Error at " + sourceFile.toUrlishString() + ":3\n",
+                                ConsoleItem::ErrorType);
+
+    auto *view = static_cast<ConsoleView *>(consoleWidget->findChild<QTreeView *>());
+    QVERIFY(view);
+    auto *proxyModel = qobject_cast<QAbstractProxyModel *>(view->model());
+    QVERIFY(proxyModel);
+    auto *model = qobject_cast<ConsoleItemModel *>(proxyModel->sourceModel());
+    QVERIFY(model);
+    QTRY_COMPARE(model->rowCount(), 2);
+
+    consoleWidget->resize(900, 400);
+    consoleWidget->show();
+    QCoreApplication::processEvents();
+    console->setFocus();
+    QCoreApplication::processEvents();
+    const QModelIndex sourceIndex = model->index(0, 0);
+    const QModelIndex viewIndex = proxyModel->mapFromSource(sourceIndex);
+    QVERIFY(viewIndex.isValid());
+    const ConsoleItemPositions positions(model, view->visualRect(viewIndex), view->font(),
+                                         true, false);
+    QVERIFY(!positions.fileArea().isEmpty());
+
+    QTest::mouseClick(view->viewport(), Qt::LeftButton, {}, positions.fileArea().center());
+    QTRY_VERIFY(Core::EditorManager::currentDocument());
+    QCOMPARE(Core::EditorManager::currentDocument()->filePath(), sourceFile);
+    auto *editor = TextEditor::BaseTextEditor::currentTextEditor();
+    QVERIFY(editor);
+    QCOMPARE(editor->currentLine(), 3);
+}
+
+void DebuggerUnitTests::testConsoleClickReturnsToPrompt()
+{
+    Console *console = debuggerConsole();
+    console->clearContents();
+    QWidget *consoleWidget = console->outputWidget(nullptr);
+    const bool wasVisible = consoleWidget->isVisible();
+    const QScopeGuard cleanup([console, consoleWidget, wasVisible] {
+        console->clearContents();
+        if (!wasVisible)
+            consoleWidget->hide();
+    });
+
+    auto *view = static_cast<ConsoleView *>(consoleWidget->findChild<QTreeView *>());
+    QVERIFY(view);
+    auto *proxyModel = qobject_cast<QAbstractProxyModel *>(view->model());
+    QVERIFY(proxyModel);
+    auto *model = qobject_cast<ConsoleItemModel *>(proxyModel->sourceModel());
+    QVERIFY(model);
+
+    model->setData(model->index(0, 0), QString("previous command ").repeated(100),
+                   ConsoleItem::ExpressionRole);
+    model->shiftEditableRow(int(console->mode()));
+    consoleWidget->resize(900, 400);
+    consoleWidget->hide();
+    console->setFocus();
+    consoleWidget->show();
+    QCoreApplication::processEvents();
+
+    const auto focusedInput = [view] {
+        auto *edit = qobject_cast<ConsoleEdit *>(QApplication::focusWidget());
+        return edit && view->isAncestorOf(edit) ? edit : nullptr;
+    };
+    QTRY_VERIFY(focusedInput());
+    auto *edit = focusedInput();
+
+    const QModelIndex historyIndex = proxyModel->mapFromSource(model->index(0, 0));
+    QTest::mouseClick(view->viewport(), Qt::LeftButton, {},
+                      view->visualRect(historyIndex).center());
+
+    QCOMPARE(view->currentIndex(), historyIndex);
+    QTRY_VERIFY(view->visualRect(historyIndex).height()
+                > view->visualRect(proxyModel->mapFromSource(model->index(1, 0))).height());
+    const QModelIndex promptIndex = proxyModel->mapFromSource(model->index(1, 0));
+    view->scrollTo(promptIndex);
+    QTRY_VERIFY(view->viewport()->rect().contains(view->visualRect(promptIndex).center()));
+    QTest::mouseClick(view->viewport(), Qt::LeftButton, {},
+                      view->visualRect(promptIndex).center());
+    QCOMPARE(view->currentIndex(), promptIndex);
+    QVERIFY(promptIndex.flags().testFlag(Qt::ItemIsEditable));
+
+    QTRY_VERIFY(focusedInput());
+    edit = focusedInput();
+    QCOMPARE(edit->document()->documentMargin(), 0.0);
+    QCOMPARE(edit->geometry(), view->visualRect(promptIndex));
+    QCOMPARE(edit->viewport()->geometry().left() + edit->cursorRect().left(),
+             ConsoleItemPositions::ITEM_PADDING_H + ConsoleItemPositions::TASK_ICON_SIZE
+                 + ConsoleItemPositions::ITEM_SPACING);
+    QCOMPARE(edit->viewport()->geometry().top() + edit->cursorRect().top(),
+             ConsoleItemPositions::ITEM_EDITOR_PADDING_V);
+    QTest::keyClicks(edit, "x");
+    QCOMPARE(edit->toPlainText(), QString("x"));
+    QTest::keyClick(edit, Qt::Key_Return);
+    QCoreApplication::processEvents();
+    QTRY_VERIFY(focusedInput());
+}
+
+void DebuggerUnitTests::testConsoleStartupHistory()
+{
+    QVERIFY(!ProjectManager::startupProject());
+    Console *console = debuggerConsole();
+    console->clearContents();
+    const QScopeGuard cleanup([console] {
+        console->clearContents();
+        console->hide();
+    });
+    console->popup(IOutputPane::WithFocus);
+    QTRY_VERIFY(console->hasFocus());
+    auto *edit = qobject_cast<ConsoleEdit *>(QApplication::focusWidget());
+    QVERIFY(edit);
+    QTest::keyClicks(edit, "start");
+    QTest::keyClick(edit, Qt::Key_Return);
+    QTRY_VERIFY(console->hasFocus());
+    edit = qobject_cast<ConsoleEdit *>(QApplication::focusWidget());
+    QVERIFY(edit);
+    QTest::keyClick(edit, Qt::Key_Up);
+    QCOMPARE(edit->toPlainText(), QString("start"));
+    QTest::keyClick(edit, Qt::Key_Down);
+    QVERIFY(edit->toPlainText().isEmpty());
+}
+
+void DebuggerUnitTests::testConsoleRestartKeepsQmlArguments()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a Qt kit.");
+    RunControl runControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl.setKit(kit);
+    DebuggerRunParameters parameters;
+    parameters.setInferiorExecutable(FilePath::fromString("/test/qml-app"));
+    parameters.setInferiorArguments("initial");
+    parameters.setQmlDebugging(true);
+    parameters.setQmlServer(QUrl("tcp://127.0.0.1:3768"));
+    const Result<> result = parameters.fixupParameters(&runControl);
+    QVERIFY2(result, result ? "" : qPrintable(result.error()));
+    const QStringList initial = parameters.inferior().command.splitArguments();
+    QCOMPARE(initial.size(), 2);
+    QVERIFY(initial.last().startsWith("-qmljsdebugger="));
+    parameters.setInferiorUserArguments("updated \"two words\"");
+    QCOMPARE(parameters.inferior().command.splitArguments(),
+             QStringList({"updated", "two words", initial.last()}));
+    parameters.setInferiorUserArguments("again");
+    QCOMPARE(parameters.inferior().command.splitArguments(),
+             QStringList({"again", initial.last()}));
+}
+
+void DebuggerUnitTests::testConsoleBreakOnMainOnce()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a Qt kit.");
+    RunControl runControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl.setKit(kit);
+    runControl.setExtraData({{Debugger::Constants::BREAK_ON_MAIN, true},
+                             {"unrelated", true}});
+    DebuggerRunParameters first;
+    QVERIFY(first.fixupParameters(&runControl));
+    QVERIFY(first.breakOnMain());
+    QVERIFY(!runControl.extraData().contains(Debugger::Constants::BREAK_ON_MAIN));
+    QCOMPARE(runControl.extraData().value("unrelated").toBool(), true);
+
+    DebuggerRunParameters rerun;
+    QVERIFY(rerun.fixupParameters(&runControl));
+    QVERIFY(!rerun.breakOnMain());
+}
+
+void DebuggerUnitTests::testConsoleStartupBuildFailure()
+{
+    Kit *kit = kitWithAQt();
+    if (!kit)
+        QSKIP("This test needs a kit with a Qt to build its project with.");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath root = FilePath::fromString(dir.path());
+    const FilePath projectFile = root / "broken.pro";
+    QVERIFY(projectFile.writeFileContents("CONFIG -= qt\nSOURCES = main.cpp\n"));
+    QVERIFY((root / "main.cpp").writeFileContents("#error expected console startup failure\n"));
+    CppEditor::Tests::ProjectOpenerAndCloser projects;
+    QVERIFY(projects.open(projectFile, kit));
+
+    const auto buildBeforeRun = globalProjectExplorerSettings().buildBeforeDeploy();
+    globalProjectExplorerSettings().buildBeforeDeploy.setValue(BuildBeforeRunMode::WholeProject);
+    const Id previousMode = ModeManager::currentModeId();
+    Console *console = debuggerConsole();
+    QWidget *widget = console->outputWidget(nullptr);
+    const bool wasVisible = widget->isVisible();
+    const QScopeGuard restore([=] {
+        globalProjectExplorerSettings().buildBeforeDeploy.setValue(buildBeforeRun);
+        ModeManager::activateMode(previousMode);
+        console->clearContents();
+        if (!wasVisible)
+            widget->hide();
+    });
+    ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    widget->show();
+    console->setFocus();
+    QTRY_VERIFY(console->hasFocus());
+    QSignalSpy buildFinished(BuildManager::instance(), &BuildManager::buildQueueFinished);
+    console->evaluate("start");
+    QTRY_VERIFY_WITH_TIMEOUT(!buildFinished.isEmpty(), 60000);
+    QCOMPARE(buildFinished.constFirst().constFirst().toBool(), false);
+
+    // A failed startup must not reopen the pane on a later, unrelated mode change.
+    QSignalSpy showConsole(console, &IOutputPane::showPage);
+    ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
+    bool modeChangeHandled = false;
+    QTimer::singleShot(0, this, [&modeChangeHandled] { modeChangeHandled = true; });
+    QTRY_VERIFY(modeChangeHandled);
+    QCOMPARE(showConsole.count(), 0);
+}
+
+void DebuggerUnitTests::testConsoleStartupFocus_data()
+{
+    QTest::addColumn<bool>("alreadyDebugging");
+    QTest::newRow("from-edit") << false;
+    QTest::newRow("already-debug-mode") << true;
+}
+
+void DebuggerUnitTests::testConsoleStartupFocus()
+{
+    QFETCH(bool, alreadyDebugging);
+    Kit *kit = kitWithAQt();
+    if (!kit || DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("This test needs a Qt kit with GDB.");
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath root = FilePath::fromString(dir.path());
+    const FilePath projectFile = root / "console.pro";
+    QVERIFY(projectFile.writeFileContents("CONFIG -= qt\nSOURCES = main.cpp\n"));
+    QVERIFY((root / "main.cpp").writeFileContents(
+        "int main()\n{\n    volatile int i = 1;\n    return i - 1;\n}\n"));
+    CppEditor::Tests::ProjectOpenerAndCloser projects;
+    QVERIFY(projects.open(projectFile, kit));
+    Project *project = projects.projects().constFirst();
+    const bool useGeneric = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(false);
+    const Id previousMode = ModeManager::currentModeId();
+    Console *console = debuggerConsole();
+    console->clearContents();
+    const QScopeGuard cleanup([=] {
+        for (RunControl *runControl : ProjectExplorerPlugin::allRunControls()) {
+            if (runControl->project() == project && runControl->isRunning()) {
+                const QPointer<RunControl> control(runControl);
+                control->initiateStop();
+                if (!QTest::qWaitFor([control] { return !control || control->isStopped(); }, 30000)
+                    && control) {
+                    control->forceStop();
+                }
+            }
+        }
+        commonSettings().useGenericDebugger.setValue(useGeneric);
+        ModeManager::activateMode(previousMode);
+        console->clearContents();
+        console->hide();
+    });
+    ModeManager::activateMode(alreadyDebugging ? Id(Debugger::Constants::MODE_DEBUG)
+                                              : Id(Core::Constants::MODE_EDIT));
+    console->popup(IOutputPane::WithFocus);
+    QTRY_VERIFY(console->hasFocus());
+    auto *edit = qobject_cast<ConsoleEdit *>(QApplication::focusWidget());
+    QVERIFY(edit);
+    QTest::keyClicks(edit, "start");
+    QTest::keyClick(edit, Qt::Key_Return);
+    QTRY_VERIFY_WITH_TIMEOUT(EngineManager::currentEngine()
+                             && EngineManager::currentEngine()->state() == InferiorStopOk, 60000);
+    const QPointer<DebuggerEngine> engine = EngineManager::currentEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->stackHandler()->currentFrame().line == 3, 30000);
+    QTRY_VERIFY(console->hasFocus());
+    QVERIFY(console->outputWidget(nullptr)->isVisible());
+    auto *view = console->outputWidget(nullptr)->findChild<QTreeView *>();
+    QVERIFY(view);
+    QCOMPARE(view->model()->index(0, 0).data(ConsoleItem::ExpressionRole).toString(),
+             QString("start"));
+    QCOMPARE(view->model()->index(0, 0).data(ConsoleItem::HistoryContextRole).toInt(),
+             int(ConsoleMode::Backend));
+    edit = qobject_cast<ConsoleEdit *>(QApplication::focusWidget());
+    QVERIFY(edit);
+    QTest::keyClicks(edit, "next");
+    QTest::keyClick(edit, Qt::Key_Return);
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorStopOk
+                             && engine->stackHandler()->currentFrame().line == 4, 30000);
+    QTRY_VERIFY(console->hasFocus());
 }
 
 // The DAP engines are reachable only through a run mode, so whether one still
@@ -4069,9 +4512,9 @@ int addOne(int value)
     return raised;
 }
 
-int main()
+int main(int argc, char **)
 {
-    int first = 1;
+    int first = argc;
     int second = addOne(first); // MARKER: at-call
     int third = second + first; // MARKER: after-call
     return third - third;
@@ -4108,10 +4551,12 @@ public:
     {
         QObject::disconnect(m_stoppedConnection);
         settings().showUnsupportedBreakpointWarning.setValue(m_warnedAboutBreakpoints);
-        if (m_runControl) {
+        if (m_runControl && m_runControl->isRunning()) {
             m_runControl->initiateStop();
-            QTestEventLoop::instance().enterLoop(30);
+            if (!QTest::qWaitFor([this] { return m_runControl->isStopped(); }, 30000))
+                m_runControl->forceStop();
         }
+        delete m_runControl;
         if (m_breakpoint)
             m_breakpoint->deleteBreakpoint();
         for (const GlobalBreakpoint &other : std::as_const(m_disabledBreakpoints)) {
@@ -4202,7 +4647,8 @@ public:
         m_stoppedConnection = QObject::connect(m_runControl, &RunControl::stopped,
                                                m_runControl, [this] { m_stopped = true; });
         m_runControl->setRunRecipe(debuggerRecipe(m_runControl, rp));
-        m_runControl->start();
+        // The fixture owns this run control; do not transfer it to the output pane.
+        m_runControl->initiateStart();
 
         // EngineManager holds every engine the application ever made, and other
         // tests leave theirs behind, so take the one that was not there before.
@@ -4272,6 +4718,308 @@ private:
     QString m_skipReason;
     int m_line = 0;
 };
+
+void DebuggerUnitTests::testGdbConsoleFinish()
+{
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of the selected kit is not gdb.");
+    const bool useGeneric = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(false);
+    const QScopeGuard restoreGeneric([useGeneric] {
+        commonSettings().useGenericDebugger.setValue(useGeneric);
+    });
+    SteppingSession session;
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const QPointer<DebuggerEngine> engine = session.engine();
+    QVERIFY(engine && engine->consoleCommandAdapter());
+    bool runRequested = false;
+    QObject connectionContext;
+    connect(EngineManager::instance(), &EngineManager::engineStateChanged, &connectionContext,
+            [engine, &runRequested](DebuggerEngine *changed) {
+                if (engine && changed == engine)
+                    runRequested |= engine->state() == InferiorRunRequested;
+            });
+    engine->consoleCommandAdapter()->executeCommand("fin", [](const QString &, auto) {});
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorStopOk
+                             && engine->stackHandler()->currentFrame().function.startsWith("main"),
+                             30000);
+    QVERIFY(runRequested);
+}
+
+void DebuggerUnitTests::testGdbConsoleCommands()
+{
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of the selected kit is not gdb.");
+
+    const bool useGeneric = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(false);
+    const QScopeGuard restoreGeneric([useGeneric] {
+        commonSettings().useGenericDebugger.setValue(useGeneric);
+    });
+
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const QPointer<DebuggerEngine> engine = session.engine();
+    QVERIFY(engine);
+    DebuggerConsoleCommandAdapter *adapter = engine->consoleCommandAdapter();
+    QVERIFY(adapter);
+    QCOMPARE(adapter->commandModeName(), QString("GDB commands"));
+
+    Console *console = debuggerConsole();
+    console->clearContents();
+    const QScopeGuard clearConsole([console] { console->clearContents(); });
+    console->updateModes();
+    const QList<QWidget *> toolbarWidgets = console->toolBarWidgets();
+    auto *modeSelector = qobject_cast<QComboBox *>(toolbarWidgets.value(0));
+    QVERIFY(modeSelector);
+    QVERIFY(modeSelector->isEnabled());
+    QCOMPARE(modeSelector->itemText(int(ConsoleMode::Backend)), QString("GDB commands"));
+    const int originalMode = modeSelector->currentIndex();
+    const QScopeGuard restoreMode([modeSelector, originalMode] {
+        modeSelector->setCurrentIndex(originalMode);
+    });
+    modeSelector->setCurrentIndex(int(ConsoleMode::Backend));
+    QCOMPARE(console->mode(), ConsoleMode::Backend);
+    QCOMPARE(modeSelector->currentText(), QString("GDB commands"));
+
+    QWidget *consoleWidget = console->outputWidget(nullptr);
+    auto *consoleView = consoleWidget->findChild<QTreeView *>();
+    QVERIFY(consoleView);
+    auto *proxyModel = qobject_cast<QAbstractProxyModel *>(consoleView->model());
+    QVERIFY(proxyModel);
+    auto *consoleModel = qobject_cast<ConsoleItemModel *>(proxyModel->sourceModel());
+    QVERIFY(consoleModel);
+    console->evaluate("print first");
+    const auto hasPrintOutput = [consoleModel] {
+        for (int row = 0; row < consoleModel->rowCount(); ++row) {
+            const QModelIndex index = consoleModel->index(row, 0);
+            if (index.data(ConsoleItem::TypeRole).toInt() != ConsoleItem::InputType
+                && index.data(Qt::DisplayRole).toString().contains("= 1")) {
+                return true;
+            }
+        }
+        return false;
+    };
+    QTRY_VERIFY(hasPrintOutput());
+
+    const auto output = std::make_shared<QString>();
+    adapter->executeCommand("step not-a-number", [output](const QString &text, auto) {
+        *output += text;
+    });
+    QVERIFY(QTest::qWaitFor([&] { return !output->isEmpty(); }, 30000));
+    QVERIFY(!output->isEmpty());
+    QCOMPARE(engine->state(), InferiorStopOk);
+
+    output->clear();
+    adapter->executeCommand("ru ignored-argument", [output](const QString &text, auto kind) {
+        *output += text;
+        QCOMPARE(kind, DebuggerConsoleOutputKind::Error);
+    });
+    QVERIFY(!output->isEmpty());
+    QVERIFY(output->contains("run does not accept arguments"));
+    QCOMPARE(engine->state(), InferiorStopOk);
+
+    output->clear();
+    adapter->executeCommand(
+        QString("break %1:%2").arg(session.source().nativePath())
+            .arg(session.markerLine("MARKER: after-call")),
+        [output](const QString &text, auto) {
+        *output += text;
+    });
+    QVERIFY(QTest::qWaitFor([&] { return !output->isEmpty(); }, 30000));
+    QVERIFY2(output->contains("Breakpoint"), qPrintable(*output));
+
+    const int calleeLine = session.markerLine("MARKER: in-callee");
+    adapter->executeCommand("step", [](const QString &, auto) {});
+    QVERIFY(QTest::qWaitFor([&] {
+        return engine && engine->state() == InferiorStopOk
+               && engine->stackHandler()->currentFrame().line == calleeLine;
+    }, 30000));
+
+    const int afterCallLine = session.markerLine("MARKER: after-call");
+    adapter->executeCommand("ru", [](const QString &, auto) {});
+    QVERIFY(QTest::qWaitFor([&] {
+        return engine && engine->state() == InferiorStopOk
+               && engine->stackHandler()->currentFrame().line == afterCallLine;
+    }, 30000));
+
+    // A software breakpoint at the assignment's next instruction would mask the
+    // watchpoint stop tested below.
+    output->clear();
+    adapter->executeCommand(
+        QString("clear %1:%2").arg(session.source().nativePath()).arg(afterCallLine),
+        [output](const QString &text, auto) { *output += text; });
+    QTRY_VERIFY_WITH_TIMEOUT(!output->isEmpty(), 30000);
+
+    const int mainLine = session.markerLine("int first = argc;");
+    QVERIFY(mainLine > 0);
+    bool rejectedStarti = false;
+    adapter->executeCommand("starti", [&rejectedStarti](const QString &, auto kind) {
+        rejectedStarti = kind == DebuggerConsoleOutputKind::Error;
+    });
+    QVERIFY(rejectedStarti);
+    adapter->executeCommand("star console-argument", [](const QString &, auto) {});
+    QVERIFY2(QTest::qWaitFor([&] {
+        return engine && engine->state() == InferiorStopOk
+               && engine->stackHandler()->currentFrame().line == mainLine;
+    }, 30000), qPrintable(engine ? engine->logWindow()->combinedContents().right(4000)
+                                : QString("The debugger session already finished.")));
+    // start stops before main's first statement; continue to the fixture's breakpoint.
+    const int callLine = session.markerLine("MARKER: at-call");
+    adapter->executeCommand("cont", [](const QString &, auto) {});
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorStopOk
+                             && engine->stackHandler()->currentFrame().line == callLine, 30000);
+
+    const auto consoleOutputContains = [consoleModel](const QString &text) {
+        for (int row = 0; row < consoleModel->rowCount(); ++row) {
+            if (consoleModel->index(row, 0).data(Qt::DisplayRole).toString().contains(text))
+                return true;
+        }
+        return false;
+    };
+    console->evaluate("set variable second = -1");
+    console->evaluate("watch second");
+    QVERIFY(QTest::qWaitFor([&] { return consoleOutputContains("watchpoint"); }, 30000));
+    console->evaluate("continue");
+    QVERIFY2(QTest::qWaitFor([&] { return consoleOutputContains("Value changed from"); }, 30000),
+             qPrintable(engine ? engine->logWindow()->combinedContents().right(4000)
+                               : QString("The debugger session already finished.")));
+    QCOMPARE(engine->state(), InferiorStopOk);
+
+    output->clear();
+    adapter->executeCommand("print argc", [output](const QString &text, auto) {
+        *output += text;
+    });
+    QVERIFY(QTest::qWaitFor([&] { return !output->isEmpty(); }, 30000));
+    QVERIFY2(output->contains("= 2"), qPrintable(*output));
+}
+
+void DebuggerUnitTests::testGdbConsoleBreakpointCommands_data()
+{
+    QTest::addColumn<bool>("resume");
+    QTest::newRow("silent-stop") << false;
+    QTest::newRow("silent-continue") << true;
+}
+
+void DebuggerUnitTests::testGdbConsoleBreakpointCommands()
+{
+    QFETCH(bool, resume);
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of the selected kit is not gdb.");
+    const bool useGeneric = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(false);
+    const QScopeGuard restoreGeneric([useGeneric] {
+        commonSettings().useGenericDebugger.setValue(useGeneric);
+    });
+    SteppingSession session;
+    const QString problem = session.start("MARKER: at-call");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const QPointer<DebuggerEngine> engine = session.engine();
+    Console *console = debuggerConsole();
+    console->clearContents();
+    const QScopeGuard clearConsole([console] { console->clearContents(); });
+    console->updateModes();
+    auto *view = console->outputWidget(nullptr)->findChild<QTreeView *>();
+    QVERIFY(view);
+    auto *proxy = qobject_cast<QAbstractProxyModel *>(view->model());
+    QVERIFY(proxy);
+    auto *model = qobject_cast<ConsoleItemModel *>(proxy->sourceModel());
+    QVERIFY(model);
+    const auto contains = [model](const QString &text) {
+        for (int row = 0; row < model->rowCount(); ++row) {
+            if (model->index(row, 0).data(ConsoleItem::ExpressionRole).toString().contains(text))
+                return true;
+        }
+        return false;
+    };
+    const int afterCall = session.markerLine("MARKER: after-call");
+    BreakpointParameters params(BreakpointByFileAndLine);
+    params.fileName = session.source();
+    params.textPosition = {afterCall, -1};
+    params.command = "silent\nprintf \"trace-second=%d\\n\", second";
+    if (resume)
+        params.command += "\ncontinue";
+    const GlobalBreakpoint trace = BreakpointManager::createBreakpoint(params);
+    QVERIFY(trace);
+    const QScopeGuard removeTrace([trace] {
+        if (trace)
+            trace->deleteBreakpoint();
+    });
+    const Breakpoint bp = engine->breakHandler()->findBreakpointByModelId(trace->modelId());
+    QVERIFY(bp);
+    QTRY_COMPARE_WITH_TIMEOUT(bp->state(), BreakpointInserted, 30000);
+    engine->consoleCommandAdapter()->executeCommand("cont", [](const QString &, auto) {});
+    QTRY_VERIFY2_WITH_TIMEOUT(contains("trace-second=2"),
+        qPrintable(engine ? engine->logWindow()->combinedContents().right(4000)
+                          : QString("The debugger session already finished.")), 30000);
+    if (resume) {
+        QTRY_VERIFY_WITH_TIMEOUT(!engine || engine->state() == DebuggerFinished, 30000);
+    } else {
+        QTRY_VERIFY_WITH_TIMEOUT(engine->state() == InferiorStopOk
+                                 && engine->stackHandler()->currentFrame().line == afterCall, 30000);
+        const auto output = std::make_shared<QString>();
+        engine->consoleCommandAdapter()->executeCommand("printf \"ordinary-output\\n\"",
+            [output](const QString &text, auto) { *output += text; });
+        QTRY_VERIFY_WITH_TIMEOUT(!output->isEmpty(), 30000);
+        QVERIFY(output->contains("ordinary-output"));
+        console->printCommandOutput("output-barrier\n", ConsoleItem::DefaultType);
+        QTRY_VERIFY(contains("output-barrier"));
+        QVERIFY(!contains("ordinary-output"));
+    }
+}
+
+void DebuggerUnitTests::testGdbConsoleInterrupt()
+{
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of the selected kit is not gdb.");
+    const bool useGeneric = commonSettings().useGenericDebugger();
+    commonSettings().useGenericDebugger.setValue(false);
+    const QScopeGuard restoreGeneric([useGeneric] {
+        commonSettings().useGenericDebugger.setValue(useGeneric);
+    });
+    static const char source[] = R"CPP(
+volatile int keepRunning = 1;
+int main()
+{
+    volatile unsigned counter = 0; // MARKER: before-loop
+    while (keepRunning)
+        counter = counter + 1;
+    return 0;
+}
+)CPP";
+    SteppingSession session(source);
+    const QString problem = session.start("MARKER: before-loop");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    const QPointer<DebuggerEngine> engine = session.engine();
+    DebuggerConsoleCommandAdapter *adapter = engine->consoleCommandAdapter();
+    QVERIFY(adapter);
+    bool requested = false;
+    const auto connection = connect(EngineManager::instance(), &EngineManager::engineStateChanged, this,
+        [engine, &requested](DebuggerEngine *changed) {
+            if (changed == engine)
+                requested |= engine->state() == InferiorStopRequested;
+        });
+    const QScopeGuard disconnectState([connection] { QObject::disconnect(connection); });
+    adapter->executeCommand("cont", [](const QString &, auto) {});
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorRunOk, 30000);
+    adapter->executeCommand("interrupt", [](const QString &, auto) {});
+    QTRY_VERIFY_WITH_TIMEOUT(engine && engine->state() == InferiorStopOk, 30000);
+    QVERIFY(requested);
+}
 
 // Asks for a step and waits for the engine to settle somewhere else. Reports
 // where it ended up, which is what the test has to say something about.

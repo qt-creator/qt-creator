@@ -11,8 +11,10 @@
 #include <functional>
 
 #include <QObject>
+#include <QQueue>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
 class QToolButton;
 class QLabel;
 QT_END_NAMESPACE
@@ -23,8 +25,11 @@ namespace Debugger::Internal {
 
 using ScriptEvaluator = std::function<void (QString)>;
 
+enum class ConsoleMode { Qml, Backend };
+
 class ConsoleItemModel;
 class ConsoleView;
+class DebuggerEngine;
 
 class Console final : public Core::IOutputPane
 {
@@ -48,16 +53,31 @@ public:
     void readSettings();
     void setContext(const QString &context);
 
-    void setScriptEvaluator(const ScriptEvaluator &evaluator);
+    void setScriptEvaluator(QObject *owner, const ScriptEvaluator &evaluator);
     void populateFileFinder();
 
     void evaluate(const QString &expression);
+    ConsoleMode mode() const;
+    void updateModes();
+    void printCommandOutput(const QString &output, ConsoleItem::ItemType itemType);
     void printItem(ConsoleItem *item);
     void printItem(ConsoleItem::ItemType itemType, const QString &text);
 
     void writeSettings() const;
 
 private:
+    struct PendingCommandOutput
+    {
+        QString text;
+        ConsoleItem::ItemType itemType;
+        qsizetype position = 0;
+    };
+
+    void appendCommandOutputChunk();
+    void scheduleInputFocus();
+    void clearStartupRequest();
+    void scheduleStartupFocus(quint64 generation);
+
     QToolButton *m_showDebugButton;
     QToolButton *m_showWarningButton;
     QToolButton *m_showErrorButton;
@@ -66,10 +86,25 @@ private:
     Utils::BoolAspect m_showError;
     QWidget *m_spacer;
     QLabel *m_statusLabel;
+    QComboBox *m_modeSelector;
     ConsoleItemModel *m_consoleItemModel;
     ConsoleView *m_consoleView;
     QWidget *m_consoleWidget;
+    QPointer<QObject> m_scriptEvaluatorOwner;
     ScriptEvaluator m_scriptEvaluator;
+    QMetaObject::Connection m_engineConsoleOutputConnection;
+    QMetaObject::Connection m_navigationStartedConnection;
+    QMetaObject::Connection m_navigationFinishedConnection;
+    QPointer<DebuggerEngine> m_navigationEngine;
+    int m_navigationDepth = 0;
+    bool m_restoreNavigationFocus = false;
+    bool m_focusOnFirstLocation = false;
+    quint64 m_scriptEvaluatorGeneration = 0;
+    QQueue<PendingCommandOutput> m_pendingCommandOutput;
+    bool m_commandOutputScheduled = false;
+    quint64 m_startupRequestGeneration = 0;
+    bool m_keepFocusForStartupDebugging = false;
+    bool m_showConsoleInDebugMode = false;
 };
 
 Console *debuggerConsole();

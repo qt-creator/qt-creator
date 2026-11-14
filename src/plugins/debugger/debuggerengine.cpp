@@ -81,6 +81,7 @@
 #include <QDebug>
 #include <QDockWidget>
 #include <QHeaderView>
+#include <QScopeGuard>
 #include <QTextBlock>
 #include <QTimer>
 
@@ -352,6 +353,13 @@ void DebuggerRunParameters::setupPortsGatherer(RunControl *runControl) const
         runControl->requestQmlChannel();
 }
 
+void DebuggerRunParameters::setInferiorUserArguments(const QString &arguments)
+{
+    setInferiorArguments(arguments);
+    if (!m_qmlDebugArgument.isEmpty())
+        m_inferior.command.addArg(m_qmlDebugArgument);
+}
+
 Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
 {
     // No project says it is Java, but a launch of the launcher does, whichever way it
@@ -452,12 +460,19 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
                                  ? qmlDebugNativeArguments(service, false)
                                  : isDesktop ? qmlDebugDesktopTcpArguments(service, appQmlServer)
                                              : qmlDebugTcpArguments(service, appQmlServer);
-            m_inferior.command.addArg(qmlarg);
+            m_qmlDebugArgument = qmlarg;
+            m_inferior.command.addArg(m_qmlDebugArgument);
         }
     }
 
     if (m_startMode == NoStartMode)
         m_startMode = StartInternal;
+
+    if (runControl->extraData().contains(Constants::BREAK_ON_MAIN)) {
+        QVariantHash extraData = runControl->extraData();
+        m_breakOnMain |= extraData.take(Constants::BREAK_ON_MAIN).toBool();
+        runControl->setExtraData(extraData);
+    }
 
     if (breakOnMainNextTime) {
         m_breakOnMain = true;
@@ -1442,6 +1457,8 @@ void DebuggerEnginePrivate::setupViews()
 //
 //////////////////////////////////////////////////////////////////////
 
+DebuggerConsoleCommandAdapter::~DebuggerConsoleCommandAdapter() = default;
+
 DebuggerEngine::DebuggerEngine()
   : d(new DebuggerEnginePrivate(this))
 {
@@ -1768,6 +1785,15 @@ bool DebuggerEnginePrivate::showSourceLocation(const Location &loc, int viewId)
 
 void DebuggerEngine::gotoLocation(const Location &loc)
 {
+     const QPointer<DebuggerEngine> guard(this);
+     const QScopeGuard notifyFinished([guard] {
+         if (guard)
+             emit guard->locationNavigationFinished();
+     });
+     emit locationNavigationStarted();
+     if (!guard)
+         return;
+
      d->resetLocation();
 
      const bool byInstruction = hasCapability(OperateByInstructionCapability)

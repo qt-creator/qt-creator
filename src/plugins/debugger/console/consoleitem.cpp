@@ -44,6 +44,16 @@ int ConsoleItem::line() const
     return m_line;
 }
 
+void ConsoleItem::setHistoryContext(int context)
+{
+    m_historyContext = context;
+}
+
+int ConsoleItem::historyContext() const
+{
+    return m_historyContext;
+}
+
 Qt::ItemFlags ConsoleItem::flags(int) const
 {
     Qt::ItemFlags f = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -68,6 +78,8 @@ QVariant ConsoleItem::data(int column, int role) const
         return m_line;
     case ExpressionRole:
         return expression();
+    case HistoryContextRole:
+        return m_historyContext;
     case Qt::DisplayRole:
         return m_text;
     default:
@@ -93,6 +105,9 @@ bool ConsoleItem::setData(int column, const QVariant &data, int role)
         return true;
     case ExpressionRole:
         m_text = addZeroWidthSpace(data.toString());
+        return true;
+    case HistoryContextRole:
+        m_historyContext = data.toInt();
         return true;
     case Qt::DisplayRole:
         m_text = data.toString();

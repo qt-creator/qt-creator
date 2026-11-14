@@ -22,6 +22,9 @@ inline constexpr char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
 inline constexpr char DEBUGGER_RUN_FACTORY[]   = "DebuggerRunWorkerFactory";
 
+// Run control extra data
+inline constexpr char BREAK_ON_MAIN[]           = "Debugger.BreakOnMain";
+
 // Debugger commands
 inline constexpr char DEBUGGER_START[]          = "Debugger.Start";
 

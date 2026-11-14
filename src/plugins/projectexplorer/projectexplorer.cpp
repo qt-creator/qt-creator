@@ -516,6 +516,28 @@ struct PluginProjectMimeType
     QString mimeType;
 };
 
+class RunControlStartRequest final
+{
+public:
+    explicit RunControlStartRequest(const std::function<void(RunControl *)> &callback)
+        : m_callback(callback)
+    {}
+    ~RunControlStartRequest() { finish(nullptr); }
+
+    Q_DISABLE_COPY_MOVE(RunControlStartRequest)
+
+    void finish(RunControl *runControl)
+    {
+        if (const auto callback = std::exchange(m_callback, {}))
+            callback(runControl);
+    }
+
+private:
+    std::function<void(RunControl *)> m_callback;
+};
+
+using RunControlStartRequestPtr = std::shared_ptr<RunControlStartRequest>;
+
 class ProjectExplorerPluginPrivate : public QObject
 {
 public:
@@ -523,8 +545,13 @@ public:
 
     void updateContextMenuActions(Node *currentNode);
     void updateLocationSubMenus();
-    void executeRunConfiguration(RunConfiguration *, Id mode);
-    void executeRunConfigurationPhase2(const QPointer<RunConfiguration> &, Id mode, const Result<> &setupResult);
+    void runRunConfiguration(RunConfiguration *, Id mode, bool forceSkipDeploy,
+                             const RunControlStartRequestPtr &request = {});
+    void executeRunConfiguration(RunConfiguration *, Id mode,
+                                 const RunControlStartRequestPtr &request = {});
+    void executeRunConfigurationPhase2(const QPointer<RunConfiguration> &, Id mode,
+                                       const Result<> &setupResult,
+                                       const RunControlStartRequestPtr &request);
     QPair<bool, QString> buildSettingsEnabledForSession();
     QPair<bool, QString> buildSettingsEnabled(const Project *pro);
 
@@ -696,6 +723,7 @@ public:
     FilePath m_lastOpenDirectory;
     QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
+    RunControlStartRequestPtr m_delayedRunRequest;
     QList<CustomProjectSettingsHandler> m_projectSettingsHandlers;
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
@@ -2663,21 +2691,23 @@ QThreadPool *ProjectExplorerPlugin::sharedThreadPool()
     return &(dd->m_threadPool);
 }
 
-void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfig, Id runMode)
+void ProjectExplorerPluginPrivate::executeRunConfiguration(
+    RunConfiguration *runConfig, Id runMode, const RunControlStartRequestPtr &request)
 {
     IDevice::ConstPtr device = RunDeviceKitAspect::device(runConfig->kit());
     if (device) {
         QPointer<RunConfiguration> rc(runConfig);
-        device->tryToConnect(Continuation<>([rc, runMode, this](const Result<> &res) {
-            executeRunConfigurationPhase2(rc, runMode, res);
+        device->tryToConnect(Continuation<>([rc, runMode, this, request](const Result<> &res) {
+            executeRunConfigurationPhase2(rc, runMode, res, request);
         }));
     } else {
-        executeRunConfigurationPhase2(runConfig, runMode, ResultOk);
+        executeRunConfigurationPhase2(runConfig, runMode, ResultOk, request);
     }
 }
 
 void ProjectExplorerPluginPrivate::executeRunConfigurationPhase2
-    (const QPointer<RunConfiguration> &runConfiguration, Id runMode, const Result<> &setupResult)
+    (const QPointer<RunConfiguration> &runConfiguration, Id runMode, const Result<> &setupResult,
+     const RunControlStartRequestPtr &request)
 {
     Tasks runConfigIssues;
     if (!runConfiguration)
@@ -2710,7 +2740,11 @@ void ProjectExplorerPluginPrivate::executeRunConfigurationPhase2
         return;
     }
 
-    startRunControl(runControl);
+    const QPointer<RunControl> preparedRunControl(runControl);
+    if (request)
+        request->finish(runControl);
+    if (preparedRunControl)
+        startRunControl(preparedRunControl);
 }
 
 void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
@@ -2939,10 +2973,14 @@ void ProjectExplorerPlugin::initiateInlineRenaming()
 
 void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
 {
+    const QPointer<RunConfiguration> runConfiguration = std::exchange(m_delayedRunConfiguration, {});
+    const RunControlStartRequestPtr request = std::exchange(m_delayedRunRequest, {});
+    const bool shouldHaveRunConfiguration = std::exchange(m_shouldHaveRunConfiguration, false);
+    const Id runMode = std::exchange(m_runMode, Constants::NO_RUN_MODE);
     updateActions();
 
     bool ignoreErrors = true;
-    if (!m_delayedRunConfiguration.isNull() && success && BuildManager::getErrorTaskCount() > 0) {
+    if (!runConfiguration.isNull() && success && BuildManager::getErrorTaskCount() > 0) {
         ignoreErrors = QMessageBox::question(ICore::dialogParent(),
                                              Tr::tr("Ignore All Errors?"),
                                              Tr::tr("Found some build errors in current task.\n"
@@ -2950,22 +2988,19 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
                                              QMessageBox::Yes | QMessageBox::No,
                                              QMessageBox::No) == QMessageBox::Yes;
     }
-    if (m_delayedRunConfiguration.isNull() && m_shouldHaveRunConfiguration) {
+    if (runConfiguration.isNull() && shouldHaveRunConfiguration) {
         QMessageBox::warning(ICore::dialogParent(),
                              Tr::tr("Run Configuration Removed"),
                              Tr::tr("The configuration that was supposed to run is no longer "
                                 "available."), QMessageBox::Ok);
     }
 
-    if (success && ignoreErrors && !m_delayedRunConfiguration.isNull()) {
-        executeRunConfiguration(m_delayedRunConfiguration.data(), m_runMode);
+    if (success && ignoreErrors && !runConfiguration.isNull()) {
+        executeRunConfiguration(runConfiguration.data(), runMode, request);
     } else {
         if (BuildManager::tasksAvailable() && globalProjectExplorerSettings().popUpIssuesOnBuildError())
             BuildManager::showTaskWindow();
     }
-    m_delayedRunConfiguration = nullptr;
-    m_shouldHaveRunConfiguration = false;
-    m_runMode = Constants::NO_RUN_MODE;
     doUpdateRunActions();
 }
 
@@ -3589,16 +3624,30 @@ void ProjectExplorerPlugin::runStartupProject(Id runMode, bool forceSkipDeploy)
     runProject(ProjectManager::startupProject(), runMode, forceSkipDeploy);
 }
 
-void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
-                                                Id runMode,
-                                                const bool forceSkipDeploy)
+void ProjectExplorerPlugin::runStartupProjectWithCallback(
+    Id runMode, const std::function<void(RunControl *)> &callback)
+{
+    const auto request = std::make_shared<RunControlStartRequest>(callback);
+    if (RunConfiguration *rc = activeRunConfig(ProjectManager::startupProject()))
+        dd->runRunConfiguration(rc, runMode, false, request);
+}
+
+void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc, Id runMode,
+                                                bool forceSkipDeploy)
+{
+    dd->runRunConfiguration(rc, runMode, forceSkipDeploy);
+}
+
+void ProjectExplorerPluginPrivate::runRunConfiguration(
+    RunConfiguration *rc, Id runMode, bool forceSkipDeploy, const RunControlStartRequestPtr &request)
 {
     if (!rc->isEnabled(runMode))
         return;
-    const auto delay = [rc, runMode] {
-        dd->m_runMode = runMode;
-        dd->m_delayedRunConfiguration = rc;
-        dd->m_shouldHaveRunConfiguration = true;
+    const auto delay = [this, rc, runMode, request] {
+        m_runMode = runMode;
+        m_delayedRunConfiguration = rc;
+        m_delayedRunRequest = request;
+        m_shouldHaveRunConfiguration = true;
     };
 
     BuildForRunConfigStatus buildStatus = forceSkipDeploy
@@ -3606,25 +3655,25 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
                 ? BuildForRunConfigStatus::Building : BuildForRunConfigStatus::NotBuilding
             : BuildManager::potentiallyBuildForRunConfig(rc);
 
-    if (dd->m_runMode == Constants::DAP_CMAKE_DEBUG_RUN_MODE)
+    if (m_runMode == Constants::DAP_CMAKE_DEBUG_RUN_MODE)
         buildStatus = BuildForRunConfigStatus::NotBuilding;
 
     switch (buildStatus) {
     case BuildForRunConfigStatus::BuildFailed:
         return;
     case BuildForRunConfigStatus::Building:
-        QTC_ASSERT(dd->m_runMode == Constants::NO_RUN_MODE, return);
+        QTC_ASSERT(m_runMode == Constants::NO_RUN_MODE, return);
         delay();
         break;
     case BuildForRunConfigStatus::NotBuilding:
         if (rc->isEnabled(runMode))
-            dd->executeRunConfiguration(rc, runMode);
+            executeRunConfiguration(rc, runMode, request);
         else
             delay();
         break;
     }
 
-    dd->doUpdateRunActions();
+    doUpdateRunActions();
 }
 
 QList<RunControl *> ProjectExplorerPlugin::allRunControls()

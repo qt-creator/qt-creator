@@ -41,7 +41,7 @@ struct CoreInfo
                                                const Utils::FilePath &coreFile);
 };
 
-class GdbEngine final : public DebuggerEngine
+class GdbEngine final : public DebuggerEngine, public DebuggerConsoleCommandAdapter
 {
 public:
     GdbEngine();
@@ -57,6 +57,10 @@ private: ////////// General Interface //////////
     void resetInferior() final;
 
     void executeDebuggerCommand(const QString &command) final;
+    DebuggerConsoleCommandAdapter *consoleCommandAdapter() final { return this; }
+    QString commandModeName() const final;
+    void executeCommand(const QString &command,
+                        const DebuggerConsoleOutputHandler &outputHandler) final;
 
     ////////// General State //////////
 
@@ -115,6 +119,8 @@ private: ////////// General Interface //////////
     bool m_debuginfodDownloadInProgress = false;
 
     QString m_pendingConsoleStreamOutput;
+    bool m_inBreakpointCommands = false;
+    quint64 m_breakpointCommandsGeneration = 0;
     QString m_pendingLogStreamOutput;
 
     // This contains the first token number for the current round

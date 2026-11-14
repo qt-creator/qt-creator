@@ -6,7 +6,6 @@
 #include "gdbimpl.h"
 
 #include <debugger/breakhandler.h>
-#include <debugger/genericdebuggerengine.h>
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerinternalconstants.h>
@@ -16,6 +15,7 @@
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/logwindow.h>
 #include <debugger/memoryagent.h>
 #include <debugger/moduleshandler.h>
@@ -125,7 +125,6 @@ GdbEngine::GdbEngine()
     m_commandTimer.setSingleShot(true);
     connect(&m_commandTimer, &QTimer::timeout,
             this, &GdbEngine::commandTimeout);
-
     DebuggerSettings &s = settings();
     connect(&s.autoDerefPointers, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
@@ -335,6 +334,8 @@ void GdbEngine::handleResponse(const QString &buff)
                 break;
             }
             m_pendingConsoleStreamOutput += data;
+            if (m_inBreakpointCommands)
+                emit consoleOutputRequested(data);
 
             // Fragile, but it's all we have.
             if (data.contains("\nNo more reverse-execution history.\n"))
@@ -496,6 +497,23 @@ void GdbEngine::handleResponse(const QString &buff)
 void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &result)
 {
     if (asyncClass == u"stopped") {
+        const bool terminalTrap = m_expectTerminalTrap && Abi::hostAbi().os() == Abi::WindowsOS;
+        if (!result.isValid() && !terminalTrap && !m_inUpdateLocals && !m_inNativeMixedStep) {
+            m_inBreakpointCommands = true;
+            const quint64 generation = ++m_breakpointCommandsGeneration;
+            // GDB finishes the command list before reading this probe. A running record
+            // supersedes the deferred stop when the list resumes the inferior.
+            runCommand({"-list-thread-groups", [this, result, generation](const DebuggerResponse &) {
+                if (!m_inBreakpointCommands || generation != m_breakpointCommandsGeneration)
+                    return;
+                m_inBreakpointCommands = false;
+                handleStopResponse(result);
+                m_pendingLogStreamOutput.clear();
+                m_pendingConsoleStreamOutput.clear();
+            }});
+            return;
+        }
+        m_inBreakpointCommands = false;
         if (m_inUpdateLocals || m_inNativeMixedStep) {
             showMessage("INTERMEDIATE *stopped NOTIFICATION IGNORED", LogWarning);
         } else {
@@ -504,6 +522,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
             m_pendingConsoleStreamOutput.clear();
         }
     } else if (asyncClass == u"running") {
+        m_inBreakpointCommands = false;
         if (m_inUpdateLocals || m_inNativeMixedStep) {
             showMessage("INTERMEDIATE *running NOTIFICATION IGNORED", LogWarning);
         } else {
@@ -849,7 +868,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
     cmd.postTime = QTime::currentTime().msecsSinceStartOfDay();
     m_commandForToken[token] = cmd;
     if (cmd.flags & ConsoleCommand)
-        cmd.function = "-interpreter-exec console \"" + cmd.function + '"';
+        cmd.function = "-interpreter-exec console " + GdbMi::quoteCString(cmd.function);
     cmd.function = QString::number(token) + cmd.function;
 
     showMessage(cmd.function.left(100), LogInput);
@@ -1086,10 +1105,160 @@ void GdbEngine::executeDebuggerCommand(const QString &command)
     runCommand({command, NativeCommand});
 }
 
+void GdbEngine::executeCommand(const QString &command,
+                               const DebuggerConsoleOutputHandler &outputHandler)
+{
+    const QString normalizedCommand = command.simplified();
+    if (normalizedCommand.isEmpty())
+        return;
+
+    const QString verb = normalizedCommand.section(' ', 0, 0).toLower();
+    if (QLatin1StringView("run").startsWith(verb)) {
+        if (normalizedCommand.contains(' ')) {
+            outputHandler(Tr::tr("run does not accept arguments when continuing an active session. "
+                                "Use start to restart with new arguments."),
+                          DebuggerConsoleOutputKind::Error);
+            return;
+        }
+        executeCommand("continue", outputHandler);
+        return;
+    }
+    if (verb == "starti") {
+        outputHandler(Tr::tr("Use start to restart the inferior from the debugger console."),
+                      DebuggerConsoleOutputKind::Error);
+        return;
+    }
+    if (verb.size() >= 4 && QLatin1StringView("start").startsWith(verb)) {
+        if (state() != InferiorStopOk) {
+            outputHandler(Tr::tr("Starting the inferior requires a stopped program."),
+                          DebuggerConsoleOutputKind::Error);
+            return;
+        }
+
+        const QString trimmedCommand = command.trimmed();
+        const qsizetype argsPosition = trimmedCommand.indexOf(QRegularExpression("\\s"));
+        const auto run = [this, outputHandler] {
+            m_rerunPending = true;
+            setTokenBarrier();
+            notifyInferiorRunRequested();
+            runCommand({"-exec-run", RunRequest | NeedsFlush,
+                        [this, outputHandler](const DebuggerResponse &response) {
+                if (response.resultClass == ResultFail) {
+                    m_rerunPending = false;
+                    notifyInferiorRunFailed();
+                    const QString error = response.data["msg"].data();
+                    outputHandler(error.isEmpty() ? Tr::tr("GDB command failed.") : error,
+                                  DebuggerConsoleOutputKind::Error);
+                } else if (!response.consoleStreamOutput.isEmpty()) {
+                    outputHandler(response.consoleStreamOutput,
+                                  DebuggerConsoleOutputKind::Normal);
+                }
+            }});
+        };
+
+        const auto runWhenReady = [this, outputHandler, run] {
+            runCommand({"tbreak " + mainFunction(), NativeCommand | ConsoleCommand | NeedsTemporaryStop,
+                        [outputHandler, run](const DebuggerResponse &response) {
+                if (response.resultClass == ResultFail) {
+                    const QString error = response.data["msg"].data();
+                    outputHandler(error.isEmpty() ? Tr::tr("GDB command failed.") : error,
+                                  DebuggerConsoleOutputKind::Error);
+                    return;
+                }
+                if (!response.consoleStreamOutput.isEmpty())
+                    outputHandler(response.consoleStreamOutput, DebuggerConsoleOutputKind::Normal);
+                run();
+            }});
+        };
+
+        if (argsPosition >= 0) {
+            DebuggerRunParameters parameters = runParameters();
+            parameters.setInferiorUserArguments(trimmedCommand.mid(argsPosition).trimmed());
+            const QStringList args = parameters.inferior().command.splitArguments();
+            const QStringList miArgs = Utils::transform<QStringList>(args, &GdbMi::quoteCString);
+            runCommand({"-exec-arguments " + miArgs.join(' '),
+                        [this, outputHandler, runWhenReady, parameters](const DebuggerResponse &response) {
+                if (response.resultClass == ResultFail) {
+                    const QString error = response.data["msg"].data();
+                    outputHandler(error.isEmpty() ? Tr::tr("GDB command failed.") : error,
+                                  DebuggerConsoleOutputKind::Error);
+                    return;
+                }
+                setRunParameters(parameters);
+                runWhenReady();
+            }});
+        } else {
+            runWhenReady();
+        }
+        return;
+    }
+
+    if (verb == "interrupt") {
+        if (state() == InferiorRunOk) {
+            requestInterruptInferior();
+        } else {
+            outputHandler(Tr::tr("The inferior is not running."), DebuggerConsoleOutputKind::Error);
+        }
+        return;
+    }
+
+    struct ExecutionCommand { const char *name; int minimumLength; };
+    static const ExecutionCommand executionCommands[] = {
+        {"continue", 1}, {"step", 1}, {"next", 1}, {"stepi", 5}, {"nexti", 5},
+        {"finish", 3}, {"until", 1}, {"advance", 3}, {"jump", 1}, {"signal", 3},
+        {"reverse-continue", 9}, {"reverse-step", 12}, {"reverse-stepi", 13},
+        {"reverse-next", 12}, {"reverse-nexti", 13}, {"reverse-finish", 9}
+    };
+    const bool changesExecutionState
+        = QStringList{"fg", "si", "ni", "rc", "rs", "rsi", "rn", "rni", "rf"}.contains(verb)
+          || Utils::anyOf(executionCommands, [&verb](const ExecutionCommand &entry) {
+                 return verb.size() >= entry.minimumLength
+                        && QLatin1StringView(entry.name).startsWith(verb);
+             });
+
+    if (changesExecutionState && state() != InferiorStopOk) {
+        outputHandler(Tr::tr("Execution commands require a stopped inferior."),
+                      DebuggerConsoleOutputKind::Error);
+        return;
+    }
+
+    int flags = NativeCommand | ConsoleCommand;
+    if (changesExecutionState) {
+        flags |= RunRequest | NeedsFlush;
+        setTokenBarrier();
+        notifyInferiorRunRequested();
+    } else {
+        flags |= NeedsTemporaryStop;
+    }
+
+    runCommand({command, flags, [this, outputHandler, changesExecutionState](
+                                   const DebuggerResponse &response) {
+        if (response.resultClass == ResultFail) {
+            if (changesExecutionState && state() == InferiorRunRequested)
+                notifyInferiorRunFailed();
+            QString error = response.data["msg"].data();
+            if (error.isEmpty())
+                error = response.consoleStreamOutput;
+            if (error.isEmpty())
+                error = Tr::tr("GDB command failed.");
+            outputHandler(error, DebuggerConsoleOutputKind::Error);
+        } else if (!response.consoleStreamOutput.isEmpty()) {
+            outputHandler(response.consoleStreamOutput, DebuggerConsoleOutputKind::Normal);
+        }
+    }});
+}
+
+QString GdbEngine::commandModeName() const
+{
+    return Tr::tr("GDB commands");
+}
+
 void GdbEngine::setState(DebuggerState state, bool forced)
 {
     DebuggerEngine::setState(state, forced);
     if (state == DebuggerFinished) {
+        m_inBreakpointCommands = false;
+        ++m_breakpointCommandsGeneration;
         m_rerunPending = false;
         m_commandForToken.clear();
     }
@@ -1479,6 +1648,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             msg += Tr::tr("Value changed from %1 to %2.")
                 .arg(oldValue.data()).arg(newValue.data());
         }
+        emit consoleOutputRequested(msg);
         showStatusMessage(msg);
     } else if (reason == "breakpoint-hit") {
         GdbMi gNumber = data["bkptno"]; // 'number' or 'bkptno'?

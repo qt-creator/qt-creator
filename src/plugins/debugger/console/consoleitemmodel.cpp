@@ -3,6 +3,8 @@
 
 #include "consoleitemmodel.h"
 
+#include <utils/qtcassert.h>
+
 #include <QFontMetrics>
 #include <QFont>
 
@@ -17,8 +19,17 @@ ConsoleItemModel::ConsoleItemModel(QObject *parent) :
 void ConsoleItemModel::clear()
 {
     Utils::TreeModel<>::clear();
-    appendItem(new ConsoleItem(ConsoleItem::InputType));
+    auto *input = new ConsoleItem(ConsoleItem::InputType);
+    input->setHistoryContext(m_historyContext);
+    appendItem(input);
     emit selectEditableRow(index(0, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
+}
+
+void ConsoleItemModel::setHistoryContext(int historyContext)
+{
+    m_historyContext = historyContext;
+    auto *editableItem = static_cast<ConsoleItem *>(rootItem()->lastChild());
+    editableItem->setHistoryContext(historyContext);
 }
 
 void ConsoleItemModel::setCanFetchMore(bool canFetchMore)
@@ -42,12 +53,16 @@ void ConsoleItemModel::appendItem(ConsoleItem *item, int position)
     rootItem()->insertChild(position, item);
 }
 
-void ConsoleItemModel::shiftEditableRow()
+void ConsoleItemModel::shiftEditableRow(int historyContext)
 {
+    m_historyContext = historyContext;
     int position = rootItem()->childCount();
-    Q_ASSERT(position > 0);
+    QTC_ASSERT(position > 0, return);
+    static_cast<ConsoleItem *>(rootItem()->lastChild())->setHistoryContext(historyContext);
 
-    appendItem(new ConsoleItem(ConsoleItem::InputType), position);
+    auto *input = new ConsoleItem(ConsoleItem::InputType);
+    input->setHistoryContext(historyContext);
+    appendItem(input, position);
     emit selectEditableRow(index(position, 0, QModelIndex()), QItemSelectionModel::ClearAndSelect);
 }
 

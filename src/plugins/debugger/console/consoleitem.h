@@ -14,7 +14,8 @@ public:
         TypeRole = Qt::UserRole,
         FileRole,
         LineRole,
-        ExpressionRole
+        ExpressionRole,
+        HistoryContextRole
     };
 
     enum ItemType
@@ -38,6 +39,8 @@ public:
     QString text() const;
     QString file() const;
     int line() const;
+    void setHistoryContext(int context);
+    int historyContext() const;
     Qt::ItemFlags flags(int column) const override;
     QVariant data(int column, int role) const override;
     bool setData(int column, const QVariant &data, int role) override;
@@ -50,6 +53,7 @@ private:
     QString m_text;
     QString m_file;
     int m_line = -1;
+    int m_historyContext = 0;
 
     std::function<void(ConsoleItem *)> m_doFetch;
 };

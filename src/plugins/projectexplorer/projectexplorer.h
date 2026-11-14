@@ -11,6 +11,8 @@
 #include <utils/id.h>
 #include <utils/result.h>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QPoint;
@@ -132,6 +134,9 @@ public:
     static Utils::Result<> canRunStartupProject(Utils::Id runMode);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
+    // Called before the run control starts, or with nullptr if startup fails or is cancelled.
+    static void runStartupProjectWithCallback(
+        Utils::Id runMode, const std::function<void(RunControl *)> &callback);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,
                              const bool forceSkipDeploy = false);
     static QList<RunControl *> allRunControls();

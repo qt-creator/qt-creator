@@ -351,7 +351,7 @@
 \row
     \li \c {debugger_print_console_message}
         \target mcp-debugger_print_console_message
-    \li Appends a message of the given type to the QML Debugger Console, exactly as the debugger would. Useful for exercising the console's auto-popup behavior. Does not require an active debug session.
+    \li Appends a message of the given type to the Debugger Console, exactly as the debugger would. Useful for exercising the console's auto-popup behavior. Does not require an active debug session.
         \list
             \li \c {text} (string) - Message text.
             \li \c {type} (string, required) - Message type: error, warning, debug, or default.
