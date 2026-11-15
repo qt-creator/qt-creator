@@ -10,10 +10,13 @@
 #include "gittr.h"
 #include "gitutils.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <diffeditor/diffutils.h>
+#include <diffeditor/inlinediff.h>
 
 #ifdef WITH_TESTS
 #include "extensionsystem/iplugin.h"
@@ -28,6 +31,7 @@
 #include <utils/icon.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/tooltip/tooltip.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -43,9 +47,17 @@
 #include <QPromise>
 #include <QTimer>
 
+#include <memory>
+#include <optional>
+
 #ifdef WITH_TESTS
+#include <QApplication>
+#include <QClipboard>
+#include <QMetaObject>
 #include <QTemporaryDir>
 #include <QTest>
+#include <QVBoxLayout>
+#include <QWidget>
 #endif
 
 namespace Git::Internal {
@@ -58,6 +70,8 @@ using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
 
+struct PreviousCommitLookup;
+
 class CommitInfo {
 public:
     QString hash;
@@ -66,6 +80,8 @@ public:
     QString authorMail;
     QDateTime authorDate;
     QString subject;
+    // Shared so actions captured before the asynchronous lookup see its result.
+    std::shared_ptr<PreviousCommitLookup> previousCommit;
     QStringList oldLines;     ///< the previous line contents
     QString newLine;          ///< the new line contents
     Utils::FilePath topLevel; ///< repository top level path
@@ -77,6 +93,13 @@ public:
     bool modified = false;    ///< line is locally modified (uncommitted)
 };
 
+struct PreviousCommitLookup
+{
+    enum class State { Pending, Found, NoPreviousLine, Unavailable };
+    State state = State::Pending;
+    CommitInfo info;
+};
+
 class BlameMark : public TextEditor::TextMark
 {
 public:
@@ -85,6 +108,18 @@ public:
     QString toolTipText(const CommitInfo &info) const;
     void addOldLine(const QString &oldLine);
     void addNewLine(const QString &newLine);
+    void setPreviousCommit(const CommitInfo &info);
+    void setNoPreviousLine()
+    {
+        m_info.previousCommit->state = PreviousCommitLookup::State::NoPreviousLine;
+    }
+    void finishPreviousLookup()
+    {
+        if (m_info.previousCommit
+            && m_info.previousCommit->state == PreviousCommitLookup::State::Pending) {
+            m_info.previousCommit->state = PreviousCommitLookup::State::Unavailable;
+        }
+    }
 
 private:
     void initialize();
@@ -95,6 +130,7 @@ private:
 struct EditorLineDiff
 {
     QStringList oldLines;
+    QList<int> oldLineNumbers;
     QString newLine;
     bool isValid = false;
 };
@@ -103,10 +139,17 @@ static EditorLineDiff editorLineDiff(const DiffEditor::ChunkData &chunk, int edi
 {
     EditorLineDiff result;
     QStringList pendingOldLines;
-    int currentEditorLine = 0;
+    QList<int> pendingOldLineNumbers;
+    int currentBaseLine = chunk.startingLineNumber[DiffEditor::LeftSide];
+    int currentEditorLine = chunk.startingLineNumber[DiffEditor::RightSide];
     for (const DiffEditor::RowData &row : chunk.rows) {
         if (row.equal) {
             pendingOldLines.clear();
+            pendingOldLineNumbers.clear();
+            if (row.line[DiffEditor::LeftSide].textLineType
+                == DiffEditor::TextLineData::TextLine) {
+                ++currentBaseLine;
+            }
             if (row.line[DiffEditor::RightSide].textLineType
                 == DiffEditor::TextLineData::TextLine) {
                 ++currentEditorLine;
@@ -115,19 +158,24 @@ static EditorLineDiff editorLineDiff(const DiffEditor::ChunkData &chunk, int edi
         }
 
         const DiffEditor::TextLineData &oldLine = row.line[DiffEditor::LeftSide];
-        if (oldLine.textLineType == DiffEditor::TextLineData::TextLine)
+        if (oldLine.textLineType == DiffEditor::TextLineData::TextLine) {
+            ++currentBaseLine;
             pendingOldLines.append(oldLine.text);
+            pendingOldLineNumbers.append(currentBaseLine);
+        }
 
         const DiffEditor::TextLineData &newLine = row.line[DiffEditor::RightSide];
         if (newLine.textLineType != DiffEditor::TextLineData::TextLine)
             continue;
         if (++currentEditorLine == editorLine) {
             result.oldLines = pendingOldLines;
+            result.oldLineNumbers = pendingOldLineNumbers;
             result.newLine = newLine.text;
             result.isValid = true;
             return result;
         }
         pendingOldLines.clear();
+        pendingOldLineNumbers.clear();
     }
     return result;
 }
@@ -196,20 +244,26 @@ BlameMark::BlameMark(TextEditor::TextDocument *document, int lineNumber, const C
                            {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
     , m_info(info)
 {
-    QString text = info.shortAuthor + " " + info.authorDate.toString("yyyy-MM-dd");
-    if (settings().instantBlameShowSubject())
+    if (info.modified)
+        m_info.previousCommit = std::make_shared<PreviousCommitLookup>();
+    QString text = info.modified
+        ? Tr::tr("Modified locally")
+        : info.shortAuthor + " " + info.authorDate.toString("yyyy-MM-dd");
+    if (!info.modified && settings().instantBlameShowSubject())
         text += " • " + info.subject;
 
     setPriority(TextEditor::TextMark::LowPriority);
     setToolTipProvider([this] { return toolTipText(m_info); });
     setLineAnnotation(text);
     setSettingsPage(VcsBase::Constants::VCS_ID_GIT);
-    setActionsProvider([info] {
+    setActionsProvider([info = m_info] {
         QAction *copyToClipboardAction = new QAction;
         copyToClipboardAction->setIcon(Icon::fromTheme("edit-copy"));
         copyToClipboardAction->setToolTip(Tr::tr("Copy Hash to Clipboard"));
         QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
-            Utils::setClipboardAndSelection(info.hash);
+            const QString hash = info.modified ? info.previousCommit->info.hash : info.hash;
+            if (!hash.isEmpty())
+                Utils::setClipboardAndSelection(hash);
         });
         return QList<QAction *>{copyToClipboardAction};
     });
@@ -221,24 +275,40 @@ bool BlameMark::addToolTipContent(QLayout *target) const
     textLabel->setText(toolTip());
     target->addWidget(textLabel);
     QObject::connect(
-        textLabel, &QLabel::linkActivated, textLabel, [info = m_info](const QString &link) {
+        textLabel, &QLabel::linkActivated, textLabel, [info = m_info](QString link) {
             qCInfo(log) << "Link activated with target:" << link;
-            const QString hash = (link == "blameParent") ? info.hash + "^" : info.hash;
-            const FilePath topLevel = info.topLevel;
+            Utils::ToolTip::hideImmediately();
+            constexpr QLatin1StringView previousPrefix("previous");
+            const bool usePrevious = link.startsWith(previousPrefix);
+            if (usePrevious) {
+                if (!info.previousCommit || info.previousCommit->state != PreviousCommitLookup::State::Found)
+                    return;
+                link = link.sliced(previousPrefix.size());
+                if (link.isEmpty())
+                    return;
+                link[0] = link.at(0).toLower();
+            }
+            const CommitInfo &target = usePrevious ? info.previousCommit->info : info;
+            if (link == "copyHash") {
+                Utils::setClipboardAndSelection(target.hash);
+                return;
+            }
+            const QString hash = (link == "blameParent") ? target.hash + "^" : target.hash;
+            const FilePath topLevel = target.topLevel;
 
             if (link.startsWith("blame") || link == "revert" || link == "showFile") {
                 const FilePath path = topLevel;
-                const QString originalFileName = info.originalFileName;
+                const QString originalFileName = target.originalFileName;
                 if (link.startsWith("blame")) {
                     qCInfo(log).nospace().noquote()
                         << "Blaming: \"" << path << "/" << originalFileName
-                        << "\":" << info.originalLine << " @ " << hash;
-                    gitClient().annotate(path, originalFileName, info.originalLine, hash);
+                        << "\":" << target.originalLine << " @ " << hash;
+                    gitClient().annotate(path, originalFileName, target.originalLine, hash);
                 } else if (link == "revert") {
                     const QMessageBox::StandardButton result = QMessageBox::question(
                         Core::ICore::dialogParent(),
                         Tr::tr("Revert Commit?"),
-                        Tr::tr("Revert the commit %1?").arg(info.hash.left(8)),
+                        Tr::tr("Revert the commit %1?").arg(target.hash.left(8)),
                         QMessageBox::Yes | QMessageBox::No);
                     if (result == QMessageBox::Yes) {
                         qCInfo(log).nospace().noquote()
@@ -251,45 +321,49 @@ bool BlameMark::addToolTipContent(QLayout *target) const
 
                     const auto fileName = FilePath::fromString(originalFileName);
                     gitClient().openShowEditor(path, hash, fileName, GitClient::ShowEditor::Always,
-                                               info.originalLine);
+                                               target.originalLine);
                 }
             } else if (link == "diffParent") {
                 qCInfo(log).nospace().noquote()
-                    << "Inline diff for: \"" << info.filePath << "\" against " << hash << "^";
+                    << "Inline diff for: \"" << target.filePath << "\" against " << hash << "^";
 
                 // the parent side file name differs when the blamed commit
                 // renamed the file
-                const QString parentFileName = info.previousFileName.isEmpty()
-                                                   ? info.originalFileName
-                                                   : info.previousFileName;
-                if (info.modified) {
+                const QString parentFileName = target.previousFileName.isEmpty()
+                                                   ? target.originalFileName
+                                                   : target.previousFileName;
+                if (target.modified) {
                     // Uncommitted lines are compared against the index, where
                     // staging them has a visible effect. The editor keeps the
                     // cursor's line visible.
-                    gitClient().inlineDiffFile(topLevel, info.filePath.path());
+                    gitClient().inlineDiffFile(topLevel, target.filePath.path());
                 } else {
                     // Show the change that last touched the line: the blamed
                     // commit against its parent. This is the same regardless of
                     // the view the tooltip is shown in (working tree, index, or
                     // a revision), and following it repeatedly walks the line's
                     // history one changing commit at a time.
-                    gitClient().inlineDiffRevisions(topLevel, info.filePath,
-                                                    hash, info.originalFileName,
+                    gitClient().inlineDiffRevisions(topLevel, target.filePath,
+                                                    hash, target.originalFileName,
                                                     hash + "^", parentFileName,
-                                                    info.line);
+                                                    target.originalLine);
                 }
             } else if (link == "logLine") {
                 qCInfo(log).nospace().noquote()
-                    << "Showing log for: \"" << info.filePath << "\" line:" << info.line;
+                    << "Showing log for: \"" << target.filePath << "\" line:" << target.line;
 
-                const QString relativeFile = info.filePath.relativeChildPath(topLevel).path();
-                const QString lineArg
-                    = QString("-L %1,%1:%2").arg(info.line).arg(relativeFile);
-                gitClient().log(topLevel, {}, true, {lineArg, "--no-patch"});
+                const QString relativeFile = usePrevious ? target.originalFileName
+                    : target.filePath.relativeChildPath(topLevel).path();
+                const int line = usePrevious ? target.originalLine : target.line;
+                const QString lineArg = QString("-L %1,%1:%2").arg(line).arg(relativeFile);
+                QStringList arguments = {lineArg, "--no-patch"};
+                if (usePrevious)
+                    arguments.append(target.hash);
+                gitClient().log(topLevel, {}, true, arguments);
             } else {
                 qCInfo(log).nospace().noquote()
-                    << "Showing commit: " << hash << " for " << info.filePath;
-                gitClient().show(info.filePath, hash);
+                    << "Showing commit: " << hash << " for " << target.filePath;
+                gitClient().show(target.filePath, hash);
             }
         });
 
@@ -331,20 +405,6 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                       .arg(Tr::tr("Diff"));
     }
 
-    const QString header = QString(
-                         "<table>"
-                         "  <tr><td>commit</td><td><a style=\"color: %1;\" href=\"show\">%2</a></td></tr>"
-                         "  <tr><td>Author:</td><td style=\"color: %3;\">%4 &lt;%5&gt;</td></tr>"
-                         "  <tr><td>Date:</td><td style=\"color: %6;\">%7</td></tr>"
-                         "</table>"
-                         "<p style=\"color: %8;\">%9</p>")
-                         .arg(colors.hash, info.hash,
-                              colors.author, info.author, info.authorMail,
-                              colors.date, info.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
-                              colors.subject, info.subject.toHtmlEscaped());
-
-    QString result = actions + header;
-
     QString diff;
     if (!info.oldLines.isEmpty()) {
         const QString removed = GitClient::styleColorName(TextEditor::C_REMOVED_LINE);
@@ -365,8 +425,78 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
         diff.append("<p style=\"margin-top: 0px; color: " + added + ";\">" + info.newLine.toHtmlEscaped() + "</p>");
     }
 
-    if (!diff.isEmpty())
-        result.append("<pre>" + diff + "</pre>");
+    QString result = actions;
+    if (info.modified) {
+        if (!diff.isEmpty()) {
+            result += "<p><b>" + Tr::tr("Local changes") + "</b></p>";
+            result += "<pre>" + diff + "</pre>";
+        }
+        const auto lookupState = info.previousCommit ? info.previousCommit->state
+                                                     : PreviousCommitLookup::State::Unavailable;
+        switch (lookupState) {
+        case PreviousCommitLookup::State::Found: {
+            const CommitInfo &previous = info.previousCommit->info;
+            result += "<p><b>" + Tr::tr("Last committed version") + "</b></p>";
+            result += QString(
+                          "<table>"
+                          "  <tr><td>commit</td><td><a style=\"color: %1;\" "
+                          "href=\"previousShow\">%2</a></td></tr>"
+                          "  <tr><td>Author:</td><td style=\"color: %3;\">%4 &lt;%5&gt;</td></tr>"
+                          "  <tr><td>Date:</td><td style=\"color: %6;\">%7</td></tr>"
+                          "</table>"
+                          "<p style=\"color: %8;\">%9</p>")
+                          .arg(colors.hash, previous.hash,
+                               colors.author, previous.author.toHtmlEscaped(),
+                               previous.authorMail.toHtmlEscaped(),
+                               colors.date,
+                               previous.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
+                               colors.subject, previous.subject.toHtmlEscaped());
+            result += "<p><b>"
+                      + Tr::tr("Actions for last committed version").toHtmlEscaped()
+                      + "</b></p>";
+            result += QString(
+                          "<p><a href=\"previousBlame\">%1</a> | "
+                          "<a href=\"previousBlameParent\">%2</a> | "
+                          "<a href=\"previousShowFile\">%3</a> | "
+                          "<a href=\"previousLogLine\">%4</a> | "
+                          "<a href=\"previousDiffParent\">%5</a> | "
+                          "<a href=\"previousCopyHash\">%6</a></p>")
+                          .arg(Tr::tr("Blame").toHtmlEscaped(),
+                               Tr::tr("Blame Parent").toHtmlEscaped(),
+                               Tr::tr("File at Commit").toHtmlEscaped(),
+                               Tr::tr("Log for Line").toHtmlEscaped(),
+                               Tr::tr("Diff Against Parent").toHtmlEscaped(),
+                               Tr::tr("Copy Hash").toHtmlEscaped());
+            break;
+        }
+        case PreviousCommitLookup::State::Pending:
+            result += "<p><b>" + Tr::tr("Looking up last committed version") + "</b></p>";
+            break;
+        case PreviousCommitLookup::State::NoPreviousLine:
+            result += "<p><b>" + Tr::tr("No previous committed line") + "</b></p>";
+            break;
+        case PreviousCommitLookup::State::Unavailable:
+            result += "<p><b>" + Tr::tr("Last committed version is unavailable") + "</b></p>";
+            break;
+        }
+    } else {
+        const QString header = QString(
+                                   "<table>"
+                                   "  <tr><td>commit</td><td><a style=\"color: %1;\" href=\"show\">%2</a></td></tr>"
+                                   "  <tr><td>Author:</td><td style=\"color: %3;\">%4 &lt;%5&gt;</td></tr>"
+                                   "  <tr><td>Date:</td><td style=\"color: %6;\">%7</td></tr>"
+                                   "</table>"
+                                   "<p style=\"color: %8;\">%9</p>")
+                                   .arg(colors.hash, info.hash,
+                                        colors.author, info.author.toHtmlEscaped(),
+                                        info.authorMail.toHtmlEscaped(),
+                                        colors.date,
+                                        info.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
+                                        colors.subject, info.subject.toHtmlEscaped());
+        result += header;
+        if (!diff.isEmpty())
+            result += "<pre>" + diff + "</pre>";
+    }
 
     if (settings().instantBlameIgnoreSpaceChanges()
         || settings().instantBlameIgnoreLineMoves()) {
@@ -390,6 +520,12 @@ void BlameMark::addOldLine(const QString &oldLine)
 void BlameMark::addNewLine(const QString &newLine)
 {
     m_info.newLine = newLine;
+}
+
+void BlameMark::setPreviousCommit(const CommitInfo &info)
+{
+    m_info.previousCommit->info = info;
+    m_info.previousCommit->state = PreviousCommitLookup::State::Found;
 }
 
 InstantBlame::InstantBlame()
@@ -813,12 +949,14 @@ void BlameController::perform()
     m_lastLine = line;
 
     const bool useDocumentContents = m_document->isModified();
+    const bool ignoreSpaceChanges = settings().instantBlameIgnoreSpaceChanges();
+    const bool ignoreLineMoves = settings().instantBlameIgnoreLineMoves();
     const QStringList options = blameCommandArguments(
         m_commandFilePath,
         m_ref,
         line,
-        settings().instantBlameIgnoreSpaceChanges(),
-        settings().instantBlameIgnoreLineMoves(),
+        ignoreSpaceChanges,
+        ignoreLineMoves,
         useDocumentContents);
     qCDebug(log) << "Running git" << options.join(' ');
 
@@ -844,6 +982,7 @@ void BlameController::perform()
     const QPointer<BlameController> guard(this);
     const Storage<CommitInfo> infoStorage;
     const Storage<QString> baselineTextStorage;
+    const Storage<EditorLineDiff> lineDiffStorage;
     const auto blameHandler = [guard, document, generation, workingFilePath, topLevel, line,
                                author, infoStorage](const CommandResult &result) {
         if (!guard || !document || guard->m_requestGeneration != generation)
@@ -890,26 +1029,25 @@ void BlameController::perform()
         process.setEncoding(encoding);
         return SetupResult::Continue;
     };
-    const auto onLogDone
-        = [guard, generation, infoStorage, baselineTextStorage](const Process &process) {
+    const auto onLogDone = [guard, generation, infoStorage, baselineTextStorage](
+                               const Process &process) -> DoneResult {
         if (!guard || guard->m_requestGeneration != generation || !guard->m_blameMark)
-            return;
+            return DoneResult::Error;
         const QString error = process.cleanedStdErr().trimmed();
-        if (infoStorage->modified) {
-            if (process.result() == ProcessResult::FinishedWithSuccess) {
-                *baselineTextStorage = process.cleanedStdOut();
-                baselineTextStorage->replace("\r\n", "\n");
-            } else if (!error.contains("does not exist in")
-                       && !error.contains("exists on disk, but not in")
-                       && !error.contains("invalid object name")) {
-                qCWarning(log) << error;
-            }
-            return;
-        }
         if (process.result() != ProcessResult::FinishedWithSuccess) {
+            if (infoStorage->modified
+                && (error.contains("does not exist in") || error.contains("exists on disk, but not in"))) {
+                // A staged addition has no contents at the baseline revision.
+                return DoneResult::Success;
+            }
             if (!error.isEmpty())
                 qCWarning(log) << error;
-            return;
+            return DoneResult::Error;
+        }
+        if (infoStorage->modified) {
+            *baselineTextStorage = process.cleanedStdOut();
+            baselineTextStorage->replace("\r\n", "\n");
+            return DoneResult::Success;
         }
         static const QRegularExpression re("^[-+][^-+].*");
         const QStringList diffLines = process.cleanedStdOut().split("\n").filter(re);
@@ -919,6 +1057,7 @@ void BlameController::perform()
             else if (diffLine.startsWith("+"))
                 guard->m_blameMark->addNewLine(diffLine);
         }
+        return DoneResult::Success;
     };
     const auto onDiffSetup
         = [infoStorage, baselineTextStorage, editorText](Async<EditorLineDiff> &async) {
@@ -928,21 +1067,67 @@ void BlameController::perform()
                                     editorText, infoStorage->line);
         return SetupResult::Continue;
     };
-    const auto onDiffDone = [guard, generation](const Async<EditorLineDiff> &async) {
+    const auto onDiffDone = [guard, generation, lineDiffStorage](
+                                const Async<EditorLineDiff> &async) {
         if (!guard || guard->m_requestGeneration != generation || !guard->m_blameMark
             || !async.isResultAvailable()) {
             return;
         }
-        addModifiedLineDiff(*guard->m_blameMark, async.result());
+        *lineDiffStorage = async.result();
+        addModifiedLineDiff(*guard->m_blameMark, *lineDiffStorage);
+        if (lineDiffStorage->isValid
+            && lineDiffStorage->oldLineNumbers.isEmpty()) {
+            guard->m_blameMark->setNoPreviousLine();
+        }
+    };
+
+    const auto onPreviousBlameSetup = [infoStorage, lineDiffStorage, topLevel, ref,
+                                       ignoreSpaceChanges, ignoreLineMoves,
+                                       encoding](Process &process) -> SetupResult {
+        if (!infoStorage->modified || !lineDiffStorage->isValid
+            || lineDiffStorage->oldLineNumbers.isEmpty()) {
+            return SetupResult::StopWithSuccess;
+        }
+
+        const QString baselineRef = ref.isEmpty() ? QString("HEAD") : ref;
+        const int previousLine = lineDiffStorage->oldLineNumbers.first();
+        const QStringList arguments = blameCommandArguments(
+            infoStorage->originalFileName, baselineRef, previousLine,
+            ignoreSpaceChanges, ignoreLineMoves, false);
+        gitClient().setupCommand(process, topLevel, arguments);
+        process.setEncoding(encoding);
+        return SetupResult::Continue;
+    };
+    const auto onPreviousBlameDone = [guard, generation, lineDiffStorage,
+                                      workingFilePath, topLevel, author](const Process &process) {
+        if (!guard || guard->m_requestGeneration != generation || !guard->m_blameMark
+            || !lineDiffStorage->isValid || lineDiffStorage->oldLineNumbers.isEmpty()
+            || process.result() != ProcessResult::FinishedWithSuccess) {
+            return;
+        }
+
+        const int previousLine = lineDiffStorage->oldLineNumbers.first();
+        CommitInfo previous = parseBlameOutput(process.cleanedStdOut().split('\n'),
+                                               workingFilePath, previousLine, author);
+        if (previous.hash.isEmpty() || previous.modified)
+            return;
+        previous.topLevel = topLevel;
+        guard->m_blameMark->setPreviousCommit(previous);
     };
 
     m_taskTreeRunner.start({
         infoStorage,
         baselineTextStorage,
+        lineDiffStorage,
         gitClient().commandTask({topLevel, options, RunFlag::NoOutput, {}, encoding,
                                  blameHandler, writeData}),
         ProcessTask(onLogSetup, onLogDone, CallDoneFlag::Always),
         AsyncTask<EditorLineDiff>(onDiffSetup, onDiffDone, CallDoneFlag::OnSuccess),
+        ProcessTask(onPreviousBlameSetup, onPreviousBlameDone, CallDoneFlag::Always),
+        onGroupDone([guard, generation] {
+            if (guard && guard->m_requestGeneration == generation && guard->m_blameMark)
+                guard->m_blameMark->finishPreviousLookup();
+        }),
     });
 }
 
@@ -1073,7 +1258,14 @@ void InstantBlameTest::testBlameDocumentContents()
         = editorLineDiffAgainstEditorText("first\n", "inserted\nfirst\n", 1);
     QVERIFY(insertion.isValid);
     QVERIFY(insertion.oldLines.isEmpty());
+    QVERIFY(insertion.oldLineNumbers.isEmpty());
     QCOMPARE(insertion.newLine, QString("inserted"));
+
+    const EditorLineDiff replacement = editorLineDiffAgainstEditorText(
+        "first\nsecond\nthird\n", "inserted\nfirst\nchanged\nthird\n", 3);
+    QVERIFY(replacement.isValid);
+    QCOMPARE(replacement.oldLines, QStringList{"second"});
+    QCOMPARE(replacement.oldLineNumbers, QList<int>{2});
 
     QTemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
@@ -1087,36 +1279,40 @@ void InstantBlameTest::testBlameDocumentContents()
     QVERIFY(runGit({"config", "user.name", "test"}));
     QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
     const FilePath file = repo / "file.txt";
+    QVERIFY(file.writeFileContents("first\nold\n"));
+    QVERIFY(runGit({"add", "file.txt"}));
+    QVERIFY(runGit({"commit", "-m", "Parent"}));
     QVERIFY(file.writeFileContents("first\ncommitted\n"));
     QVERIFY(runGit({"add", "file.txt"}));
     QVERIFY(runGit({"commit", "-m", "initial"}));
-    QVERIFY(file.writeFileContents("first\nworking tree\n"));
+    const CommandResult headResult = gitClient().vcsSynchronousExec(repo, {"rev-parse", "HEAD"});
+    QCOMPARE(headResult.result(), ProcessResult::FinishedWithSuccess);
+    const QString committedHash = headResult.cleanedStdOut().trimmed();
+    QVERIFY(file.writeFileContents("prefix\nfirst\ncommitted\n"));
+    QVERIFY(runGit({"commit", "-am", "Insert line above"}));
+    QVERIFY(file.writeFileContents("prefix\nfirst\nworking tree\n"));
 
-    bool done = false;
-    CommandResult result;
+    const auto result = std::make_shared<std::optional<CommandResult>>();
     gitClient().enqueueCommand(
         {repo,
          blameCommandArguments("file.txt", {}, 1, false, false, true),
          RunFlag::NoOutput,
          {},
          {},
-         [&done, &result](const CommandResult &commandResult) {
-             result = commandResult;
-             done = true;
-         },
+         [result](const CommandResult &commandResult) { *result = commandResult; },
          QByteArray("displayed snapshot\n")});
-    QTRY_VERIFY(done);
-    QCOMPARE(result.result(), ProcessResult::FinishedWithSuccess);
-    QVERIFY(result.cleanedStdOut().contains("\tdisplayed snapshot"));
+    QTRY_VERIFY(result->has_value());
+    QCOMPARE((*result)->result(), ProcessResult::FinishedWithSuccess);
+    QVERIFY((*result)->cleanedStdOut().contains("\tdisplayed snapshot"));
 
     auto document = QSharedPointer<TextDocument>::create();
     document->setFilePath(file);
-    QVERIFY(document->setPlainText("first\nworking tree\n"));
+    QVERIFY(document->setPlainText("prefix\nfirst\nworking tree\n"));
     document->document()->setModified(false);
     TextEditorWidget widget;
     widget.setTextDocument(document);
     QTextCursor cursor(widget.document());
-    cursor.movePosition(QTextCursor::NextBlock);
+    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, 2);
     widget.setTextCursor(cursor);
 
     document->setProperty("GitRepository", repo.path());
@@ -1134,15 +1330,108 @@ void InstantBlameTest::testBlameDocumentContents()
         return QString();
     };
 
-    QTRY_VERIFY(markToolTip(2).contains("-committed"));
-    QVERIFY(markToolTip(2).contains("+working tree"));
+    QTRY_VERIFY(markToolTip(3).contains("-committed"));
+    QVERIFY(markToolTip(3).contains("+working tree"));
+    QTRY_VERIFY(markToolTip(3).contains("Last committed version"));
+    QTRY_VERIFY(markToolTip(3).contains("initial"));
+    QTRY_VERIFY(markToolTip(3).contains("test@test"));
+    QTRY_VERIFY(markToolTip(3).contains("href=\"previousShow\""));
+    QTRY_VERIFY(markToolTip(3).contains(
+        "<b>Actions for last committed version</b></p><p><a href=\"previousBlame\""));
+    QVERIFY(markToolTip(3).contains("href=\"previousBlame\""));
+    QVERIFY(markToolTip(3).contains("href=\"previousBlameParent\""));
+    QVERIFY(markToolTip(3).contains("href=\"previousShowFile\""));
+    QVERIFY(markToolTip(3).contains("href=\"previousLogLine\""));
+    QVERIFY(markToolTip(3).contains("href=\"previousDiffParent\""));
+    QVERIFY(markToolTip(3).contains("href=\"previousCopyHash\""));
 
-    QVERIFY(document->setPlainText("inserted\nfirst\nworking tree\n"));
+    const TextMark *modifiedMark = nullptr;
+    for (const TextMark *mark : document->marks()) {
+        if (mark->lineNumber() == 3)
+            modifiedMark = mark;
+    }
+    QVERIFY(modifiedMark);
+    QWidget toolTipWidget;
+    QVBoxLayout toolTipLayout(&toolTipWidget);
+    QVERIFY(modifiedMark->addToolTipContent(&toolTipLayout));
+    QLabel *toolTipLabel = toolTipWidget.findChild<QLabel *>();
+    QVERIFY(toolTipLabel);
+    QVERIFY(QMetaObject::invokeMethod(toolTipLabel, "linkActivated", Qt::DirectConnection,
+                                      Q_ARG(QString, QString("previousCopyHash"))));
+    QCOMPARE(QApplication::clipboard()->text(), committedHash);
+    QVERIFY(QMetaObject::invokeMethod(toolTipLabel, "linkActivated", Qt::DirectConnection,
+                                      Q_ARG(QString, QString("previousLogLine"))));
+    QPointer<Core::IEditor> logEditor;
+    QTRY_VERIFY(([&] {
+        Core::IEditor *editor = Core::EditorManager::currentEditor();
+        if (!editor || !editor->document()->displayName().contains("Log"))
+            return false;
+        auto *logWidget = VcsBaseEditor::getVcsBaseEditor(editor);
+        if (!logWidget || !logWidget->toPlainText().contains("initial"))
+            return false;
+        logEditor = editor;
+        return true;
+    })());
+    QVERIFY(Core::EditorManager::closeDocuments({logEditor->document()}, false));
+
+    QVERIFY(file.writeFileContents("prefix\nfirst\ncommitted\n"));
+    QVERIFY(document->setPlainText("prefix\nfirst\ncommitted\n"));
+    document->document()->setModified(false);
+    cursor = QTextCursor(widget.document()->findBlockByNumber(2));
+    widget.setTextCursor(cursor);
+    instantBlame.scheduleInstantBlame();
+    QTRY_VERIFY(markToolTip(3).contains(committedHash)
+                && !markToolTip(3).contains("Local changes"));
+    const BlameMark *committedMark = nullptr;
+    for (const TextMark *mark : document->marks()) {
+        if (mark->lineNumber() == 3)
+            committedMark = dynamic_cast<const BlameMark *>(mark);
+    }
+    QVERIFY(committedMark);
+    QWidget committedTooltip;
+    QVBoxLayout committedLayout(&committedTooltip);
+    QVERIFY(committedMark->addToolTipContent(&committedLayout));
+    QLabel *committedLabel = committedTooltip.findChild<QLabel *>();
+    QVERIFY(committedLabel);
+    QVERIFY(QMetaObject::invokeMethod(committedLabel, "linkActivated", Qt::DirectConnection,
+                                      Q_ARG(QString, QString("diffParent"))));
+    Core::IEditor *snapshotEditor = nullptr;
+    QTRY_VERIFY((snapshotEditor = Core::EditorManager::currentEditor())
+                && DiffEditor::inlineDiffEditorWidget(snapshotEditor));
+    const auto *snapshot = DiffEditor::inlineDiffEditorWidget(snapshotEditor);
+    QCOMPARE(snapshot->textCursor().blockNumber() + 1, 2);
+    QVERIFY(Core::EditorManager::closeDocuments({snapshotEditor->document()}, false));
+
+    QVERIFY(document->setPlainText("inserted\nprefix\nfirst\ncommitted\n"));
     document->document()->setModified(true);
     cursor = QTextCursor(widget.document());
     widget.setTextCursor(cursor);
     instantBlame.scheduleInstantBlame();
     QTRY_VERIFY(markToolTip(1).contains("+inserted"));
+    QTRY_VERIFY(markToolTip(1).contains("No previous committed line"));
+
+    const FilePath addedFile = repo / "added.txt";
+    QVERIFY(addedFile.writeFileContents("staged addition\n"));
+    QVERIFY(runGit({"add", "added.txt"}));
+    auto addedDocument = QSharedPointer<TextDocument>::create();
+    addedDocument->setFilePath(addedFile);
+    QVERIFY(addedDocument->setPlainText("staged addition\n"));
+    addedDocument->document()->setModified(false);
+    TextEditorWidget addedWidget;
+    addedWidget.setTextDocument(addedDocument);
+    BlameController addedController;
+    addedController.setContext(&addedWidget, repo, {}, "added.txt", addedFile);
+    addedController.setEnabled(true);
+    QTRY_VERIFY(([&] {
+        for (const TextMark *mark : addedDocument->marks()) {
+            if (mark->lineNumber() == 1
+                && mark->toolTip().contains("No previous committed line")
+                && mark->toolTip().contains("+staged addition")) {
+                return true;
+            }
+        }
+        return false;
+    })());
 
     const QByteArray latin1Contents = "caf\xe9\ncaf\xe9 old\n";
     QVERIFY(file.writeFileContents(latin1Contents));
@@ -1181,6 +1470,8 @@ void InstantBlameTest::testBlameDocumentContents()
     latinController.schedule();
     QTRY_VERIFY(latinMarkToolTip(2).contains("-café old"));
     QVERIFY(latinMarkToolTip(2).contains("+café changed"));
+    QTRY_VERIFY(latinMarkToolTip(2).contains("latin1"));
+    QVERIFY(latinMarkToolTip(2).contains("Last committed version"));
 }
 
 void registerInstantBlameTests(ExtensionSystem::IPlugin *plugin)
