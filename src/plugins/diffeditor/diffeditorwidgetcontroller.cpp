@@ -17,6 +17,8 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textmark.h>
 
 #include <utils/infobar.h>
 #include <utils/progressindicator.h>
@@ -38,7 +40,13 @@ DiffEditorWidgetController::DiffEditorWidgetController(QWidget *diffEditorWidget
     m_timer.setSingleShot(true);
     m_timer.setInterval(100);
     connect(&m_timer, &QTimer::timeout, this, &DiffEditorWidgetController::showProgress);
+    m_lineAnnotationTimer.setSingleShot(true);
+    m_lineAnnotationTimer.setInterval(120);
+    connect(&m_lineAnnotationTimer, &QTimer::timeout,
+            this, &DiffEditorWidgetController::sendLineAnnotationRequest);
 }
+
+DiffEditorWidgetController::~DiffEditorWidgetController() = default;
 
 bool DiffEditorWidgetController::isInProgress() const
 {
@@ -220,6 +228,7 @@ void DiffEditorWidgetController::setFontSettings(const FontSettingsData &fontSet
     m_charFormat[LeftSide]  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
     m_lineFormat[RightSide] = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
     m_charFormat[RightSide] = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
+
 }
 
 void DiffEditorWidgetController::addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex)
@@ -297,6 +306,46 @@ void DiffEditorWidgetController::resolveCurrentLine(const QString &relativeFileP
     }
 
     callback(relativeFilePath, originalLine);
+}
+
+void DiffEditorWidgetController::requestLineAnnotation(TextEditorWidget *widget, int blockNumber,
+                                                       const QString &relativeFilePath,
+                                                       DiffSide side, int originalLine)
+{
+    ++m_lineAnnotationGeneration;
+    m_lineAnnotationMark.reset();
+    m_lineAnnotationTimer.stop();
+    if (!widget || originalLine <= 0 || !m_document || !m_document->controller())
+        return;
+
+    m_lineAnnotationWidget = widget;
+    m_lineAnnotationFilePath = relativeFilePath;
+    m_lineAnnotationSide = side;
+    m_lineAnnotationBlock = blockNumber;
+    m_lineAnnotationSourceLine = originalLine;
+    m_lineAnnotationTimer.start();
+}
+
+void DiffEditorWidgetController::sendLineAnnotationRequest()
+{
+    if (!m_document || !m_document->controller() || !m_lineAnnotationWidget)
+        return;
+
+    const quint64 generation = m_lineAnnotationGeneration;
+    const QPointer<TextEditorWidget> widgetGuard = m_lineAnnotationWidget;
+    const QPointer<TextDocument> textDocumentGuard = widgetGuard->textDocument();
+    const QPointer<DiffEditorWidgetController> controllerGuard(this);
+    m_document->controller()->requestLineAnnotation(
+        m_lineAnnotationFilePath, m_lineAnnotationSide, m_lineAnnotationSourceLine,
+        [controllerGuard, widgetGuard, textDocumentGuard, blockNumber = m_lineAnnotationBlock,
+         generation](const LineAnnotation &annotation) {
+            if (!controllerGuard || generation != controllerGuard->m_lineAnnotationGeneration
+                || !widgetGuard || !textDocumentGuard
+                || widgetGuard->textDocument() != textDocumentGuard || !annotation) {
+                return;
+            }
+            controllerGuard->m_lineAnnotationMark = annotation(textDocumentGuard, blockNumber + 1);
+        });
 }
 
 void DiffEditorWidgetController::updateCannotDecodeInfo()

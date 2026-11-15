@@ -12,12 +12,19 @@
 #include <QTextCharFormat>
 #include <QTimer>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QTextDocument;
 QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
-namespace TextEditor { class FontSettingsData; }
+namespace TextEditor {
+class FontSettingsData;
+class TextEditorWidget;
+class TextMark;
+}
 namespace Utils { class ProgressIndicator; }
 
 namespace DiffEditor {
@@ -33,6 +40,7 @@ class DiffEditorWidgetController : public QObject
     Q_OBJECT
 public:
     explicit DiffEditorWidgetController(QWidget *diffEditorWidget);
+    ~DiffEditorWidgetController() override;
 
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *document() const;
@@ -45,6 +53,8 @@ public:
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
     void resolveCurrentLine(const QString &relativeFilePath, int originalLine,
                             const std::function<void(const QString &, int)> &callback);
+    void requestLineAnnotation(TextEditor::TextEditorWidget *widget, int blockNumber,
+                               const QString &relativeFilePath, DiffSide side, int originalLine);
     void updateCannotDecodeInfo();
     void setBusyShowing(bool busy);
     void setCurrentDiffFileIndex(int index) { m_currentDiffFileIndex = index; }
@@ -63,6 +73,7 @@ public:
 
 private:
     bool isInProgress() const;
+    void sendLineAnnotationRequest();
     void toggleProgress(bool wasInProgress);
 
     void patch(Core::PatchAction patchAction, int fileIndex, int chunkIndex);
@@ -83,6 +94,14 @@ private:
     int m_currentDiffFileIndex = -1;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QTimer m_timer;
+    QTimer m_lineAnnotationTimer;
+    quint64 m_lineAnnotationGeneration = 0;
+    std::unique_ptr<TextEditor::TextMark> m_lineAnnotationMark;
+    QPointer<TextEditor::TextEditorWidget> m_lineAnnotationWidget;
+    QString m_lineAnnotationFilePath;
+    DiffSide m_lineAnnotationSide = RightSide;
+    int m_lineAnnotationBlock = -1;
+    int m_lineAnnotationSourceLine = -1;
 };
 
 class DiffEditorInput

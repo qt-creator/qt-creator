@@ -5,6 +5,8 @@
 
 #include "gitclient.h"
 
+#include <diffeditor/diffeditorcontroller.h>
+
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
@@ -23,6 +25,11 @@ namespace ExtensionSystem { class IPlugin; }
 namespace Git::Internal {
 
 class BlameController;
+
+QStringList instantBlameArguments(const QString &filePath, const QString &ref, int line);
+DiffEditor::LineAnnotation instantBlameAnnotation(const QString &output,
+                                                  const Utils::FilePath &topLevel,
+                                                  const Utils::FilePath &filePath, int line);
 
 // Shows blame annotations at a fixed revision for the line under the cursor
 // of an editor widget whose document contains that revision of the file, for

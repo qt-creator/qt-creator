@@ -100,6 +100,22 @@ void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
         return;
 
     const int fileIndex = m_data.fileIndexForBlockNumber(textCursor().blockNumber());
+    const int blockNumber = textCursor().blockNumber();
+    const DiffFileInfoArray *fileInfo = m_data.fileInfoForBlockNumber(blockNumber);
+    QString filePath;
+    DiffSide side = RightSide;
+    int sourceLine = -1;
+    if (fileInfo) {
+        sourceLine = m_data.m_lineNumbers[side].value(blockNumber, {-1, -1}).first;
+        if (sourceLine < 0) {
+            side = LeftSide;
+            sourceLine = m_data.m_lineNumbers[side].value(blockNumber, {-1, -1}).first;
+        }
+        if (sourceLine > 0)
+            filePath = (*fileInfo)[side].fileName;
+    }
+    m_controller.requestLineAnnotation(this, blockNumber, filePath, side, sourceLine);
+
     if (fileIndex < 0)
         return;
 
@@ -265,6 +281,14 @@ int UnifiedDiffData::fileIndexForBlockNumber(int blockNumber) const
             break;
     }
     return i;
+}
+
+const DiffFileInfoArray *UnifiedDiffData::fileInfoForBlockNumber(int blockNumber) const
+{
+    auto it = m_fileInfo.upperBound(blockNumber);
+    if (it == m_fileInfo.cbegin())
+        return nullptr;
+    return &std::prev(it).value();
 }
 
 void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk)
@@ -500,8 +524,9 @@ void UnifiedDiffEditorWidget::showDiff()
         if (promise.isCanceled())
             return;
 
-        const UnifiedShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
-                                   output.diffData, output.selections};
+        const UnifiedShowResult result = {
+            TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
+            output.diffData, output.selections};
         // No need to store the change history
         result.textDocument->document()->setUndoRedoEnabled(false);
 

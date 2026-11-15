@@ -78,6 +78,8 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <QtTaskTree/QBarrier>
+
 #include <QAbstractButton>
 #include <QAction>
 #include <QApplication>
@@ -2511,6 +2513,7 @@ private slots:
     void testBranchModelCheckoutSelection_data();
     void testBranchModelCheckoutSelection();
     void testWorkingDirectoryForShow();
+    void testDiffEditorBlameAnnotation();
     void testFileLinkResolution();
     void testFileLinkContextMenu();
     void testRevisionFilenameCollision();
@@ -3825,6 +3828,183 @@ void GitTest::testRevisionFilenameCollision()
     QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
     QVERIFY(parser.handleVcsLink(repository, filename));
     QVERIFY(!Core::DocumentModel::documentForFilePath(collidingFile));
+}
+
+void GitTest::testDiffEditorBlameAnnotation()
+{
+    QTemporaryDir temporaryDir;
+    QVERIFY(temporaryDir.isValid());
+    const FilePath repository = FilePath::fromString(temporaryDir.path()).canonicalPath();
+    const auto runGit = [&repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(runGit({"init", "."}));
+    QVERIFY(runGit({"config", "user.name", "Blame Tester"}));
+    QVERIFY(runGit({"config", "user.email", "blame@test"}));
+    QVERIFY(runGit({"config", "commit.gpgsign", "false"}));
+    const FilePath sourceFile = repository / "source.cpp";
+    QVERIFY(sourceFile.writeFileContents("old line\n"));
+    QVERIFY(runGit({"add", "source.cpp"}));
+    QVERIFY(runGit({"commit", "-m", "Initial line"}));
+    QVERIFY(sourceFile.writeFileContents("new line\n"));
+    QVERIFY(runGit({"add", "source.cpp"}));
+    QVERIFY(runGit({"commit", "-m", "Changed line"}));
+    const QString revision = gitClient().vcsSynchronousExec(repository, {"rev-parse", "HEAD"})
+                                 .cleanedStdOut().trimmed();
+    QVERIFY(!revision.isEmpty());
+
+    const bool previousInstantBlame = settings().instantBlame();
+    const bool previousShowSubject = settings().instantBlameShowSubject();
+    const QScopeGuard restoreSettings([previousInstantBlame, previousShowSubject] {
+        settings().instantBlame.setValue(previousInstantBlame);
+        settings().instantBlameShowSubject.setValue(previousShowSubject);
+    });
+    settings().instantBlame.setValue(true);
+    settings().instantBlameShowSubject.setValue(true);
+    struct QueueBlocker {
+        QPointer<QBarrier> barrier;
+        bool canceled = false;
+    };
+    const auto blocker = std::make_shared<QueueBlocker>();
+    const QScopeGuard unblockQueue([blocker] {
+        blocker->canceled = true;
+        if (blocker->barrier)
+            blocker->barrier->stopWithResult(DoneResult::Success);
+    });
+    gitClient().enqueueTask(QBarrierTask([blocker](QBarrier &barrier) {
+        if (blocker->canceled)
+            return SetupResult::StopWithSuccess;
+        blocker->barrier = &barrier;
+        return SetupResult::Continue;
+    }));
+    QTRY_VERIFY(blocker->barrier && blocker->barrier->isRunning());
+    gitClient().show(repository, revision);
+
+    QPointer<IDocument> openDiffDocument;
+    const QScopeGuard closeDiffDocument([&openDiffDocument] {
+        if (openDiffDocument)
+            EditorManager::closeDocuments({openDiffDocument.data()}, false);
+    });
+
+    IEditor *editor = nullptr;
+    QTRY_VERIFY(([&] {
+        editor = EditorManager::currentEditor();
+        return editor && editor->document()
+               && editor->document()->displayName().startsWith("Git Show");
+    })());
+    openDiffDocument = editor->document();
+
+    TextEditorWidget *sourceWidget = nullptr;
+    QTextBlock changedLine;
+    QTRY_VERIFY(([&] {
+        for (TextEditorWidget *widget : editor->widget()->findChildren<TextEditorWidget *>()) {
+            for (QTextBlock block = widget->document()->begin(); block.isValid();
+                 block = block.next()) {
+                if (block.text() == "+new line" || block.text() == "new line") {
+                    sourceWidget = widget;
+                    changedLine = block;
+                    return true;
+                }
+            }
+        }
+        return false;
+    })());
+    sourceWidget->setTextCursor(QTextCursor(changedLine));
+
+    QTRY_VERIFY(([&] {
+        for (TextMark *mark : sourceWidget->textDocument()->marks()) {
+            if (mark->category().id == Id(Constants::TEXT_MARK_CATEGORY_BLAME)
+                && mark->lineAnnotation().contains("Blame Tester")
+                && mark->lineAnnotation().contains("Changed line")
+                && mark->toolTip().contains("Changed line")
+                && mark->toolTip().contains("blameParent")
+                && mark->toolTip().contains(revision.left(8))) {
+                return true;
+            }
+        }
+        return false;
+    })());
+
+    TextEditorWidget *oldWidget = nullptr;
+    QTextBlock oldLine;
+    QTRY_VERIFY(([&] {
+        for (TextEditorWidget *widget : editor->widget()->findChildren<TextEditorWidget *>()) {
+            for (QTextBlock block = widget->document()->begin(); block.isValid();
+                 block = block.next()) {
+                if (block.text() == "-old line" || block.text() == "old line") {
+                    oldWidget = widget;
+                    oldLine = block;
+                    return true;
+                }
+            }
+        }
+        return false;
+    })());
+    oldWidget->setTextCursor(QTextCursor(oldLine));
+    QTRY_VERIFY(([&] {
+        for (TextMark *mark : oldWidget->textDocument()->marks()) {
+            if (mark->category().id == Id(Constants::TEXT_MARK_CATEGORY_BLAME)
+                && mark->lineAnnotation().contains("Blame Tester")
+                && mark->lineAnnotation().contains("Initial line")
+                && mark->toolTip().contains("Initial line")
+                && mark->toolTip().contains("blameParent")) {
+                return true;
+            }
+        }
+        return false;
+    })());
+    QVERIFY(blocker->barrier && blocker->barrier->isRunning());
+    blocker->barrier->stopWithResult(DoneResult::Success);
+    QTRY_VERIFY(!blocker->barrier);
+    QVERIFY(EditorManager::closeDocuments({editor->document()}, false));
+    openDiffDocument = nullptr;
+
+    const QString currentBranch = gitClient().vcsSynchronousExec(repository,
+        {"symbolic-ref", "--short", "HEAD"}).cleanedStdOut().trimmed();
+    QVERIFY(runGit({"checkout", "-b", "conflicting", "HEAD^"}));
+    QVERIFY(sourceFile.writeFileContents("incoming line\n"));
+    QVERIFY(runGit({"commit", "-am", "Incoming change"}));
+    QVERIFY(runGit({"checkout", currentBranch}));
+    QVERIFY(!runGit({"merge", "conflicting"}));
+    QVERIFY((repository / ".git/MERGE_HEAD").exists());
+    QVERIFY(sourceFile.writeFileContents("working tree line\n"));
+    gitClient().diffFile(repository, "source.cpp");
+    editor = nullptr;
+    QTRY_VERIFY(([&] {
+        editor = EditorManager::currentEditor();
+        return editor && editor->document()
+               && editor->document()->displayName().startsWith("Git Diff");
+    })());
+    openDiffDocument = editor->document();
+
+    TextEditorWidget *workingTreeWidget = nullptr;
+    QTextBlock workingTreeLine;
+    QTRY_VERIFY(([&] {
+        for (TextEditorWidget *widget : editor->widget()->findChildren<TextEditorWidget *>()) {
+            for (QTextBlock block = widget->document()->begin(); block.isValid();
+                 block = block.next()) {
+                if (block.text() == "+working tree line" || block.text() == "working tree line") {
+                    workingTreeWidget = widget;
+                    workingTreeLine = block;
+                    return true;
+                }
+            }
+        }
+        return false;
+    })());
+    workingTreeWidget->setTextCursor(QTextCursor(workingTreeLine));
+    QTRY_VERIFY(([&] {
+        for (TextMark *mark : workingTreeWidget->textDocument()->marks()) {
+            if (mark->category().id == Id(Constants::TEXT_MARK_CATEGORY_BLAME)
+                && mark->lineAnnotation().contains("Not Committed Yet")) {
+                return true;
+            }
+        }
+        return false;
+    })());
+    QVERIFY(EditorManager::closeDocuments({editor->document()}, false));
+    openDiffDocument = nullptr;
 }
 
 void GitTest::testFileLinkResolution()

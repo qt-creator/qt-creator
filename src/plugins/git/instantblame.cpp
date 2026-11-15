@@ -582,6 +582,25 @@ static QStringList blameCommandArguments(const QString &filePath,
     return arguments;
 }
 
+QStringList instantBlameArguments(const QString &filePath, const QString &ref, int line)
+{
+    return blameCommandArguments(filePath, ref, line, settings().instantBlameIgnoreSpaceChanges(),
+                                 settings().instantBlameIgnoreLineMoves(), false);
+}
+
+DiffEditor::LineAnnotation instantBlameAnnotation(const QString &output,
+                                                  const FilePath &topLevel,
+                                                  const FilePath &filePath, int line)
+{
+    CommitInfo info = parseBlameOutput(output.split('\n'), filePath, line, {});
+    if (info.hash.isEmpty())
+        return {};
+    info.topLevel = topLevel;
+    return [info](TextDocument *document, int displayLine) {
+        return std::make_unique<BlameMark>(document, displayLine, info);
+    };
+}
+
 void InstantBlame::once()
 {
     if (settings().instantBlame()) {

@@ -57,6 +57,7 @@ public:
     bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
+    const DiffFileInfo *fileInfoForBlockNumber(int blockNumber) const;
 
     void setLineNumber(int blockNumber, int lineNumber);
     void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);

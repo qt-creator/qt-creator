@@ -195,7 +195,51 @@ protected:
     DiffEditor::DescriptionEditorProvider descriptionEditorProvider() const final;
     QStringList addConfigurationArguments(const QStringList &args) const;
 
+    virtual QString revisionForSide(DiffSide side) const
+    {
+        Q_UNUSED(side)
+        return {};
+    }
+
+    virtual bool usesWorkingTreeForSide(DiffSide side) const
+    {
+        Q_UNUSED(side)
+        return false;
+    }
+
+    void requestLineAnnotation(const QString &relativeFilePath, DiffSide side, int originalLine,
+                               const DiffEditor::AnnotationCallback &callback) final
+    {
+        m_annotationRunner.reset();
+        if (!settings().instantBlame() || relativeFilePath.isEmpty() || originalLine <= 0) {
+            callback({});
+            return;
+        }
+        const QString revision = revisionForSide(side);
+        if (revision.isEmpty() && !usesWorkingTreeForSide(side)) {
+            callback({});
+            return;
+        }
+        const QStringList arguments = instantBlameArguments(relativeFilePath, revision, originalLine);
+        const FilePath topLevel = workingDirectory();
+        const FilePath filePath = topLevel / relativeFilePath;
+        m_annotationRunner.start({gitClient().commandTask({
+            .workingDirectory = workingDirectory(),
+            .arguments = arguments,
+            .flags = RunFlag::SuppressCommandLogging,
+            .commandHandler = [callback, topLevel, filePath, originalLine](const CommandResult &result) {
+                if (result.result() != ProcessResult::FinishedWithSuccess) {
+                    callback({});
+                    return;
+                }
+                callback(instantBlameAnnotation(result.cleanedStdOut(), topLevel, filePath,
+                                                originalLine));
+            }})});
+    }
+
 private:
+    QSingleTaskTreeRunner m_annotationRunner;
+
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
                          const ChunkSelection &selection) final
     {
@@ -248,8 +292,18 @@ public:
                                      const QString &rightCommit,
                                      const QStringList &extraArgs);
 private:
+    QString revisionForSide(DiffSide side) const override
+    {
+        return side == LeftSide ? m_effectiveLeftCommit : m_effectiveRightCommit;
+    }
+
+    bool usesWorkingTreeForSide(DiffSide side) const override
+    {
+        return side == RightSide && m_rightIsWorkingTree;
+    }
+
     QStringList diffArgs(const QString &leftCommit, const QString &rightCommit,
-                         const QStringList &extraArgs) const
+                         const QStringList &extraArgs)
     {
         QStringList res = {"diff"};
         if (!leftCommit.isEmpty())
@@ -265,13 +319,24 @@ private:
                 return QString();
             return QString(HEAD);
         };
-        const QString fixedRightCommit = fixRightCommit(rightCommit);
-        if (!fixedRightCommit.isEmpty())
-            res << fixedRightCommit;
+        m_effectiveRightCommit = fixRightCommit(rightCommit);
+        if (!m_effectiveRightCommit.isEmpty())
+            res << m_effectiveRightCommit;
+        m_effectiveLeftCommit = leftCommit;
+        if (leftCommit.isEmpty()) {
+            m_effectiveLeftCommit = m_effectiveRightCommit;
+            m_effectiveRightCommit.clear();
+        }
+        m_rightIsWorkingTree = m_effectiveRightCommit.isEmpty()
+                               && !extraArgs.contains("--cached");
 
         res << extraArgs;
         return res;
     }
+
+    QString m_effectiveLeftCommit;
+    QString m_effectiveRightCommit;
+    bool m_rightIsWorkingTree = false;
 };
 
 GitDiffEditorController::GitDiffEditorController(IDocument *document,
@@ -280,6 +345,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
                                                  const QStringList &extraArgs)
     : GitBaseDiffEditorController(document)
 {
+    m_effectiveLeftCommit = leftCommit;
     const Storage<QString> diffInputStorage;
 
     const auto onDiffSetup = [this, leftCommit, rightCommit, extraArgs](Process &process) {
@@ -446,6 +512,13 @@ public:
     ShowController(IDocument *document, const QString &id);
 
 private:
+    QString revisionForSide(DiffSide side) const override
+    {
+        if (side == RightSide)
+            return m_id;
+        return m_id + '^';
+    }
+
     void resolveCurrentLine(const QString &filePath,
                             int originalLineNumber,
                             const std::function<void(const QString &, int)> &callback) override

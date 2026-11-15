@@ -43,6 +43,7 @@ public:
 
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
+    const DiffFileInfoArray *fileInfoForBlockNumber(int blockNumber) const;
 
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                      bool lastChunk, int *blockNumber, DiffSelections *selections);

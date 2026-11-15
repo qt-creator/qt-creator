@@ -14,6 +14,7 @@
 #include <QObject>
 
 #include <functional>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QMenu;
@@ -22,6 +23,10 @@ QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
 namespace Utils { class FilePath; }
+namespace TextEditor {
+class TextDocument;
+class TextMark;
+}
 
 namespace DiffEditor {
 
@@ -31,6 +36,10 @@ class DiffEditorWidgetController;
 }
 
 class ChunkSelection;
+
+using LineAnnotation = std::function<std::unique_ptr<TextEditor::TextMark>(
+    TextEditor::TextDocument *, int)>;
+using AnnotationCallback = std::function<void(const LineAnnotation &)>;
 
 struct DescriptionEditorProvider
 {
@@ -92,6 +101,9 @@ private:
     virtual void resolveCurrentLine(const QString &relativeFilePath,
                                     int originalLine,
                                     const std::function<void(const QString &, int)> &callback);
+    virtual void requestLineAnnotation(const QString &relativeFilePath, DiffSide side,
+                                       int originalLine,
+                                       const AnnotationCallback &callback);
 
     Internal::DiffEditorDocument *const m_document;
     QString m_displayName;

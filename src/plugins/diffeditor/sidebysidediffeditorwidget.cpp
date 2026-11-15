@@ -414,6 +414,14 @@ int SideDiffData::fileIndexForBlockNumber(int blockNumber) const
     return i;
 }
 
+const DiffFileInfo *SideDiffData::fileInfoForBlockNumber(int blockNumber) const
+{
+    auto it = m_fileInfo.upperBound(blockNumber);
+    if (it == m_fileInfo.cbegin())
+        return nullptr;
+    return &std::prev(it).value();
+}
+
 void SideDiffEditorWidget::clearAll(const QString &message)
 {
     clear();
@@ -1100,6 +1108,13 @@ void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *sour
         return;
 
     const int fileIndex = source->diffData().fileIndexForBlockNumber(source->textCursor().blockNumber());
+    const int blockNumber = source->textCursor().blockNumber();
+    const DiffFileInfo *fileInfo = source->diffData().fileInfoForBlockNumber(blockNumber);
+    const int sourceLine = source->diffData().m_lineNumbers.value(blockNumber, -1);
+    const DiffSide side = source == m_editor[LeftSide] ? LeftSide : RightSide;
+    const QString filePath = fileInfo && sourceLine > 0 ? fileInfo->fileName : QString();
+    m_controller.requestLineAnnotation(source, blockNumber, filePath, side, sourceLine);
+
     if (fileIndex < 0)
         return;
 

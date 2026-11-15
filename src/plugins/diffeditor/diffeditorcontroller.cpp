@@ -152,6 +152,16 @@ void DiffEditorController::resolveCurrentLine(const QString &relativeFilePath,
     callback(relativeFilePath, originalLine);
 }
 
+void DiffEditorController::requestLineAnnotation(
+    const QString &relativeFilePath, DiffSide side, int originalLine,
+    const AnnotationCallback &callback)
+{
+    Q_UNUSED(relativeFilePath)
+    Q_UNUSED(side)
+    Q_UNUSED(originalLine)
+    callback({});
+}
+
 void DiffEditorController::setStartupFile(const QString &startupFile)
 {
     m_document->setStartupFile(startupFile);

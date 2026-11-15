@@ -29,6 +29,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -670,6 +671,7 @@ private slots:
     void testRangeComparisonWithoutSourceJump();
     void testUnifiedRangeComparisonFallsBackToJumpableSide();
     void testDiffFileInfoSourceColumn();
+    void testLineAnnotationMapping();
     void testInlineDiff();
     void testInlineDiffCollapse();
     void testInlineDiffCollapseAddedLines();
@@ -2967,6 +2969,93 @@ void DiffEditor::Internal::DiffEditorPlugin::testDiffFileInfoSourceColumn()
     QCOMPARE(info.sourceColumn(5, 3).value_or(-1), 11);
     QCOMPARE(info.sourceColumn(5, -1).value_or(-1), 8);
     QCOMPARE(info.sourceColumn(6, 3).value_or(-1), 3);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testLineAnnotationMapping()
+{
+    class AnnotationController final : public DiffEditorController
+    {
+    public:
+        using DiffEditorController::DiffEditorController;
+
+        QString requestedFile;
+        DiffSide requestedSide = LeftSide;
+        int requestedLine = -1;
+
+        void requestLineAnnotation(const QString &fileName, DiffSide side, int line,
+                                   const AnnotationCallback &callback) override
+        {
+            requestedFile = fileName;
+            requestedSide = side;
+            requestedLine = line;
+            callback([](TextDocument *document, int displayLine) {
+                auto mark = std::make_unique<TextMark>(
+                    document, displayLine,
+                    TextMarkCategory{"Test annotation", Id("DiffEditor.LineAnnotation")});
+                mark->setLineAnnotation("Test annotation");
+                return mark;
+            });
+        }
+    };
+
+    FileData fileData;
+    fileData.fileInfo[LeftSide].fileName = "old.cpp";
+    fileData.fileInfo[RightSide].fileName = "new.cpp";
+    ChunkData chunk;
+    chunk.startingLineNumber = {9, 19};
+    chunk.rows = {RowData(TextLineData("old text"), TextLineData("new text"))};
+    fileData.chunks = {chunk};
+    DiffEditorDocument document;
+    auto *controller = new AnnotationController(&document);
+
+    for (const bool unified : {false, true}) {
+        std::unique_ptr<QWidget> view;
+        if (unified) {
+            auto *widget = new UnifiedDiffEditorWidget;
+            widget->setDocument(&document);
+            widget->setDiff({fileData});
+            view.reset(widget);
+        } else {
+            auto *widget = new SideBySideDiffEditorWidget;
+            widget->setDocument(&document);
+            widget->setDiff({fileData});
+            view.reset(widget);
+        }
+
+        TextEditorWidget *editor = nullptr;
+        QTextBlock changedLine;
+        QTRY_VERIFY(([&] {
+            QList<TextEditorWidget *> editors = view->findChildren<TextEditorWidget *>();
+            if (auto *widget = qobject_cast<TextEditorWidget *>(view.get()))
+                editors.append(widget);
+            for (TextEditorWidget *candidate : editors) {
+                for (QTextBlock block = candidate->document()->begin(); block.isValid();
+                     block = block.next()) {
+                    if (block.text() == (unified ? "+new text" : "new text")) {
+                        editor = candidate;
+                        changedLine = block;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        })());
+
+        editor->setTextCursor(QTextCursor(changedLine));
+        const auto hasAnnotation = [&] {
+            return Utils::anyOf(editor->textDocument()->marks(), [](const TextMark *mark) {
+                return mark->category().id == Id("DiffEditor.LineAnnotation")
+                       && mark->lineAnnotation() == "Test annotation";
+            });
+        };
+        QTRY_VERIFY(hasAnnotation());
+        QCOMPARE(controller->requestedFile, QString("new.cpp"));
+        QCOMPARE(controller->requestedSide, RightSide);
+        QCOMPARE(controller->requestedLine, 20);
+
+        editor->setTextCursor(QTextCursor(editor->document()->firstBlock()));
+        QVERIFY(!hasAnnotation());
+    }
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testSelectionRangeReloadBeforeCompare()
