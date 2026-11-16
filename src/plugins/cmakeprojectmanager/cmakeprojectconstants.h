@@ -36,6 +36,7 @@ inline constexpr char CMAKE_PROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 
 inline constexpr char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
 inline constexpr char CMAKE_IMPORTED_BUILD[] = "CMake.Imported";
+inline constexpr char CMAKE_BUILD_CONFIGURATION_NAME[] = "CMake.BuildConfigurationName";
 
 // Menu
 inline constexpr char M_CONTEXT[] = "CMakeEditor.ContextMenu";

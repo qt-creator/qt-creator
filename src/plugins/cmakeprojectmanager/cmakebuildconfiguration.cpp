@@ -770,6 +770,8 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 
     m_buildConfig->initialCMakeArguments.setCMakeConfiguration(
         CMakeBuildConfiguration::updateCMakeHelperConfig(initialList));
+    // A name with %{CMake:Config:...} can change with it
+    emit m_buildConfig->displayNameChanged();
 
     if (fromReconfigure) {
         // value() will contain only the unknown arguments (the non -D/-U arguments)
@@ -1655,6 +1657,25 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             return QLatin1String("OFF");
         });
 
+    // E.g. for a build configuration that is named after a variable, which a clone of it
+    // changes in its configuration
+    macroExpander()->registerPrefix(
+        "CMake:Config:",
+        "CMAKE_BUILD_TYPE",
+        Tr::tr("The value of a CMake variable in the current configuration, or in the initial "
+               "configuration until the build directory is configured."),
+        [this](const QString &variable) {
+            const QByteArray key = variable.toUtf8();
+            if (const CMakeBuildSystem * const bs = cmakeBuildSystem()) {
+                const CMakeConfig current = bs->configurationFromCMake();
+                if (current.contains(key))
+                    return current.stringValueOf(key);
+            }
+            return initialCMakeArguments.cmakeConfiguration().stringValueOf(key);
+        });
+    connect(buildSystem(), &BuildSystem::parsingFinished,
+            this, &ProjectConfiguration::displayNameChanged);
+
     setInitialBuildAndCleanSteps();
 
     setInitializer([this](const BuildInfo &info) {
@@ -1764,6 +1785,14 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         if (extraInfoMap.contains(Constants::CMAKE_IMPORTED_BUILD))
             setExtraData(Constants::CMAKE_IMPORTED_BUILD, true);
+
+        // The info's name has the values of the import, for the setup page. Keep the macros.
+        const QString name
+            = extraInfoMap.value(Constants::CMAKE_BUILD_CONFIGURATION_NAME).toString();
+        if (!name.isEmpty()) {
+            setDisplayName(name);
+            setDefaultDisplayName(name);
+        }
 
         const BuildPropertiesSettings &settings = buildPropertiesSettings();
         const TriState qmlDebuggingFromBuildInfo
@@ -1976,6 +2005,7 @@ void CMakeBuildConfiguration::setInitialCMakeArguments(const QStringList &args)
 {
     QStringList additionalArguments;
     initialCMakeArguments.setAllValues(args.join('\n'), additionalArguments);
+    emit displayNameChanged();
 
     // Set the unknown additional arguments also for the "Current Configuration"
     setAdditionalCMakeArguments(additionalArguments);

@@ -46,6 +46,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -192,6 +193,7 @@ struct DirectoryData
     QString cmakePresetDisplayname;
     QString cmakePreset;
     QString cmakePresetBuildName;
+    QString cmakePresetBuildDisplayName; // The name, with the preset's cache variables
 
     // Kit Stuff
     FilePath cmakeBinary;
@@ -1107,6 +1109,15 @@ static SetupResult setupCompilerProcess(Process &process, InternalStorage &stora
     CMakePresets::Macros::updateCacheVariables(configurePreset, env, projectDirectory);
 
     cache = configurePreset.cacheVariables.value_or(CMakeConfig());
+
+    // There is no build configuration yet to give the CMake:Config macro its values
+    MacroExpander buildNameExpander;
+    buildNameExpander.registerPrefix(
+        "CMake:Config:", "CMAKE_BUILD_TYPE", {}, [&cache](const QString &variable) {
+            return cache.stringValueOf(variable.toUtf8());
+        });
+    data.cmakePresetBuildDisplayName = buildNameExpander.expand(data.cmakePresetBuildName);
+
     const bool noCompilersInCache = cache.valueOf("CMAKE_C_COMPILER").isEmpty()
                              && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty();
     bool vendorCompilersProvided = false;
@@ -1680,8 +1691,10 @@ void CMakeProjectImporter::createKitsFromPresets()
             DirectoryData newData(data);
             newData.cmakeBuildType = buildType;
             // One name cannot tell several build types apart
-            if (buildConfigurationTypes.size() > 1)
+            if (buildConfigurationTypes.size() > 1) {
                 newData.cmakePresetBuildName.clear();
+                newData.cmakePresetBuildDisplayName.clear();
+            }
 
             // Handle QML Debugging
             auto type = CMakeBuildConfigurationFactory::buildTypeFromByteArray(
@@ -2210,7 +2223,7 @@ BuildInfo CMakeProjectImporter::buildInfo(void *directoryData) const
     if (!data->cmakePreset.isEmpty() && info.buildType == BuildConfiguration::Unknown)
         info.typeName = info.displayName = QString::fromUtf8(data->cmakeBuildType);
     if (!data->cmakePresetBuildName.isEmpty())
-        info.displayName = data->cmakePresetBuildName;
+        info.displayName = data->cmakePresetBuildDisplayName;
 
     info.buildDirectory = data->buildDirectory;
     info.buildSystemName = CMakeBuildSystem::name();
@@ -2227,6 +2240,8 @@ BuildInfo CMakeProjectImporter::buildInfo(void *directoryData) const
         config["hideImportedSuffix"] = true;
     else
         config[Constants::CMAKE_IMPORTED_BUILD] = true;
+    if (data->cmakePresetBuildDisplayName != data->cmakePresetBuildName)
+        config[Constants::CMAKE_BUILD_CONFIGURATION_NAME] = data->cmakePresetBuildName;
 
     info.extraInfo = config;
 
@@ -2250,6 +2265,7 @@ void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 
 #include <utils/detailswidget.h>
 
+#include <QCheckBox>
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
@@ -2276,6 +2292,8 @@ private slots:
     void testSetupPageSelectsTheKitsOfTheVendorKey();
     void testSetupPageSelectsTheKitsOfReloadedPresets_data();
     void testSetupPageSelectsTheKitsOfReloadedPresets();
+    void testPresetBuildConfigurationIsNoImport();
+    void testBuildConfigurationNameFollowsAVariable();
     void testUnusablePresetsLeaveTheOtherKits();
     void testSetupPagePrefersPresetKits();
     void testQtFromFilesIsFoundByPrefixPath();
@@ -2886,6 +2904,123 @@ void CMakeProjectImporterTest::testSetupPageSelectsTheKitsOfReloadedPresets()
     QCOMPARE(Utils::toSet(selected), Utils::toSet(selectedBefore));
     QCOMPARE(selected.size(), selectedByDefault ? 2 : 1);
     QVERIFY2(project.presetKitIds().contains(selected.first()), "A preset kit is selected.");
+}
+
+void CMakeProjectImporterTest::testPresetBuildConfigurationIsNoImport()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-build-name");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "preset",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++",
+                    "CMAKE_BUILD_TYPE": "Debug"
+                },
+                "vendor": {
+                    "qt.io/QtCreator/1.0": {
+                        "buildConfigurationName": "plain"
+                    }
+                }
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const auto deregisterKits = qScopeGuard([&project] { deregisterPresetKits(project); });
+    const QList<Id> presetKitIds = project.presetKitIds();
+    QCOMPARE(presetKitIds.size(), 1);
+    Kit * const kit = KitManager::kit(presetKitIds.first());
+    QVERIFY(kit);
+
+    Target * const target = project.addTargetForKit(kit);
+    QVERIFY(target);
+    const auto removeTarget = qScopeGuard([&project, target] { project.removeTarget(target); });
+    BuildConfiguration * const bc = target->activeBuildConfiguration();
+    QVERIFY(bc);
+    QCOMPARE(bc->displayName(), QString("plain"));
+    // An imported build keeps the settings of the build page out of its configuration
+    QVERIFY(!bc->extraData(Constants::CMAKE_IMPORTED_BUILD).toBool());
+}
+
+void CMakeProjectImporterTest::testBuildConfigurationNameFollowsAVariable()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-build-name-variable");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "board",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++",
+                    "CMAKE_BUILD_TYPE": "Debug",
+                    "BOARD": "M4000"
+                },
+                "vendor": {
+                    "qt.io/QtCreator/1.0": {
+                        "buildConfigurationName": "board-%{CMake:Config:BOARD}"
+                    }
+                }
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const auto deregisterKits = qScopeGuard([&project] { deregisterPresetKits(project); });
+    const QList<Id> presetKitIds = project.presetKitIds();
+    QCOMPARE(presetKitIds.size(), 1);
+    Kit * const kit = KitManager::kit(presetKitIds.first());
+    QVERIFY(kit);
+
+    {
+        TargetSetupPage page;
+        page.setProjectAndPath(&project, project.projectFilePath());
+        page.initializePage();
+        const QStringList buildNames = Utils::transform(page.findChildren<QCheckBox *>(),
+                                                        &QCheckBox::text);
+        QVERIFY2(buildNames.contains("board-M4000"), qPrintable(buildNames.join(", ")));
+    }
+
+    Target * const target = project.addTargetForKit(kit);
+    QVERIFY(target);
+    const auto removeTarget = qScopeGuard([&project, target] { project.removeTarget(target); });
+    auto bc = qobject_cast<CMakeBuildConfiguration *>(target->activeBuildConfiguration());
+    QVERIFY(bc);
+
+    // Nothing is configured yet (that needs the event loop), so the initial configuration counts
+    QCOMPARE(bc->displayName(), QString("board-%{CMake:Config:BOARD}"));
+    QCOMPARE(bc->expandedDisplayName(), QString("board-M4000"));
+
+    // What a clone that is set to another board does
+    int nameChanges = 0;
+    QObject receiver; // Disconnects before nameChanges goes away
+    connect(bc, &ProjectConfiguration::displayNameChanged, &receiver, [&nameChanges] {
+        ++nameChanges;
+    });
+    bc->setInitialCMakeArguments({"-DBOARD:STRING=HostedTP"});
+    QCOMPARE(bc->expandedDisplayName(), QString("board-HostedTP"));
+    QVERIFY2(nameChanges > 0, "The lists that show the name learn about the new one.");
 }
 
 void CMakeProjectImporterTest::testUnusablePresetsLeaveTheOtherKits()

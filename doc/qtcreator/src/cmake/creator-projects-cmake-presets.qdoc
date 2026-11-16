@@ -419,8 +419,10 @@
         \li \c {buildConfigurationName}
         \li Names the build configuration created from the preset, instead of
             its build type. Supports the CMake preset macros, such as
-            \c {${presetName}}. Applies only to a preset that sets a single
-            \c CMAKE_BUILD_TYPE.
+            \c {${presetName}}, and \c {%{CMake:Config:<variable>}}, which
+            shows the value of a CMake variable in the displayed name, such as
+            \c {%{CMake:Config:BOARD}}. Applies only to a preset that sets a
+            single \c CMAKE_BUILD_TYPE.
         \li \l{CMake presets}
     \endtable
 
