@@ -31,6 +31,7 @@ IosSimulator::IosSimulator(Id id)
     setDefaultDisplayName(Tr::tr("iOS Simulator"));
     setDisplayType(Tr::tr("iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
+    freePortsAspect.setDefaultValue("10000-10100");
 }
 
 IosSimulator::IosSimulator()
