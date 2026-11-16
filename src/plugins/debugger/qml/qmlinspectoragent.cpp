@@ -12,6 +12,7 @@
 #include <debugger/watchhandler.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -25,6 +26,8 @@
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QRegularExpression>
+
+#include <algorithm>
 
 using namespace QmlDebug;
 using namespace Utils;
@@ -147,6 +150,10 @@ void QmlInspectorAgent::updateWatchData(const WatchItem &data)
         // objects
         m_fetchDataIds << data.id;
         fetchObject(data.id);
+    } else if (data.id == WatchItem::InvalidId) {
+        const int engine = engineId(&data);
+        if (engine != WatchItem::InvalidId && data.iname == parentlessIName(engine))
+            fetchParentlessObjects(engine);
     }
 }
 
@@ -278,10 +285,24 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
         m_delegateQueryIds.erase(it);
         const ObjectReference object = qvariant_cast<ObjectReference>(value);
         // The application answers with nothing for an object it has destroyed.
-        if (object.isValid())
-            verifyAndInsertObjectInTree(object, m_knownDelegateIds.value(debugId, -1));
-        else
+        if (!object.isValid()) {
             m_knownDelegateIds.remove(debugId);
+        } else {
+            WatchHandler *handler = m_qmlEngine->watchHandler();
+            const QString parentless
+                = parentlessIName(m_knownDelegateIds.value(debugId, WatchItem::InvalidId));
+            if (handler->isExpandedIName(parentless)) {
+                verifyAndInsertObjectInTree(object);
+            } else if (WatchItem *item = handler->findItem(parentless);
+                       item && !handler->findItem(m_debugIdToIname.value(debugId))) {
+                // The item was collapsed in the meantime. Make its next
+                // expansion fetch what was dropped here.
+                item->forAllChildren([this](WatchItem *child) {
+                    m_fetchDataIds.removeAll(int(child->id));
+                });
+                item->removeChildren();
+            }
+        }
     } else if (m_objectTreeQueryIds.contains(queryId)) {
         m_objectTreeQueryIds.removeOne(queryId);
         if (value.typeId() == QMetaType::QVariantList) {
@@ -292,7 +313,16 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                 verifyAndInsertObjectInTree(qvariant_cast<ObjectReference>(var));
             }
         } else {
-            verifyAndInsertObjectInTree(qvariant_cast<ObjectReference>(value));
+            const ObjectReference object = qvariant_cast<ObjectReference>(value);
+            verifyAndInsertObjectInTree(object);
+            // The objects without a parent are fetched after the engine, whose
+            // item replaces them otherwise.
+            const int debugId = object.debugId();
+            const bool isEngine = Utils::anyOf(m_engines, [debugId](const EngineReference &engine) {
+                return engine.debugId() == debugId;
+            });
+            if (isEngine && m_qmlEngine->watchHandler()->isExpandedIName(parentlessIName(debugId)))
+                fetchParentlessObjects(debugId);
         }
     } else if (queryId == m_engineQueryId) {
         m_engineQueryId = 0;
@@ -328,18 +358,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
                     updateObjectTree(m_rootContexts[engine.debugId()], engine.debugId());
                     fetchObject(engine.debugId());
                 }
-                // Objects absent from the context tree (buildObjectList() in the
-                // Qt debug service only collects root-context instances, missing
-                // objects in per-delegate child contexts) are tracked via
-                // m_knownDelegateIds as they arrive via OBJECT_CREATED. Re-fetch
-                // them now so they become visible in the Locals tree. Do this
-                // after clearObjectTree() so the FETCH_OBJECT responses are not
-                // discarded. Fetch only the headers, as this runs after every
-                // burst of object creations. Properties come on expansion.
-                for (auto it = m_knownDelegateIds.cbegin(); it != m_knownDelegateIds.cend(); ++it) {
-                    if (!m_debugIdToIname.contains(it.key()))
-                        fetchObjectHeader(it.key());
-                }
+                validateParentlessObjects();
                 m_rootContextQueryIds.clear();
                 m_lastRebuild.start();
                 if (std::exchange(m_rebuildPending, false))
@@ -395,7 +414,10 @@ void QmlInspectorAgent::newObject(int engineId, int objectId, int parentId)
     if (!m_debugIdToIname.contains(objectId)) {
         const auto parentIt = m_debugIdToIname.constFind(parentId);
         if (parentId == WatchItem::InvalidId) {
-            fetchObjectHeader(objectId);
+            if (insertParentlessItem(engineId)
+                    && m_qmlEngine->watchHandler()->isExpandedIName(parentlessIName(engineId))) {
+                fetchObjectHeader(objectId);
+            }
         } else if (parentIt != m_debugIdToIname.constEnd()
                    && m_qmlEngine->watchHandler()->isExpandedIName(*parentIt)) {
             fetchObject(objectId);
@@ -574,6 +596,73 @@ void QmlInspectorAgent::fetchObjectHeader(int debugId)
         m_delegateQueryIds.insert(queryId, debugId);
 }
 
+QString QmlInspectorAgent::parentlessIName(int engineId) const
+{
+    return buildIName(m_debugIdToIname.value(engineId), "[parentless]");
+}
+
+// The item below the engine item that holds the objects without a parent.
+bool QmlInspectorAgent::insertParentlessItem(int engineId)
+{
+    WatchHandler *handler = m_qmlEngine->watchHandler();
+    const auto engineIt = m_debugIdToIname.constFind(engineId);
+    if (engineIt == m_debugIdToIname.constEnd() || !handler->findItem(*engineIt))
+        return false;
+    const QString iname = parentlessIName(engineId);
+    if (handler->findItem(iname))
+        return true;
+    auto item = new WatchItem;
+    item->iname = iname;
+    item->name = Core::Tr::tr("Other");
+    item->value = "list";
+    item->wantsChildren = true;
+    handler->appendNewItem(item);
+    if (!m_updateLocalsTimer.isActive())
+        m_updateLocalsTimer.start();
+    return true;
+}
+
+bool QmlInspectorAgent::hasParentlessObjects(int engineId) const
+{
+    return m_knownDelegateIds.key(engineId, WatchItem::InvalidId) != WatchItem::InvalidId;
+}
+
+// Fetches the objects that are neither shown nor on their way.
+void QmlInspectorAgent::fetchParentlessObjects(int engineId)
+{
+    const WatchHandler *handler = m_qmlEngine->watchHandler();
+    const QSet<int> pending(m_delegateQueryIds.cbegin(), m_delegateQueryIds.cend());
+    for (auto it = m_knownDelegateIds.cbegin(); it != m_knownDelegateIds.cend(); ++it) {
+        if (*it != engineId || pending.contains(it.key()))
+            continue;
+        const auto inameIt = m_debugIdToIname.constFind(it.key());
+        if (inameIt == m_debugIdToIname.cend() || !handler->findItem(*inameIt))
+            fetchObjectHeader(it.key());
+    }
+}
+
+// The protocol does not report destroyed objects, only the answer to a query
+// for one tells. Check a bounded batch per rebuild of the objects whose item
+// nobody expands.
+void QmlInspectorAgent::validateParentlessObjects()
+{
+    constexpr int BatchSize = 256;
+    const WatchHandler *handler = m_qmlEngine->watchHandler();
+    const QSet<int> pending(m_delegateQueryIds.cbegin(), m_delegateQueryIds.cend());
+    QList<int> candidates;
+    for (auto it = m_knownDelegateIds.cbegin(); it != m_knownDelegateIds.cend(); ++it) {
+        if (it.key() > m_validatedDelegateId && !pending.contains(it.key())
+                && !handler->isExpandedIName(parentlessIName(*it))) {
+            candidates.append(it.key());
+        }
+    }
+    const int count = int(std::min<qsizetype>(candidates.size(), BatchSize));
+    std::partial_sort(candidates.begin(), candidates.begin() + count, candidates.end());
+    for (int i = 0; i < count; ++i)
+        fetchObjectHeader(candidates.at(i));
+    m_validatedDelegateId = count < BatchSize ? -1 : candidates.at(count - 1);
+}
+
 void QmlInspectorAgent::updateObjectTree(const ContextReference &context, int engineId)
 {
     if (!isConnected() || !settings().showQmlObjectTree())
@@ -589,8 +678,11 @@ void QmlInspectorAgent::updateObjectTree(const ContextReference &context, int en
         const ContextReference ctx = pending.takeLast();
         qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << ctx << ')';
 
-        for (const ObjectReference &obj : ctx.objects())
+        for (const ObjectReference &obj : ctx.objects()) {
+            // Root objects have no parent either, but get their place from here.
+            m_knownDelegateIds.remove(obj.debugId());
             verifyAndInsertObjectInTree(obj, engineId, true);
+        }
 
         if (++visited > MaxInspectorTreeNodes) {
             qCWarning(qmlInspectorLog) << __FUNCTION__ << "aborting after" << visited
@@ -620,6 +712,15 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
     WatchHandler *handler = m_qmlEngine->watchHandler();
     const int objectDebugId = object.debugId();
     int parentId = object.parentId();
+
+    if (parentId == WatchItem::InvalidId && !calledFromUpdateObjectTree) {
+        if (const auto it = m_knownDelegateIds.constFind(objectDebugId);
+                it != m_knownDelegateIds.cend()) {
+            insertParentlessObject(object, *it);
+            continueObjectStack(object);
+            return;
+        }
+    }
 
     if (engineId == -1) {
         // Find engineId if missing.
@@ -688,7 +789,7 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
             handler->fetchMore(parentIname);
             return; // recursive
         }
-        insertObjectInTree(object, parentId);
+        insertObjectInTree(object, parentIname);
         // After inserting the engine node, populate its children from the root context.
         // Guard against the case where we are already inside updateObjectTree for this
         // engine: that function calls us for each object in the context, so if one of
@@ -696,11 +797,21 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
         // the same traversal and recurse infinitely.
         if (objectDebugId == engineId && !calledFromUpdateObjectTree)
             updateObjectTree(m_rootContexts[engineId], engineId);
+        // Inserting the engine item drops the old one with all its children.
+        if (objectDebugId == engineId && hasParentlessObjects(engineId))
+            insertParentlessItem(engineId);
     } else {
         m_objectStack.push(QPair<ObjectReference, int>(object, engineId));
         fetchObject(parentId);
         return; // recursive
     }
+    continueObjectStack(object);
+}
+
+void QmlInspectorAgent::continueObjectStack(const ObjectReference &object)
+{
+    WatchHandler *handler = m_qmlEngine->watchHandler();
+    const int objectDebugId = object.debugId();
     if (!m_objectStack.isEmpty()) {
         const auto &top = m_objectStack.top();
         // We want to expand only a particular branch and not the whole tree. Hence, we do not
@@ -731,7 +842,20 @@ void QmlInspectorAgent::verifyAndInsertObjectInTree(const ObjectReference &objec
     }
 }
 
-void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object, int parentId)
+// Expanding the item of the objects without a parent fetches all of them, so
+// showing one of them, e.g. for a selection in the application, expands it.
+void QmlInspectorAgent::insertParentlessObject(const ObjectReference &object, int engineId)
+{
+    if (!insertParentlessItem(engineId))
+        return;
+    const QString parentIname = parentlessIName(engineId);
+    if (!m_qmlEngine->watchHandler()->isExpandedIName(parentIname))
+        m_qmlEngine->watchHandler()->fetchMore(parentIname);
+    insertObjectInTree(object, parentIname);
+}
+
+void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object,
+                                           const QString &parentIname)
 {
     qCDebug(qmlInspectorLog) << __FUNCTION__ << '(' << object << ')';
 
@@ -740,7 +864,7 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object, int pa
     bool printTime = qmlInspectorLog().isDebugEnabled();
     if (printTime)
         timeElapsed.start();
-    addWatchData(object, m_debugIdToIname.value(parentId), true);
+    addWatchData(object, parentIname, true);
     qCDebug(qmlInspectorLog) << __FUNCTION__ << "Time: Build Watch Data took "
                              << timeElapsed.elapsed() << " ms";
     if (printTime)
@@ -868,11 +992,18 @@ void QmlInspectorAgent::addWatchData(const ObjectReference &obj,
         m_debugIdToIname.insert(objDebugId, objIname);
     }
 
-    if (!m_qmlEngine->watchHandler()->isExpandedIName(objIname)) {
+    if (obj.needsMoreData()) {
         // we don't know the children yet. Not adding the 'properties'
         // element makes sure we're queried on expansion.
-        if (obj.needsMoreData())
+        if (!m_qmlEngine->watchHandler()->isExpandedIName(objIname))
             return;
+        // Nothing expands an object again that was expanded before a rebuild,
+        // or whose fetched data the answer for its engine just replaced.
+        if (append) {
+            if (!m_fetchDataIds.contains(objDebugId))
+                m_fetchDataIds << objDebugId;
+            fetchObject(objDebugId);
+        }
     }
 
     // properties

@@ -119,24 +119,28 @@
     To connect to the ACP server:
 
     \list 1
-        \li Select the agent you configured.
-        \li Select \uicontrol Connect.
+        \li In \uicontrol {Choose AI Agent}, select the agent you configured.
+            \QC starts the agent process and establishes the ACP connection.
+            While the agent starts, \uicontrol {Server Output} shows its
+            console, so that you can log in if the agent asks you to.
+        \li Type a message to start a new session in the directory of the
+            current project. If the agent supports it, you can also select
+            an earlier session to resume it. To start a session in another
+            directory, select \uicontrol {New Session in Directory}.
     \endlist
 
-    If an agent is not listed in \uicontrol {Choose AI Agent}, select
-    \uicontrol {Manage Agents} to add it.
+    To add an agent from the ACP registry, select \uicontrol {Add Agent}.
+    To change the settings of the agents, select \uicontrol {Manage Agents}.
 
-    \QC starts the agent process and establishes the ACP connection.
-
-    To start a new session, select \inlineimage {icons/plus.png} {Add Chat}
-    \uicontrol {Add Chat} and connect to a server.
+    To open another chat, select \inlineimage {icons/plus.png} {Add Chat}
+    \uicontrol {Add Chat} and select an agent.
 
     \section3 Inspect ACP communication
 
     An ACP Client extension sends messages (\e requests) to an ACP server and
     receives responses that have the requested information if the server is
     capable of handling the requests. To inspect the communication between the
-    extension and ACP servers, go to \uicontrol Tools > \uicontrol {ACP Client} >
+    extension and ACP servers, go to \uicontrol Tools > \uicontrol {Debug \QC} >
     \uicontrol {Inspect ACP Client}.
 
     \image qtcreator-acp-client-inspector.webp {ACP Client Inspector dialog}

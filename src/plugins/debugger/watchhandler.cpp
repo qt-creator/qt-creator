@@ -1793,7 +1793,7 @@ static QString removeWatchActionText(QString exp)
 
 void WatchModel::inputNewExpression()
 {
-    QDialog dlg;
+    QDialog dlg(ICore::dialogParent());
 
     auto label = new QLabel(Tr::tr("Enter an expression to evaluate."), &dlg);
 
