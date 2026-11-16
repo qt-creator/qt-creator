@@ -50,6 +50,10 @@
         \li Clear \uicontrol {Clear issues list on new build}.
     \endlist
 
+    By default, the \uicontrol Issues view opens when a build reports errors.
+    To stay in the view you are in, clear
+    \uicontrol {Open issues list on build errors} in the same preferences.
+
     To clear the view, select \inlineimage {icons/clean_pane_small.png} {Clear}
     (\uicontrol Clear).
 

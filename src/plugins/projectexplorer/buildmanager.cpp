@@ -681,7 +681,8 @@ void BuildManager::updateTaskCount()
 {
     const int errors = getErrorTaskCount();
     ProgressManager::setApplicationLabel(errors > 0 ? QString::number(errors) : QString());
-    if (isBuilding() && errors > 0 && !d->m_poppedUpTaskWindow) {
+    if (isBuilding() && errors > 0 && !d->m_poppedUpTaskWindow
+            && globalProjectExplorerSettings().popUpIssuesOnBuildError()) {
         showTaskWindow();
         d->m_poppedUpTaskWindow = true;
     }

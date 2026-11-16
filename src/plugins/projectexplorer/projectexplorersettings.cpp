@@ -112,6 +112,11 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
     clearIssuesOnRebuild.setLabel(Tr::tr("Clear issues list on new build"));
     clearIssuesOnRebuild.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
+    popUpIssuesOnBuildError.setSettingsKey("ShowIssuesOnBuildError");
+    popUpIssuesOnBuildError.setDefaultValue(true);
+    popUpIssuesOnBuildError.setLabel(Tr::tr("Open issues list on build errors"));
+    popUpIssuesOnBuildError.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
     abortBuildAllOnError.setSettingsKey("AbortBuildAllOnError");
     abortBuildAllOnError.setDefaultValue(true);
     abortBuildAllOnError.setLabel(Tr::tr("Abort on error when building all projects"));
@@ -241,6 +246,7 @@ ProjectExplorerSettings::ProjectExplorerSettings(bool global)
                         promptToStopCloseTab,
                         automaticallyCreateRunConfigurations,
                         clearIssuesOnRebuild,
+                        popUpIssuesOnBuildError,
                         abortBuildAllOnError,
                         lowBuildPriority,
                         warnAgainstNonAsciiBuildDir,

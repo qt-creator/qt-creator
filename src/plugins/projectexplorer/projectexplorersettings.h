@@ -54,6 +54,7 @@ public:
     Utils::BoolAspect addLibraryPathsToRunEnv{this};
     Utils::BoolAspect closeSourceFilesWithProject{this};
     Utils::BoolAspect clearIssuesOnRebuild{this};
+    Utils::BoolAspect popUpIssuesOnBuildError{this};
     Utils::BoolAspect abortBuildAllOnError{this};
     Utils::BoolAspect lowBuildPriority{this};
     Utils::BoolAspect warnAgainstNonAsciiBuildDir{this};
