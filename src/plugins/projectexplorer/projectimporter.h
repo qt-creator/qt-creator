@@ -35,6 +35,8 @@ public:
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
     virtual bool filter(Kit *) const { return true; }
     virtual bool isPreferredKit(const Kit *) const { return false; }
+    // The kits to check on the setup page, instead of the one that the page picks
+    virtual bool isKitSelectedByDefault(const Kit *) const { return false; }
 
     bool isUpdating() const { return m_isUpdating; }
 

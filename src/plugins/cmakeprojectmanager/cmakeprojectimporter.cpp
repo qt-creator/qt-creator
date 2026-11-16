@@ -769,6 +769,19 @@ bool CMakeProjectImporter::isPreferredKit(const ProjectExplorer::Kit *k) const
     return m_project->presetKitIds().contains(k->id());
 }
 
+bool CMakeProjectImporter::isKitSelectedByDefault(const ProjectExplorer::Kit *k) const
+{
+    if (!isPreferredKit(k))
+        return false;
+    const QString presetName = k->value(Constants::KIT_PRESET_NAME).toString();
+    const PresetsDetails::ConfigurePreset preset
+        = Utils::findOrDefault(m_project->presetsData().configurePresets,
+                               [&presetName](const PresetsDetails::ConfigurePreset &p) {
+                                   return p.name == presetName;
+                               });
+    return preset.vendor && preset.vendor->value("selectedByDefault").toBool();
+}
+
 static Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
 {
     // A compiler path example. Note that the compiler version is not the same version from MsvcToolchain
@@ -2242,6 +2255,7 @@ private slots:
     void testPresetProbeIsReusedUntilThePresetChanges();
     void testPresetProbeIsRedoneWhenTheEnvironmentChanges();
     void testBrokenPresetKeepsTheKitsOfTheOthers();
+    void testSetupPageSelectsTheKitsOfTheVendorKey();
     void testUnusablePresetsLeaveTheOtherKits();
     void testSetupPagePrefersPresetKits();
     void testQtFromFilesIsFoundByPrefixPath();
@@ -2611,6 +2625,75 @@ void CMakeProjectImporterTest::testBrokenPresetKeepsTheKitsOfTheOthers()
              "A project with a preset kit offers the other kits too.");
 
     deregisterPresetKits(project);
+}
+
+void CMakeProjectImporterTest::testSetupPageSelectsTheKitsOfTheVendorKey()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-selected-by-default");
+    QVERIFY(!projectDir.isEmpty());
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "base",
+                "hidden": true,
+                "generator": "Ninja",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                },
+                "vendor": {
+                    "qt.io/QtCreator/1.0": {
+                        "selectedByDefault": true
+                    }
+                }
+            },
+            {
+                "name": "first",
+                "inherits": "base",
+                "binaryDir": "${sourceDir}/build-first"
+            },
+            {
+                "name": "second",
+                "inherits": "base",
+                "binaryDir": "${sourceDir}/build-second"
+            },
+            {
+                "name": "third",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build-third",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const auto deregisterKits = qScopeGuard([&project] { deregisterPresetKits(project); });
+    const QList<Id> presetKitIds = project.presetKitIds();
+    const auto presetKit = [&presetKitIds](const QString &presetName) {
+        return Utils::findOrDefault(presetKitIds, [&presetName](Id id) {
+            const Kit * const k = KitManager::kit(id);
+            return k && k->value(Constants::KIT_PRESET_NAME).toString() == presetName;
+        });
+    };
+
+    // The hidden preset has an id, but no kit
+    QVERIFY(presetKit("first").isValid());
+    QVERIFY(presetKit("second").isValid());
+    QVERIFY(presetKit("third").isValid());
+
+    TargetSetupPage page;
+    page.setProjectAndPath(&project, project.projectFilePath());
+    page.initializePage();
+    const QSet<Id> selected = Utils::toSet(page.selectedKits());
+    QCOMPARE(selected, QSet<Id>({presetKit("first"), presetKit("second")}));
 }
 
 void CMakeProjectImporterTest::testUnusablePresetsLeaveTheOtherKits()

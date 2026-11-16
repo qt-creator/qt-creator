@@ -322,6 +322,21 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
         return w->isValid() && tasks.isEmpty();
     };
 
+    // Use the kits the importer selects:
+    if (importer()) {
+        bool selected = false;
+        for (TargetSetupWidget * const w : std::as_const(widgets)) {
+            if (isPreferred(w) && importer()->isKitSelectedByDefault(w->kit())) {
+                w->setKitSelected(true);
+                selected = true;
+            }
+        }
+        if (selected) {
+            emit q->completeChanged();
+            return;
+        }
+    }
+
     // Use a kit the importer prefers if that is preferred:
     toCheckWidget = findOrDefault(widgets, [this, isPreferred](const TargetSetupWidget *w) {
         return isPreferred(w) && importer() && importer()->isPreferredKit(w->kit());

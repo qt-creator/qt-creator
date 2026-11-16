@@ -409,6 +409,12 @@
             device is added to the device list. Valid device type identifiers
             are the strings returned by \c IDevice::type().
         \li \l {addDev}
+    \row
+        \li \c {selectedByDefault}
+        \li Selects the kit created from the preset in
+            \uicontrol {Configure Project}. If no preset sets it, the first
+            usable kit of a preset is selected.
+        \li \l{CMake presets}
     \endtable
 
     An example of CMake configuration presets:

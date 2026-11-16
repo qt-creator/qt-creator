@@ -25,6 +25,7 @@ public:
     ProjectExplorer::Target *preferredTarget(const QList<ProjectExplorer::Target *> &possibleTargets) final;
     bool filter(ProjectExplorer::Kit *k) const final;
     bool isPreferredKit(const ProjectExplorer::Kit *k) const final;
+    bool isKitSelectedByDefault(const ProjectExplorer::Kit *k) const final;
 
     Utils::FilePaths presetCandidates();
     void createKitsFromPresets();
