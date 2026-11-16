@@ -130,7 +130,7 @@ struct SFAData
     FilePath file;
     FilePath bauhausSuite;
     FilePath bauhausConfig;
-    FilePath analysisCommand;
+    CommandLine analysisCommand;
     FilePath workingDirectory;
     // system environment for manually specified command; active build configuration's
     // build environment for derived analyses
@@ -150,7 +150,7 @@ public:
     }
 
     void startAnalysisFor(const FilePath &file, const FilePath &bauhausConf,
-                          const FilePath &analysisCmd, const Environment &baseEnv,
+                          const CommandLine &analysisCmd, const Environment &baseEnv,
                           const FilePath &workingDir);
     void cancelAnalysisFor(const FilePath &fileName);
     void removeFinishedAnalyses();
@@ -179,7 +179,8 @@ private:
 };
 
 void SingleFileAnalysis::startAnalysisFor(const FilePath &filePath, const FilePath &bauhausConf,
-                                          const FilePath &analysisCmd, const Environment &baseEnv,
+                                          const CommandLine &analysisCmd,
+                                          const Environment &baseEnv,
                                           const FilePath &workingDir)
 {
     // start pluginarserver if not running
@@ -270,10 +271,7 @@ void SingleFileAnalysis::onSessionStarted(const FilePath &filePath, int sessionI
 
     const SFAData data = analysis;
     auto onSetup = [data, env, filePath](Process &process) {
-        CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
-                                                      : CommandLine{"/bin/sh", {"-c"}};
-        cmd.addCommandLineAsArgs(CommandLine{data.analysisCommand}, CommandLine::Raw);
-        process.setCommand(cmd);
+        process.setCommand(data.analysisCommand);
         process.setEnvironment(env);
         if (!data.workingDirectory.isEmpty())
             process.setWorkingDirectory(data.workingDirectory);
@@ -350,22 +348,16 @@ void SingleFileAnalysis::shutdownAll()
 
 SingleFileAnalysis s_sfaInstance;
 
-static FilePath constructMakefileIntegrationCommand(const FilePath &file,
-                                                    const FilePath &makefile,
-                                                    MakeStep *ms)
+static CommandLine makefileIntegrationCommand(const QString &objFileName,
+                                              const FilePath &makefile,
+                                              MakeStep *ms)
 {
-    const bool isWin = HostOsInfo::isWindowsHost();
-    const QString fileObj = ProcessArgs::quoteArg(file.completeBaseName().append(isWin ? ".obj"
-                                                                                       : ".o"));
-
-    const QStringList cmds = {
-        ProcessArgs::quoteArg(ms->makeExecutable().nativePath())
-            + " CC=cafeCC CXX=cafeCC -f "
-            + ProcessArgs::quoteArg(makefile.nativePath()) + ' ' + fileObj, // make
-        "axivion_analysis --output - --quiet --limit_to AnalysisControl"
-        " --limit_to Stylechecks --ir " + fileObj                             // analysis
-    };
-    return FilePath::fromString(cmds.join(" && "));
+    CommandLine cmd{ms->makeExecutable(),
+                    {"CC=cafeCC", "CXX=cafeCC", "-f", makefile.nativePath(), objFileName}};
+    cmd.addCommandLineWithAnd({"axivion_analysis",
+                               {"--output", "-", "--quiet", "--limit_to", "AnalysisControl",
+                                "--limit_to", "Stylechecks", "--ir", objFileName}});
+    return CommandLine::inShell(cmd);
 }
 
 static void startSingleFileAnalysisDerived(const FilePath &file)
@@ -383,18 +375,13 @@ static void startSingleFileAnalysisDerived(const FilePath &file)
             const FilePath buildDir = bc->buildDirectory();
             const FilePath compileCommandsJson = buildDir.pathAppended("compile_commands.json");
 
-            const QStringList commands = {
-                // cmake call to generate compile_commands.json
-                ProcessArgs::quoteArg(bs->activeBuildTool().nativePath())
-                + " -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .",
-                // build and run analysis
-                "build_compile_commands --single_file "
-                + ProcessArgs::quoteArg(file.nativePath()) + ' '
-                + ProcessArgs::quoteArg(compileCommandsJson.nativePath())
-            };
-            const FilePath cmd = FilePath::fromString(commands.join(" && "));
+            CommandLine cmd{bs->activeBuildTool(), {"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON", "."}};
+            cmd.addCommandLineWithAnd({"build_compile_commands",
+                                       {"--single_file", file.nativePath(),
+                                        compileCommandsJson.nativePath()}});
 
-            s_sfaInstance.startAnalysisFor(file, settings().lastBauhausConfig(), cmd,
+            s_sfaInstance.startAnalysisFor(file, settings().lastBauhausConfig(),
+                                           CommandLine::inShell(cmd),
                                            bc->environment(), buildDir);
             return;
         }
@@ -414,16 +401,16 @@ static void startSingleFileAnalysisDerived(const FilePath &file)
                                 .stringAppended("_axivionSFA");
                         if (!axivionBuildDir.ensureWritableDir())
                             break;
-                        const FilePath objFile = axivionBuildDir.pathAppended(
-                                    file.completeBaseName().append(HostOsInfo::isWindowsHost()
-                                                                   ? ".obj" : ".o"));
+                        const QString objFileName = file.completeBaseName().append(
+                            file.osType() == OsTypeWindows ? ".obj" : ".o");
+                        const FilePath objFile = axivionBuildDir.pathAppended(objFileName);
                         if (objFile.exists()) {
                             if (auto result = objFile.removeFile(); !result)
                                 break;
                         }
 
-                        const FilePath cmd
-                                = constructMakefileIntegrationCommand(file, makefile, ms);
+                        const CommandLine cmd
+                                = makefileIntegrationCommand(objFileName, makefile, ms);
                         s_sfaInstance.startAnalysisFor(file, settings().lastBauhausConfig(),
                                                        cmd, bc->environment(), axivionBuildDir);
                         return;
@@ -466,7 +453,7 @@ void startSingleFileAnalysis(const FilePath &file)
         startSingleFileAnalysisDerived(file);
     } else {
         s_sfaInstance.startAnalysisFor(file, settings().lastBauhausConfig(),
-                                       settings().lastSfaCommand(),
+                                       CommandLine::inShell(settings().lastSfaCommand().path()),
                                        Environment::systemEnvironment(), FilePath{});
     }
 }
