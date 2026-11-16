@@ -2839,6 +2839,8 @@ void McpCommands::registerCommands()
                                   {"keys", QJsonObject{{"type", "array"},
                                                        {"items", QJsonObject{
                                                             {"type", "string"}}}}},
+                                  {"visible", QJsonObject{{"type", "boolean"}}},
+                                  {"enabled", QJsonObject{{"type", "boolean"}}},
                               }},
                              {"required", QJsonArray{"id", "text"}}}},
                         {"description", "List of matching actions."}})),
@@ -2869,7 +2871,9 @@ void McpCommands::registerCommands()
                     {"text", text},
                     {"description", description},
                     {"shortcut", m->keySequence().toString(QKeySequence::PortableText)},
-                    {"keys", keys}});
+                    {"keys", keys},
+                    {"visible", m->action() && m->action()->isVisible()},
+                    {"enabled", m->action() && m->action()->isEnabled()}});
             }
             return CallToolResult{}.isError(false).structuredContent(
                 QJsonObject{{"actions", actions}});
