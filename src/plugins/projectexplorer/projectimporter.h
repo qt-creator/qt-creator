@@ -109,4 +109,8 @@ private:
     friend class UpdateGuard;
 };
 
+namespace Internal {
+QObject *createProjectImporterTest();
+} // namespace Internal
+
 } // namespace ProjectExplorer

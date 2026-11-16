@@ -319,7 +319,10 @@ static Toolchain *toolChainFromVariant(const QVariant &v)
 
 void ProjectImporter::cleanupTemporaryToolchains(Kit *k, const QVariantList &vl)
 {
-    const Toolchains toolchains = Utils::transform(vl, toolChainFromVariant);
+    // Kits that are removed together can share a temporary toolchain: none of them sees the
+    // others as its users, so the first one deregisters it.
+    const Toolchains toolchains = Utils::filtered(Utils::transform(vl, toolChainFromVariant),
+                                                  [](const Toolchain *tc) { return tc != nullptr; });
     for (Toolchain * const tc : toolchains)
         ToolchainKitAspect::clearToolchain(k, tc->language());
     ToolchainManager::deregisterToolchains(toolchains);
@@ -403,3 +406,132 @@ ProjectImporter::findOrCreateToolchains(const ToolchainDescription &tcd) const
 }
 
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+
+#include "toolchainconfigwidget.h"
+
+#include <QScopeGuard>
+#include <QTest>
+
+namespace ProjectExplorer::Internal {
+
+const char ImporterTestToolchainType[] = "ProjectExplorer.ToolChain.ImporterTest";
+
+class ImporterTestToolchain final : public Toolchain
+{
+public:
+    ImporterTestToolchain()
+        : Toolchain(ImporterTestToolchainType)
+    {
+        setLanguage(Constants::CXX_LANGUAGE_ID);
+        setTypeDisplayName("Importer Test Toolchain");
+        setTargetAbiNoSignal(Abi::hostAbi());
+    }
+
+    MacroInspectionRunner createMacroInspectionRunner() const final { return {}; }
+    Utils::LanguageExtensions languageExtensions(const QStringList &) const final
+    { return Utils::LanguageExtension::None; }
+    Utils::WarningFlags warningFlags(const QStringList &) const final
+    { return Utils::WarningFlag::NoWarnings; }
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &) const final
+    { return {}; }
+    void addToEnvironment(Utils::Environment &) const final {}
+    Utils::FilePath makeCommand(const Utils::Environment &) const final { return "make"; }
+    QList<Utils::OutputLineParser *> createOutputParsers() const final { return {}; }
+};
+
+class ImporterTestToolchainFactory final : public ToolchainFactory
+{
+public:
+    ImporterTestToolchainFactory()
+    {
+        setSupportedToolchainType(ImporterTestToolchainType);
+        setSupportedLanguages({Constants::CXX_LANGUAGE_ID});
+        setToolchainConstructor([] { return new ImporterTestToolchain; });
+    }
+
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &) const final
+    {
+        return nullptr;
+    }
+};
+
+class TestImporter final : public ProjectImporter
+{
+public:
+    TestImporter()
+        : ProjectImporter(Utils::FilePath::fromString("/importer-test/project.txt"))
+    {}
+
+    void addTemporaryToolchain(Toolchain *tc, Kit *k) const
+    {
+        addTemporaryData(ToolchainKitAspect::id(), tc->id().toSetting(), k);
+    }
+
+    Utils::FilePaths importCandidates() final { return {}; }
+
+private:
+    QList<void *> examineDirectory(const Utils::FilePath &, QString *) const final { return {}; }
+    bool matchKit(void *, const Kit *) const final { return false; }
+    Kit *createKit(void *) const final { return nullptr; }
+    BuildInfo buildInfo(void *) const final { return {}; }
+    void deleteDirectoryData(void *) const final {}
+};
+
+class ProjectImporterTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testCleanupOfKitsRemovedTogether()
+    {
+        const ImporterTestToolchainFactory factory;
+        const TestImporter importer;
+
+        auto tc = new ImporterTestToolchain;
+        QVERIFY(ToolchainManager::registerToolchains({tc}).isEmpty());
+        const Utils::Id tcId = tc->id();
+
+        // Two kits with the same temporary toolchain, as two CMake presets with the same
+        // compiler have
+        QList<Kit *> kits;
+        for (const QString &name : {QString("first"), QString("second")}) {
+            Kit * const k = KitManager::registerKit(
+                [name](Kit *k) { k->setUnexpandedDisplayName(name); });
+            QVERIFY(k);
+            ToolchainKitAspect::setToolchain(k, tc);
+            importer.addTemporaryToolchain(tc, k);
+            kits << k;
+        }
+        const auto cleanup = qScopeGuard([&kits, tcId] {
+            KitManager::deregisterKits(Utils::filtered(KitManager::kits(), [&kits](Kit *k) {
+                return kits.contains(k);
+            }));
+            if (Toolchain * const tc = ToolchainManager::findToolchain(tcId))
+                ToolchainManager::deregisterToolchains({tc});
+        });
+
+        // What the Configure Project page does when the CMake presets are reloaded: the kits
+        // are removed at once, and each one is cleaned up after
+        QObject context;
+        connect(KitManager::instance(), &KitManager::kitRemoved, &context, [&importer](Kit *k) {
+            importer.cleanupKit(k);
+        });
+        KitManager::deregisterKits(kits);
+        QVERIFY2(!ToolchainManager::findToolchain(tcId),
+                 "The toolchain that only the removed kits used is removed with them.");
+    }
+};
+
+QObject *createProjectImporterTest()
+{
+    return new ProjectImporterTest;
+}
+
+} // namespace ProjectExplorer::Internal
+
+#include "projectimporter.moc"
+
+#endif // WITH_TESTS
