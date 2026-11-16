@@ -127,8 +127,7 @@ public:
     static ProjectPart::ConstPtr fallbackProjectPart();
 
     static CPlusPlus::Snapshot snapshot();
-    static Document::Ptr document(const Utils::FilePath &filePath,
-                                  DocumentLookup lookup = DocumentLookup::SnapshotOnly);
+    static Document::Ptr document(const Utils::FilePath &filePath, DocumentLookup lookup);
     static QSet<Utils::FilePath> unannouncedDocuments();
     static bool replaceDocument(Document::Ptr newDoc);
 

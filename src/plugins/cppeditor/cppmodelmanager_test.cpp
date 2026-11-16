@@ -216,7 +216,7 @@ void ModelManagerTest::testFrameworkHeaders()
     QCoreApplication::processEvents();
 
     QVERIFY(CppModelManager::snapshot().contains(source));
-    Document::Ptr doc = CppModelManager::document(source);
+    Document::Ptr doc = CppModelManager::document(source, DocumentLookup::SnapshotOnly);
     QVERIFY(!doc.isNull());
     CPlusPlus::Namespace *ns = doc->globalNamespace();
     QVERIFY(ns);
@@ -760,7 +760,7 @@ void ModelManagerTest::testDefinesPerProject()
         QCOMPARE(Core::DocumentModel::openedDocuments().size(), 1);
         QVERIFY(CppModelManager::isCppEditor(editor));
 
-        Document::Ptr doc = CppModelManager::document(i.filePath);
+        Document::Ptr doc = CppModelManager::document(i.filePath, DocumentLookup::SnapshotOnly);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }
@@ -992,7 +992,7 @@ void ModelManagerTest::testPrecompiledHeaders()
         parser->update({CppModelManager::workingCopy(), nullptr,Utils::Language::Cxx, false});
 
         // Check if defines from pch are considered
-        Document::Ptr document = CppModelManager::document(filePath);
+        Document::Ptr document = CppModelManager::document(filePath, DocumentLookup::SnapshotOnly);
         QCOMPARE(nameOfFirstDeclaration(document), firstDeclarationName);
 
         // Check if declarations from pch are considered
@@ -1062,7 +1062,7 @@ void ModelManagerTest::testDefinesPerEditor()
         parser->setConfiguration(config);
         parser->update({CppModelManager::workingCopy(), nullptr, Utils::Language::Cxx, false});
 
-        Document::Ptr doc = CppModelManager::document(main1File);
+        Document::Ptr doc = CppModelManager::document(main1File, DocumentLookup::SnapshotOnly);
         QCOMPARE(nameOfFirstDeclaration(doc), firstDeclarationName);
     }
 }
@@ -1422,35 +1422,38 @@ void ModelManagerTest::testDocumentsAndRevisions()
     const FilePath filePath2 = testDir / "foo.cpp";
     const QSet<FilePath> filesToIndex = {filePath1,filePath2};
     QVERIFY(TestCase::parseFiles(filesToIndex));
+    const auto document = [](const FilePath &filePath) {
+        return CppModelManager::document(filePath, DocumentLookup::SnapshotOnly);
+    };
 
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 1U);
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 1U);
+    VERIFY_DOCUMENT_REVISION(document(filePath1), 1U);
+    VERIFY_DOCUMENT_REVISION(document(filePath2), 1U);
 
     // Open editor for file 1
     TextEditor::BaseTextEditor *editor1;
     QVERIFY(helper.openCppEditor(filePath1, &editor1));
     helper.closeEditorAtEndOfTestCase(editor1);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath1));
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 2U);
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 1U);
+    VERIFY_DOCUMENT_REVISION(document(filePath1), 2U);
+    VERIFY_DOCUMENT_REVISION(document(filePath2), 1U);
 
     // Index again
     QVERIFY(TestCase::parseFiles(filesToIndex));
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 3U);
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 2U);
+    VERIFY_DOCUMENT_REVISION(document(filePath1), 3U);
+    VERIFY_DOCUMENT_REVISION(document(filePath2), 2U);
 
     // Open editor for file 2
     TextEditor::BaseTextEditor *editor2;
     QVERIFY(helper.openCppEditor(filePath2, &editor2));
     helper.closeEditorAtEndOfTestCase(editor2);
     QVERIFY(TestCase::waitForProcessedEditorDocument(filePath2));
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 3U);
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 3U);
+    VERIFY_DOCUMENT_REVISION(document(filePath1), 3U);
+    VERIFY_DOCUMENT_REVISION(document(filePath2), 3U);
 
     // Index again
     QVERIFY(TestCase::parseFiles(filesToIndex));
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 4U);
-    VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 4U);
+    VERIFY_DOCUMENT_REVISION(document(filePath1), 4U);
+    VERIFY_DOCUMENT_REVISION(document(filePath2), 4U);
 }
 
 void ModelManagerTest::testSettingsChanges()

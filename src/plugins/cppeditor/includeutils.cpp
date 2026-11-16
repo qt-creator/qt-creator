@@ -634,7 +634,7 @@ static QList<Include> includesForSource(const FilePath &filePath)
                                      TestIncludePaths::globalIncludePath())});
     sourceProcessor->run(filePath);
 
-    Document::Ptr document = CppModelManager::document(filePath);
+    Document::Ptr document = CppModelManager::document(filePath, DocumentLookup::SnapshotOnly);
     return document->resolvedIncludes();
 }
 

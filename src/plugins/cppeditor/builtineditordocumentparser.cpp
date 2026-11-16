@@ -175,7 +175,8 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
 
         Internal::CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
             const bool isInEditor = doc->filePath() == filePath();
-            Document::Ptr otherDoc = CppModelManager::document(doc->filePath());
+            Document::Ptr otherDoc
+                = CppModelManager::document(doc->filePath(), DocumentLookup::SnapshotOnly);
             unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
             if (isInEditor)
                 newRev = qMax(rev + 1, newRev);

@@ -318,7 +318,8 @@ QSet<FilePath> CppModelManager::timeStampModifiedFiles(const QList<Document::Ptr
 CppSourceProcessor *CppModelManager::createSourceProcessor()
 {
     return new CppSourceProcessor(snapshot(), [](const Document::Ptr &doc) {
-        const Document::Ptr previousDocument = document(doc->filePath());
+        const Document::Ptr previousDocument
+            = document(doc->filePath(), DocumentLookup::SnapshotOnly);
         const unsigned newRevision = previousDocument.isNull()
                 ? 1U
                 : previousDocument->revision() + 1;

@@ -86,7 +86,8 @@ TestCases QtTestParser::testCases(const QtTestParseContext &context,
                                   const FilePath &filePath) const
 {
     const QByteArray &fileContent = getFileContent(context, filePath);
-    CPlusPlus::Document::Ptr document = CppEditor::CppModelManager::document(filePath);
+    CPlusPlus::Document::Ptr document
+        = CppEditor::CppModelManager::document(filePath, CppEditor::DocumentLookup::SnapshotOnly);
     if (document.isNull())
         return {};
 

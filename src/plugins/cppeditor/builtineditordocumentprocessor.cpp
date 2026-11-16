@@ -274,7 +274,8 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
             continue;
         if (cppEditorDoc->filePath() == document->filePath())
             continue;
-        CPlusPlus::Document::Ptr cppDoc = CppModelManager::document(cppEditorDoc->filePath());
+        CPlusPlus::Document::Ptr cppDoc
+            = CppModelManager::document(cppEditorDoc->filePath(), DocumentLookup::SnapshotOnly);
         if (!cppDoc)
             continue;
         if (!cppDoc->includedFiles().contains(document->filePath()))

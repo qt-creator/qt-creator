@@ -502,7 +502,8 @@ void registerMcpTools()
             }
 
             const FilePath filePath = FilePath::fromUserInput(file);
-            const CPlusPlus::Document::Ptr doc = CppModelManager::document(filePath);
+            const CPlusPlus::Document::Ptr doc
+                = CppModelManager::document(filePath, DocumentLookup::SnapshotOnly);
             if (!doc) {
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("No C++ code model document for \"%1\". Is it a C++ file that "
@@ -576,7 +577,8 @@ void registerMcpTools()
             }
 
             const FilePath filePath = FilePath::fromUserInput(file);
-            const CPlusPlus::Document::Ptr doc = CppModelManager::document(filePath);
+            const CPlusPlus::Document::Ptr doc
+                = CppModelManager::document(filePath, DocumentLookup::SnapshotOnly);
             if (!doc) {
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("No C++ code model document for \"%1\". Is it a C++ file that "
@@ -1767,7 +1769,7 @@ void registerMcpTools()
             }
 
             const FilePath filePath = FilePath::fromUserInput(file);
-            if (!CppModelManager::document(filePath)) {
+            if (!CppModelManager::document(filePath, DocumentLookup::SnapshotOnly)) {
                 return CallToolResult{}.isError(true).addContent(TextContent{}.text(
                     QString("No C++ code model document for \"%1\". Is it a C++ file that "
                             "belongs to an open project?").arg(filePath.toUserOutput())));
