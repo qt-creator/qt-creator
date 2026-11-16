@@ -10,11 +10,12 @@
 #include "qmljsfilecomponentrenamehandler.h"
 #include "qmljsindenter_test.h"
 #include "qmljsoutline.h"
-#include "qmljsquickfixassist.h"
 #include "qmljsquickfix_test.h"
+#include "qmljsquickfixassist.h"
 #include "qmljsscopeend_test.h"
-#include "qmllsmovecomponent.h"
 #include "qmllsclientsettings.h"
+#include "qmllsclientsettings_test.h"
+#include "qmllsmovecomponent.h"
 #include "qmltaskmanager.h"
 
 #include <qmljs/jsoncheck.h>
@@ -523,6 +524,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
         addTestCreator(createQmlJSScopeEndTest);
         addTestCreator(createQmlJSQuickFixTest);
         addTestCreator(createQmllsMoveComponentTest);
+        addTestCreator(createQmllsClientSettingsTest);
 #endif
     }
 

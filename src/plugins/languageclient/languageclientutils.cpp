@@ -38,6 +38,8 @@
 #include <QTextDocument>
 #include <QToolBar>
 
+#include <algorithm>
+
 using namespace Core;
 using namespace LanguageServerProtocol;
 using namespace QtTaskTree;
@@ -757,6 +759,15 @@ bool fileBelongsToProject(Project *candidate, const Utils::FilePath &filePath)
             return false;
     }
     return true;
+}
+
+bool fileBelongsToNoProject(const Utils::FilePath &filePath)
+{
+    const QList<Project *> projects = ProjectManager::projects();
+    return std::none_of(projects.cbegin(), projects.cend(), [&filePath](const Project *project) {
+        return project->isKnownFile(filePath)
+               || ProjectManager::isInProjectSourceDir(filePath, *project);
+    });
 }
 
 } // namespace LanguageClient

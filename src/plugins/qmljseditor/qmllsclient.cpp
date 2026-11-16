@@ -156,7 +156,12 @@ bool QmllsClient::isSupportedDocument(const TextEditor::TextDocument *document) 
 {
     if (!Client::isSupportedDocument(document))
         return false;
-    return LanguageClient::fileBelongsToProject(project(), document->filePath());
+
+    if (project())
+        return LanguageClient::fileBelongsToProject(project(), document->filePath());
+
+    // only open project-less QML files in the project-less qmlls instance
+    return LanguageClient::fileBelongsToNoProject(document->filePath());
 }
 
 QmllsClient::QmllsClient(StdIOClientInterface *interface)

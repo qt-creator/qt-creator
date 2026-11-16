@@ -82,6 +82,8 @@ QtcPlugin {
         files: [
             "qmljsindenter_test.cpp",
             "qmljsindenter_test.h",
+            "qmllsclientsettings_test.cpp",
+            "qmllsclientsettings_test.h",
             "qmljsquickfix_test.cpp",
             "qmljsquickfix_test.h",
             "qmljsscopeend_test.cpp",

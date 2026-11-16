@@ -24,6 +24,7 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/pathchooser.h>
@@ -122,8 +123,9 @@ static std::pair<FilePath, QVersionNumber> evaluateGithubQmlls()
 struct QmllsForBuildConfiguration
 {
     FilePath executable = {};
-    QVersionNumber version = {};
+    QVersionNumber version = {}; // Version of qmlls.
     enum ImportsProjectDirectory { No, Yes } importsProjectDirectory = No;
+    const QtVersion *qtVersion = nullptr; // Qt Version used by user in its project.
 };
 
 static QmllsForBuildConfiguration evaluateLatestQmlls()
@@ -134,6 +136,7 @@ static QmllsForBuildConfiguration evaluateLatestQmlls()
     const QtVersions versions = QtVersionManager::versions();
     FilePath latestQmlls;
     QVersionNumber latestVersion;
+    const QtVersion *latestQtVersion = nullptr;
     int latestUniqueId = std::numeric_limits<int>::min();
 
     for (QtVersion *qtVersion : versions) {
@@ -154,8 +157,9 @@ static QmllsForBuildConfiguration evaluateLatestQmlls()
         latestVersion = version;
         latestQmlls = qmlls;
         latestUniqueId = uniqueId;
+        latestQtVersion = qtVersion;
     }
-    return {latestQmlls, latestVersion};
+    return {latestQmlls, latestVersion, QmllsForBuildConfiguration::No, latestQtVersion};
 }
 
 QmllsClientSettings::QmllsClientSettings()
@@ -168,7 +172,7 @@ QmllsClientSettings::QmllsClientSettings()
     excludeMimeTypes.setValue({Utils::Constants::QBS_MIMETYPE});
 
     settingsTypeId.setValue(Constants::QMLLS_CLIENT_SETTINGS_ID);
-    startBehavior.setValue(RequiresProject);
+    startBehavior.setValue(RequiresProjectOrFile);
     enabled.setValue(true);
     initializationOptions.setValue("{\"qtCreatorHighlighting\": true}");
 
@@ -325,8 +329,9 @@ print(Path(ref_mod.__file__).resolve().parent / "Qt" / "qml"))"}});
     return FilePath::fromUserInput(path);
 }
 
-static QmllsForBuildConfiguration evaluateQmlls(const BuildConfiguration *bc)
+static QmllsForBuildConfiguration evaluateQmllsExecutable(const BuildConfiguration *bc)
 {
+    QTC_ASSERT(bc, return {});
     switch (qmllsSettings()->executableSelection()) {
     case QmllsClientSettings::FromQtKit: {
         if (FilePath executable = findPySideQmlls(bc); executable.exists())
@@ -349,6 +354,23 @@ static QmllsForBuildConfiguration evaluateQmlls(const BuildConfiguration *bc)
             estimateVersionOfOverridenQmlls(qmllsSettings()->executable())};
     }
     QTC_ASSERT(false, return {});
+}
+
+static QmllsForBuildConfiguration evaluateQmlls(const BuildConfiguration *bc)
+{
+    if (!bc) {
+        QmllsForBuildConfiguration qmlls = evaluateLatestQmlls();
+        if (qmllsSettings()->executableSelection() == QmllsClientSettings::FromUser) {
+            qmlls.executable = qmllsSettings()->executable();
+            qmlls.version = estimateVersionOfOverridenQmlls(qmlls.executable);
+        }
+        return qmlls;
+    }
+
+    QmllsForBuildConfiguration qmlls = evaluateQmllsExecutable(bc);
+    if (QtVersionManager::isLoaded())
+        qmlls.qtVersion = QtKitAspect::qtVersion(bc->kit());
+    return qmlls;
 }
 
 class QmllsClientProjectSettings : public AspectContainer
@@ -405,48 +427,57 @@ static CommandLine commandLineForQmlls(const BuildConfiguration *bc)
 
     CommandLine result{qmlls.executable, {}};
 
-    const QmllsClientProjectSettings projectSettings(bc->project());
-    const QmllsClientProjectSettings::OverrideSelection projectArgumentSelection
-        = projectSettings.extraArgumentsSelection();
-    if (projectArgumentSelection != QmllsClientProjectSettings::IgnoreGlobalSettings) {
+    if (bc) {
+        const QmllsClientProjectSettings projectSettings(bc->project());
+        const QmllsClientProjectSettings::OverrideSelection projectArgumentSelection
+            = projectSettings.extraArgumentsSelection();
+        if (projectArgumentSelection != QmllsClientProjectSettings::IgnoreGlobalSettings) {
+            result.addArgs(
+                ProcessArgs::splitArgs(
+                    bc->macroExpander()->expand(qmllsSettings()->extraArguments()),
+                    qmlls.executable.osType()));
+        }
+        if (projectArgumentSelection != QmllsClientProjectSettings::UseGlobalSettings) {
+            result.addArgs(
+                ProcessArgs::splitArgs(
+                    bc->macroExpander()->expand(projectSettings.extraArguments()),
+                    qmlls.executable.osType()));
+        }
+    } else {
         result.addArgs(
             ProcessArgs::splitArgs(
-                bc->macroExpander()->expand(qmllsSettings()->extraArguments()),
-                qmlls.executable.osType()));
-    }
-    if (projectArgumentSelection != QmllsClientProjectSettings::UseGlobalSettings) {
-        result.addArgs(
-            ProcessArgs::splitArgs(
-                bc->macroExpander()->expand(projectSettings.extraArguments()),
+                Utils::globalMacroExpander()->expand(qmllsSettings()->extraArguments()),
                 qmlls.executable.osType()));
     }
 
-    const QString buildDirectory = bc->buildDirectory().path();
+    const QString buildDirectory = bc ? bc->buildDirectory().path() : QString();
     if (!buildDirectory.isEmpty())
         result.addArgs({"-b", buildDirectory});
 
-    const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
+    const QtVersion *qtVersion = qmlls.qtVersion;
 
     // qmlls 6.8 and later require the import path
     if (qmlls.version >= QVersionNumber(6, 8, 0)) {
         if (qtVersion)
             result.addArgs({"-I", qtVersion->qmlPath().path()});
-        if (auto pythonPath = findPySideImportPath(bc); pythonPath.exists())
-            result.addArgs({"-I", pythonPath.path()});
+        if (bc) {
+            if (auto pythonPath = findPySideImportPath(bc); pythonPath.exists())
+                result.addArgs({"-I", pythonPath.path()});
 
-        // add custom import paths that the embedded codemodel uses too
-        const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-            = QmlJS::ModelManagerInterface::instance()->projectInfo(bc->project());
-        for (const QmlJS::PathAndLanguage &path : projectInfo.importPaths) {
-            if (path.language() == QmlJS::Dialect::Qml)
-                result.addArgs({"-I", path.path().path()});
+            // add custom import paths that the embedded codemodel uses too
+            const QmlJS::ModelManagerInterface::ProjectInfo projectInfo
+                = QmlJS::ModelManagerInterface::instance()->projectInfo(bc->project());
+            for (const QmlJS::PathAndLanguage &path : projectInfo.importPaths) {
+                if (path.language() == QmlJS::Dialect::Qml)
+                    result.addArgs({"-I", path.path().path()});
+            }
         }
 
         // work around QTBUG-132263 for qmlls 6.8.2
         if (!buildDirectory.isEmpty())
             result.addArgs({"-I", buildDirectory});
 
-        if (qmlls.importsProjectDirectory == QmllsForBuildConfiguration::Yes)
+        if (bc && qmlls.importsProjectDirectory == QmllsForBuildConfiguration::Yes)
             result.addArgs({"-I", bc->project()->projectDirectory().path()});
     }
 
@@ -484,14 +515,15 @@ bool QmllsClientSettings::isValidOnBuildConfiguration(BuildConfiguration *bc) co
     if (!BaseSettings::isValidOnBuildConfiguration(bc))
         return false;
 
-    if (!bc)
-        return false;
-
     const auto qmlls = evaluateQmlls(bc);
 
     if (qmlls.executable.isEmpty() || qmlls.version.isNull()) {
         Core::MessageManager::writeSilently(
-            Tr::tr("Current kit does not have a valid Qt version, disabling QML Language Server."));
+            bc ? Tr::tr(
+                     "Current kit does not have a valid Qt version, disabling QML Language "
+                     "Server.")
+               : Tr::tr("No usable qmlls found, not starting QML Language Server for files "
+                        "outside of projects."));
         return false;
     }
     if (!ignoreMinimumQmllsVersion() && qmlls.version < QmllsClientSettings::mininumQmllsVersion)
@@ -512,11 +544,13 @@ BaseClientInterface *QmllsClientSettings::createInterface(BuildConfiguration *bc
     const CommandLine command = commandLineForQmlls(bc);
     interface->setCommandLine(command);
     // A Qt's own qmlls may need the environment its other tools run in.
-    if (const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
-        qtVersion && command.executable() == qtVersion->qmllsFilePath()) {
-        Environment environment = command.executable().deviceEnvironment();
-        qtVersion->addToBuildEnvironment(bc->kit(), environment);
-        interface->setEnvironment(environment);
+    if (bc) {
+        if (const QtVersion *qtVersion = QtKitAspect::qtVersion(bc->kit());
+            qtVersion && command.executable() == qtVersion->qmllsFilePath()) {
+            Environment environment = command.executable().deviceEnvironment();
+            qtVersion->addToBuildEnvironment(bc->kit(), environment);
+            interface->setEnvironment(environment);
+        }
     }
     return interface;
 }
@@ -536,6 +570,7 @@ void QmllsClientSettings::fromMap(const Store &map)
     BaseSettings::fromMap(map);
     mimeTypes.setValue(supportedMimeTypes());
     excludeMimeTypes.setValue({Utils::Constants::QBS_MIMETYPE});
+    startBehavior.setValue(RequiresProjectOrFile);
 
     // port from previous settings
     if (map.contains(useLatestQmllsKey))

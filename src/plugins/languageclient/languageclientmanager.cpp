@@ -473,6 +473,8 @@ void LanguageClientManager::applySettingsForRequiresFileOutsideProjects(BaseSett
             || isInAnyProject(textDocument->filePath())) {
             continue;
         }
+        if (!client && !setting->isValidOnBuildConfiguration(nullptr))
+            return;
         if (!client)
             client = startClient(setting);
         if (!client)
@@ -758,6 +760,8 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
             // Not part of any project: use the one project-less client
             const QList<Client *> fileClients = Utils::filtered(clients, &isProjectLessClient);
             if (fileClients.isEmpty()) {
+                if (!setting->isValidOnBuildConfiguration(nullptr))
+                    break;
                 Client *client = startClient(setting);
                 QTC_ASSERT(client, break);
                 allClients << client;
