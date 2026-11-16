@@ -220,7 +220,7 @@ void LanguageClientManager::clientFinished(Client *client)
                     if (!document)
                         continue;
                     client->deactivateDocument(document.get());
-                    if (Core::EditorManager::currentEditor()->document() == document.get())
+                    if (Core::EditorManager::currentDocument() == document.get())
                         TextEditor::IOutlineWidgetFactory::updateOutline();
                 }
                 return;
