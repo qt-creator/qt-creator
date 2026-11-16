@@ -150,6 +150,9 @@ public:
     void addCommandLineWithAnd(const CommandLine &cmd);
     void addCommandLineWithOr(const CommandLine &cmd);
 
+    static CommandLine inShell(const CommandLine &cmd);
+    static CommandLine inShell(const QString &script, const FilePath &device = {});
+
     QString toUserOutput() const;
     QString displayName() const;
 

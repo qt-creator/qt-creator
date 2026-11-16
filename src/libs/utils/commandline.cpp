@@ -1599,6 +1599,35 @@ void CommandLine::addCommandLineWithOr(const CommandLine &cmd)
     addCommandLineAsArgs(cmd, Raw);
 }
 
+/*!
+    Returns a command line that runs \a cmd through the shell of the device
+    that the executable of \a cmd is on, \c{cmd.exe /v:off /s /c} on Windows
+    and \c{/bin/sh -c} elsewhere.
+
+    This is needed when \a cmd contains shell constructs, such as commands
+    joined by addCommandLineWithAnd().
+*/
+CommandLine CommandLine::inShell(const CommandLine &cmd)
+{
+    const FilePath &exe = cmd.executable();
+    const OsType osType = exe.osType();
+    const QString exePath = osType == OsTypeWindows ? exe.nativePath() : exe.path();
+    return inShell(ProcessArgs::quoteArg(exePath, osType) + ' ' + cmd.arguments(), exe);
+}
+
+/*!
+    Returns a command line that runs \a script through the shell of \a device,
+    \c{cmd.exe /v:off /s /c} on Windows and \c{/bin/sh -c} elsewhere. The
+    default is the shell of the host.
+*/
+CommandLine CommandLine::inShell(const QString &script, const FilePath &device)
+{
+    // With /s, cmd removes exactly the outer pair of quotes and runs the rest unchanged.
+    if (device.osType() == OsTypeWindows)
+        return {device.withNewPath("cmd.exe"), "/v:off /s /c \"" + script + '"', Raw};
+    return {device.withNewPath("/bin/sh"), {"-c", script}};
+}
+
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     ProcessArgs::addArgs(&m_arguments, inArgs);

@@ -132,6 +132,47 @@ private slots:
         QCOMPARE(actual, expected);
     }
 
+    void testInShell()
+    {
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("The test does not yet work on Windows.");
+
+        const QStringList args = {"foo", "long with space", "bar", "blizz is great"};
+        CommandLine cmd(self, args.sliced(0, 2));
+        cmd.addCommandLineWithAnd(CommandLine(self, args.sliced(2, 2)));
+
+        QCOMPARE(run(CommandLine::inShell(cmd)), args.join(newLine) + newLine);
+    }
+
+    void testInShellScript()
+    {
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("The test does not yet work on Windows.");
+
+        const QString exe = ProcessArgs::quoteArg(self.path());
+        const QString script = exe + " foo && " + exe + " 'with space'";
+
+        QCOMPARE(run(CommandLine::inShell(script)), "foo" + newLine + "with space" + newLine);
+    }
+
+    void testInShellOnDevice()
+    {
+        const FilePath linuxExe = FilePath::fromParts(u"linuxdev", u"host", u"/usr/bin/make");
+        const CommandLine onLinux = CommandLine::inShell(CommandLine(linuxExe, {"a b"}));
+        QCOMPARE(onLinux.executable(), linuxExe.withNewPath("/bin/sh"));
+        QCOMPARE(onLinux.splitArguments(), QStringList({"-c", "/usr/bin/make 'a b'"}));
+
+        const FilePath winExe = FilePath::fromParts(u"windev", u"host", u"C:/Program Files/app.exe");
+        const CommandLine onWindows = CommandLine::inShell(CommandLine(winExe, {"say \"hi\""}));
+        QCOMPARE(onWindows.executable(), winExe.withNewPath("cmd.exe"));
+        QCOMPARE(onWindows.arguments(),
+                 QString("/v:off /s /c \"\"C:\\Program Files\\app.exe\" "
+                         "\"say \"\\^\"\"hi\"\\^\"\"\"\""));
+
+        const CommandLine script = CommandLine::inShell("\"C:\\x y\\a.exe\" foo", winExe);
+        QCOMPARE(script.arguments(), QString("/v:off /s /c \"\"C:\\x y\\a.exe\" foo\""));
+    }
+
     void testConstructor_data()
     {
         QTest::addColumn<CommandLine>("command");

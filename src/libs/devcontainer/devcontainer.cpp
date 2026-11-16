@@ -1519,20 +1519,14 @@ static ExecutableItem singleCommandLifecycleRecipe(
 
     // If dockerExecCmd is provided, we execute the command in the container using a shell.
     // If not, we execute the command through a host shell.
-    static const CommandLine hostShell = HostOsInfo::isWindowsHost()
-                                             ? CommandLine{"cmd.exe", {"/c"}}
-                                             : CommandLine{"/bin/sh", {"-c"}};
-
-    // We either execute the command in a shell running on the host ...
     CommandLine cmdLine;
     if (dockerExecCmd) {
         cmdLine = *dockerExecCmd;
         cmdLine.addArgs({"/bin/sh", "-c"});
+        cmdLine.addArg(command);
     } else {
-        cmdLine = hostShell;
+        cmdLine = CommandLine::inShell(command);
     }
-
-    cmdLine.addArg(command);
 
     return lifecycleHookTask(cmdLine, instanceConfig, name);
 }
