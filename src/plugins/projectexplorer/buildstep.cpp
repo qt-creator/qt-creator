@@ -20,6 +20,8 @@
 #include <utils/outputformatter.h>
 #include <utils/variablechooser.h>
 
+#include <QPointer>
+
 /*!
     \class ProjectExplorer::BuildStep
 
@@ -96,9 +98,10 @@ QWidget *BuildStep::doCreateConfigWidget()
     QWidget *widget = createConfigWidget();
     VariableChooser::addSupportForChildWidgets(widget, MacroExpanderProvider(this, macroExpander()));
 
-    const auto recreateSummary = [this] {
-        if (m_summaryUpdater)
-            setSummaryText(m_summaryUpdater());
+    // The widget can outlive the step, e.g. when the step's target is removed
+    const auto recreateSummary = [step = QPointer<BuildStep>(this)] {
+        if (step && step->m_summaryUpdater)
+            step->setSummaryText(step->m_summaryUpdater());
     };
 
     for (BaseAspect *aspect : std::as_const(*this))
