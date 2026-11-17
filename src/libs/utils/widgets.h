@@ -70,7 +70,7 @@ private:
 class QTCREATOR_UTILS_EXPORT DocumentTabBar : public QTabBar
 {
 public:
-    using QTabBar::QTabBar;
+    explicit DocumentTabBar(QWidget *parent = nullptr);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

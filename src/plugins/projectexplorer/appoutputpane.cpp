@@ -459,7 +459,6 @@ AppOutputPane::AppOutputPane() :
     updateFromSettings();
 
     // Spacer (?)
-    m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
     connect(m_tabWidget, &QTabWidget::tabCloseRequested,

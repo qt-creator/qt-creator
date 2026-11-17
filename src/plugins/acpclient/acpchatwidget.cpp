@@ -78,7 +78,6 @@ AcpChatWidget::AcpChatWidget(QWidget *parent)
 
     // Tab-bar selector (shown when "Use tabbed editors" is enabled), between toolbar and stack.
     m_tabBar = new Utils::DocumentTabBar(this);
-    m_tabBar->setDocumentMode(true);
     m_tabBar->setTabsClosable(true);
     m_tabBar->setShape(QTabBar::RoundedNorth);
     m_tabBar->setExpanding(false);

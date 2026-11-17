@@ -94,7 +94,6 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 
-    m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
     connect(m_tabWidget, &QTabWidget::tabCloseRequested,
