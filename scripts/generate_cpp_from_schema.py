@@ -1026,8 +1026,15 @@ def _infer_discriminator_field(items):
 
     # The discriminator must appear in all items that have inline properties
     items_with_props = sum(1 for fields in const_fields_per_item if fields)
+    # An item that names its variant with a title, or the open-union catch-all,
+    # still supplies a discriminator value without spelling out the const, so a
+    # single const item is enough when every other item is of that kind.
+    titled_items = sum(1 for item, fields in zip(items, const_fields_per_item)
+                       if not fields and (item.get("title") or "not" in item))
     for field_name, count in field_counts.most_common():
-        if count >= items_with_props and count >= 2:
+        if count < items_with_props:
+            continue
+        if count >= 2 or count + titled_items == len(items):
             return field_name
     return None
 
@@ -1056,6 +1063,7 @@ def _parse_discriminated_union(name, spec, types=None):
     variants = []  # list of (cpp_type_name, disc_value, item_spec)
     has_fallback = False
     optional_disc_variants = []  # variants that declare the value but do not require the field
+    title_disc_variants = []  # variants named only by their title, without the field
     for item in items:
         ref = _extract_ref(item)
         if ref is None and "not" in item:
@@ -1072,10 +1080,12 @@ def _parse_discriminated_union(name, spec, types=None):
         elif item.get("title"):
             # Fallback: use item title as discriminator value
             disc_val = item["title"]
+            if ref and disc_field not in inline_props:
+                title_disc_variants.append(ref_type(ref))
 
         if ref and disc_val:
             variants.append((ref_type(ref), disc_val, item))
-            if disc_field in inline_props and disc_field not in item.get("required", []):
+            if disc_field not in item.get("required", []):
                 optional_disc_variants.append(ref_type(ref))
         elif not ref and disc_val and item.get("properties"):
             # Inline object variant (like the "cancelled" variant in RequestPermissionOutcome)
@@ -1104,6 +1114,11 @@ def _parse_discriminated_union(name, spec, types=None):
     # is what a payload that omits the field decodes to.
     default_type = optional_disc_variants[0] \
         if len(optional_disc_variants) == 1 and len(variants) > 1 else None
+    # In an open union, the default variant named only by its title is told
+    # apart by the absent field: its title would read as an unknown variant,
+    # so it is neither matched nor written.
+    implicit_type = default_type \
+        if has_fallback and default_type in title_disc_variants else None
 
     # Check if we need a wrapper struct (duplicates exist or inline-only variants)
     if has_duplicates or has_inline_only:
@@ -1112,7 +1127,8 @@ def _parse_discriminated_union(name, spec, types=None):
     else:
         # No duplicates — generate a using alias with discriminator-based dispatch
         return _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types,
-                                        has_fallback=has_fallback, default_type=default_type)
+                                        has_fallback=has_fallback, default_type=default_type,
+                                        implicit_type=implicit_type)
 
 
 def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_types, spec, types,
@@ -1205,8 +1221,12 @@ def _gen_discriminated_wrapper_struct(name, disc_field, variants, unique_cpp_typ
 
 
 def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec, types,
-                             has_fallback=False, default_type=None):
-    """Generate a using alias with discriminator-based dispatch for unions without duplicate types."""
+                             has_fallback=False, default_type=None, implicit_type=None):
+    """Generate a using alias with discriminator-based dispatch for unions without duplicate types.
+
+    implicit_type is the variant that a payload without the discriminator field
+    decodes to and that is written without it.
+    """
     prefix = doc_comment(spec.get('description', ''))
     lines = []
     variant_members = list(unique_cpp_types)
@@ -1227,6 +1247,8 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
 
     first = True
     for cpp_type_name, disc_val, item in variants:
+        if cpp_type_name == implicit_type:
+            continue
         kw = "if" if first else "else if"
         first = False
         fj.append(f"    {kw} (dispatchValue == \"{disc_val}\")")
@@ -1255,7 +1277,7 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
     # Build dispatch map: for each unique type, find its disc_val
     type_to_disc = {}
     for cpp_type_name, disc_val, item in variants:
-        if cpp_type_name not in type_to_disc:
+        if cpp_type_name not in type_to_disc and cpp_type_name != implicit_type:
             type_to_disc[cpp_type_name] = disc_val
     first = True
     for cpp_type_name, disc_val in type_to_disc.items():
@@ -1281,7 +1303,11 @@ def _gen_discriminated_alias(name, disc_field, variants, unique_cpp_types, spec,
         lines.append(f"            return toJson(v);")
         lines.append(f"        }}")
         lines.append(f"    }}, val);")
-        lines.append(f"    obj.insert(\"{disc_field}\", dispatchValue(val));")
+        if implicit_type:
+            lines.append(f"    if (const QString disc = dispatchValue(val); !disc.isEmpty())")
+            lines.append(f"        obj.insert(\"{disc_field}\", disc);")
+        else:
+            lines.append(f"    obj.insert(\"{disc_field}\", dispatchValue(val));")
         lines.append(f"    return obj;")
         lines.append(f"}}")
         lines.append(f"")

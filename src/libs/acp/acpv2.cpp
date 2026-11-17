@@ -6,8 +6,6 @@ namespace Acp::V2 {
 template<>
 Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val)
 {
-    if (val.isNull())
-        return RequestId(std::monostate{});
     if (val.isDouble())
         return RequestId(static_cast<int>(val.toDouble()));
     if (val.isString())
@@ -18,10 +16,6 @@ Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val)
 QJsonValue toJsonValue(const RequestId &val)
 {
     return std::visit([](const auto &v) -> QJsonValue {
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, std::monostate>) {
-            return QJsonValue(QJsonValue::Null);
-        } else
         {
             return QVariant::fromValue(v).toJsonValue();
         }
@@ -331,27 +325,35 @@ Utils::Result<MultiSelectItems> fromJson<MultiSelectItems>(const QJsonValue &val
 {
     if (!val.isObject())
         return Utils::ResultError("Invalid MultiSelectItems: expected object");
-    const QJsonObject obj = val.toObject();
-    if (obj.contains("enum")) {
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "string") {
         const auto res0 = fromJson<StringMultiSelectItems>(val);
         if (!res0)
             return Utils::ResultError(res0.error());
         return MultiSelectItems(*res0);
     }
-    if (obj.contains("anyOf")) {
+    if (dispatchValue.isEmpty()) {
         const auto res1 = fromJson<TitledMultiSelectItems>(val);
         if (!res1)
             return Utils::ResultError(res1.error());
         return MultiSelectItems(*res1);
     }
-    if (val.isObject())
-        return MultiSelectItems(val.toObject());  // open union: preserve unknown variants raw
-    return Utils::ResultError("Invalid MultiSelectItems");
+    return MultiSelectItems(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const MultiSelectItems &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, StringMultiSelectItems>) return "string";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
 }
 
 QJsonObject toJson(const MultiSelectItems &val)
 {
-    return std::visit([](const auto &v) -> QJsonObject {
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QJsonObject>) {
             return v;
@@ -359,6 +361,9 @@ QJsonObject toJson(const MultiSelectItems &val)
             return toJson(v);
         }
     }, val);
+    if (const QString disc = dispatchValue(val); !disc.isEmpty())
+        obj.insert("type", disc);
+    return obj;
 }
 
 QJsonValue toJsonValue(const MultiSelectItems &val)
@@ -804,17 +809,17 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
     if (!val.isObject())
         return Utils::ResultError("Expected JSON object for ElicitationSchema");
     const QJsonObject obj = val.toObject();
+    if (!obj.contains("type"))
+        return Utils::ResultError("Missing required field: type");
+    if (!obj.contains("properties"))
+        return Utils::ResultError("Missing required field: properties");
+    if (!obj["properties"].isObject())
+        return Utils::ResultError("Invalid type for field: properties");
     ElicitationSchema result;
-    // "type": a parse failure leaves the field at its default.
-    (void) [&]() -> Utils::Result<> {
-        if (obj.contains("type")) {
-            const auto typeRes0 = fromJson<ElicitationSchemaType>("type", obj["type"]);
-            if (!typeRes0)
-                return Utils::ResultError(typeRes0.error());
-            result._type = *typeRes0;
-        }
-        return {};
-    }();
+    const auto res0 = fromJson<ElicitationSchemaType>("type", obj["type"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._type = *res0;
     if (obj.contains("title")) {
         if (!obj["title"].isNull()) {
             result._title = obj.value("title").toString();
@@ -822,14 +827,14 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
             result._title = std::nullopt;
         }
     }
-    if (obj.contains("properties") && obj["properties"].isObject()) {
+    {
         const QJsonObject mapObj_properties = obj["properties"].toObject();
         QMap<QString, ElicitationPropertySchema> map_properties;
         for (auto it = mapObj_properties.constBegin(); it != mapObj_properties.constEnd(); ++it) {
-            const auto res0 = fromJson<ElicitationPropertySchema>("properties", it.value());
-            if (!res0)
-                return Utils::ResultError(res0.error());
-            map_properties.insert(it.key(), *res0);
+            const auto res1 = fromJson<ElicitationPropertySchema>("properties", it.value());
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            map_properties.insert(it.key(), *res1);
         }
         result._properties = map_properties;
     }
@@ -859,19 +864,15 @@ Utils::Result<ElicitationSchema> fromJson<ElicitationSchema>(const QJsonValue &v
 
 QJsonObject toJson(const ElicitationSchema &data)
 {
-    QJsonObject obj;
-    if (data._type.has_value())
-        obj.insert("type", toJsonValue(*data._type));
+    QJsonObject obj{{"type", toJsonValue(data._type)}};
     if (data._title.has_value())
         obj.insert("title", *data._title);
     else if (data._title.isNull())
         obj.insert("title", QJsonValue::Null);
-    if (data._properties.has_value()) {
-        QJsonObject map_properties;
-        for (auto it = data._properties->constBegin(); it != data._properties->constEnd(); ++it)
-            map_properties.insert(it.key(), toJsonValue(it.value()));
-        obj.insert("properties", map_properties);
-    }
+    QJsonObject map_properties;
+    for (auto it = data._properties.constBegin(); it != data._properties.constEnd(); ++it)
+        map_properties.insert(it.key(), toJsonValue(it.value()));
+    obj.insert("properties", map_properties);
     if (data._required.has_value())
         obj.insert("required", *data._required);
     else if (data._required.isNull())
@@ -1195,6 +1196,76 @@ QJsonObject toJson(const CommandPermissionSubject &data)
         obj.insert("terminalId", *data._terminalId);
     else if (data._terminalId.isNull())
         obj.insert("terminalId", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<ToolCallCancelCapabilities> fromJson<ToolCallCancelCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for ToolCallCancelCapabilities");
+    const QJsonObject obj = val.toObject();
+    ToolCallCancelCapabilities result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const ToolCallCancelCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<ToolCallCapabilities> fromJson<ToolCallCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for ToolCallCapabilities");
+    const QJsonObject obj = val.toObject();
+    ToolCallCapabilities result;
+    // "cancel": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("cancel") && !obj["cancel"].isNull()) {
+            const auto cancelRes0 = fromJson<ToolCallCancelCapabilities>("cancel", obj["cancel"]);
+            if (!cancelRes0)
+                return Utils::ResultError(cancelRes0.error());
+            result._cancel = *cancelRes0;
+        }
+        else if (obj.contains("cancel"))
+            result._cancel = std::nullopt;
+        return {};
+    }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const ToolCallCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._cancel.has_value())
+        obj.insert("cancel", toJson(*data._cancel));
+    else if (data._cancel.isNull())
+        obj.insert("cancel", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -1697,6 +1768,13 @@ Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val)
             result._theme = std::nullopt;
         return {};
     }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
     return result;
 }
 
@@ -1715,6 +1793,10 @@ QJsonObject toJson(const Icon &data)
         obj.insert("theme", toJsonValue(*data._theme));
     else if (data._theme.isNull())
         obj.insert("theme", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
     return obj;
 }
 
@@ -2195,6 +2277,13 @@ Utils::Result<DiffPatch> fromJson<DiffPatch>(const QJsonValue &val)
         return Utils::ResultError(res0.error());
     result._format = *res0;
     result._text = obj.value("text").toString();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
     return result;
 }
 
@@ -2204,6 +2293,10 @@ QJsonObject toJson(const DiffPatch &data)
         {"format", toJsonValue(data._format)},
         {"text", data._text}
     };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
     return obj;
 }
 
@@ -2412,6 +2505,7 @@ QString toString(ToolCallStatus v)
     switch(v) {
         case ToolCallStatus::pending: return "pending";
         case ToolCallStatus::in_progress: return "in_progress";
+        case ToolCallStatus::paused: return "paused";
         case ToolCallStatus::completed: return "completed";
         case ToolCallStatus::failed: return "failed";
         case ToolCallStatus::cancelled: return "cancelled";
@@ -2427,6 +2521,7 @@ Utils::Result<ToolCallStatus> fromJson<ToolCallStatus>(const QJsonValue &val)
     const QString str = val.toString();
     if (str == "pending") return ToolCallStatus::pending;
     if (str == "in_progress") return ToolCallStatus::in_progress;
+    if (str == "paused") return ToolCallStatus::paused;
     if (str == "completed") return ToolCallStatus::completed;
     if (str == "failed") return ToolCallStatus::failed;
     if (str == "cancelled") return ToolCallStatus::cancelled;
@@ -2494,6 +2589,13 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
     if (!res0)
         return Utils::ResultError(res0.error());
     result._toolCallId = *res0;
+    if (obj.contains("name")) {
+        if (!obj["name"].isNull()) {
+            result._name = obj.value("name").toString();
+        } else {
+            result._name = std::nullopt;
+        }
+    }
     if (obj.contains("title")) {
         if (!obj["title"].isNull()) {
             result._title = obj.value("title").toString();
@@ -2555,6 +2657,18 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
         result._rawInput = obj.value("rawInput");
     if (obj.contains("rawOutput"))
         result._rawOutput = obj.value("rawOutput");
+    // "capabilities": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("capabilities") && !obj["capabilities"].isNull()) {
+            const auto capabilitiesRes0 = fromJson<ToolCallCapabilities>("capabilities", obj["capabilities"]);
+            if (!capabilitiesRes0)
+                return Utils::ResultError(capabilitiesRes0.error());
+            result._capabilities = *capabilitiesRes0;
+        }
+        else if (obj.contains("capabilities"))
+            result._capabilities = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -2568,6 +2682,10 @@ Utils::Result<ToolCallUpdate> fromJson<ToolCallUpdate>(const QJsonValue &val)
 QJsonObject toJson(const ToolCallUpdate &data)
 {
     QJsonObject obj{{"toolCallId", data._toolCallId}};
+    if (data._name.has_value())
+        obj.insert("name", *data._name);
+    else if (data._name.isNull())
+        obj.insert("name", QJsonValue::Null);
     if (data._title.has_value())
         obj.insert("title", *data._title);
     else if (data._title.isNull())
@@ -2598,6 +2716,10 @@ QJsonObject toJson(const ToolCallUpdate &data)
         obj.insert("rawInput", *data._rawInput);
     if (data._rawOutput.has_value())
         obj.insert("rawOutput", *data._rawOutput);
+    if (data._capabilities.has_value())
+        obj.insert("capabilities", toJson(*data._capabilities));
+    else if (data._capabilities.isNull())
+        obj.insert("capabilities", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -2620,12 +2742,23 @@ Utils::Result<ToolCallPermissionSubject> fromJson<ToolCallPermissionSubject>(con
     if (!res0)
         return Utils::ResultError(res0.error());
     result._toolCall = *res0;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
     return result;
 }
 
 QJsonObject toJson(const ToolCallPermissionSubject &data)
 {
     QJsonObject obj{{"toolCall", toJson(data._toolCall)}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
     return obj;
 }
 
@@ -2799,6 +2932,60 @@ QJsonObject toJson(const AgentRequest &data)
 }
 
 template<>
+Utils::Result<CancelTerminalResponse> fromJson<CancelTerminalResponse>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CancelTerminalResponse");
+    const QJsonObject obj = val.toObject();
+    CancelTerminalResponse result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CancelTerminalResponse &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<CancelToolCallResponse> fromJson<CancelToolCallResponse>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CancelToolCallResponse");
+    const QJsonObject obj = val.toObject();
+    CancelToolCallResponse result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CancelToolCallResponse &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<CloseSessionResponse> fromJson<CloseSessionResponse>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -2853,6 +3040,136 @@ QJsonObject toJson(const DeleteSessionResponse &data)
 }
 
 template<>
+Utils::Result<SessionNotFoundErrorData> fromJson<SessionNotFoundErrorData>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for SessionNotFoundErrorData");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("sessionId"))
+        return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
+    SessionNotFoundErrorData result;
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const SessionNotFoundErrorData &data)
+{
+    QJsonObject obj{{"sessionId", data._sessionId}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<> Utils::Result<ProtocolVersion> fromJson<ProtocolVersion>(const QJsonValue &val)
+{
+    if (!val.isDouble()) return Utils::ResultError("Expected number");
+    return static_cast<int>(val.toDouble());
+}
+
+template<>
+Utils::Result<UnsupportedProtocolVersionErrorData> fromJson<UnsupportedProtocolVersionErrorData>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for UnsupportedProtocolVersionErrorData");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("requested"))
+        return Utils::ResultError("Missing required field: requested");
+    if (!obj["requested"].isDouble())
+        return Utils::ResultError("Invalid type for field: requested");
+    if (!obj.contains("supported"))
+        return Utils::ResultError("Missing required field: supported");
+    if (!obj["supported"].isArray())
+        return Utils::ResultError("Invalid type for field: supported");
+    UnsupportedProtocolVersionErrorData result;
+    const auto res0 = fromJson<ProtocolVersion>("requested", obj["requested"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._requested = *res0;
+    {
+        const QJsonArray arr = obj["supported"].toArray();
+        for (const QJsonValue &v : arr) {
+            const auto res1 = fromJson<ProtocolVersion>("supported", v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            result._supported.append(*res1);
+        }
+    }
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const UnsupportedProtocolVersionErrorData &data)
+{
+    QJsonObject obj{{"requested", data._requested}};
+    QJsonArray arr_supported;
+    for (const auto &v : data._supported) arr_supported.append(v);
+    obj.insert("supported", arr_supported);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<ErrorData> fromJson<ErrorData>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Invalid ErrorData: expected object");
+    const QJsonObject obj = val.toObject();
+    if (obj.contains("requested")) {
+        const auto res0 = fromJson<UnsupportedProtocolVersionErrorData>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ErrorData(*res0);
+    }
+    if (obj.contains("sessionId")) {
+        const auto res1 = fromJson<SessionNotFoundErrorData>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return ErrorData(*res1);
+    }
+    return Utils::ResultError("Invalid ErrorData");
+}
+
+QJsonObject toJson(const ErrorData &val)
+{
+    return std::visit([](const auto &v) -> QJsonObject {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+}
+
+QJsonValue toJsonValue(const ErrorData &val)
+{
+    return toJson(val);
+}
+
+template<>
 Utils::Result<Error> fromJson<Error>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -2869,8 +3186,18 @@ Utils::Result<Error> fromJson<Error>(const QJsonValue &val)
     Error result;
     result._code = obj.value("code").toInt();
     result._message = obj.value("message").toString();
-    if (obj.contains("data"))
-        result._data = obj.value("data");
+    // "data": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("data") && !obj["data"].isNull()) {
+            const auto dataRes0 = fromJson<ErrorData>("data", obj["data"]);
+            if (!dataRes0)
+                return Utils::ResultError(dataRes0.error());
+            result._data = *dataRes0;
+        }
+        else if (obj.contains("data"))
+            result._data = std::nullopt;
+        return {};
+    }();
     return result;
 }
 
@@ -2881,7 +3208,9 @@ QJsonObject toJson(const Error &data)
         {"message", data._message}
     };
     if (data._data.has_value())
-        obj.insert("data", *data._data);
+        obj.insert("data", toJsonValue(*data._data));
+    else if (data._data.isNull())
+        obj.insert("data", QJsonValue::Null);
     return obj;
 }
 
@@ -3236,6 +3565,119 @@ QJsonObject toJson(const SessionDeleteCapabilities &data)
 }
 
 template<>
+Utils::Result<SessionSystemPromptOverrideCapabilities> fromJson<SessionSystemPromptOverrideCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for SessionSystemPromptOverrideCapabilities");
+    const QJsonObject obj = val.toObject();
+    SessionSystemPromptOverrideCapabilities result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const SessionSystemPromptOverrideCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<SessionSystemPromptModeCapabilities> fromJson<SessionSystemPromptModeCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for SessionSystemPromptModeCapabilities");
+    const QJsonObject obj = val.toObject();
+    SessionSystemPromptModeCapabilities result;
+    // "override": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("override") && !obj["override"].isNull()) {
+            const auto override_Res0 = fromJson<SessionSystemPromptOverrideCapabilities>("override", obj["override"]);
+            if (!override_Res0)
+                return Utils::ResultError(override_Res0.error());
+            result._override_ = *override_Res0;
+        }
+        else if (obj.contains("override"))
+            result._override_ = std::nullopt;
+        return {};
+    }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const SessionSystemPromptModeCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._override_.has_value())
+        obj.insert("override", toJson(*data._override_));
+    else if (data._override_.isNull())
+        obj.insert("override", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<SessionSystemPromptCapabilities> fromJson<SessionSystemPromptCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for SessionSystemPromptCapabilities");
+    const QJsonObject obj = val.toObject();
+    SessionSystemPromptCapabilities result;
+    // "mode": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("mode") && !obj["mode"].isNull()) {
+            const auto modeRes0 = fromJson<SessionSystemPromptModeCapabilities>("mode", obj["mode"]);
+            if (!modeRes0)
+                return Utils::ResultError(modeRes0.error());
+            result._mode = *modeRes0;
+        }
+        else if (obj.contains("mode"))
+            result._mode = std::nullopt;
+        return {};
+    }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const SessionSystemPromptCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._mode.has_value())
+        obj.insert("mode", toJson(*data._mode));
+    else if (data._mode.isNull())
+        obj.insert("mode", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<SessionCapabilities> fromJson<SessionCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -3290,6 +3732,18 @@ Utils::Result<SessionCapabilities> fromJson<SessionCapabilities>(const QJsonValu
             result._additionalDirectories = std::nullopt;
         return {};
     }();
+    // "systemPrompt": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("systemPrompt") && !obj["systemPrompt"].isNull()) {
+            const auto systemPromptRes0 = fromJson<SessionSystemPromptCapabilities>("systemPrompt", obj["systemPrompt"]);
+            if (!systemPromptRes0)
+                return Utils::ResultError(systemPromptRes0.error());
+            result._systemPrompt = *systemPromptRes0;
+        }
+        else if (obj.contains("systemPrompt"))
+            result._systemPrompt = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3319,6 +3773,10 @@ QJsonObject toJson(const SessionCapabilities &data)
         obj.insert("additionalDirectories", toJson(*data._additionalDirectories));
     else if (data._additionalDirectories.isNull())
         obj.insert("additionalDirectories", QJsonValue::Null);
+    if (data._systemPrompt.has_value())
+        obj.insert("systemPrompt", toJson(*data._systemPrompt));
+    else if (data._systemPrompt.isNull())
+        obj.insert("systemPrompt", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -3518,10 +3976,10 @@ Utils::Result<AuthMethodTerminal> fromJson<AuthMethodTerminal>(const QJsonValue 
         const QJsonArray arr = obj["env"].toArray();
         QList<EnvVariable> list_env;
         for (const QJsonValue &v : arr) {
-            const auto envItem = fromJson<EnvVariable>("env", v);
-            if (!envItem)
-                continue;
-            list_env.append(*envItem);
+            const auto res1 = fromJson<EnvVariable>("env", v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            list_env.append(*res1);
         }
         result._env = list_env;
     }
@@ -3666,12 +4124,6 @@ QJsonObject toJson(const Implementation &data)
     return obj;
 }
 
-template<> Utils::Result<ProtocolVersion> fromJson<ProtocolVersion>(const QJsonValue &val)
-{
-    if (!val.isDouble()) return Utils::ResultError("Expected number");
-    return static_cast<int>(val.toDouble());
-}
-
 template<>
 Utils::Result<InitializeResponse> fromJson<InitializeResponse>(const QJsonValue &val)
 {
@@ -3773,10 +4225,10 @@ Utils::Result<SessionInfo> fromJson<SessionInfo>(const QJsonValue &val)
         const QJsonArray arr = obj["additionalDirectories"].toArray();
         QList<AbsolutePath> list_additionalDirectories;
         for (const QJsonValue &v : arr) {
-            const auto additionalDirectoriesItem = fromJson<AbsolutePath>("additionalDirectories", v);
-            if (!additionalDirectoriesItem)
-                continue;
-            list_additionalDirectories.append(*additionalDirectoriesItem);
+            const auto res2 = fromJson<AbsolutePath>("additionalDirectories", v);
+            if (!res2)
+                return Utils::ResultError(res2.error());
+            list_additionalDirectories.append(*res2);
         }
         result._additionalDirectories = list_additionalDirectories;
     }
@@ -3850,18 +4302,14 @@ Utils::Result<ListSessionsResponse> fromJson<ListSessionsResponse>(const QJsonVa
             result._sessions.append(*sessionsItem);
         }
     }
-    // "nextCursor": a parse failure leaves the field at its default.
-    (void) [&]() -> Utils::Result<> {
-        if (obj.contains("nextCursor") && !obj["nextCursor"].isNull()) {
-            const auto nextCursorRes0 = fromJson<SessionListCursor>("nextCursor", obj["nextCursor"]);
-            if (!nextCursorRes0)
-                return Utils::ResultError(nextCursorRes0.error());
-            result._nextCursor = *nextCursorRes0;
-        }
-        else if (obj.contains("nextCursor"))
-            result._nextCursor = std::nullopt;
-        return {};
-    }();
+    if (obj.contains("nextCursor") && !obj["nextCursor"].isNull()) {
+        const auto res0 = fromJson<SessionListCursor>("nextCursor", obj["nextCursor"]);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        result._nextCursor = *res0;
+    }
+    else if (obj.contains("nextCursor"))
+        result._nextCursor = std::nullopt;
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -3941,6 +4389,186 @@ QJsonObject toJson(const LogoutAuthResponse &data)
     else if (data.__meta.isNull())
         obj.insert("_meta", QJsonValue::Null);
     return obj;
+}
+
+template<>
+Utils::Result<TextCommandInput> fromJson<TextCommandInput>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for TextCommandInput");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("hint"))
+        return Utils::ResultError("Missing required field: hint");
+    if (!obj["hint"].isString())
+        return Utils::ResultError("Invalid type for field: hint");
+    TextCommandInput result;
+    result._hint = obj.value("hint").toString();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const TextCommandInput &data)
+{
+    QJsonObject obj{{"hint", data._hint}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<AvailableCommandInput> fromJson<AvailableCommandInput>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Invalid AvailableCommandInput: expected object");
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "text") {
+        const auto res0 = fromJson<TextCommandInput>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return AvailableCommandInput(*res0);
+    }
+    if (dispatchValue.isEmpty())
+        return Utils::ResultError("Invalid AvailableCommandInput: missing type");
+    return AvailableCommandInput(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const AvailableCommandInput &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, TextCommandInput>) return "text";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
+}
+
+QJsonObject toJson(const AvailableCommandInput &val)
+{
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
+}
+
+QJsonValue toJsonValue(const AvailableCommandInput &val)
+{
+    return toJson(val);
+}
+
+template<>
+Utils::Result<Command> fromJson<Command>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for Command");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("name"))
+        return Utils::ResultError("Missing required field: name");
+    if (!obj["name"].isString())
+        return Utils::ResultError("Invalid type for field: name");
+    if (!obj.contains("description"))
+        return Utils::ResultError("Missing required field: description");
+    if (!obj["description"].isString())
+        return Utils::ResultError("Invalid type for field: description");
+    Command result;
+    result._name = obj.value("name").toString();
+    result._description = obj.value("description").toString();
+    // "input": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("input") && !obj["input"].isNull()) {
+            const auto inputRes0 = fromJson<AvailableCommandInput>("input", obj["input"]);
+            if (!inputRes0)
+                return Utils::ResultError(inputRes0.error());
+            result._input = *inputRes0;
+        }
+        else if (obj.contains("input"))
+            result._input = std::nullopt;
+        return {};
+    }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const Command &data)
+{
+    QJsonObject obj{
+        {"name", data._name},
+        {"description", data._description}
+    };
+    if (data._input.has_value())
+        obj.insert("input", toJsonValue(*data._input));
+    else if (data._input.isNull())
+        obj.insert("input", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Invalid AvailableCommand: expected object");
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "command") {
+        const auto res0 = fromJson<Command>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return AvailableCommand(*res0);
+    }
+    if (dispatchValue.isEmpty())
+        return Utils::ResultError("Invalid AvailableCommand: missing type");
+    return AvailableCommand(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const AvailableCommand &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, Command>) return "command";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
+}
+
+QJsonObject toJson(const AvailableCommand &val)
+{
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
+}
+
+QJsonValue toJsonValue(const AvailableCommand &val)
+{
+    return toJson(val);
 }
 
 template<>
@@ -4292,6 +4920,17 @@ Utils::Result<NewSessionResponse> fromJson<NewSessionResponse>(const QJsonValue 
         }
         result._configOptions = list_configOptions;
     }
+    if (obj.contains("availableCommands") && obj["availableCommands"].isArray()) {
+        const QJsonArray arr = obj["availableCommands"].toArray();
+        QList<AvailableCommand> list_availableCommands;
+        for (const QJsonValue &v : arr) {
+            const auto availableCommandsItem = fromJson<AvailableCommand>("availableCommands", v);
+            if (!availableCommandsItem)
+                continue;
+            list_availableCommands.append(*availableCommandsItem);
+        }
+        result._availableCommands = list_availableCommands;
+    }
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4310,6 +4949,11 @@ QJsonObject toJson(const NewSessionResponse &data)
         for (const auto &v : *data._configOptions) arr_configOptions.append(toJson(v));
         obj.insert("configOptions", arr_configOptions);
     }
+    if (data._availableCommands.has_value()) {
+        QJsonArray arr_availableCommands;
+        for (const auto &v : *data._availableCommands) arr_availableCommands.append(toJsonValue(v));
+        obj.insert("availableCommands", arr_availableCommands);
+    }
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -4323,7 +4967,15 @@ Utils::Result<PromptResponse> fromJson<PromptResponse>(const QJsonValue &val)
     if (!val.isObject())
         return Utils::ResultError("Expected JSON object for PromptResponse");
     const QJsonObject obj = val.toObject();
+    if (!obj.contains("messageId"))
+        return Utils::ResultError("Missing required field: messageId");
+    if (!obj["messageId"].isString())
+        return Utils::ResultError("Invalid type for field: messageId");
     PromptResponse result;
+    const auto res0 = fromJson<MessageId>("messageId", obj["messageId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._messageId = *res0;
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4336,7 +4988,7 @@ Utils::Result<PromptResponse> fromJson<PromptResponse>(const QJsonValue &val)
 
 QJsonObject toJson(const PromptResponse &data)
 {
-    QJsonObject obj;
+    QJsonObject obj{{"messageId", data._messageId}};
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -4362,6 +5014,17 @@ Utils::Result<ResumeSessionResponse> fromJson<ResumeSessionResponse>(const QJson
         }
         result._configOptions = list_configOptions;
     }
+    if (obj.contains("availableCommands") && obj["availableCommands"].isArray()) {
+        const QJsonArray arr = obj["availableCommands"].toArray();
+        QList<AvailableCommand> list_availableCommands;
+        for (const QJsonValue &v : arr) {
+            const auto availableCommandsItem = fromJson<AvailableCommand>("availableCommands", v);
+            if (!availableCommandsItem)
+                continue;
+            list_availableCommands.append(*availableCommandsItem);
+        }
+        result._availableCommands = list_availableCommands;
+    }
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -4379,6 +5042,11 @@ QJsonObject toJson(const ResumeSessionResponse &data)
         QJsonArray arr_configOptions;
         for (const auto &v : *data._configOptions) arr_configOptions.append(toJson(v));
         obj.insert("configOptions", arr_configOptions);
+    }
+    if (data._availableCommands.has_value()) {
+        QJsonArray arr_availableCommands;
+        for (const auto &v : *data._availableCommands) arr_availableCommands.append(toJsonValue(v));
+        obj.insert("availableCommands", arr_availableCommands);
     }
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
@@ -4593,128 +5261,6 @@ QJsonObject toJson(const AgentThought &data)
 }
 
 template<>
-Utils::Result<TextCommandInput> fromJson<TextCommandInput>(const QJsonValue &val)
-{
-    if (!val.isObject())
-        return Utils::ResultError("Expected JSON object for TextCommandInput");
-    const QJsonObject obj = val.toObject();
-    if (!obj.contains("hint"))
-        return Utils::ResultError("Missing required field: hint");
-    if (!obj["hint"].isString())
-        return Utils::ResultError("Invalid type for field: hint");
-    TextCommandInput result;
-    result._hint = obj.value("hint").toString();
-    if (obj.contains("_meta")) {
-        if (!obj["_meta"].isNull()) {
-            result.__meta = obj.value("_meta").toObject();
-        } else {
-            result.__meta = std::nullopt;
-        }
-    }
-    return result;
-}
-
-QJsonObject toJson(const TextCommandInput &data)
-{
-    QJsonObject obj{{"hint", data._hint}};
-    if (data.__meta.has_value())
-        obj.insert("_meta", *data.__meta);
-    else if (data.__meta.isNull())
-        obj.insert("_meta", QJsonValue::Null);
-    return obj;
-}
-
-template<>
-Utils::Result<AvailableCommandInput> fromJson<AvailableCommandInput>(const QJsonValue &val)
-{
-    if (!val.isObject())
-        return Utils::ResultError("Invalid AvailableCommandInput: expected object");
-    const QJsonObject obj = val.toObject();
-    if (obj.contains("hint")) {
-        const auto res0 = fromJson<TextCommandInput>(val);
-        if (!res0)
-            return Utils::ResultError(res0.error());
-        return AvailableCommandInput(*res0);
-    }
-    if (val.isObject())
-        return AvailableCommandInput(val.toObject());  // open union: preserve unknown variants raw
-    return Utils::ResultError("Invalid AvailableCommandInput");
-}
-
-QJsonObject toJson(const AvailableCommandInput &val)
-{
-    return std::visit([](const auto &v) -> QJsonObject {
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, QJsonObject>) {
-            return v;
-        } else {
-            return toJson(v);
-        }
-    }, val);
-}
-
-QJsonValue toJsonValue(const AvailableCommandInput &val)
-{
-    return toJson(val);
-}
-
-template<>
-Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val)
-{
-    if (!val.isObject())
-        return Utils::ResultError("Expected JSON object for AvailableCommand");
-    const QJsonObject obj = val.toObject();
-    if (!obj.contains("name"))
-        return Utils::ResultError("Missing required field: name");
-    if (!obj["name"].isString())
-        return Utils::ResultError("Invalid type for field: name");
-    if (!obj.contains("description"))
-        return Utils::ResultError("Missing required field: description");
-    if (!obj["description"].isString())
-        return Utils::ResultError("Invalid type for field: description");
-    AvailableCommand result;
-    result._name = obj.value("name").toString();
-    result._description = obj.value("description").toString();
-    // "input": a parse failure leaves the field at its default.
-    (void) [&]() -> Utils::Result<> {
-        if (obj.contains("input") && !obj["input"].isNull()) {
-            const auto inputRes0 = fromJson<AvailableCommandInput>("input", obj["input"]);
-            if (!inputRes0)
-                return Utils::ResultError(inputRes0.error());
-            result._input = *inputRes0;
-        }
-        else if (obj.contains("input"))
-            result._input = std::nullopt;
-        return {};
-    }();
-    if (obj.contains("_meta")) {
-        if (!obj["_meta"].isNull()) {
-            result.__meta = obj.value("_meta").toObject();
-        } else {
-            result.__meta = std::nullopt;
-        }
-    }
-    return result;
-}
-
-QJsonObject toJson(const AvailableCommand &data)
-{
-    QJsonObject obj{
-        {"name", data._name},
-        {"description", data._description}
-    };
-    if (data._input.has_value())
-        obj.insert("input", toJsonValue(*data._input));
-    else if (data._input.isNull())
-        obj.insert("input", QJsonValue::Null);
-    if (data.__meta.has_value())
-        obj.insert("_meta", *data.__meta);
-    else if (data.__meta.isNull())
-        obj.insert("_meta", QJsonValue::Null);
-    return obj;
-}
-
-template<>
 Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -4748,8 +5294,156 @@ QJsonObject toJson(const AvailableCommandsUpdate &data)
 {
     QJsonObject obj;
     QJsonArray arr_availableCommands;
-    for (const auto &v : data._availableCommands) arr_availableCommands.append(toJson(v));
+    for (const auto &v : data._availableCommands) arr_availableCommands.append(toJsonValue(v));
     obj.insert("availableCommands", arr_availableCommands);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<CompactionSummaryChunk> fromJson<CompactionSummaryChunk>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CompactionSummaryChunk");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("compactionId"))
+        return Utils::ResultError("Missing required field: compactionId");
+    if (!obj["compactionId"].isString())
+        return Utils::ResultError("Invalid type for field: compactionId");
+    if (!obj.contains("content"))
+        return Utils::ResultError("Missing required field: content");
+    CompactionSummaryChunk result;
+    const auto res0 = fromJson<CompactionId>("compactionId", obj["compactionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._compactionId = *res0;
+    const auto res1 = fromJson<ContentBlock>("content", obj["content"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._content = *res1;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CompactionSummaryChunk &data)
+{
+    QJsonObject obj{
+        {"compactionId", data._compactionId},
+        {"content", toJsonValue(data._content)}
+    };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+QString toString(CompactionStatus v)
+{
+    switch(v) {
+        case CompactionStatus::in_progress: return "in_progress";
+        case CompactionStatus::completed: return "completed";
+        case CompactionStatus::failed: return "failed";
+        case CompactionStatus::cancelled: return "cancelled";
+    }
+    return {};
+}
+
+template<>
+Utils::Result<CompactionStatus> fromJson<CompactionStatus>(const QJsonValue &val)
+{
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for CompactionStatus");
+    const QString str = val.toString();
+    if (str == "in_progress") return CompactionStatus::in_progress;
+    if (str == "completed") return CompactionStatus::completed;
+    if (str == "failed") return CompactionStatus::failed;
+    if (str == "cancelled") return CompactionStatus::cancelled;
+    return Utils::ResultError("Invalid CompactionStatus value: " + str);
+}
+
+QJsonValue toJsonValue(const CompactionStatus &v)
+{
+    return toString(v);
+}
+
+template<>
+Utils::Result<CompactionUpdate> fromJson<CompactionUpdate>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CompactionUpdate");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("compactionId"))
+        return Utils::ResultError("Missing required field: compactionId");
+    if (!obj["compactionId"].isString())
+        return Utils::ResultError("Invalid type for field: compactionId");
+    if (!obj.contains("status"))
+        return Utils::ResultError("Missing required field: status");
+    CompactionUpdate result;
+    const auto res0 = fromJson<CompactionId>("compactionId", obj["compactionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._compactionId = *res0;
+    const auto res1 = fromJson<CompactionStatus>("status", obj["status"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._status = *res1;
+    if (obj.contains("summary") && obj["summary"].isArray()) {
+        const QJsonArray arr = obj["summary"].toArray();
+        QList<ContentBlock> list_summary;
+        for (const QJsonValue &v : arr) {
+            const auto summaryItem = fromJson<ContentBlock>("summary", v);
+            if (!summaryItem)
+                continue;
+            list_summary.append(*summaryItem);
+        }
+        result._summary = list_summary;
+    }
+    else if (obj.contains("summary") && obj["summary"].isNull())
+        result._summary = std::nullopt;
+    if (obj.contains("error")) {
+        if (!obj["error"].isNull()) {
+            result._error = obj.value("error").toString();
+        } else {
+            result._error = std::nullopt;
+        }
+    }
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CompactionUpdate &data)
+{
+    QJsonObject obj{
+        {"compactionId", data._compactionId},
+        {"status", toJsonValue(data._status)}
+    };
+    if (data._summary.has_value()) {
+        QJsonArray arr_summary;
+        for (const auto &v : *data._summary) arr_summary.append(toJsonValue(v));
+        obj.insert("summary", arr_summary);
+    }
+    else if (data._summary.isNull())
+        obj.insert("summary", QJsonValue::Null);
+    if (data._error.has_value())
+        obj.insert("error", *data._error);
+    else if (data._error.isNull())
+        obj.insert("error", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -4837,6 +5531,85 @@ QJsonObject toJson(const ContentChunk &data)
         {"messageId", data._messageId},
         {"content", toJsonValue(data._content)}
     };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+QString toString(NoticeSeverity v)
+{
+    switch(v) {
+        case NoticeSeverity::info: return "info";
+        case NoticeSeverity::warning: return "warning";
+        case NoticeSeverity::error: return "error";
+    }
+    return {};
+}
+
+template<>
+Utils::Result<NoticeSeverity> fromJson<NoticeSeverity>(const QJsonValue &val)
+{
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for NoticeSeverity");
+    const QString str = val.toString();
+    if (str == "info") return NoticeSeverity::info;
+    if (str == "warning") return NoticeSeverity::warning;
+    if (str == "error") return NoticeSeverity::error;
+    return Utils::ResultError("Invalid NoticeSeverity value: " + str);
+}
+
+QJsonValue toJsonValue(const NoticeSeverity &v)
+{
+    return toString(v);
+}
+
+template<>
+Utils::Result<Notice> fromJson<Notice>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for Notice");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("severity"))
+        return Utils::ResultError("Missing required field: severity");
+    if (!obj.contains("title"))
+        return Utils::ResultError("Missing required field: title");
+    if (!obj["title"].isString())
+        return Utils::ResultError("Invalid type for field: title");
+    Notice result;
+    const auto res0 = fromJson<NoticeSeverity>("severity", obj["severity"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._severity = *res0;
+    result._title = obj.value("title").toString();
+    if (obj.contains("description")) {
+        if (!obj["description"].isNull()) {
+            result._description = obj.value("description").toString();
+        } else {
+            result._description = std::nullopt;
+        }
+    }
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const Notice &data)
+{
+    QJsonObject obj{
+        {"severity", toJsonValue(data._severity)},
+        {"title", data._title}
+    };
+    if (data._description.has_value())
+        obj.insert("description", *data._description);
+    else if (data._description.isNull())
+        obj.insert("description", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -5004,21 +5777,31 @@ Utils::Result<PlanUpdateContent> fromJson<PlanUpdateContent>(const QJsonValue &v
 {
     if (!val.isObject())
         return Utils::ResultError("Invalid PlanUpdateContent: expected object");
-    const QJsonObject obj = val.toObject();
-    if (obj.contains("entries")) {
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "items") {
         const auto res0 = fromJson<PlanItems>(val);
         if (!res0)
             return Utils::ResultError(res0.error());
         return PlanUpdateContent(*res0);
     }
-    if (val.isObject())
-        return PlanUpdateContent(val.toObject());  // open union: preserve unknown variants raw
-    return Utils::ResultError("Invalid PlanUpdateContent");
+    if (dispatchValue.isEmpty())
+        return Utils::ResultError("Invalid PlanUpdateContent: missing type");
+    return PlanUpdateContent(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const PlanUpdateContent &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, PlanItems>) return "items";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
 }
 
 QJsonObject toJson(const PlanUpdateContent &val)
 {
-    return std::visit([](const auto &v) -> QJsonObject {
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QJsonObject>) {
             return v;
@@ -5026,6 +5809,8 @@ QJsonObject toJson(const PlanUpdateContent &val)
             return toJson(v);
         }
     }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
 }
 
 QJsonValue toJsonValue(const PlanUpdateContent &val)
@@ -5115,56 +5900,21 @@ QJsonObject toJson(const SessionInfoUpdate &data)
     return obj;
 }
 
-QString toString(StopReason v)
-{
-    switch(v) {
-        case StopReason::end_turn: return "end_turn";
-        case StopReason::max_tokens: return "max_tokens";
-        case StopReason::max_turn_requests: return "max_turn_requests";
-        case StopReason::refusal: return "refusal";
-        case StopReason::cancelled: return "cancelled";
-    }
-    return {};
-}
-
 template<>
-Utils::Result<StopReason> fromJson<StopReason>(const QJsonValue &val)
-{
-    if (!val.isString())
-        return Utils::ResultError("Expected JSON string for StopReason");
-    const QString str = val.toString();
-    if (str == "end_turn") return StopReason::end_turn;
-    if (str == "max_tokens") return StopReason::max_tokens;
-    if (str == "max_turn_requests") return StopReason::max_turn_requests;
-    if (str == "refusal") return StopReason::refusal;
-    if (str == "cancelled") return StopReason::cancelled;
-    return Utils::ResultError("Invalid StopReason value: " + str);
-}
-
-QJsonValue toJsonValue(const StopReason &v)
-{
-    return toString(v);
-}
-
-template<>
-Utils::Result<IdleStateUpdate> fromJson<IdleStateUpdate>(const QJsonValue &val)
+Utils::Result<BackgroundTerminal> fromJson<BackgroundTerminal>(const QJsonValue &val)
 {
     if (!val.isObject())
-        return Utils::ResultError("Expected JSON object for IdleStateUpdate");
+        return Utils::ResultError("Expected JSON object for BackgroundTerminal");
     const QJsonObject obj = val.toObject();
-    IdleStateUpdate result;
-    // "stopReason": a parse failure leaves the field at its default.
-    (void) [&]() -> Utils::Result<> {
-        if (obj.contains("stopReason") && !obj["stopReason"].isNull()) {
-            const auto stopReasonRes0 = fromJson<StopReason>("stopReason", obj["stopReason"]);
-            if (!stopReasonRes0)
-                return Utils::ResultError(stopReasonRes0.error());
-            result._stopReason = *stopReasonRes0;
-        }
-        else if (obj.contains("stopReason"))
-            result._stopReason = std::nullopt;
-        return {};
-    }();
+    if (!obj.contains("terminalId"))
+        return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
+    BackgroundTerminal result;
+    const auto res0 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._terminalId = *res0;
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5175,17 +5925,204 @@ Utils::Result<IdleStateUpdate> fromJson<IdleStateUpdate>(const QJsonValue &val)
     return result;
 }
 
-QJsonObject toJson(const IdleStateUpdate &data)
+QJsonObject toJson(const BackgroundTerminal &data)
 {
-    QJsonObject obj;
-    if (data._stopReason.has_value())
-        obj.insert("stopReason", toJsonValue(*data._stopReason));
-    else if (data._stopReason.isNull())
-        obj.insert("stopReason", QJsonValue::Null);
+    QJsonObject obj{{"terminalId", data._terminalId}};
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
         obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<BackgroundToolCall> fromJson<BackgroundToolCall>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for BackgroundToolCall");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("toolCallId"))
+        return Utils::ResultError("Missing required field: toolCallId");
+    if (!obj["toolCallId"].isString())
+        return Utils::ResultError("Invalid type for field: toolCallId");
+    BackgroundToolCall result;
+    const auto res0 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._toolCallId = *res0;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const BackgroundToolCall &data)
+{
+    QJsonObject obj{{"toolCallId", data._toolCallId}};
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<BackgroundWork> fromJson<BackgroundWork>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Invalid BackgroundWork: expected object");
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "terminal") {
+        const auto res0 = fromJson<BackgroundTerminal>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return BackgroundWork(*res0);
+    }
+    else if (dispatchValue == "tool_call") {
+        const auto res1 = fromJson<BackgroundToolCall>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return BackgroundWork(*res1);
+    }
+    if (dispatchValue.isEmpty())
+        return Utils::ResultError("Invalid BackgroundWork: missing type");
+    return BackgroundWork(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const BackgroundWork &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, BackgroundTerminal>) return "terminal";
+        else if constexpr (std::is_same_v<T, BackgroundToolCall>) return "tool_call";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
+}
+
+QJsonObject toJson(const BackgroundWork &val)
+{
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
+}
+
+QJsonValue toJsonValue(const BackgroundWork &val)
+{
+    return toJson(val);
+}
+
+template<>
+Utils::Result<ErrorStopReason> fromJson<ErrorStopReason>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for ErrorStopReason");
+    const QJsonObject obj = val.toObject();
+    ErrorStopReason result;
+    // "error": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("error") && !obj["error"].isNull()) {
+            const auto errorRes0 = fromJson<Error>("error", obj["error"]);
+            if (!errorRes0)
+                return Utils::ResultError(errorRes0.error());
+            result._error = *errorRes0;
+        }
+        else if (obj.contains("error"))
+            result._error = std::nullopt;
+        return {};
+    }();
+    return result;
+}
+
+QJsonObject toJson(const ErrorStopReason &data)
+{
+    QJsonObject obj;
+    if (data._error.has_value())
+        obj.insert("error", toJson(*data._error));
+    else if (data._error.isNull())
+        obj.insert("error", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<IdleStateUpdate> fromJson<IdleStateUpdate>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for IdleStateUpdate");
+    const QJsonObject obj = val.toObject();
+    IdleStateUpdate result;
+    // "background": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("background") && obj["background"].isArray()) {
+            const QJsonArray arr = obj["background"].toArray();
+            QList<BackgroundWork> list_background;
+            for (const QJsonValue &v : arr) {
+                const auto backgroundRes0 = fromJson<BackgroundWork>("background", v);
+                if (!backgroundRes0)
+                    return Utils::ResultError(backgroundRes0.error());
+                list_background.append(*backgroundRes0);
+            }
+            result._background = list_background;
+        }
+        else if (obj.contains("background") && obj["background"].isNull())
+            result._background = std::nullopt;
+        return {};
+    }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    if (obj.contains("stopReason")) {
+        if (!obj["stopReason"].isNull()) {
+            result._stopReason = obj.value("stopReason").toString();
+        } else {
+            result._stopReason = std::nullopt;
+        }
+    }
+    {
+        const QSet<QString> knownKeys{"background", "_meta", "stopReason"};
+        for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) {
+            if (!knownKeys.contains(it.key()))
+                result._additionalProperties.insert(it.key(), it.value());
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const IdleStateUpdate &data)
+{
+    QJsonObject obj;
+    if (data._background.has_value()) {
+        QJsonArray arr_background;
+        for (const auto &v : *data._background) arr_background.append(toJsonValue(v));
+        obj.insert("background", arr_background);
+    }
+    else if (data._background.isNull())
+        obj.insert("background", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    if (data._stopReason.has_value())
+        obj.insert("stopReason", *data._stopReason);
+    else if (data._stopReason.isNull())
+        obj.insert("stopReason", QJsonValue::Null);
+    for (auto it = data._additionalProperties.constBegin(); it != data._additionalProperties.constEnd(); ++it)
+        obj.insert(it.key(), it.value());
     return obj;
 }
 
@@ -5196,6 +6133,23 @@ Utils::Result<RequiresActionStateUpdate> fromJson<RequiresActionStateUpdate>(con
         return Utils::ResultError("Expected JSON object for RequiresActionStateUpdate");
     const QJsonObject obj = val.toObject();
     RequiresActionStateUpdate result;
+    // "background": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("background") && obj["background"].isArray()) {
+            const QJsonArray arr = obj["background"].toArray();
+            QList<BackgroundWork> list_background;
+            for (const QJsonValue &v : arr) {
+                const auto backgroundRes0 = fromJson<BackgroundWork>("background", v);
+                if (!backgroundRes0)
+                    return Utils::ResultError(backgroundRes0.error());
+                list_background.append(*backgroundRes0);
+            }
+            result._background = list_background;
+        }
+        else if (obj.contains("background") && obj["background"].isNull())
+            result._background = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5209,6 +6163,13 @@ Utils::Result<RequiresActionStateUpdate> fromJson<RequiresActionStateUpdate>(con
 QJsonObject toJson(const RequiresActionStateUpdate &data)
 {
     QJsonObject obj;
+    if (data._background.has_value()) {
+        QJsonArray arr_background;
+        for (const auto &v : *data._background) arr_background.append(toJsonValue(v));
+        obj.insert("background", arr_background);
+    }
+    else if (data._background.isNull())
+        obj.insert("background", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -5223,6 +6184,23 @@ Utils::Result<RunningStateUpdate> fromJson<RunningStateUpdate>(const QJsonValue 
         return Utils::ResultError("Expected JSON object for RunningStateUpdate");
     const QJsonObject obj = val.toObject();
     RunningStateUpdate result;
+    // "background": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("background") && obj["background"].isArray()) {
+            const QJsonArray arr = obj["background"].toArray();
+            QList<BackgroundWork> list_background;
+            for (const QJsonValue &v : arr) {
+                const auto backgroundRes0 = fromJson<BackgroundWork>("background", v);
+                if (!backgroundRes0)
+                    return Utils::ResultError(backgroundRes0.error());
+                list_background.append(*backgroundRes0);
+            }
+            result._background = list_background;
+        }
+        else if (obj.contains("background") && obj["background"].isNull())
+            result._background = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5236,6 +6214,13 @@ Utils::Result<RunningStateUpdate> fromJson<RunningStateUpdate>(const QJsonValue 
 QJsonObject toJson(const RunningStateUpdate &data)
 {
     QJsonObject obj;
+    if (data._background.has_value()) {
+        QJsonArray arr_background;
+        for (const auto &v : *data._background) arr_background.append(toJsonValue(v));
+        obj.insert("background", arr_background);
+    }
+    else if (data._background.isNull())
+        obj.insert("background", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -5347,6 +6332,76 @@ QJsonObject toJson(const TerminalOutputChunk &data)
 }
 
 template<>
+Utils::Result<TerminalCancelCapabilities> fromJson<TerminalCancelCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for TerminalCancelCapabilities");
+    const QJsonObject obj = val.toObject();
+    TerminalCancelCapabilities result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const TerminalCancelCapabilities &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<TerminalCapabilities> fromJson<TerminalCapabilities>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for TerminalCapabilities");
+    const QJsonObject obj = val.toObject();
+    TerminalCapabilities result;
+    // "cancel": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("cancel") && !obj["cancel"].isNull()) {
+            const auto cancelRes0 = fromJson<TerminalCancelCapabilities>("cancel", obj["cancel"]);
+            if (!cancelRes0)
+                return Utils::ResultError(cancelRes0.error());
+            result._cancel = *cancelRes0;
+        }
+        else if (obj.contains("cancel"))
+            result._cancel = std::nullopt;
+        return {};
+    }();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const TerminalCapabilities &data)
+{
+    QJsonObject obj;
+    if (data._cancel.has_value())
+        obj.insert("cancel", toJson(*data._cancel));
+    else if (data._cancel.isNull())
+        obj.insert("cancel", QJsonValue::Null);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<TerminalExitStatus> fromJson<TerminalExitStatus>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -5428,6 +6483,46 @@ QJsonObject toJson(const TerminalOutput &data)
 }
 
 template<>
+Utils::Result<TerminalSize> fromJson<TerminalSize>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for TerminalSize");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("cols"))
+        return Utils::ResultError("Missing required field: cols");
+    if (!obj["cols"].isDouble())
+        return Utils::ResultError("Invalid type for field: cols");
+    if (!obj.contains("rows"))
+        return Utils::ResultError("Missing required field: rows");
+    if (!obj["rows"].isDouble())
+        return Utils::ResultError("Invalid type for field: rows");
+    TerminalSize result;
+    result._cols = obj.value("cols").toInt();
+    result._rows = obj.value("rows").toInt();
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const TerminalSize &data)
+{
+    QJsonObject obj{
+        {"cols", data._cols},
+        {"rows", data._rows}
+    };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<TerminalUpdate> fromJson<TerminalUpdate>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -5485,6 +6580,30 @@ Utils::Result<TerminalUpdate> fromJson<TerminalUpdate>(const QJsonValue &val)
             result._exitStatus = std::nullopt;
         return {};
     }();
+    // "size": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("size") && !obj["size"].isNull()) {
+            const auto sizeRes0 = fromJson<TerminalSize>("size", obj["size"]);
+            if (!sizeRes0)
+                return Utils::ResultError(sizeRes0.error());
+            result._size = *sizeRes0;
+        }
+        else if (obj.contains("size"))
+            result._size = std::nullopt;
+        return {};
+    }();
+    // "capabilities": a parse failure leaves the field at its default.
+    (void) [&]() -> Utils::Result<> {
+        if (obj.contains("capabilities") && !obj["capabilities"].isNull()) {
+            const auto capabilitiesRes0 = fromJson<TerminalCapabilities>("capabilities", obj["capabilities"]);
+            if (!capabilitiesRes0)
+                return Utils::ResultError(capabilitiesRes0.error());
+            result._capabilities = *capabilitiesRes0;
+        }
+        else if (obj.contains("capabilities"))
+            result._capabilities = std::nullopt;
+        return {};
+    }();
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -5514,6 +6633,14 @@ QJsonObject toJson(const TerminalUpdate &data)
         obj.insert("exitStatus", toJson(*data._exitStatus));
     else if (data._exitStatus.isNull())
         obj.insert("exitStatus", QJsonValue::Null);
+    if (data._size.has_value())
+        obj.insert("size", toJson(*data._size));
+    else if (data._size.isNull())
+        obj.insert("size", QJsonValue::Null);
+    if (data._capabilities.has_value())
+        obj.insert("capabilities", toJson(*data._capabilities));
+    else if (data._capabilities.isNull())
+        obj.insert("capabilities", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -5821,6 +6948,24 @@ Utils::Result<SessionUpdate> fromJson<SessionUpdate>(const QJsonValue &val)
             return Utils::ResultError(res15.error());
         result._value = *res15;
     }
+    else if (kind == "notice") {
+        const auto res16 = fromJson<Notice>(val);
+        if (!res16)
+            return Utils::ResultError(res16.error());
+        result._value = *res16;
+    }
+    else if (kind == "compaction_update") {
+        const auto res17 = fromJson<CompactionUpdate>(val);
+        if (!res17)
+            return Utils::ResultError(res17.error());
+        result._value = *res17;
+    }
+    else if (kind == "compaction_summary_chunk") {
+        const auto res18 = fromJson<CompactionSummaryChunk>(val);
+        if (!res18)
+            return Utils::ResultError(res18.error());
+        result._value = *res18;
+    }
     else if (kind.isEmpty())
         return Utils::ResultError("Invalid SessionUpdate: missing sessionUpdate");
     else
@@ -5910,6 +7055,98 @@ QJsonObject toJson(const AgentNotification &data)
     QJsonObject obj{{"method", data._method}};
     if (data._params.has_value())
         obj.insert("params", *data._params);
+    return obj;
+}
+
+template<>
+Utils::Result<CancelTerminalRequest> fromJson<CancelTerminalRequest>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CancelTerminalRequest");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("sessionId"))
+        return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
+    if (!obj.contains("terminalId"))
+        return Utils::ResultError("Missing required field: terminalId");
+    if (!obj["terminalId"].isString())
+        return Utils::ResultError("Invalid type for field: terminalId");
+    CancelTerminalRequest result;
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<TerminalId>("terminalId", obj["terminalId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._terminalId = *res1;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CancelTerminalRequest &data)
+{
+    QJsonObject obj{
+        {"sessionId", data._sessionId},
+        {"terminalId", data._terminalId}
+    };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
+Utils::Result<CancelToolCallRequest> fromJson<CancelToolCallRequest>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CancelToolCallRequest");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("sessionId"))
+        return Utils::ResultError("Missing required field: sessionId");
+    if (!obj["sessionId"].isString())
+        return Utils::ResultError("Invalid type for field: sessionId");
+    if (!obj.contains("toolCallId"))
+        return Utils::ResultError("Missing required field: toolCallId");
+    if (!obj["toolCallId"].isString())
+        return Utils::ResultError("Invalid type for field: toolCallId");
+    CancelToolCallRequest result;
+    const auto res0 = fromJson<SessionId>("sessionId", obj["sessionId"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._sessionId = *res0;
+    const auto res1 = fromJson<ToolCallId>("toolCallId", obj["toolCallId"]);
+    if (!res1)
+        return Utils::ResultError(res1.error());
+    result._toolCallId = *res1;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CancelToolCallRequest &data)
+{
+    QJsonObject obj{
+        {"sessionId", data._sessionId},
+        {"toolCallId", data._toolCallId}
+    };
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
     return obj;
 }
 
@@ -6011,12 +7248,12 @@ QJsonObject toJson(const TerminalAuthCapabilities &data)
 }
 
 template<>
-Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val)
+Utils::Result<ClientAuthCapabilities> fromJson<ClientAuthCapabilities>(const QJsonValue &val)
 {
     if (!val.isObject())
-        return Utils::ResultError("Expected JSON object for AuthCapabilities");
+        return Utils::ResultError("Expected JSON object for ClientAuthCapabilities");
     const QJsonObject obj = val.toObject();
-    AuthCapabilities result;
+    ClientAuthCapabilities result;
     // "terminal": a parse failure leaves the field at its default.
     (void) [&]() -> Utils::Result<> {
         if (obj.contains("terminal") && !obj["terminal"].isNull()) {
@@ -6039,7 +7276,7 @@ Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val
     return result;
 }
 
-QJsonObject toJson(const AuthCapabilities &data)
+QJsonObject toJson(const ClientAuthCapabilities &data)
 {
     QJsonObject obj;
     if (data._terminal.has_value())
@@ -6176,7 +7413,7 @@ Utils::Result<ClientCapabilities> fromJson<ClientCapabilities>(const QJsonValue 
     // "auth": a parse failure leaves the field at its default.
     (void) [&]() -> Utils::Result<> {
         if (obj.contains("auth") && !obj["auth"].isNull()) {
-            const auto authRes0 = fromJson<AuthCapabilities>("auth", obj["auth"]);
+            const auto authRes0 = fromJson<ClientAuthCapabilities>("auth", obj["auth"]);
             if (!authRes0)
                 return Utils::ResultError(authRes0.error());
             result._auth = *authRes0;
@@ -6617,6 +7854,80 @@ QJsonValue toJsonValue(const McpServer &val)
     return toJson(val);
 }
 
+QString toString(SystemPromptMode v)
+{
+    switch(v) {
+        case SystemPromptMode::append: return "append";
+        case SystemPromptMode::override_: return "override";
+    }
+    return {};
+}
+
+template<>
+Utils::Result<SystemPromptMode> fromJson<SystemPromptMode>(const QJsonValue &val)
+{
+    if (!val.isString())
+        return Utils::ResultError("Expected JSON string for SystemPromptMode");
+    const QString str = val.toString();
+    if (str == "append") return SystemPromptMode::append;
+    if (str == "override") return SystemPromptMode::override_;
+    return Utils::ResultError("Invalid SystemPromptMode value: " + str);
+}
+
+QJsonValue toJsonValue(const SystemPromptMode &v)
+{
+    return toString(v);
+}
+
+template<>
+Utils::Result<SystemPrompt> fromJson<SystemPrompt>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for SystemPrompt");
+    const QJsonObject obj = val.toObject();
+    if (!obj.contains("mode"))
+        return Utils::ResultError("Missing required field: mode");
+    if (!obj.contains("content"))
+        return Utils::ResultError("Missing required field: content");
+    if (!obj["content"].isArray())
+        return Utils::ResultError("Invalid type for field: content");
+    SystemPrompt result;
+    const auto res0 = fromJson<SystemPromptMode>("mode", obj["mode"]);
+    if (!res0)
+        return Utils::ResultError(res0.error());
+    result._mode = *res0;
+    {
+        const QJsonArray arr = obj["content"].toArray();
+        for (const QJsonValue &v : arr) {
+            const auto res1 = fromJson<ContentBlock>("content", v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            result._content.append(*res1);
+        }
+    }
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const SystemPrompt &data)
+{
+    QJsonObject obj{{"mode", toJsonValue(data._mode)}};
+    QJsonArray arr_content;
+    for (const auto &v : data._content) arr_content.append(toJsonValue(v));
+    obj.insert("content", arr_content);
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
 template<>
 Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &val)
 {
@@ -6636,10 +7947,10 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
         const QJsonArray arr = obj["additionalDirectories"].toArray();
         QList<AbsolutePath> list_additionalDirectories;
         for (const QJsonValue &v : arr) {
-            const auto additionalDirectoriesItem = fromJson<AbsolutePath>("additionalDirectories", v);
-            if (!additionalDirectoriesItem)
-                continue;
-            list_additionalDirectories.append(*additionalDirectoriesItem);
+            const auto res1 = fromJson<AbsolutePath>("additionalDirectories", v);
+            if (!res1)
+                return Utils::ResultError(res1.error());
+            list_additionalDirectories.append(*res1);
         }
         result._additionalDirectories = list_additionalDirectories;
     }
@@ -6647,13 +7958,21 @@ Utils::Result<NewSessionRequest> fromJson<NewSessionRequest>(const QJsonValue &v
         const QJsonArray arr = obj["mcpServers"].toArray();
         QList<McpServer> list_mcpServers;
         for (const QJsonValue &v : arr) {
-            const auto mcpServersItem = fromJson<McpServer>("mcpServers", v);
-            if (!mcpServersItem)
-                continue;
-            list_mcpServers.append(*mcpServersItem);
+            const auto res2 = fromJson<McpServer>("mcpServers", v);
+            if (!res2)
+                return Utils::ResultError(res2.error());
+            list_mcpServers.append(*res2);
         }
         result._mcpServers = list_mcpServers;
     }
+    if (obj.contains("systemPrompt") && !obj["systemPrompt"].isNull()) {
+        const auto res3 = fromJson<SystemPrompt>("systemPrompt", obj["systemPrompt"]);
+        if (!res3)
+            return Utils::ResultError(res3.error());
+        result._systemPrompt = *res3;
+    }
+    else if (obj.contains("systemPrompt"))
+        result._systemPrompt = std::nullopt;
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -6677,6 +7996,10 @@ QJsonObject toJson(const NewSessionRequest &data)
         for (const auto &v : *data._mcpServers) arr_mcpServers.append(toJsonValue(v));
         obj.insert("mcpServers", arr_mcpServers);
     }
+    if (data._systemPrompt.has_value())
+        obj.insert("systemPrompt", toJson(*data._systemPrompt));
+    else if (data._systemPrompt.isNull())
+        obj.insert("systemPrompt", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -6765,18 +8088,33 @@ QJsonObject toJson(const ReplayFromStart &data)
 template<>
 Utils::Result<ReplayFrom> fromJson<ReplayFrom>(const QJsonValue &val)
 {
-    if (val.isObject()) {
-        auto result = fromJson<ReplayFromStart>(val);
-        if (result) return ReplayFrom(*result);
+    if (!val.isObject())
+        return Utils::ResultError("Invalid ReplayFrom: expected object");
+    const QString dispatchValue = val.toObject().value("type").toString();
+    if (dispatchValue == "start") {
+        const auto res0 = fromJson<ReplayFromStart>(val);
+        if (!res0)
+            return Utils::ResultError(res0.error());
+        return ReplayFrom(*res0);
     }
-    if (val.isObject())
-        return ReplayFrom(val.toObject());  // open union: preserve unknown variants raw
-    return Utils::ResultError("Invalid ReplayFrom");
+    if (dispatchValue.isEmpty())
+        return Utils::ResultError("Invalid ReplayFrom: missing type");
+    return ReplayFrom(val.toObject());  // open union: preserve unknown variants raw
+}
+
+QString dispatchValue(const ReplayFrom &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, ReplayFromStart>) return "start";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("type").toString();
+        return {};
+    }, val);
 }
 
 QJsonObject toJson(const ReplayFrom &val)
 {
-    return std::visit([](const auto &v) -> QJsonObject {
+    QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, QJsonObject>) {
             return v;
@@ -6784,6 +8122,8 @@ QJsonObject toJson(const ReplayFrom &val)
             return toJson(v);
         }
     }, val);
+    obj.insert("type", dispatchValue(val));
+    return obj;
 }
 
 QJsonValue toJsonValue(const ReplayFrom &val)
@@ -6818,10 +8158,10 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
         const QJsonArray arr = obj["additionalDirectories"].toArray();
         QList<AbsolutePath> list_additionalDirectories;
         for (const QJsonValue &v : arr) {
-            const auto additionalDirectoriesItem = fromJson<AbsolutePath>("additionalDirectories", v);
-            if (!additionalDirectoriesItem)
-                continue;
-            list_additionalDirectories.append(*additionalDirectoriesItem);
+            const auto res2 = fromJson<AbsolutePath>("additionalDirectories", v);
+            if (!res2)
+                return Utils::ResultError(res2.error());
+            list_additionalDirectories.append(*res2);
         }
         result._additionalDirectories = list_additionalDirectories;
     }
@@ -6829,25 +8169,29 @@ Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>(const QJsonVa
         const QJsonArray arr = obj["mcpServers"].toArray();
         QList<McpServer> list_mcpServers;
         for (const QJsonValue &v : arr) {
-            const auto mcpServersItem = fromJson<McpServer>("mcpServers", v);
-            if (!mcpServersItem)
-                continue;
-            list_mcpServers.append(*mcpServersItem);
+            const auto res3 = fromJson<McpServer>("mcpServers", v);
+            if (!res3)
+                return Utils::ResultError(res3.error());
+            list_mcpServers.append(*res3);
         }
         result._mcpServers = list_mcpServers;
     }
-    // "replayFrom": a parse failure leaves the field at its default.
-    (void) [&]() -> Utils::Result<> {
-        if (obj.contains("replayFrom") && !obj["replayFrom"].isNull()) {
-            const auto replayFromRes0 = fromJson<ReplayFrom>("replayFrom", obj["replayFrom"]);
-            if (!replayFromRes0)
-                return Utils::ResultError(replayFromRes0.error());
-            result._replayFrom = *replayFromRes0;
-        }
-        else if (obj.contains("replayFrom"))
-            result._replayFrom = std::nullopt;
-        return {};
-    }();
+    if (obj.contains("replayFrom") && !obj["replayFrom"].isNull()) {
+        const auto res4 = fromJson<ReplayFrom>("replayFrom", obj["replayFrom"]);
+        if (!res4)
+            return Utils::ResultError(res4.error());
+        result._replayFrom = *res4;
+    }
+    else if (obj.contains("replayFrom"))
+        result._replayFrom = std::nullopt;
+    if (obj.contains("systemPrompt") && !obj["systemPrompt"].isNull()) {
+        const auto res5 = fromJson<SystemPrompt>("systemPrompt", obj["systemPrompt"]);
+        if (!res5)
+            return Utils::ResultError(res5.error());
+        result._systemPrompt = *res5;
+    }
+    else if (obj.contains("systemPrompt"))
+        result._systemPrompt = std::nullopt;
     if (obj.contains("_meta")) {
         if (!obj["_meta"].isNull()) {
             result.__meta = obj.value("_meta").toObject();
@@ -6878,6 +8222,10 @@ QJsonObject toJson(const ResumeSessionRequest &data)
         obj.insert("replayFrom", toJsonValue(*data._replayFrom));
     else if (data._replayFrom.isNull())
         obj.insert("replayFrom", QJsonValue::Null);
+    if (data._systemPrompt.has_value())
+        obj.insert("systemPrompt", toJson(*data._systemPrompt));
+    else if (data._systemPrompt.isNull())
+        obj.insert("systemPrompt", QJsonValue::Null);
     if (data.__meta.has_value())
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
@@ -7080,6 +8428,33 @@ QJsonObject toJson(const CreateElicitationResponse &data)
 }
 
 template<>
+Utils::Result<CancelledPermissionOutcome> fromJson<CancelledPermissionOutcome>(const QJsonValue &val)
+{
+    if (!val.isObject())
+        return Utils::ResultError("Expected JSON object for CancelledPermissionOutcome");
+    const QJsonObject obj = val.toObject();
+    CancelledPermissionOutcome result;
+    if (obj.contains("_meta")) {
+        if (!obj["_meta"].isNull()) {
+            result.__meta = obj.value("_meta").toObject();
+        } else {
+            result.__meta = std::nullopt;
+        }
+    }
+    return result;
+}
+
+QJsonObject toJson(const CancelledPermissionOutcome &data)
+{
+    QJsonObject obj;
+    if (data.__meta.has_value())
+        obj.insert("_meta", *data.__meta);
+    else if (data.__meta.isNull())
+        obj.insert("_meta", QJsonValue::Null);
+    return obj;
+}
+
+template<>
 Utils::Result<SelectedPermissionOutcome> fromJson<SelectedPermissionOutcome>(const QJsonValue &val)
 {
     if (!val.isObject())
@@ -7119,34 +8494,46 @@ Utils::Result<RequestPermissionOutcome> fromJson<RequestPermissionOutcome>(const
 {
     if (!val.isObject())
         return Utils::ResultError("Invalid RequestPermissionOutcome: expected object");
-    const QJsonObject obj = val.toObject();
-    const QString kind = obj.value("outcome").toString();
-    RequestPermissionOutcome result;
-    result._kind = kind;
-    if (kind == "cancelled")
-        result._value = std::monostate{};
-    else if (kind == "selected") {
-        const auto res0 = fromJson<SelectedPermissionOutcome>(val);
+    const QString dispatchValue = val.toObject().value("outcome").toString();
+    if (dispatchValue == "cancelled") {
+        const auto res0 = fromJson<CancelledPermissionOutcome>(val);
         if (!res0)
             return Utils::ResultError(res0.error());
-        result._value = *res0;
+        return RequestPermissionOutcome(*res0);
     }
-    else if (kind.isEmpty())
+    else if (dispatchValue == "selected") {
+        const auto res1 = fromJson<SelectedPermissionOutcome>(val);
+        if (!res1)
+            return Utils::ResultError(res1.error());
+        return RequestPermissionOutcome(*res1);
+    }
+    if (dispatchValue.isEmpty())
         return Utils::ResultError("Invalid RequestPermissionOutcome: missing outcome");
-    else
-        result._value = obj;  // open union: preserve unknown variants raw
-    return result;
+    return RequestPermissionOutcome(val.toObject());  // open union: preserve unknown variants raw
 }
 
-QJsonObject toJson(const RequestPermissionOutcome &data)
+QString dispatchValue(const RequestPermissionOutcome &val)
+{
+    return std::visit([](const auto &v) -> QString {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, CancelledPermissionOutcome>) return "cancelled";
+        else if constexpr (std::is_same_v<T, SelectedPermissionOutcome>) return "selected";
+        else if constexpr (std::is_same_v<T, QJsonObject>) return v.value("outcome").toString();
+        return {};
+    }, val);
+}
+
+QJsonObject toJson(const RequestPermissionOutcome &val)
 {
     QJsonObject obj = std::visit([](const auto &v) -> QJsonObject {
         using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, std::monostate>) return {};
-        else if constexpr (std::is_same_v<T, QJsonObject>) return v;
-        else return toJson(v);
-    }, data._value);
-    obj.insert("outcome", data._kind);
+        if constexpr (std::is_same_v<T, QJsonObject>) {
+            return v;
+        } else {
+            return toJson(v);
+        }
+    }, val);
+    obj.insert("outcome", dispatchValue(val));
     return obj;
 }
 
@@ -7278,31 +8665,6 @@ QJsonObject toJson(const CancelRequestNotification &data)
         obj.insert("_meta", *data.__meta);
     else if (data.__meta.isNull())
         obj.insert("_meta", QJsonValue::Null);
-    return obj;
-}
-
-template<>
-Utils::Result<ProtocolLevelNotification> fromJson<ProtocolLevelNotification>(const QJsonValue &val)
-{
-    if (!val.isObject())
-        return Utils::ResultError("Expected JSON object for ProtocolLevelNotification");
-    const QJsonObject obj = val.toObject();
-    if (!obj.contains("method"))
-        return Utils::ResultError("Missing required field: method");
-    if (!obj["method"].isString())
-        return Utils::ResultError("Invalid type for field: method");
-    ProtocolLevelNotification result;
-    result._method = obj.value("method").toString();
-    if (obj.contains("params"))
-        result._params = obj.value("params").toString();
-    return result;
-}
-
-QJsonObject toJson(const ProtocolLevelNotification &data)
-{
-    QJsonObject obj{{"method", data._method}};
-    if (data._params.has_value())
-        obj.insert("params", *data._params);
     return obj;
 }
 

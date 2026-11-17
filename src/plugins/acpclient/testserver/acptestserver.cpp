@@ -321,7 +321,8 @@ void Server::handleCloseSession(const QJsonValue &id, const QJsonObject &params)
     sendResult(id, toJson(CloseSessionResponse()));
 }
 
-// The same wire shape serves protocol v1 and v2.
+// The same wire shape serves protocol v1 and v2. "form-untyped" leaves out
+// the schema type, which v1 allows.
 static QJsonObject elicitationParams(const QString &sessionId, const QString &mode)
 {
     if (mode == QLatin1String("url")) {
@@ -336,16 +337,17 @@ static QJsonObject elicitationParams(const QString &sessionId, const QString &mo
                            {"message", "Future input mode"},
                            {"mode", "_test_future_mode"}};
     }
-    return QJsonObject{
-        {"sessionId", sessionId},
-        {"message", "Please enter your name"},
-        {"mode", "form"},
-        {"requestedSchema",
-         QJsonObject{{"type", "object"},
-                     {"properties",
-                      QJsonObject{{"name", QJsonObject{{"type", "string"},
-                                                       {"title", "Your name"}}}}},
-                     {"required", QJsonArray{"name"}}}}};
+    QJsonObject schema{{"type", "object"},
+                       {"properties",
+                        QJsonObject{{"name", QJsonObject{{"type", "string"},
+                                                         {"title", "Your name"}}}}},
+                       {"required", QJsonArray{"name"}}};
+    if (mode == QLatin1String("form-untyped"))
+        schema.remove("type");
+    return QJsonObject{{"sessionId", sessionId},
+                       {"message", "Please enter your name"},
+                       {"mode", "form"},
+                       {"requestedSchema", schema}};
 }
 
 // The word the agent echoes back for a given elicitation answer, so tests can
@@ -417,7 +419,10 @@ void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
         sendUpdate(ContentChunk().content(TextContent().text("all kinds")),
                    "agent_message_chunk");
         sendUpdate(AvailableCommandsUpdate().addAvailableCommand(
-                       AvailableCommand().name("test_command").description("A test command.")),
+                       AvailableCommand()
+                           .name("test_command")
+                           .description("A test command.")
+                           .input(UnstructuredCommandInput().hint("an argument"))),
                    "available_commands_update");
         sendUpdate(UsageUpdate().used(100).size(1000), "usage_update");
         sendResult(id, toJson(PromptResponse().stopReason(StopReason::end_turn)));
@@ -835,7 +840,8 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
                                                {"status", "completed"}});
     sendSessionUpdateV2(sessionId,
                         QJsonObject{{"sessionUpdate", "plan_update"},
-                                    {"plan", QJsonObject{{"planId", "plan-1"},
+                                    {"plan", QJsonObject{{"type", "items"},
+                                                         {"planId", "plan-1"},
                                                          {"entries",
                                                           QJsonArray{QJsonObject{
                                                               {"content", "first step"},

@@ -56,6 +56,24 @@ static QJsonObject convertToolCallUpdate(QJsonObject update)
     return update;
 }
 
+// v1 commands and their unstructured input carry no type, v2 names them
+// "command" and "text".
+static QJsonArray convertAvailableCommands(const QJsonArray &commands)
+{
+    QJsonArray result;
+    for (const QJsonValue &item : commands) {
+        QJsonObject command = item.toObject();
+        command["type"] = QStringLiteral("command");
+        if (command.value("input").isObject()) {
+            QJsonObject input = command.value("input").toObject();
+            input["type"] = QStringLiteral("text");
+            command["input"] = input;
+        }
+        result.append(command);
+    }
+    return result;
+}
+
 // v1 config option JSON differs from v2 only in key names: the option id is
 // "id" instead of "configId", select groups use "group" instead of "groupId".
 static QJsonObject convertConfigOption(QJsonObject option)
@@ -360,11 +378,11 @@ void AcpProtocolV1Adapter::prompt(const QString &sessionId, const QJsonArray &co
             emit promptFinished({});
             return;
         }
-        std::optional<V2::StopReason> stopReason;
-        if (const auto reason = V2::fromJson<V2::StopReason>(result.value("stopReason")))
-            stopReason = *reason;
+        std::optional<QString> stopReason;
+        if (const auto reason = fromJson<StopReason>(result.value("stopReason")))
+            stopReason = toString(*reason);
         if (stopReason)
-            qCDebug(logAdapter) << "Prompt completed. Stop reason:" << V2::toString(*stopReason);
+            qCDebug(logAdapter) << "Prompt completed. Stop reason:" << *stopReason;
         emit promptFinished(stopReason);
     });
 }
@@ -447,9 +465,13 @@ void AcpProtocolV1Adapter::handleNotification(const QString &method, const QJson
         update["sessionUpdate"] = QStringLiteral("tool_call_update");
     } else if (kind == QLatin1String("plan")) {
         QJsonObject plan;
+        plan["type"] = QStringLiteral("items");
         plan["planId"] = QStringLiteral("v1");
         plan["entries"] = update.value("entries");
         update = QJsonObject{{"sessionUpdate", QStringLiteral("plan_update")}, {"plan", plan}};
+    } else if (kind == QLatin1String("available_commands_update")) {
+        update["availableCommands"] = convertAvailableCommands(
+            update.value("availableCommands").toArray());
     } else if (kind == QLatin1String("current_mode_update")) {
         m_currentModeId = update.value("currentModeId").toString();
         update = QJsonObject{{"sessionUpdate", QStringLiteral("config_option_update")},

@@ -112,7 +112,7 @@ struct BooleanPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -173,7 +173,7 @@ struct IntegerPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -209,7 +209,7 @@ struct StringMultiSelectItems {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -245,7 +245,7 @@ struct EnumOption {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -277,7 +277,7 @@ struct TitledMultiSelectItems {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -297,10 +297,13 @@ ACPLIB_EXPORT Utils::Result<TitledMultiSelectItems> fromJson<TitledMultiSelectIt
 ACPLIB_EXPORT QJsonObject toJson(const TitledMultiSelectItems &data);
 
 /** Items for a multi-select (array) property schema. */
-using MultiSelectItems = std::variant<StringMultiSelectItems, QJsonObject, TitledMultiSelectItems>;
+using MultiSelectItems = std::variant<StringMultiSelectItems, TitledMultiSelectItems, QJsonObject>;
 
 template<>
 ACPLIB_EXPORT Utils::Result<MultiSelectItems> fromJson<MultiSelectItems>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const MultiSelectItems &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const MultiSelectItems &val);
 
@@ -346,7 +349,7 @@ struct MultiSelectPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -413,7 +416,7 @@ struct NumberPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -522,7 +525,7 @@ struct StringPropertySchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -560,8 +563,8 @@ ACPLIB_EXPORT QJsonObject toJson(const StringPropertySchema &data);
  * Property schema for elicitation form fields.
  *
  * Each variant corresponds to a JSON Schema `"type"` value.
- * Single-select enums use the `String` variant with `enum` or `oneOf` set.
- * Multi-select enums use the `Array` variant.
+ * Single-select enums use `type: "string"` with `enum` or `oneOf` set.
+ * Multi-select enums use `type: "array"`.
  */
 using ElicitationPropertySchema = std::variant<StringPropertySchema, NumberPropertySchema, IntegerPropertySchema, BooleanPropertySchema, MultiSelectPropertySchema, QJsonObject>;
 
@@ -621,7 +624,7 @@ struct ElicitationSchema {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -657,7 +660,7 @@ using ToolCallId = QString;
 /**
  * Session-scoped elicitation, optionally tied to a specific tool call.
  *
- * When `tool_call_id` is set, the elicitation is tied to a specific tool call.
+ * When `toolCallId` is set, the elicitation is tied to a specific tool call.
  * This is useful when an agent receives an elicitation from an MCP server
  * during a tool call and needs to redirect it to the user.
  */
@@ -746,7 +749,7 @@ struct CreateElicitationRequest {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
@@ -777,7 +780,7 @@ struct EnvVariable {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -820,7 +823,7 @@ struct CreateTerminalRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -863,7 +866,7 @@ struct KillTerminalRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -898,7 +901,7 @@ struct ReadTextFileRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -931,7 +934,7 @@ struct ReleaseTerminalRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -982,7 +985,7 @@ struct PermissionOption {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1029,7 +1032,7 @@ struct Annotations {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1061,7 +1064,7 @@ struct AudioContent {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1093,7 +1096,7 @@ struct BlobResourceContents {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1125,7 +1128,7 @@ struct TextResourceContents {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1169,7 +1172,7 @@ struct EmbeddedResource {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1200,7 +1203,7 @@ struct ImageContent {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1238,7 +1241,7 @@ struct ResourceLink {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1277,7 +1280,7 @@ struct TextContent {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1300,18 +1303,15 @@ ACPLIB_EXPORT QJsonObject toJson(const TextContent &data);
 /**
  * Content blocks represent displayable information in the Agent Client Protocol.
  *
- * They provide a structured way to handle various types of user-facing content--whether
- * it's text from language models, images for analysis, or embedded resources for context.
- *
  * Content blocks appear in:
  * - User prompts sent via `session/prompt`
  * - Language model output streamed through `session/update` notifications
  * - Progress updates and results from tool calls
  *
- * This structure is compatible with the Model Context Protocol (MCP), enabling
- * agents to seamlessly forward content from MCP tool outputs without transformation.
+ * This structure is compatible with the Model Context Protocol (MCP), so agents can
+ * forward content from MCP tool outputs without transformation.
  *
- * See protocol docs: [Content](https://agentclientprotocol.com/protocol/content)
+ * See protocol docs: [Content](https://agentclientprotocol.com/protocol/v1/content)
  */
 using ContentBlock = std::variant<TextContent, ImageContent, AudioContent, ResourceLink, EmbeddedResource>;
 
@@ -1333,7 +1333,7 @@ struct Content {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1356,18 +1356,18 @@ ACPLIB_EXPORT QJsonObject toJson(const Content &data);
  *
  * Shows changes to files in a format suitable for display in the client UI.
  *
- * See protocol docs: [Content](https://agentclientprotocol.com/protocol/tool-calls#content)
+ * See protocol docs: [Content](https://agentclientprotocol.com/protocol/v1/tool-calls#content)
  */
 struct Diff {
     QString _path{};  //!< The absolute file path being modified.
-    std::optional<QString> _oldText{};  //!< The original content (None for new files).
+    std::optional<QString> _oldText{};  //!< The original content (omitted or `null` for new files).
     QString _newText{};  //!< The new content after modification.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1394,7 +1394,7 @@ ACPLIB_EXPORT QJsonObject toJson(const Diff &data);
  *
  * The terminal must be added before calling `terminal/release`.
  *
- * See protocol docs: [Terminal](https://agentclientprotocol.com/protocol/terminals)
+ * See protocol docs: [Terminal](https://agentclientprotocol.com/protocol/v1/terminals)
  */
 struct Terminal {
     TerminalId _terminalId{};  //!< Identifier of the terminal instance to embed in the content stream.
@@ -1403,7 +1403,7 @@ struct Terminal {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1427,7 +1427,7 @@ ACPLIB_EXPORT QJsonObject toJson(const Terminal &data);
  * Tool calls can produce different types of content including
  * standard content blocks (text, images) or file diffs.
  *
- * See protocol docs: [Content](https://agentclientprotocol.com/protocol/tool-calls#content)
+ * See protocol docs: [Content](https://agentclientprotocol.com/protocol/v1/tool-calls#content)
  */
 using ToolCallContent = std::variant<Content, Diff, Terminal>;
 
@@ -1447,17 +1447,17 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolCallContent &val);
  * Enables clients to implement "follow-along" features that track
  * which files the agent is working with in real-time.
  *
- * See protocol docs: [Following the Agent](https://agentclientprotocol.com/protocol/tool-calls#following-the-agent)
+ * See protocol docs: [Following the Agent](https://agentclientprotocol.com/protocol/v1/tool-calls#following-the-agent)
  */
 struct ToolCallLocation {
     QString _path{};  //!< The absolute file path being accessed or modified.
-    std::optional<int> _line{};  //!< Optional line number within the file.
+    std::optional<int> _line{};  //!< Optional 1-based line number within the file.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1482,7 +1482,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCallLocation &data);
  *
  * Tool calls progress through different statuses during their lifecycle.
  *
- * See protocol docs: [Status](https://agentclientprotocol.com/protocol/tool-calls#status)
+ * See protocol docs: [Status](https://agentclientprotocol.com/protocol/v1/tool-calls#status)
  */
 enum class ToolCallStatus {
     pending,
@@ -1504,7 +1504,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolCallStatus &v);
  * Tool kinds help clients choose appropriate icons and optimize how they
  * display tool execution progress.
  *
- * See protocol docs: [Creating](https://agentclientprotocol.com/protocol/tool-calls#creating)
+ * See protocol docs: [Creating](https://agentclientprotocol.com/protocol/v1/tool-calls#creating)
  */
 enum class ToolKind {
     read,
@@ -1532,13 +1532,20 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolKind &v);
  * Used to report progress and results as tools execute. All fields except
  * the tool call ID are optional - only changed fields need to be included.
  *
- * See protocol docs: [Updating](https://agentclientprotocol.com/protocol/tool-calls#updating)
+ * See protocol docs: [Updating](https://agentclientprotocol.com/protocol/v1/tool-calls#updating)
  */
 struct ToolCallUpdate {
     ToolCallId _toolCallId{};  //!< The ID of the tool call being updated.
     std::optional<ToolKind> _kind{};  //!< Update the tool kind.
     std::optional<ToolCallStatus> _status{};  //!< Update the execution status.
     std::optional<QString> _title{};  //!< Update the human-readable title.
+    /**
+     * Update the programmatic name of the tool being invoked.
+     *
+     * This field is optional. Omitting it or sending `null` both mean that
+     * the existing name is left unchanged.
+     */
+    std::optional<QString> _name{};
     std::optional<QJsonArray> _content{};  //!< Replace the content collection.
     std::optional<QJsonArray> _locations{};  //!< Replace the locations collection.
     std::optional<QJsonValue> _rawInput{};  //!< Update the raw input.
@@ -1548,7 +1555,7 @@ struct ToolCallUpdate {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1556,6 +1563,7 @@ struct ToolCallUpdate {
     ToolCallUpdate& kind(const std::optional<ToolKind> & v) { _kind = v; return *this; }
     ToolCallUpdate& status(const std::optional<ToolCallStatus> & v) { _status = v; return *this; }
     ToolCallUpdate& title(const std::optional<QString> & v) { _title = v; return *this; }
+    ToolCallUpdate& name(const std::optional<QString> & v) { _name = v; return *this; }
     ToolCallUpdate& content(const std::optional<QJsonArray> & v) { _content = v; return *this; }
     ToolCallUpdate& locations(const std::optional<QJsonArray> & v) { _locations = v; return *this; }
     ToolCallUpdate& rawInput(const std::optional<QJsonValue> & v) { _rawInput = v; return *this; }
@@ -1566,6 +1574,7 @@ struct ToolCallUpdate {
     const std::optional<ToolKind>& kind() const { return _kind; }
     const std::optional<ToolCallStatus>& status() const { return _status; }
     const std::optional<QString>& title() const { return _title; }
+    const std::optional<QString>& name() const { return _name; }
     const std::optional<QJsonArray>& content() const { return _content; }
     const std::optional<QJsonArray>& locations() const { return _locations; }
     const std::optional<QJsonValue>& rawInput() const { return _rawInput; }
@@ -1585,7 +1594,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCallUpdate &data);
  *
  * Sent when the agent needs authorization before performing a sensitive operation.
  *
- * See protocol docs: [Requesting Permission](https://agentclientprotocol.com/protocol/tool-calls#requesting-permission)
+ * See protocol docs: [Requesting Permission](https://agentclientprotocol.com/protocol/v1/tool-calls#requesting-permission)
  */
 struct RequestPermissionRequest {
     SessionId _sessionId{};  //!< The session ID for this request.
@@ -1596,7 +1605,7 @@ struct RequestPermissionRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1628,7 +1637,7 @@ struct TerminalOutputRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1657,7 +1666,7 @@ struct WaitForTerminalExitRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1691,7 +1700,7 @@ struct WriteTextFileRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1742,7 +1751,7 @@ struct AuthenticateResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1765,7 +1774,7 @@ struct CloseSessionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1788,7 +1797,7 @@ struct DeleteSessionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1807,8 +1816,9 @@ ACPLIB_EXPORT QJsonObject toJson(const DeleteSessionResponse &data);
 /**
  * Predefined error codes for common JSON-RPC and ACP-specific errors.
  *
- * These codes follow the JSON-RPC 2.0 specification for standard errors
- * and use the reserved range (-32000 to -32099) for protocol-specific errors.
+ * Standard errors use the JSON-RPC 2.0 codes. ACP-specific errors use the JSON-RPC
+ * server-error range (-32000 to -32099), and request cancellation uses -32800 from the
+ * range LSP reserves (-32899 to -32800).
  */
 namespace ErrorCode {
     constexpr int Parse_error = -32700;
@@ -1874,7 +1884,7 @@ struct LogoutCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1904,7 +1914,7 @@ struct AgentAuthCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1924,14 +1934,14 @@ ACPLIB_EXPORT QJsonObject toJson(const AgentAuthCapabilities &data);
 
 /** MCP capabilities supported by the agent */
 struct McpCapabilities {
-    std::optional<bool> _http{};  //!< Agent supports [`McpServer::Http`].
-    std::optional<bool> _sse{};  //!< Agent supports [`McpServer::Sse`].
+    std::optional<bool> _http{};  //!< Agent supports `http` MCP servers.
+    std::optional<bool> _sse{};  //!< Agent supports `sse` MCP servers.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -1954,8 +1964,8 @@ ACPLIB_EXPORT QJsonObject toJson(const McpCapabilities &data);
 /**
  * Prompt capabilities supported by the agent in `session/prompt` requests.
  *
- * Baseline agent functionality requires support for [`ContentBlock::Text`]
- * and [`ContentBlock::ResourceLink`] in prompt requests.
+ * Baseline agent functionality requires support for `text`
+ * and `resource_link` content blocks in prompt requests.
  *
  * Other variants must be explicitly opted in to.
  * Capabilities for different types of content in prompt requests.
@@ -1963,15 +1973,15 @@ ACPLIB_EXPORT QJsonObject toJson(const McpCapabilities &data);
  * Indicates which content types beyond the baseline (text and resource links)
  * the agent can process.
  *
- * See protocol docs: [Prompt Capabilities](https://agentclientprotocol.com/protocol/initialization#prompt-capabilities)
+ * See protocol docs: [Prompt Capabilities](https://agentclientprotocol.com/protocol/v1/initialization#prompt-capabilities)
  */
 struct PromptCapabilities {
-    std::optional<bool> _image{};  //!< Agent supports [`ContentBlock::Image`].
-    std::optional<bool> _audio{};  //!< Agent supports [`ContentBlock::Audio`].
+    std::optional<bool> _image{};  //!< Agent supports `image` content blocks.
+    std::optional<bool> _audio{};  //!< Agent supports `audio` content blocks.
     /**
      * Agent supports embedded context in `session/prompt` requests.
      *
-     * When enabled, the Client is allowed to include [`ContentBlock::Resource`]
+     * When enabled, the Client is allowed to include `resource` content blocks
      * in prompt requests for pieces of context that are referenced in the message.
      */
     std::optional<bool> _embeddedContext{};
@@ -1980,7 +1990,7 @@ struct PromptCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2016,7 +2026,7 @@ struct SessionAdditionalDirectoriesCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2043,7 +2053,7 @@ struct SessionCloseCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2070,7 +2080,7 @@ struct SessionDeleteCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2097,7 +2107,7 @@ struct SessionListCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2124,7 +2134,7 @@ struct SessionResumeCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2141,15 +2151,117 @@ ACPLIB_EXPORT Utils::Result<SessionResumeCapabilities> fromJson<SessionResumeCap
 ACPLIB_EXPORT QJsonObject toJson(const SessionResumeCapabilities &data);
 
 /**
+ * Capabilities for the `override` system prompt mode.
+ *
+ * Supplying `{}` means the agent supports replacing its built-in default
+ * instructions with the client-provided system prompt.
+ */
+struct SessionSystemPromptOverrideCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
+     */
+    std::optional<QJsonObject> __meta{};
+
+    SessionSystemPromptOverrideCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionSystemPromptOverrideCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionSystemPromptOverrideCapabilities> fromJson<SessionSystemPromptOverrideCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionSystemPromptOverrideCapabilities &data);
+
+/**
+ * System prompt delivery modes the agent supports in addition to `append`.
+ *
+ * `append` has no entry because every agent advertising
+ * `sessionCapabilities.systemPrompt` supports it.
+ */
+struct SessionSystemPromptModeCapabilities {
+    /**
+     * Whether the agent supports `override` mode.
+     *
+     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Supplying `{}` means the agent supports replacing its built-in default
+     * instructions with the client-provided system prompt.
+     */
+    std::optional<SessionSystemPromptOverrideCapabilities> _override_{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
+     */
+    std::optional<QJsonObject> __meta{};
+
+    SessionSystemPromptModeCapabilities& override_(const std::optional<SessionSystemPromptOverrideCapabilities> & v) { _override_ = v; return *this; }
+    SessionSystemPromptModeCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<SessionSystemPromptOverrideCapabilities>& override_() const { return _override_; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionSystemPromptModeCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionSystemPromptModeCapabilities> fromJson<SessionSystemPromptModeCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionSystemPromptModeCapabilities &data);
+
+/**
+ * Capabilities for client-provided system prompts.
+ *
+ * Supplying `{}` means the agent supports `systemPrompt` on session lifecycle
+ * requests in `append` mode.
+ */
+struct SessionSystemPromptCapabilities {
+    /**
+     * Delivery modes the agent supports in addition to `append`.
+     *
+     * Optional. Omitted or `null` both mean the agent supports only `append`.
+     */
+    std::optional<SessionSystemPromptModeCapabilities> _mode{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
+     */
+    std::optional<QJsonObject> __meta{};
+
+    SessionSystemPromptCapabilities& mode(const std::optional<SessionSystemPromptModeCapabilities> & v) { _mode = v; return *this; }
+    SessionSystemPromptCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const std::optional<SessionSystemPromptModeCapabilities>& mode() const { return _mode; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionSystemPromptCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionSystemPromptCapabilities> fromJson<SessionSystemPromptCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionSystemPromptCapabilities &data);
+
+/**
  * Session capabilities supported by the agent.
  *
  * As a baseline, all Agents **MUST** support `session/new`, `session/prompt`, `session/cancel`, and `session/update`.
  *
  * Optionally, they **MAY** support other session methods and notifications by specifying additional capabilities.
  *
- * Note: `session/load` is still handled by the top-level `load_session` capability. This will be unified in future versions of the protocol.
+ * Note: `session/load` is still handled by the top-level `loadSession` capability. This will be unified in future versions of the protocol.
  *
- * See protocol docs: [Session Capabilities](https://agentclientprotocol.com/protocol/initialization#session-capabilities)
+ * See protocol docs: [Session Capabilities](https://agentclientprotocol.com/protocol/v1/initialization#session-capabilities)
  */
 struct SessionCapabilities {
     /**
@@ -2179,6 +2291,13 @@ struct SessionCapabilities {
      */
     std::optional<SessionAdditionalDirectoriesCapabilities> _additionalDirectories{};
     /**
+     * Whether the agent supports `systemPrompt` on session lifecycle requests.
+     *
+     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Supplying `{}` means the agent supports `systemPrompt` in `append` mode.
+     */
+    std::optional<SessionSystemPromptCapabilities> _systemPrompt{};
+    /**
      * Whether the agent supports `session/resume`.
      *
      * Optional. Omitted or `null` both mean the agent does not advertise support.
@@ -2197,13 +2316,14 @@ struct SessionCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
     SessionCapabilities& list(const std::optional<SessionListCapabilities> & v) { _list = v; return *this; }
     SessionCapabilities& delete_(const std::optional<SessionDeleteCapabilities> & v) { _delete_ = v; return *this; }
     SessionCapabilities& additionalDirectories(const std::optional<SessionAdditionalDirectoriesCapabilities> & v) { _additionalDirectories = v; return *this; }
+    SessionCapabilities& systemPrompt(const std::optional<SessionSystemPromptCapabilities> & v) { _systemPrompt = v; return *this; }
     SessionCapabilities& resume(const std::optional<SessionResumeCapabilities> & v) { _resume = v; return *this; }
     SessionCapabilities& close(const std::optional<SessionCloseCapabilities> & v) { _close = v; return *this; }
     SessionCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
@@ -2211,6 +2331,7 @@ struct SessionCapabilities {
     const std::optional<SessionListCapabilities>& list() const { return _list; }
     const std::optional<SessionDeleteCapabilities>& delete_() const { return _delete_; }
     const std::optional<SessionAdditionalDirectoriesCapabilities>& additionalDirectories() const { return _additionalDirectories; }
+    const std::optional<SessionSystemPromptCapabilities>& systemPrompt() const { return _systemPrompt; }
     const std::optional<SessionResumeCapabilities>& resume() const { return _resume; }
     const std::optional<SessionCloseCapabilities>& close() const { return _close; }
     const std::optional<QJsonObject>& _meta() const { return __meta; }
@@ -2229,7 +2350,7 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionCapabilities &data);
  * Advertised during initialization to inform the client about
  * available features and content types.
  *
- * See protocol docs: [Agent Capabilities](https://agentclientprotocol.com/protocol/initialization#agent-capabilities)
+ * See protocol docs: [Agent Capabilities](https://agentclientprotocol.com/protocol/v1/initialization#agent-capabilities)
  */
 struct AgentCapabilities {
     std::optional<bool> _loadSession{};  //!< Whether the agent supports `session/load`.
@@ -2242,7 +2363,7 @@ struct AgentCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2278,13 +2399,13 @@ using AuthMethodId = QString;
 struct AuthMethodAgent {
     AuthMethodId _id{};  //!< Unique identifier for this authentication method.
     QString _name{};  //!< Human-readable name of the authentication method.
-    std::optional<QString> _description{};  //!< Optional description providing more details about this authentication method.
+    std::optional<QString> _description{};  //!< Optional human-readable description of this authentication method.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2312,13 +2433,13 @@ ACPLIB_EXPORT QJsonObject toJson(const AuthMethodAgent &data);
  * The client runs the configured agent program as a separate interactive
  * process for the user to authenticate via a TUI. Agents MUST advertise this
  * method only when the client enabled its terminal authentication capability.
- * A zero exit status signals success; any other termination signals failure.
+ * A zero exit status signals success. Any other termination signals failure.
  * The client MUST NOT pass this method to `authenticate`.
  */
 struct AuthMethodTerminal {
     AuthMethodId _id{};  //!< Unique identifier for this authentication method.
     QString _name{};  //!< Human-readable name of the authentication method.
-    std::optional<QString> _description{};  //!< Optional description providing more details about this authentication method.
+    std::optional<QString> _description{};  //!< Optional human-readable description of this authentication method.
     std::optional<QStringList> _args{};  //!< Additional arguments to append to the configured agent invocation for terminal auth.
     /**
      * Additional environment variables to set on the configured agent invocation for terminal auth.
@@ -2330,7 +2451,7 @@ struct AuthMethodTerminal {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2391,7 +2512,7 @@ struct Implementation {
      */
     QString _name{};
     /**
-     * Intended for UI and end-user contexts -- optimized to be human-readable
+     * Intended for UI and end-user contexts and optimized to be human-readable
      * and easily understood.
      *
      * If not provided, the name should be used for display.
@@ -2407,7 +2528,7 @@ struct Implementation {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2438,7 +2559,7 @@ ACPLIB_EXPORT Utils::Result<ProtocolVersion> fromJson<ProtocolVersion>(const QJs
  *
  * Contains the negotiated protocol version and agent capabilities.
  *
- * See protocol docs: [Initialization](https://agentclientprotocol.com/protocol/initialization)
+ * See protocol docs: [Initialization](https://agentclientprotocol.com/protocol/v1/initialization)
  */
 struct InitializeResponse {
     /**
@@ -2461,7 +2582,7 @@ struct InitializeResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2505,7 +2626,7 @@ struct SessionInfo {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2545,7 +2666,7 @@ struct ListSessionsResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2623,7 +2744,7 @@ struct SessionConfigSelectOption {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2655,7 +2776,7 @@ struct SessionConfigSelectGroup {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2716,7 +2837,7 @@ struct SessionConfigOption {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
@@ -2749,7 +2870,7 @@ using SessionModeId = QString;
 /**
  * A mode the agent can operate in.
  *
- * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+ * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/v1/session-modes)
  */
 struct SessionMode {
     SessionModeId _id{};  //!< Stable identifier used to refer to this protocol object in later messages.
@@ -2760,7 +2881,7 @@ struct SessionMode {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2791,7 +2912,7 @@ struct SessionModeState {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2817,7 +2938,7 @@ struct LoadSessionResponse {
     /**
      * Initial mode state if supported by the Agent
      *
-     * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+     * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/v1/session-modes)
      */
     std::optional<SessionModeState> _modes{};
     std::optional<QJsonArray> _configOptions{};  //!< Initial session configuration options if supported by the Agent.
@@ -2826,7 +2947,7 @@ struct LoadSessionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2853,7 +2974,7 @@ struct LogoutResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2872,7 +2993,7 @@ ACPLIB_EXPORT QJsonObject toJson(const LogoutResponse &data);
 /**
  * Response from creating a new session.
  *
- * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/session-setup#creating-a-session)
+ * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/v1/session-setup#creating-a-session)
  */
 struct NewSessionResponse {
     /**
@@ -2884,7 +3005,7 @@ struct NewSessionResponse {
     /**
      * Initial mode state if supported by the Agent
      *
-     * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+     * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/v1/session-modes)
      */
     std::optional<SessionModeState> _modes{};
     std::optional<QJsonArray> _configOptions{};  //!< Initial session configuration options if supported by the Agent.
@@ -2893,7 +3014,7 @@ struct NewSessionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2918,7 +3039,7 @@ ACPLIB_EXPORT QJsonObject toJson(const NewSessionResponse &data);
 /**
  * Reasons why an agent stops processing a prompt turn.
  *
- * See protocol docs: [Stop Reasons](https://agentclientprotocol.com/protocol/prompt-turn#stop-reasons)
+ * See protocol docs: [Stop Reasons](https://agentclientprotocol.com/protocol/v1/prompt-turn#stop-reasons)
  */
 enum class StopReason {
     end_turn,
@@ -2938,7 +3059,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const StopReason &v);
 /**
  * Response from processing a user prompt.
  *
- * See protocol docs: [Check for Completion](https://agentclientprotocol.com/protocol/prompt-turn#4-check-for-completion)
+ * See protocol docs: [Check for Completion](https://agentclientprotocol.com/protocol/v1/prompt-turn#4-check-for-completion)
  */
 struct PromptResponse {
     StopReason _stopReason{};  //!< Indicates why the agent stopped processing the turn.
@@ -2947,7 +3068,7 @@ struct PromptResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -2970,7 +3091,7 @@ struct ResumeSessionResponse {
     /**
      * Initial mode state if supported by the Agent
      *
-     * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+     * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/v1/session-modes)
      */
     std::optional<SessionModeState> _modes{};
     std::optional<QJsonArray> _configOptions{};  //!< Initial session configuration options if supported by the Agent.
@@ -2979,7 +3100,7 @@ struct ResumeSessionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3007,7 +3128,7 @@ struct SetSessionConfigOptionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3033,7 +3154,7 @@ struct SetSessionModeResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3067,7 +3188,7 @@ struct CompleteElicitationNotification {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3095,7 +3216,7 @@ struct UnstructuredCommandInput {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3136,7 +3257,7 @@ struct AvailableCommand {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3166,7 +3287,7 @@ struct AvailableCommandsUpdate {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3185,6 +3306,87 @@ ACPLIB_EXPORT Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsU
 
 ACPLIB_EXPORT QJsonObject toJson(const AvailableCommandsUpdate &data);
 
+using CompactionId = QString;
+
+/**
+ * A content block appended to a compaction's summary. A first-seen ID creates
+ * an in-progress compaction. Chunks append in receive order.
+ * Agents MUST only send this update when the Client advertised
+ * the `session.compaction` Client capability.
+ */
+struct CompactionSummaryChunk {
+    CompactionId _compactionId{};  //!< ID of the compaction whose summary receives this content.
+    ContentBlock _content{};  //!< One content block to append.
+    std::optional<QJsonObject> __meta{};  //!< Metadata scoped to this chunk. Omission and `null` both mean absent.
+
+    CompactionSummaryChunk& compactionId(const CompactionId & v) { _compactionId = v; return *this; }
+    CompactionSummaryChunk& content(const ContentBlock & v) { _content = v; return *this; }
+    CompactionSummaryChunk& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const CompactionId& compactionId() const { return _compactionId; }
+    const ContentBlock& content() const { return _content; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CompactionSummaryChunk &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompactionSummaryChunk> fromJson<CompactionSummaryChunk>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CompactionSummaryChunk &data);
+
+/** Lifecycle state of a context compaction. */
+enum class CompactionStatus {
+    in_progress,
+    completed,
+    failed,
+    cancelled
+};
+
+ACPLIB_EXPORT QString toString(CompactionStatus v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompactionStatus> fromJson<CompactionStatus>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const CompactionStatus &v);
+
+/**
+ * A context compaction upsert. The first notification fixes the compaction's
+ * timeline position. Later updates with the same ID patch that entity in place.
+ * Agents MUST only send this update when the Client advertised
+ * the `session.compaction` Client capability.
+ *
+ * `summary`, `error`, and `_meta` have patch semantics: omission leaves the
+ * stored value unchanged, `null` clears it, and a concrete value replaces it.
+ * `summary: []` also clears the summary.
+ */
+struct CompactionUpdate {
+    CompactionId _compactionId{};  //!< The Agent-owned ID of this compaction, unique within the session.
+    CompactionStatus _status{};  //!< Current lifecycle status.
+    std::optional<QJsonArray> _summary{};  //!< Complete replacement user-displayable summary content for the compaction.
+    std::optional<QString> _error{};  //!< Human-readable error details for the compaction.
+    std::optional<QJsonObject> __meta{};  //!< Extensible metadata patch for this compaction.
+
+    CompactionUpdate& compactionId(const CompactionId & v) { _compactionId = v; return *this; }
+    CompactionUpdate& status(const CompactionStatus & v) { _status = v; return *this; }
+    CompactionUpdate& summary(const std::optional<QJsonArray> & v) { _summary = v; return *this; }
+    CompactionUpdate& error(const std::optional<QString> & v) { _error = v; return *this; }
+    CompactionUpdate& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const CompactionId& compactionId() const { return _compactionId; }
+    const CompactionStatus& status() const { return _status; }
+    const std::optional<QJsonArray>& summary() const { return _summary; }
+    const std::optional<QString>& error() const { return _error; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CompactionUpdate &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompactionUpdate> fromJson<CompactionUpdate>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CompactionUpdate &data);
+
 /** Session configuration options have been updated. */
 struct ConfigOptionUpdate {
     QList<SessionConfigOption> _configOptions{};  //!< The full set of configuration options and their current values.
@@ -3193,7 +3395,7 @@ struct ConfigOptionUpdate {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3229,7 +3431,7 @@ struct ContentChunk {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3252,7 +3454,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ContentChunk &data);
 /**
  * The current mode of the session has changed
  *
- * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/session-modes)
+ * See protocol docs: [Session Modes](https://agentclientprotocol.com/protocol/v1/session-modes)
  */
 struct CurrentModeUpdate {
     SessionModeId _currentModeId{};  //!< The ID of the current mode
@@ -3261,7 +3463,7 @@ struct CurrentModeUpdate {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3279,12 +3481,71 @@ ACPLIB_EXPORT Utils::Result<CurrentModeUpdate> fromJson<CurrentModeUpdate>(const
 
 ACPLIB_EXPORT QJsonObject toJson(const CurrentModeUpdate &data);
 
+/** Severity hint for a session notice. */
+enum class NoticeSeverity {
+    info,
+    warning,
+    error
+};
+
+ACPLIB_EXPORT QString toString(NoticeSeverity v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<NoticeSeverity> fromJson<NoticeSeverity>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const NoticeSeverity &v);
+
+/**
+ * Fire-and-forget information for the user.
+ *
+ * Notices are live events rather than session history. Agents must not rely on
+ * a notice being received, displayed, or seen by the user.
+ * Agents MUST only send notices when the Client advertised
+ * the `session.notices` Client capability. Otherwise, Agents may use an agent
+ * message when the information should still be surfaced to the user.
+ *
+ * See RFD: [Session Notices](https://agentclientprotocol.com/rfds/session-notices)
+ */
+struct Notice {
+    NoticeSeverity _severity{};  //!< Presentation severity hint.
+    QString _title{};  //!< Required non-empty plain-text title that can stand alone.
+    /**
+     * Optional plain-text detail or guidance.
+     *
+     * Omitted and `null` are equivalent and mean no description was supplied.
+     */
+    std::optional<QString> _description{};
+    /**
+     * Metadata scoped to this notice.
+     *
+     * Omitted and `null` are equivalent and mean no metadata was supplied.
+     */
+    std::optional<QJsonObject> __meta{};
+
+    Notice& severity(const NoticeSeverity & v) { _severity = v; return *this; }
+    Notice& title(const QString & v) { _title = v; return *this; }
+    Notice& description(const std::optional<QString> & v) { _description = v; return *this; }
+    Notice& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const NoticeSeverity& severity() const { return _severity; }
+    const QString& title() const { return _title; }
+    const std::optional<QString>& description() const { return _description; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const Notice &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<Notice> fromJson<Notice>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const Notice &data);
+
 /**
  * Priority levels for plan entries.
  *
  * Used to indicate the relative importance or urgency of different
  * tasks in the execution plan.
- * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/agent-plan#plan-entries)
+ * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/v1/agent-plan#plan-entries)
  */
 enum class PlanEntryPriority {
     high,
@@ -3303,7 +3564,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const PlanEntryPriority &v);
  * Status of a plan entry in the execution flow.
  *
  * Tracks the lifecycle of each task from planning through completion.
- * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/agent-plan#plan-entries)
+ * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/v1/agent-plan#plan-entries)
  */
 enum class PlanEntryStatus {
     pending,
@@ -3323,7 +3584,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const PlanEntryStatus &v);
  *
  * Represents a task or goal that the assistant intends to accomplish
  * as part of fulfilling the user's request.
- * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/agent-plan#plan-entries)
+ * See protocol docs: [Plan Entries](https://agentclientprotocol.com/protocol/v1/agent-plan#plan-entries)
  */
 struct PlanEntry {
     QString _content{};  //!< Human-readable description of what this task aims to accomplish.
@@ -3338,7 +3599,7 @@ struct PlanEntry {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3367,7 +3628,7 @@ ACPLIB_EXPORT QJsonObject toJson(const PlanEntry &data);
  * Agents report plans to clients to provide visibility into their execution strategy.
  * Plans can evolve during execution as the agent discovers new requirements or completes tasks.
  *
- * See protocol docs: [Agent Plan](https://agentclientprotocol.com/protocol/agent-plan)
+ * See protocol docs: [Agent Plan](https://agentclientprotocol.com/protocol/v1/agent-plan)
  */
 struct Plan {
     /**
@@ -3382,7 +3643,7 @@ struct Plan {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3405,7 +3666,7 @@ ACPLIB_EXPORT QJsonObject toJson(const Plan &data);
  * Update to session metadata. All fields are optional to support partial updates.
  *
  * Agents send this notification to update session information like title or custom metadata.
- * This allows clients to display dynamic session names and track session state changes.
+ * Clients can use it to keep session titles and state current.
  */
 struct SessionInfoUpdate {
     std::optional<QString> _title{};  //!< Human-readable title for the session. Set to null to clear.
@@ -3415,7 +3676,7 @@ struct SessionInfoUpdate {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3441,11 +3702,18 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionInfoUpdate &data);
  * Tool calls are actions that the agent executes on behalf of the language model,
  * such as reading files, executing code, or fetching data from external sources.
  *
- * See protocol docs: [Tool Calls](https://agentclientprotocol.com/protocol/tool-calls)
+ * See protocol docs: [Tool Calls](https://agentclientprotocol.com/protocol/v1/tool-calls)
  */
 struct ToolCall {
     ToolCallId _toolCallId{};  //!< Unique identifier for this tool call within the session.
     QString _title{};  //!< Human-readable title describing what the tool is doing.
+    /**
+     * Programmatic name of the tool being invoked.
+     *
+     * This field is optional. Omitting it or sending `null` both mean that no
+     * tool name is available.
+     */
+    std::optional<QString> _name{};
     /**
      * The category of tool being invoked.
      * Helps clients choose appropriate icons and UI treatment.
@@ -3465,12 +3733,13 @@ struct ToolCall {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
     ToolCall& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
     ToolCall& title(const QString & v) { _title = v; return *this; }
+    ToolCall& name(const std::optional<QString> & v) { _name = v; return *this; }
     ToolCall& kind(const std::optional<ToolKind> & v) { _kind = v; return *this; }
     ToolCall& status(const std::optional<ToolCallStatus> & v) { _status = v; return *this; }
     ToolCall& content(const std::optional<QList<ToolCallContent>> & v) { _content = v; return *this; }
@@ -3483,6 +3752,7 @@ struct ToolCall {
 
     const ToolCallId& toolCallId() const { return _toolCallId; }
     const QString& title() const { return _title; }
+    const std::optional<QString>& name() const { return _name; }
     const std::optional<ToolKind>& kind() const { return _kind; }
     const std::optional<ToolCallStatus>& status() const { return _status; }
     const std::optional<QList<ToolCallContent>>& content() const { return _content; }
@@ -3502,13 +3772,17 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCall &data);
 /** Cost information for a session. */
 struct Cost {
     double _amount{};  //!< Total cumulative cost for session.
-    QString _currency{};  //!< ISO 4217 currency code (e.g., "USD", "EUR").
+    /**
+     * Unit of `amount`: an ISO 4217 currency code (e.g., "USD", "EUR") for money, or another
+     * unit such as "credits".
+     */
+    QString _currency{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3538,7 +3812,7 @@ struct UsageUpdate {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3565,10 +3839,10 @@ ACPLIB_EXPORT QJsonObject toJson(const UsageUpdate &data);
  *
  * These updates provide real-time feedback about the agent's progress.
  *
- * See protocol docs: [Agent Reports Output](https://agentclientprotocol.com/protocol/prompt-turn#3-agent-reports-output)
+ * See protocol docs: [Agent Reports Output](https://agentclientprotocol.com/protocol/v1/prompt-turn#3-agent-reports-output)
  */
 struct SessionUpdate {
-    using Variant = std::variant<ContentChunk, ToolCall, ToolCallUpdate, Plan, AvailableCommandsUpdate, CurrentModeUpdate, ConfigOptionUpdate, SessionInfoUpdate, UsageUpdate>;
+    using Variant = std::variant<ContentChunk, ToolCall, ToolCallUpdate, Plan, AvailableCommandsUpdate, CurrentModeUpdate, ConfigOptionUpdate, SessionInfoUpdate, UsageUpdate, Notice, CompactionUpdate, CompactionSummaryChunk>;
     Variant _value;
     QString _kind;  //!< discriminator value (sessionUpdate)
 
@@ -3590,7 +3864,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const SessionUpdate &val);
  *
  * Used to stream real-time progress and results during prompt processing.
  *
- * See protocol docs: [Agent Reports Output](https://agentclientprotocol.com/protocol/prompt-turn#3-agent-reports-output)
+ * See protocol docs: [Agent Reports Output](https://agentclientprotocol.com/protocol/v1/prompt-turn#3-agent-reports-output)
  */
 struct SessionNotification {
     SessionId _sessionId{};  //!< The ID of the session this update pertains to.
@@ -3600,7 +3874,7 @@ struct SessionNotification {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3655,7 +3929,7 @@ struct AuthenticateRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3689,7 +3963,7 @@ struct CloseSessionRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3719,7 +3993,7 @@ struct DeleteSessionRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3758,7 +4032,7 @@ struct AuthCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3776,6 +4050,10 @@ ACPLIB_EXPORT Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const Q
 
 ACPLIB_EXPORT QJsonObject toJson(const AuthCapabilities &data);
 
+using CompactionCapabilities = QJsonObject;
+
+using NoticeCapabilities = QJsonObject;
+
 /**
  * Capabilities for boolean session configuration options.
  *
@@ -3787,7 +4065,7 @@ struct BooleanConfigOptionCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3819,7 +4097,7 @@ struct SessionConfigOptionsCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3840,6 +4118,11 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionConfigOptionsCapabilities &data);
 /** Session-related capabilities supported by the client. */
 struct ClientSessionCapabilities {
     /**
+     * Support for ID-addressed context compaction updates. Omitted or `null`
+     * means unsupported. `{}` advertises the complete compaction contract.
+     */
+    std::optional<CompactionCapabilities> _compaction{};
+    /**
      * Config option capabilities supported by the client.
      *
      * Omitted or `null` both mean the client does not advertise support for any
@@ -3847,18 +4130,29 @@ struct ClientSessionCapabilities {
      */
     std::optional<SessionConfigOptionsCapabilities> _configOptions{};
     /**
+     * Support for live user-facing `notice` session updates.
+     *
+     * Optional. Omitted or `null` both mean the client does not advertise support.
+     * Supplying `{}` means the client can present notices to the user.
+     */
+    std::optional<NoticeCapabilities> _notices{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
+    ClientSessionCapabilities& compaction(const std::optional<CompactionCapabilities> & v) { _compaction = v; return *this; }
     ClientSessionCapabilities& configOptions(const std::optional<SessionConfigOptionsCapabilities> & v) { _configOptions = v; return *this; }
+    ClientSessionCapabilities& notices(const std::optional<NoticeCapabilities> & v) { _notices = v; return *this; }
     ClientSessionCapabilities& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
+    const std::optional<CompactionCapabilities>& compaction() const { return _compaction; }
     const std::optional<SessionConfigOptionsCapabilities>& configOptions() const { return _configOptions; }
+    const std::optional<NoticeCapabilities>& notices() const { return _notices; }
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const ClientSessionCapabilities &other) const = default;
@@ -3882,7 +4176,7 @@ struct ElicitationFormCapabilities {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3911,7 +4205,7 @@ struct ElicitationUrlCapabilities {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3950,7 +4244,7 @@ struct ElicitationCapabilities {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -3973,7 +4267,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationCapabilities &data);
 /**
  * File system capabilities that a client may support.
  *
- * See protocol docs: [FileSystem](https://agentclientprotocol.com/protocol/initialization#filesystem)
+ * See protocol docs: [FileSystem](https://agentclientprotocol.com/protocol/v1/initialization#filesystem)
  */
 struct FileSystemCapabilities {
     std::optional<bool> _readTextFile{};  //!< Whether the Client supports `fs/read_text_file` requests.
@@ -3983,7 +4277,7 @@ struct FileSystemCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4009,7 +4303,7 @@ ACPLIB_EXPORT QJsonObject toJson(const FileSystemCapabilities &data);
  * Advertised during initialization to inform the agent about
  * available features and methods.
  *
- * See protocol docs: [Client Capabilities](https://agentclientprotocol.com/protocol/initialization#client-capabilities)
+ * See protocol docs: [Client Capabilities](https://agentclientprotocol.com/protocol/v1/initialization#client-capabilities)
  */
 struct ClientCapabilities {
     /**
@@ -4044,7 +4338,7 @@ struct ClientCapabilities {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4075,7 +4369,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ClientCapabilities &data);
  *
  * Sent by the client to establish connection and negotiate capabilities.
  *
- * See protocol docs: [Initialization](https://agentclientprotocol.com/protocol/initialization)
+ * See protocol docs: [Initialization](https://agentclientprotocol.com/protocol/v1/initialization)
  */
 struct InitializeRequest {
     ProtocolVersion _protocolVersion{};  //!< The latest protocol version supported by the client.
@@ -4091,7 +4385,7 @@ struct InitializeRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4126,7 +4420,7 @@ struct ListSessionsRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4155,7 +4449,7 @@ struct HttpHeader {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4185,7 +4479,7 @@ struct McpServerHttp {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4218,7 +4512,7 @@ struct McpServerSse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4252,7 +4546,7 @@ struct McpServerStdio {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4284,7 +4578,7 @@ ACPLIB_EXPORT QJsonObject toJson(const McpServerStdio &data);
  * MCP servers provide tools and context that the agent can use when
  * processing prompts.
  *
- * See protocol docs: [MCP Servers](https://agentclientprotocol.com/protocol/session-setup#mcp-servers)
+ * See protocol docs: [MCP Servers](https://agentclientprotocol.com/protocol/v1/session-setup#mcp-servers)
  */
 using McpServer = std::variant<McpServerHttp, McpServerSse, McpServerStdio>;
 
@@ -4302,11 +4596,84 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const McpServer &val);
 ACPLIB_EXPORT QString name(const McpServer &val);
 
 /**
+ * How the Agent combines a client-provided system prompt with its own instructions.
+ *
+ * Unknown modes are preserved so they can be stored,
+ * proxied, or forwarded. An Agent MUST return an error for a mode it does not
+ * support rather than treating it as `append` or `override`.
+ */
+enum class SystemPromptMode {
+    append,
+    override_
+};
+
+ACPLIB_EXPORT QString toString(SystemPromptMode v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<SystemPromptMode> fromJson<SystemPromptMode>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const SystemPromptMode &v);
+
+/**
+ * Client-provided system-level instructions for a session.
+ *
+ * Clients MUST only send this when the Agent advertises
+ * `sessionCapabilities.systemPrompt`. Agents that cannot apply it, for example
+ * because of an unadvertised mode or an unsupported content block type, MUST
+ * return an error instead of creating, loading, or resuming the session.
+ */
+struct SystemPrompt {
+    /**
+     * How the Agent combines `content` with its own instructions.
+     *
+     * Required. Agents MUST return an error for a mode they do not support rather than
+     * treating it as `append` or `override`.
+     */
+    SystemPromptMode _mode{};
+    /**
+     * The system prompt content.
+     *
+     * Agents advertising the capability MUST accept `text` content blocks.
+     * Clients MUST NOT send other content block types until a future
+     * capability allows them, and Agents MUST return an error for content
+     * blocks they do not support.
+     *
+     * Clients MUST NOT send an empty array. Agents MAY reject one with
+     * `-32602` without creating, loading, or resuming the session.
+     */
+    QList<ContentBlock> _content{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
+     * these keys.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
+     */
+    std::optional<QJsonObject> __meta{};
+
+    SystemPrompt& mode(const SystemPromptMode & v) { _mode = v; return *this; }
+    SystemPrompt& content(const QList<ContentBlock> & v) { _content = v; return *this; }
+    SystemPrompt& addContent(const ContentBlock & v) { _content.append(v); return *this; }
+    SystemPrompt& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
+
+    const SystemPromptMode& mode() const { return _mode; }
+    const QList<ContentBlock>& content() const { return _content; }
+    const std::optional<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SystemPrompt &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SystemPrompt> fromJson<SystemPrompt>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SystemPrompt &data);
+
+/**
  * Request parameters for loading an existing session.
  *
  * Only available if the Agent supports the `loadSession` capability.
  *
- * See protocol docs: [Loading Sessions](https://agentclientprotocol.com/protocol/session-setup#loading-sessions)
+ * See protocol docs: [Loading Sessions](https://agentclientprotocol.com/protocol/v1/session-setup#loading-sessions)
  */
 struct LoadSessionRequest {
     QList<McpServer> _mcpServers{};  //!< List of MCP servers to connect to for this session.
@@ -4322,11 +4689,21 @@ struct LoadSessionRequest {
     std::optional<QStringList> _additionalDirectories{};
     SessionId _sessionId{};  //!< The ID of the session to load.
     /**
+     * System-level instructions for the loaded session.
+     *
+     * Optional. Omitted and `null` are equivalent. The Agent may then keep a
+     * system prompt it stored with the session or use its default instructions.
+     * Clients MUST only send this when the Agent advertises
+     * `sessionCapabilities.systemPrompt`, and SHOULD send the same value they used
+     * when the session was created.
+     */
+    std::optional<SystemPrompt> _systemPrompt{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4336,12 +4713,14 @@ struct LoadSessionRequest {
     LoadSessionRequest& additionalDirectories(const std::optional<QStringList> & v) { _additionalDirectories = v; return *this; }
     LoadSessionRequest& addAdditionalDirectory(const QString & v) { if (!_additionalDirectories) _additionalDirectories = QStringList{}; (*_additionalDirectories).append(v); return *this; }
     LoadSessionRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
+    LoadSessionRequest& systemPrompt(const std::optional<SystemPrompt> & v) { _systemPrompt = v; return *this; }
     LoadSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const QList<McpServer>& mcpServers() const { return _mcpServers; }
     const QString& cwd() const { return _cwd; }
     const std::optional<QStringList>& additionalDirectories() const { return _additionalDirectories; }
     const SessionId& sessionId() const { return _sessionId; }
+    const std::optional<SystemPrompt>& systemPrompt() const { return _systemPrompt; }
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const LoadSessionRequest &other) const = default;
@@ -4363,7 +4742,7 @@ struct LogoutRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4382,7 +4761,7 @@ ACPLIB_EXPORT QJsonObject toJson(const LogoutRequest &data);
 /**
  * Request parameters for creating a new session.
  *
- * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/session-setup#creating-a-session)
+ * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/v1/session-setup#creating-a-session)
  */
 struct NewSessionRequest {
     QString _cwd{};  //!< The working directory for this session. Must be an absolute path.
@@ -4396,11 +4775,19 @@ struct NewSessionRequest {
     std::optional<QStringList> _additionalDirectories{};
     QList<McpServer> _mcpServers{};  //!< List of MCP (Model Context Protocol) servers the agent should connect to.
     /**
+     * System-level instructions for the new session.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the Agent uses its
+     * own default instructions. Clients MUST only send this when the Agent
+     * advertises `sessionCapabilities.systemPrompt`.
+     */
+    std::optional<SystemPrompt> _systemPrompt{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4409,11 +4796,13 @@ struct NewSessionRequest {
     NewSessionRequest& addAdditionalDirectory(const QString & v) { if (!_additionalDirectories) _additionalDirectories = QStringList{}; (*_additionalDirectories).append(v); return *this; }
     NewSessionRequest& mcpServers(const QList<McpServer> & v) { _mcpServers = v; return *this; }
     NewSessionRequest& addMcpServer(const McpServer & v) { _mcpServers.append(v); return *this; }
+    NewSessionRequest& systemPrompt(const std::optional<SystemPrompt> & v) { _systemPrompt = v; return *this; }
     NewSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const QString& cwd() const { return _cwd; }
     const std::optional<QStringList>& additionalDirectories() const { return _additionalDirectories; }
     const QList<McpServer>& mcpServers() const { return _mcpServers; }
+    const std::optional<SystemPrompt>& systemPrompt() const { return _systemPrompt; }
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const NewSessionRequest &other) const = default;
@@ -4429,22 +4818,22 @@ ACPLIB_EXPORT QJsonObject toJson(const NewSessionRequest &data);
  *
  * Contains the user's message and any additional context.
  *
- * See protocol docs: [User Message](https://agentclientprotocol.com/protocol/prompt-turn#1-user-message)
+ * See protocol docs: [User Message](https://agentclientprotocol.com/protocol/v1/prompt-turn#1-user-message)
  */
 struct PromptRequest {
     SessionId _sessionId{};  //!< The ID of the session to send this user message to
     /**
      * The blocks of content that compose the user's message.
      *
-     * As a baseline, the Agent MUST support [`ContentBlock::Text`] and [`ContentBlock::ResourceLink`],
-     * while other variants are optionally enabled via [`PromptCapabilities`].
+     * As a baseline, the Agent MUST support `text` and `resource_link` content blocks,
+     * while other variants are optionally enabled via `PromptCapabilities`.
      *
-     * The Client MUST adapt its interface according to [`PromptCapabilities`].
+     * The Client MUST adapt its interface according to `PromptCapabilities`.
      *
      * The client MAY include referenced pieces of context as either
-     * [`ContentBlock::Resource`] or [`ContentBlock::ResourceLink`].
+     * `resource` or `resource_link` content blocks.
      *
-     * When available, [`ContentBlock::Resource`] is preferred
+     * When available, `resource` is preferred
      * as it avoids extra round-trips and allows the message to include
      * pieces of context from sources the agent may not have access to.
      */
@@ -4454,7 +4843,7 @@ struct PromptRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4497,11 +4886,21 @@ struct ResumeSessionRequest {
     std::optional<QStringList> _additionalDirectories{};
     std::optional<QList<McpServer>> _mcpServers{};  //!< List of MCP servers to connect to for this session.
     /**
+     * System-level instructions for the resumed session.
+     *
+     * Optional. Omitted and `null` are equivalent. The Agent may then keep a
+     * system prompt it stored with the session or use its default instructions.
+     * Clients MUST only send this when the Agent advertises
+     * `sessionCapabilities.systemPrompt`, and SHOULD send the same value they used
+     * when the session was created.
+     */
+    std::optional<SystemPrompt> _systemPrompt{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4511,12 +4910,14 @@ struct ResumeSessionRequest {
     ResumeSessionRequest& addAdditionalDirectory(const QString & v) { if (!_additionalDirectories) _additionalDirectories = QStringList{}; (*_additionalDirectories).append(v); return *this; }
     ResumeSessionRequest& mcpServers(const std::optional<QList<McpServer>> & v) { _mcpServers = v; return *this; }
     ResumeSessionRequest& addMcpServer(const McpServer & v) { if (!_mcpServers) _mcpServers = QList<McpServer>{}; (*_mcpServers).append(v); return *this; }
+    ResumeSessionRequest& systemPrompt(const std::optional<SystemPrompt> & v) { _systemPrompt = v; return *this; }
     ResumeSessionRequest& _meta(const std::optional<QJsonObject> & v) { __meta = v; return *this; }
 
     const SessionId& sessionId() const { return _sessionId; }
     const QString& cwd() const { return _cwd; }
     const std::optional<QStringList>& additionalDirectories() const { return _additionalDirectories; }
     const std::optional<QList<McpServer>>& mcpServers() const { return _mcpServers; }
+    const std::optional<SystemPrompt>& systemPrompt() const { return _systemPrompt; }
     const std::optional<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const ResumeSessionRequest &other) const = default;
@@ -4536,7 +4937,7 @@ struct SetSessionConfigOptionRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
@@ -4569,7 +4970,7 @@ struct SetSessionModeRequest {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4611,7 +5012,7 @@ ACPLIB_EXPORT Utils::Result<ClientRequest> fromJson<ClientRequest>(const QJsonVa
 
 ACPLIB_EXPORT QJsonObject toJson(const ClientRequest &data);
 
-/** Allowed wire representations for [`ElicitationContentValue`]. */
+/** Allowed wire representations for `ElicitationContentValue`. */
 using ElicitationContentValue = std::variant<QString, int, double, bool, QList<QString>>;
 
 template<>
@@ -4644,7 +5045,7 @@ struct CreateElicitationResponse {
      *
      * Optional. Omitted and `null` are equivalent and mean no metadata.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
     QJsonObject _additionalProperties;  //!< additional properties
@@ -4672,7 +5073,7 @@ struct CreateTerminalResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4697,7 +5098,7 @@ struct KillTerminalResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4721,7 +5122,7 @@ struct ReadTextFileResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4746,7 +5147,7 @@ struct ReleaseTerminalResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4770,7 +5171,7 @@ struct SelectedPermissionOutcome {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4815,7 +5216,7 @@ struct RequestPermissionResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4842,7 +5243,7 @@ struct TerminalExitStatus {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4872,7 +5273,7 @@ struct TerminalOutputResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4903,7 +5304,7 @@ struct WaitForTerminalExitResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4930,7 +5331,7 @@ struct WriteTextFileResponse {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -4952,7 +5353,7 @@ using ClientResponse = std::variant<QJsonObject>;
 /**
  * Notification to cancel ongoing operations for a session.
  *
- * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/prompt-turn#cancellation)
+ * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/v1/prompt-turn#cancellation)
  */
 struct CancelNotification {
     SessionId _sessionId{};  //!< The ID of the session to cancel operations for.
@@ -4961,7 +5362,7 @@ struct CancelNotification {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 
@@ -5001,7 +5402,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ClientNotification &data);
 /**
  * Notification to cancel an ongoing request.
  *
- * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/cancellation)
+ * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/v1/cancellation)
  */
 struct CancelRequestNotification {
     RequestId _requestId{};  //!< The ID of the request to cancel.
@@ -5010,7 +5411,7 @@ struct CancelRequestNotification {
      * metadata to their interactions. Implementations MUST NOT make assumptions about values at
      * these keys.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/extensibility)
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v1/extensibility)
      */
     std::optional<QJsonObject> __meta{};
 

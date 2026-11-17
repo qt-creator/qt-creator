@@ -1389,11 +1389,24 @@ SessionPickerWidget *ChatPanel::addSessionPicker()
     return m_messageView->addSessionPicker();
 }
 
-void ChatPanel::updateAvailableCommands(const QList<AvailableCommand> &commands)
+// A command of an unknown type is presented as a plain command, built from the
+// name and description every command kind carries.
+static Command plainCommand(const AvailableCommand &command)
 {
+    if (const auto *known = std::get_if<Command>(&command))
+        return *known;
+    const QJsonObject raw = std::get<QJsonObject>(command);
+    return Command().name(raw.value("name").toString())
+        .description(raw.value("description").toString());
+}
+
+void ChatPanel::updateAvailableCommands(const QList<AvailableCommand> &available)
+{
+    const QList<Command> commands = Utils::transform(available, plainCommand);
+
     QList<CommandInfo> commandInfos;
     commandInfos.reserve(commands.size());
-    for (const AvailableCommand &cmd : commands) {
+    for (const Command &cmd : commands) {
         QString hint;
         if (cmd.input().has_value()) {
             if (const auto *textInput = std::get_if<TextCommandInput>(&*cmd.input()))
@@ -1413,7 +1426,7 @@ void ChatPanel::updateAvailableCommands(const QList<AvailableCommand> &commands)
 
     m_commandsMenu = new QMenu(m_commandsButton);
     m_commandsMenu->setToolTipsVisible(true);
-    for (const AvailableCommand &cmd : commands) {
+    for (const Command &cmd : commands) {
         QAction *action = m_commandsMenu->addAction(cmd.name());
         action->setToolTip(cmd.description());
         connect(action, &QAction::triggered, this, [this, cmd] {

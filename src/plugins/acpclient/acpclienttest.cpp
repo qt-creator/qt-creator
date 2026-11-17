@@ -565,6 +565,8 @@ private slots:
     void testControllerElicitationPromptCancel();
     void testControllerElicitationUrl();
     void testControllerElicitationUnknownMode();
+    void testControllerElicitationUntypedSchema();
+    void testControllerV1PlanAndCommands();
 
     // Tier 3b: v2 chat workflows against acptestserver --protocol-version 2
     void testV2InitializeNegotiation();
@@ -2086,9 +2088,8 @@ static void runElicitationRound(ControllerFixture &fixture)
     QCOMPARE(request.message, "Please enter your name");
     QVERIFY(request.mode == ElicitationRequest::Mode::Form);
     const auto &properties = request.requestedSchema.properties();
-    QVERIFY(properties.has_value());
-    QVERIFY(properties->contains("name"));
-    const V2::ElicitationPropertySchema nameProperty = properties->value("name");
+    QVERIFY(properties.contains("name"));
+    const V2::ElicitationPropertySchema nameProperty = properties.value("name");
     const auto *nameSchema = std::get_if<V2::StringPropertySchema>(&nameProperty);
     QVERIFY(nameSchema);
     QCOMPARE(nameSchema->title().asOptional().value_or(QString()), "Your name");
@@ -2183,6 +2184,48 @@ void AcpClientTest::testControllerElicitationUnknownMode()
     QVERIFY(fixture.errors.isEmpty());
 }
 
+// v1 lets the requested schema leave out its type, which v2 requires.
+void AcpClientTest::testControllerElicitationUntypedSchema()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--elicitation", "form-untyped"});
+    runElicitationRound(fixture);
+}
+
+// v1 plans, commands and command input carry no type, which their v2
+// counterparts dispatch on.
+void AcpClientTest::testControllerV1PlanAndCommands()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--updates-all"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    const V2::PlanItems *planItems = nullptr;
+    const V2::Command *command = nullptr;
+    for (const V2::SessionUpdate &update : std::as_const(fixture.updates)) {
+        if (const auto *planUpdate = update.get<V2::PlanUpdate>())
+            planItems = std::get_if<V2::PlanItems>(&planUpdate->plan());
+        if (const auto *commandsUpdate = update.get<V2::AvailableCommandsUpdate>()) {
+            QCOMPARE(commandsUpdate->availableCommands().size(), 1);
+            command = std::get_if<V2::Command>(&commandsUpdate->availableCommands().first());
+        }
+    }
+    QVERIFY(planItems);
+    QCOMPARE(planItems->entries().size(), 1);
+    QCOMPARE(planItems->entries().first().content(), "first step");
+    QVERIFY(command);
+    QCOMPARE(command->name(), "test_command");
+    QVERIFY(command->input().has_value());
+    const auto *input = std::get_if<V2::TextCommandInput>(&*command->input());
+    QVERIFY(input);
+    QCOMPARE(input->hint(), "an argument");
+}
+
 // --- Tier 3b -----------------------------------------------------------------
 
 static bool isStateUpdate(const V2::SessionUpdate &update, const QString &state)
@@ -2270,7 +2313,7 @@ void AcpClientTest::testV2PromptLifecycle()
     const auto *idle = std::get_if<V2::IdleStateUpdate>(idleState);
     QVERIFY(idle);
     QVERIFY(idle->stopReason().has_value());
-    QVERIFY(*idle->stopReason() == V2::StopReason::end_turn);
+    QVERIFY(*idle->stopReason() == QLatin1String("end_turn"));
     QVERIFY(fixture.errors.isEmpty());
 }
 
@@ -2300,13 +2343,12 @@ void AcpClientTest::testV2PromptCancel()
     const auto *idle = std::get_if<V2::IdleStateUpdate>(idleState);
     QVERIFY(idle);
     QVERIFY(idle->stopReason().has_value());
-    QVERIFY(*idle->stopReason() == V2::StopReason::cancelled);
+    QVERIFY(*idle->stopReason() == QLatin1String("cancelled"));
     QVERIFY(fixture.errors.isEmpty());
 }
 
-// An idle state update may carry a stop reason from outside the schema next
-// to an error. The unknown reason must not void the update: the turn still
-// ends, and the error reaches the chat.
+// An idle state update may carry the stop reason "error" next to an error.
+// The turn still ends, and the error reaches the chat.
 void AcpClientTest::testV2PromptIdleError()
 {
     ControllerFixture fixture;
@@ -2325,7 +2367,7 @@ void AcpClientTest::testV2PromptIdleError()
     QVERIFY(idleState);
     const auto *idle = std::get_if<V2::IdleStateUpdate>(idleState);
     QVERIFY(idle);
-    QVERIFY(!idle->stopReason().has_value());
+    QCOMPARE(idle->stopReason().asOptional().value_or(QString()), QString("error"));
 }
 
 // An idle state update that cannot be read at all still ends the turn and
@@ -4378,7 +4420,7 @@ void AcpClientTest::testChatPanelSelectButtonElide()
 
     // The commands button takes its room from the name.
     const QString textBeforeCommands = button->text();
-    panel.updateAvailableCommands({V2::AvailableCommand().name("plan").description("Plan")});
+    panel.updateAvailableCommands({V2::Command().name("plan").description("Plan")});
     QCOMPARE(panel.width(), panelWidth);
     QVERIFY2(button->text() != textBeforeCommands, qPrintable(button->text()));
     QVERIFY2(preferredRowWidth() <= rowWidth(),

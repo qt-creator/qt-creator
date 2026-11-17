@@ -60,7 +60,7 @@ signals:
     void authenticationRequired(const QList<Acp::V2::AuthMethod> &methods);
     void authenticationFailed(const QString &error);
     void authenticated();
-    void promptFinished(const std::optional<Acp::V2::StopReason> &stopReason);
+    void promptFinished(const std::optional<QString> &stopReason);
     void errorOccurred(const QString &error);
 
 protected:

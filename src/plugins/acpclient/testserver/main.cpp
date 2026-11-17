@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
                                   "list/load/delete/close capabilities.", "count"});
     parser.addOption({"permission", "Request permission during session/prompt."});
     parser.addOption({"elicitation", "Request input during session/prompt "
-                                     "(<mode>: form, url, unknown).", "mode"});
+                                     "(<mode>: form, form-untyped, url, unknown).", "mode"});
     parser.addOption({"cancel", "Wait for session/cancel during session/prompt."});
     parser.addOption({"crash-on-prompt", "Exit with code 1 on session/prompt."});
     parser.addOption({"config-options", "Report session config options."});

@@ -1242,8 +1242,7 @@ private:
         for (const QJsonValue &entry : schema.required().asOptional().value_or(QJsonArray()))
             required.append(entry.toString());
 
-        const QMap<QString, ElicitationPropertySchema> properties
-            = schema.properties().value_or(QMap<QString, ElicitationPropertySchema>());
+        const QMap<QString, ElicitationPropertySchema> properties = schema.properties();
         const QList<QStringList> questions = questionsOf(properties, required);
 
         if (questions.size() < 2) {

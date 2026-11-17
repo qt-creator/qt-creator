@@ -125,7 +125,8 @@ private slots:
     void v2StateUpdateUnknownStopReason();
     void v2AuthMethodUnknownType();
     void v2InitializeResponseRoundtrip();
-    void v2PromptResponseEmpty();
+    void v2PromptResponseMessageId();
+    void v2TitledMultiSelectRoundtrip();
 };
 
 // =============================================================================
@@ -961,7 +962,7 @@ void tst_Acp::v2StateUpdateRoundtrip()
     const auto *idleState = std::get_if<Acp::V2::IdleStateUpdate>(&*parsed);
     QVERIFY(idleState);
     QVERIFY(idleState->stopReason().has_value());
-    QVERIFY(*idleState->stopReason() == Acp::V2::StopReason::end_turn);
+    QCOMPARE(*idleState->stopReason(), QString("end_turn"));
     QCOMPARE(Acp::V2::toJson(*parsed), idle);
 
     const QJsonObject running = jsonObj(R"({"state": "running"})");
@@ -971,17 +972,17 @@ void tst_Acp::v2StateUpdateRoundtrip()
     QCOMPARE(Acp::V2::toJson(*parsedRunning), running);
 }
 
-// StopReason is open in the schema, and the field is marked
-// x-deserialize-default-on-error: a reason this version does not know must
-// leave the field unset rather than void the state update around it.
+// The stop reason is an open string, so a reason this version does not know
+// is kept rather than void the state update around it.
 void tst_Acp::v2StateUpdateUnknownStopReason()
 {
-    const QJsonObject idle = jsonObj(R"({"state": "idle", "stopReason": "error"})");
+    const QJsonObject idle = jsonObj(R"({"state": "idle", "stopReason": "_vendor_reason"})");
     auto parsed = Acp::V2::fromJson<Acp::V2::StateUpdate>(QJsonValue(idle));
     QVERIFY_RESULT(parsed);
     const auto *idleState = std::get_if<Acp::V2::IdleStateUpdate>(&*parsed);
     QVERIFY(idleState);
-    QVERIFY(!idleState->stopReason().has_value());
+    QCOMPARE(idleState->stopReason().asOptional().value_or(QString()),
+             QString("_vendor_reason"));
 }
 
 
@@ -1024,9 +1025,31 @@ void tst_Acp::v2InitializeResponseRoundtrip()
     QCOMPARE(Acp::V2::toJson(*parsed), obj);
 }
 
-void tst_Acp::v2PromptResponseEmpty()
+void tst_Acp::v2PromptResponseMessageId()
 {
-    verifyRoundtripV2<Acp::V2::PromptResponse>(jsonObj("{}"));
+    verifyRoundtripV2<Acp::V2::PromptResponse>(jsonObj(R"({"messageId": "msg-1"})"));
+    QVERIFY(!Acp::V2::fromJson<Acp::V2::PromptResponse>(QJsonValue(jsonObj("{}"))));
+}
+
+// Titled multi-select items are identified by their anyOf and carry no type.
+void tst_Acp::v2TitledMultiSelectRoundtrip()
+{
+    const QJsonObject titled = jsonObj(R"({"items": {"anyOf": [
+        {"const": "a", "title": "A"},
+        {"const": "b", "title": "B"}]}})");
+    verifyRoundtripV2<Acp::V2::MultiSelectPropertySchema>(titled);
+    auto parsed = Acp::V2::fromJson<Acp::V2::MultiSelectPropertySchema>(QJsonValue(titled));
+    QVERIFY_RESULT(parsed);
+    QVERIFY(std::holds_alternative<Acp::V2::TitledMultiSelectItems>(parsed->items()));
+
+    const QJsonObject plain = jsonObj(R"({"items": {"type": "string", "enum": ["a", "b"]}})");
+    verifyRoundtripV2<Acp::V2::MultiSelectPropertySchema>(plain);
+
+    const QJsonObject titledType = jsonObj(R"({"items": {"type": "titled", "anyOf": []}})");
+    auto parsedTitledType
+        = Acp::V2::fromJson<Acp::V2::MultiSelectPropertySchema>(QJsonValue(titledType));
+    QVERIFY_RESULT(parsedTitledType);
+    QVERIFY(std::holds_alternative<QJsonObject>(parsedTitledType->items()));
 }
 
 QTEST_GUILESS_MAIN(tst_Acp)

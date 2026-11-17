@@ -520,7 +520,7 @@ void AcpChatController::connectAdapter()
     connect(m_adapter, &AcpProtocolAdapter::authenticated,
             this, [this] { createNewSession(); });
     connect(m_adapter, &AcpProtocolAdapter::promptFinished,
-            this, [this](const std::optional<V2::StopReason> &) { emit promptFinished(); });
+            this, [this](const std::optional<QString> &) { emit promptFinished(); });
     connect(m_adapter, &AcpProtocolAdapter::errorOccurred,
             this, &AcpChatController::errorOccurred);
 }

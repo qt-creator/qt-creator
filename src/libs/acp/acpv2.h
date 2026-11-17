@@ -78,17 +78,13 @@ Utils::Result<T> fromJson(const QString &field, const QJsonValue &val)
 }
 
 /**
- * JSON RPC Request Id
+ * A JSON-RPC request ID: a string or an integer. Unlike base JSON-RPC, it MUST NOT be `null`.
  *
- * An identifier established by the Client that MUST contain a String, Number, or NULL value if included. If it is not included it is assumed to be a notification. The value SHOULD normally not be Null \[1\] and Numbers SHOULD NOT contain fractional parts \[2\]
- *
- * The Server MUST reply with the same value in the Response object if included. This member is used to correlate the context between the two objects.
- *
- * \[1\] The use of Null as a value for the id member in a Request object is discouraged, because this specification uses a value of Null for Responses with an unknown id. Also, because JSON-RPC 1.0 uses an id value of Null for Notifications this could cause confusion in handling.
- *
- * \[2\] Fractional parts may be problematic, since many decimal fractions cannot be represented exactly as binary fractions.
+ * The receiver MUST reply with the same value in the response. Each side chooses IDs for its own
+ * requests, so the same ID can be in use in both directions. A sender MUST NOT reuse an ID while
+ * a request with it is still awaiting a response.
  */
-using RequestId = std::variant<std::monostate, int, QString>;
+using RequestId = std::variant<int, QString>;
 
 template<>
 ACPLIB_EXPORT Utils::Result<RequestId> fromJson<RequestId>(const QJsonValue &val);
@@ -100,7 +96,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const RequestId &val);
  * (e.g., during auth/configuration phases before any session is started).
  */
 struct ElicitationRequestScope {
-    RequestId _requestId{};  //!< The request this elicitation is tied to.
+    RequestId _requestId{};  //!< The pending Client-to-Agent request this elicitation is tied to.
 
     ElicitationRequestScope& requestId(const RequestId & v) { _requestId = v; return *this; }
 
@@ -136,10 +132,8 @@ struct BooleanPropertySchema {
     Patch<bool> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -201,10 +195,8 @@ struct IntegerPropertySchema {
     Patch<int> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -243,10 +235,8 @@ struct StringMultiSelectItems {
     QStringList _enum_{};  //!< Allowed enum values. Must contain at least one value.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -280,10 +270,8 @@ struct EnumOption {
     Patch<QString> _description{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -314,10 +302,8 @@ struct TitledMultiSelectItems {
     QList<EnumOption> _anyOf{};  //!< Titled enum options. Must contain at least one option.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -340,10 +326,13 @@ ACPLIB_EXPORT Utils::Result<TitledMultiSelectItems> fromJson<TitledMultiSelectIt
 ACPLIB_EXPORT QJsonObject toJson(const TitledMultiSelectItems &data);
 
 /** Items for a multi-select (array) property schema. */
-using MultiSelectItems = std::variant<StringMultiSelectItems, QJsonObject, TitledMultiSelectItems>;
+using MultiSelectItems = std::variant<StringMultiSelectItems, TitledMultiSelectItems, QJsonObject>;
 
 template<>
 ACPLIB_EXPORT Utils::Result<MultiSelectItems> fromJson<MultiSelectItems>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const MultiSelectItems &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const MultiSelectItems &val);
 
@@ -384,10 +373,8 @@ struct MultiSelectPropertySchema {
     Patch<QJsonArray> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -457,10 +444,8 @@ struct NumberPropertySchema {
     Patch<double> _default_{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -541,7 +526,7 @@ struct StringPropertySchema {
      */
     Patch<int> _maxLength{};
     /**
-     * Pattern the string must match.
+     * Pattern the string must match, in ECMA-262 regular expression syntax.
      *
      * Optional. Omitted and `null` are equivalent and mean there is no pattern constraint.
      */
@@ -574,10 +559,8 @@ struct StringPropertySchema {
     Patch<QList<EnumOption>> _oneOf{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -627,8 +610,8 @@ ACPLIB_EXPORT QJsonObject toJson(const StringPropertySchema &data);
  * Property schema for elicitation form fields.
  *
  * Each variant corresponds to a JSON Schema `"type"` value.
- * Single-select enums use the `String` variant with `enum` or `oneOf` set.
- * Multi-select enums use the `Array` variant.
+ * Single-select enums use `type: "string"` with `enum` or `oneOf` set.
+ * Multi-select enums use `type: "array"`.
  */
 using ElicitationPropertySchema = std::variant<StringPropertySchema, NumberPropertySchema, IntegerPropertySchema, BooleanPropertySchema, MultiSelectPropertySchema, QJsonObject>;
 
@@ -661,14 +644,14 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationSchemaType &v);
  * as required by the elicitation specification.
  */
 struct ElicitationSchema {
-    std::optional<ElicitationSchemaType> _type{};  //!< Type discriminator. Always `"object"`.
+    ElicitationSchemaType _type{};  //!< Type discriminator. Always `"object"`. Any other value is rejected.
     /**
      * Optional title for the schema.
      *
      * Optional. Omitted and `null` are equivalent and mean no title is provided.
      */
     Patch<QString> _title{};
-    std::optional<QMap<QString, ElicitationPropertySchema>> _properties{};  //!< Property definitions (must be primitive types).
+    QMap<QString, ElicitationPropertySchema> _properties{};  //!< Property definitions (must be primitive types).
     /**
      * List of required property names.
      *
@@ -683,20 +666,18 @@ struct ElicitationSchema {
     Patch<QString> _description{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
-    ElicitationSchema& type(const std::optional<ElicitationSchemaType> & v) { _type = v; return *this; }
+    ElicitationSchema& type(const ElicitationSchemaType & v) { _type = v; return *this; }
     ElicitationSchema& title(const Patch<QString> & v) { _title = v; return *this; }
     ElicitationSchema& title(const QString & v) { _title = v; return *this; }
-    ElicitationSchema& properties(const std::optional<QMap<QString, ElicitationPropertySchema>> & v) { _properties = v; return *this; }
-    ElicitationSchema& addProperty(const QString &key, const ElicitationPropertySchema & v) { if (!_properties) _properties = QMap<QString, ElicitationPropertySchema>{}; (*_properties)[key] = v; return *this; }
+    ElicitationSchema& properties(const QMap<QString, ElicitationPropertySchema> & v) { _properties = v; return *this; }
+    ElicitationSchema& addProperty(const QString &key, const ElicitationPropertySchema & v) { _properties[key] = v; return *this; }
     ElicitationSchema& required(const Patch<QJsonArray> & v) { _required = v; return *this; }
     ElicitationSchema& required(const QJsonArray & v) { _required = v; return *this; }
     ElicitationSchema& description(const Patch<QString> & v) { _description = v; return *this; }
@@ -704,9 +685,9 @@ struct ElicitationSchema {
     ElicitationSchema& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     ElicitationSchema& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
-    const std::optional<ElicitationSchemaType>& type() const { return _type; }
+    const ElicitationSchemaType& type() const { return _type; }
     const Patch<QString>& title() const { return _title; }
-    const std::optional<QMap<QString, ElicitationPropertySchema>>& properties() const { return _properties; }
+    const QMap<QString, ElicitationPropertySchema>& properties() const { return _properties; }
     const Patch<QJsonArray>& required() const { return _required; }
     const Patch<QString>& description() const { return _description; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
@@ -728,7 +709,7 @@ using ToolCallId = QString;
 /**
  * Session-scoped elicitation, optionally tied to a specific tool call.
  *
- * When `tool_call_id` is set, the elicitation is tied to a specific tool call.
+ * When `toolCallId` is set, the elicitation is tied to a specific tool call.
  * This is useful when an agent receives an elicitation from an MCP server
  * during a tool call and needs to redirect it to the user.
  */
@@ -808,15 +789,25 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationUrlMode &data);
  * The agent sends this to the client to request information from the user,
  * either via a form or by directing them to a URL.
  * Elicitations are tied to a session (optionally a tool call) or a request.
+ *
+ * A session-scoped request follows the aggregate foreground-state contract:
+ * agents SHOULD report `requires_action` when the whole foreground workflow is
+ * blocked on user action. Once reported, they MUST report `running` when progress
+ * resumes, or `idle` if work ends without resuming. Independent background requests
+ * and request-scoped elicitations do not themselves change session state.
+ * Accepting a URL does not mean the external interaction completed.
+ *
+ * Agents SHOULD cancel pending elicitations no longer needed by cancelled work.
+ * The request's scope alone does not establish that dependency.
+ *
+ * See protocol docs: [Elicitation](https://agentclientprotocol.com/protocol/v2/elicitation)
  */
 struct CreateElicitationRequest {
     QString _message{};  //!< A human-readable message describing what input is needed.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -866,13 +857,13 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const PermissionOptionKind &v);
 
 /** An option presented to the user when requesting permission. */
 struct PermissionOption {
-    PermissionOptionId _optionId{};  //!< Unique identifier for this permission option.
+    PermissionOptionId _optionId{};  //!< Identifier for this permission option. MUST be unique within the request.
     QString _name{};  //!< Human-readable label to display to the user.
     PermissionOptionKind _kind{};  //!< Hint about the nature of this permission option.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -909,8 +900,8 @@ struct CommandPermissionSubject {
     Patch<TerminalId> _terminalId{};  //!< The associated terminal, when already known. Omitted and `null` are equivalent.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. Omitted and `null` are equivalent and mean no subject metadata was provided.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -939,6 +930,75 @@ ACPLIB_EXPORT Utils::Result<CommandPermissionSubject> fromJson<CommandPermission
 
 ACPLIB_EXPORT QJsonObject toJson(const CommandPermissionSubject &data);
 
+/**
+ * Capability to cancel a tool call with `tool_call/cancel`.
+ *
+ * Supplying `{}` advertises support. An omitted or `null` `cancel` does not.
+ */
+struct ToolCallCancelCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    ToolCallCancelCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    ToolCallCancelCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const ToolCallCancelCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ToolCallCancelCapabilities> fromJson<ToolCallCancelCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ToolCallCancelCapabilities &data);
+
+/**
+ * Client-initiated controls a tool call currently supports.
+ *
+ * A malformed value falls back to no controls, so the Client never sends a request the
+ * Agent did not advertise.
+ *
+ * See protocol docs: [Cancelling Tool Calls](https://agentclientprotocol.com/protocol/v2/tool-calls#cancelling-tool-calls)
+ */
+struct ToolCallCapabilities {
+    /**
+     * Permits the Client to cancel this tool call with `tool_call/cancel`.
+     *
+     * Omitted and `null` are equivalent and mean unsupported. An object (including `{}`)
+     * means supported. Agents SHOULD stop advertising it once the tool call reaches a final status.
+     */
+    Patch<ToolCallCancelCapabilities> _cancel{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    ToolCallCapabilities& cancel(const Patch<ToolCallCancelCapabilities> & v) { _cancel = v; return *this; }
+    ToolCallCapabilities& cancel(const ToolCallCancelCapabilities & v) { _cancel = v; return *this; }
+    ToolCallCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    ToolCallCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<ToolCallCancelCapabilities>& cancel() const { return _cancel; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const ToolCallCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ToolCallCapabilities> fromJson<ToolCallCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ToolCallCapabilities &data);
+
 /** The sender or recipient of messages and data in a conversation. */
 enum class Role {
     assistant,
@@ -956,18 +1016,31 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const Role &v);
  * Optional annotations for the client. The client can use annotations to inform how objects are used or displayed
  */
 struct Annotations {
-    Patch<QList<Role>> _audience{};  //!< Intended recipients for this content, such as the user or assistant.
+    /**
+     * Intended recipients for this content, such as the user or assistant.
+     *
+     * Omitted and `null` are equivalent and mean no audience is specified.
+     */
+    Patch<QList<Role>> _audience{};
     /**
      * Timestamp indicating when the underlying resource was last modified.
      *
-     * Must be an RFC 3339 formatted string (e.g., "2025-01-12T15:00:58Z").
+     * Should be an ISO 8601 formatted string (e.g., "2025-01-12T15:00:58Z"), as in MCP.
+     *
+     * Omitted and `null` are equivalent and mean the modification time is not reported.
      */
     Patch<QString> _lastModified{};
-    Patch<double> _priority{};  //!< Relative importance of this content when clients choose what to surface.
+    /**
+     * Relative importance of this content when clients choose what to surface, from 0 (least
+     * important) to 1 (most important).
+     *
+     * Omitted and `null` are equivalent and mean no priority is specified.
+     */
+    Patch<double> _priority{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1001,11 +1074,16 @@ using MediaType = QString;
 struct AudioContent {
     QString _data{};  //!< Base64-encoded media payload.
     MediaType _mimeType{};  //!< MIME type describing the encoded media payload.
-    Patch<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    /**
+     * Optional annotations that help clients decide how to display or route this content.
+     *
+     * Omitted and `null` are equivalent and mean no annotations are provided.
+     */
+    Patch<Annotations> _annotations{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1035,11 +1113,16 @@ ACPLIB_EXPORT QJsonObject toJson(const AudioContent &data);
 struct BlobResourceContents {
     QString _blob{};  //!< Base64-encoded bytes for a binary resource payload.
     QString _uri{};  //!< URI associated with this resource or media payload.
-    Patch<MediaType> _mimeType{};  //!< MIME type describing the encoded media payload.
+    /**
+     * MIME type describing the encoded media payload.
+     *
+     * Omitted and `null` are equivalent and mean the MIME type is not specified.
+     */
+    Patch<MediaType> _mimeType{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1069,11 +1152,16 @@ ACPLIB_EXPORT QJsonObject toJson(const BlobResourceContents &data);
 struct TextResourceContents {
     QString _text{};  //!< Text payload carried by this content block.
     QString _uri{};  //!< URI associated with this resource or media payload.
-    Patch<MediaType> _mimeType{};  //!< MIME type describing the encoded media payload.
+    /**
+     * MIME type describing the encoded media payload.
+     *
+     * Omitted and `null` are equivalent and mean the MIME type is not specified.
+     */
+    Patch<MediaType> _mimeType{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1115,11 +1203,16 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const EmbeddedResourceResource &val);
 /** The contents of a resource, embedded into a prompt or tool call result. */
 struct EmbeddedResource {
     EmbeddedResourceResource _resource{};  //!< Embedded resource payload, either text or binary data.
-    Patch<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    /**
+     * Optional annotations that help clients decide how to display or route this content.
+     *
+     * Omitted and `null` are equivalent and mean no annotations are provided.
+     */
+    Patch<Annotations> _annotations{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1147,12 +1240,22 @@ ACPLIB_EXPORT QJsonObject toJson(const EmbeddedResource &data);
 struct ImageContent {
     QString _data{};  //!< Base64-encoded media payload.
     MediaType _mimeType{};  //!< MIME type describing the encoded media payload.
-    Patch<QString> _uri{};  //!< URI associated with this resource or media payload.
-    Patch<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    /**
+     * URI associated with this resource or media payload.
+     *
+     * Omitted and `null` are equivalent and mean no URI is associated with the image.
+     */
+    Patch<QString> _uri{};
+    /**
+     * Optional annotations that help clients decide how to display or route this content.
+     *
+     * Omitted and `null` are equivalent and mean no annotations are provided.
+     */
+    Patch<Annotations> _annotations{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1196,17 +1299,42 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const IconTheme &v);
 
 /** An optionally-sized icon that can be displayed in a user interface. */
 struct Icon {
-    QString _src{};  //!< A standard URI pointing to an icon resource.
-    Patch<MediaType> _mimeType{};  //!< Optional MIME type override if the source MIME type is missing or generic.
+    /**
+     * A standard URI pointing to an icon resource. MUST be an `https:` or `data:` URI.
+     * Clients reject other schemes, fetch without credentials, and do not follow
+     * scheme- or origin-changing redirects.
+     */
+    QString _src{};
+    /**
+     * Optional MIME type override if the source MIME type is missing or generic.
+     *
+     * Omitted and `null` are equivalent and mean the source MIME type is used.
+     */
+    Patch<MediaType> _mimeType{};
     /**
      * Optional array of strings that specify sizes at which the icon can be used.
      * Each string should be in `WxH` format (e.g., `"48x48"`, `"96x96"`) or
      * `"any"` for scalable formats like SVG.
      *
      * If not provided, the client should assume that the icon can be used at any size.
+     *
+     * Omitted and `null` are equivalent and mean no sizes are specified.
      */
     Patch<QJsonArray> _sizes{};
-    Patch<IconTheme> _theme{};  //!< Optional theme this icon is designed for.
+    /**
+     * Optional theme this icon is designed for.
+     *
+     * Omitted and `null` are equivalent and mean the icon is not theme-specific.
+     */
+    Patch<IconTheme> _theme{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
 
     Icon& src(const QString & v) { _src = v; return *this; }
     Icon& mimeType(const Patch<MediaType> & v) { _mimeType = v; return *this; }
@@ -1215,11 +1343,14 @@ struct Icon {
     Icon& sizes(const QJsonArray & v) { _sizes = v; return *this; }
     Icon& theme(const Patch<IconTheme> & v) { _theme = v; return *this; }
     Icon& theme(const IconTheme & v) { _theme = v; return *this; }
+    Icon& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    Icon& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const QString& src() const { return _src; }
     const Patch<MediaType>& mimeType() const { return _mimeType; }
     const Patch<QJsonArray>& sizes() const { return _sizes; }
     const Patch<IconTheme>& theme() const { return _theme; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const Icon &other) const = default;
 };
@@ -1229,20 +1360,52 @@ ACPLIB_EXPORT Utils::Result<Icon> fromJson<Icon>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const Icon &data);
 
-/** A resource that the server is capable of reading, included in a prompt or tool call result. */
+/**
+ * A link to a resource that the receiver may be able to read, included in a prompt or tool call result.
+ */
 struct ResourceLink {
     QString _name{};  //!< Human-readable name shown for this protocol object.
     QString _uri{};  //!< URI associated with this resource or media payload.
-    Patch<QString> _title{};  //!< Optional display title for end-user UI.
-    Patch<QString> _description{};  //!< Optional human-readable details shown with this protocol object.
-    Patch<QList<Icon>> _icons{};  //!< Optional set of sized icons that the client can display in a user interface.
-    Patch<MediaType> _mimeType{};  //!< MIME type describing the encoded media payload.
-    Patch<int> _size{};  //!< Optional size of the linked resource in bytes, if known.
-    Patch<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    /**
+     * Optional display title for end-user UI.
+     *
+     * Omitted and `null` are equivalent and mean no title is provided.
+     */
+    Patch<QString> _title{};
+    /**
+     * Optional human-readable details shown with this protocol object.
+     *
+     * Omitted and `null` are equivalent and mean no description is provided.
+     */
+    Patch<QString> _description{};
+    /**
+     * Optional set of sized icons that the client can display in a user interface.
+     *
+     * Omitted and `null` are equivalent and mean no icons are provided.
+     */
+    Patch<QList<Icon>> _icons{};
+    /**
+     * MIME type describing the encoded media payload.
+     *
+     * Omitted and `null` are equivalent and mean the MIME type is not specified.
+     */
+    Patch<MediaType> _mimeType{};
+    /**
+     * Optional size of the linked resource in bytes, if known.
+     *
+     * Omitted and `null` are equivalent and mean the size is not known.
+     */
+    Patch<int> _size{};
+    /**
+     * Optional annotations that help clients decide how to display or route this content.
+     *
+     * Omitted and `null` are equivalent and mean no annotations are provided.
+     */
+    Patch<Annotations> _annotations{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1286,11 +1449,16 @@ ACPLIB_EXPORT QJsonObject toJson(const ResourceLink &data);
 /** Text provided to or from an LLM. */
 struct TextContent {
     QString _text{};  //!< Text payload carried by this content block.
-    Patch<Annotations> _annotations{};  //!< Optional annotations that help clients decide how to display or route this content.
+    /**
+     * Optional annotations that help clients decide how to display or route this content.
+     *
+     * Omitted and `null` are equivalent and mean no annotations are provided.
+     */
+    Patch<Annotations> _annotations{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1317,17 +1485,14 @@ ACPLIB_EXPORT QJsonObject toJson(const TextContent &data);
 /**
  * Content blocks represent displayable information in the Agent Client Protocol.
  *
- * They provide a structured way to handle various types of user-facing content--whether
- * it's text from language models, images for analysis, or embedded resources for context.
- *
  * Content blocks appear in:
  * - User prompts sent via `session/prompt`
  * - Language model output reported through `session/update` notifications as
  * message updates or streamed chunks
  * - Progress updates and results from tool calls
  *
- * This structure is compatible with the Model Context Protocol (MCP), enabling
- * agents to seamlessly forward content from MCP tool outputs without transformation.
+ * This structure is compatible with the Model Context Protocol (MCP), so agents can
+ * forward content from MCP tool outputs without transformation.
  *
  * See protocol docs: [Content](https://agentclientprotocol.com/protocol/v2/content)
  */
@@ -1348,8 +1513,8 @@ struct Content {
     ContentBlock _content{};  //!< The actual content block.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1421,28 +1586,28 @@ ACPLIB_EXPORT Utils::Result<DiffPathPairChange> fromJson<DiffPathPairChange>(con
 ACPLIB_EXPORT QJsonObject toJson(const DiffPathPairChange &data);
 
 /**
- * One file-level change described by a [`Diff`].
+ * One file-level change described by a `Diff`.
  *
  * Structured change metadata lets clients identify affected files and
  * operations without parsing the text patch.
  */
 struct DiffChange {
     /**
-     * File content kind.
+     * File content kind after the operation (for `delete`, of the deleted file).
      *
-     * Omitted or `null` means the content kind is unknown.
+     * Omitted and `null` are equivalent and mean the content kind is unknown.
      */
     Patch<DiffFileType> _fileType{};
     /**
-     * MIME type of the file contents.
+     * MIME type of the file contents after the operation (for `delete`, of the deleted file).
      *
-     * Omitted or `null` means the MIME type is unknown.
+     * Omitted and `null` are equivalent and mean the MIME type is unknown.
      */
     Patch<MediaType> _mimeType{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1471,7 +1636,7 @@ ACPLIB_EXPORT Utils::Result<DiffChange> fromJson<DiffChange>(const QJsonValue &v
 
 ACPLIB_EXPORT QJsonObject toJson(const DiffChange &data);
 
-/** Text patch format used by [`DiffPatch`]. */
+/** Text patch format used by `DiffPatch`. */
 enum class DiffPatchFormat {
     git_patch
 };
@@ -1487,12 +1652,23 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const DiffPatchFormat &v);
 struct DiffPatch {
     DiffPatchFormat _format{};  //!< Patch format. The only ACP-defined value is `git_patch`.
     QString _text{};  //!< Patch text in the format named by `format`.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
 
     DiffPatch& format(const DiffPatchFormat & v) { _format = v; return *this; }
     DiffPatch& text(const QString & v) { _text = v; return *this; }
+    DiffPatch& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    DiffPatch& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const DiffPatchFormat& format() const { return _format; }
     const QString& text() const { return _text; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const DiffPatch &other) const = default;
 };
@@ -1522,14 +1698,14 @@ struct Diff {
     /**
      * Renderable patch text for some or all of the structured changes.
      *
-     * Agents SHOULD provide patch text whenever feasible. Omitted or `null`
-     * means no renderable patch text was provided.
+     * Agents SHOULD provide patch text whenever feasible. Omitted and `null` are
+     * equivalent and mean no renderable patch text was provided.
      */
     Patch<DiffPatch> _patch{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1558,15 +1734,14 @@ ACPLIB_EXPORT QJsonObject toJson(const Diff &data);
  * A display-only reference to an agent-owned terminal.
  *
  * Terminal state and output are delivered separately through
- * [`TerminalUpdate`] and [`TerminalOutputChunk`].
+ * `terminal_update` and `terminal_output_chunk` session updates.
  */
 struct Terminal {
     TerminalId _terminalId{};  //!< The ID of the terminal to display.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. This metadata is scoped to the content reference. Omitted
-     * and `null` are equivalent and mean no item metadata was provided.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1617,11 +1792,15 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolCallContent &val);
  */
 struct ToolCallLocation {
     AbsolutePath _path{};  //!< The absolute file path being accessed or modified.
-    Patch<int> _line{};  //!< Optional line number within the file.
+    /**
+     * Optional 1-based line number within the file. Omitted and `null` are equivalent and
+     * mean no specific line. `0` is invalid.
+     */
+    Patch<int> _line{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1655,6 +1834,7 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCallLocation &data);
 enum class ToolCallStatus {
     pending,
     in_progress,
+    paused,
     completed,
     failed,
     cancelled
@@ -1673,7 +1853,7 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolCallStatus &v);
  * Tool kinds help clients choose appropriate icons and optimize how they
  * display tool execution progress.
  *
- * See protocol docs: [Creating](https://agentclientprotocol.com/protocol/v2/tool-calls#creating)
+ * See protocol docs: [Reporting](https://agentclientprotocol.com/protocol/v2/tool-calls#reporting)
  */
 enum class ToolKind {
     read,
@@ -1701,24 +1881,49 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ToolKind &v);
  * Tool calls are actions that the agent executes on behalf of the language model,
  * such as reading files, executing code, or fetching data from external sources.
  *
- * Only [`ToolCallUpdate::tool_call_id`] is required. Other fields have patch semantics:
+ * Only `toolCallId` is required. Other fields have patch semantics:
  * omitted fields leave the existing tool call value unchanged, `null` clears or
  * unsets the value, and concrete values replace the previous value. For
  * collection fields, concrete arrays replace the previous collection, and both
- * `null` and `[]` clear the collection. When a client receives a tool call ID it
- * has not seen before, omitted fields use client defaults.
+ * `null` and `[]` clear the collection. A concrete `_meta` object instead
+ * patches the stored metadata by top-level key. When a client receives a tool
+ * call ID it has not seen before, omitted fields start at their protocol defaults.
  *
  * See protocol docs: [Tool Calls](https://agentclientprotocol.com/protocol/v2/tool-calls)
  */
 struct ToolCallUpdate {
     ToolCallId _toolCallId{};  //!< Unique identifier for this tool call within the session.
-    Patch<QString> _title{};  //!< Human-readable title describing what the tool is doing.
+    /**
+     * Programmatic name of the tool being invoked.
+     *
+     * This field is optional and has patch semantics. Omission means no
+     * change, `null` clears the name, and a string replaces it. For a tool
+     * call ID the client has not seen before, omission or `null` means that no
+     * tool name is available.
+     */
+    Patch<QString> _name{};
+    /**
+     * Human-readable title describing what the tool is doing.
+     *
+     * Omission leaves the title unchanged, `null` unsets it, and a string replaces it.
+     * A new tool call starts without a title.
+     */
+    Patch<QString> _title{};
     /**
      * The category of tool being invoked.
      * Helps clients choose appropriate icons and UI treatment.
+     *
+     * Omission leaves the kind unchanged, `null` resets it to `other`, and a value replaces it.
+     * A new tool call starts as `other`.
      */
     Patch<ToolKind> _kind{};
-    Patch<ToolCallStatus> _status{};  //!< Current execution status of the tool call.
+    /**
+     * Current execution status of the tool call.
+     *
+     * Omission leaves the status unchanged, `null` resets it to `pending`, and a value
+     * replaces it. A new tool call starts as `pending`.
+     */
+    Patch<ToolCallStatus> _status{};
     Patch<QList<ToolCallContent>> _content{};  //!< Content produced by the tool call.
     /**
      * File locations affected by this tool call.
@@ -1728,15 +1933,27 @@ struct ToolCallUpdate {
     std::optional<QJsonValue> _rawInput{};  //!< Raw input parameters sent to the tool.
     std::optional<QJsonValue> _rawOutput{};  //!< Raw output returned by the tool.
     /**
-     * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Omitted means no metadata update; `null` is an
-     * explicit clear signal. Implementations MUST NOT make assumptions about values at these keys.
+     * Client-initiated controls this tool call currently supports, such as cancellation.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     * Omission leaves the capabilities unchanged, `null` clears them, and an object replaces
+     * the whole previous value. A new tool call starts with none.
+     */
+    Patch<ToolCallCapabilities> _capabilities{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
      */
     Patch<QJsonObject> __meta{};
 
     ToolCallUpdate& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
+    ToolCallUpdate& name(const Patch<QString> & v) { _name = v; return *this; }
+    ToolCallUpdate& name(const QString & v) { _name = v; return *this; }
     ToolCallUpdate& title(const Patch<QString> & v) { _title = v; return *this; }
     ToolCallUpdate& title(const QString & v) { _title = v; return *this; }
     ToolCallUpdate& kind(const Patch<ToolKind> & v) { _kind = v; return *this; }
@@ -1749,10 +1966,13 @@ struct ToolCallUpdate {
     ToolCallUpdate& locations(const QList<ToolCallLocation> & v) { _locations = v; return *this; }
     ToolCallUpdate& rawInput(const std::optional<QJsonValue> & v) { _rawInput = v; return *this; }
     ToolCallUpdate& rawOutput(const std::optional<QJsonValue> & v) { _rawOutput = v; return *this; }
+    ToolCallUpdate& capabilities(const Patch<ToolCallCapabilities> & v) { _capabilities = v; return *this; }
+    ToolCallUpdate& capabilities(const ToolCallCapabilities & v) { _capabilities = v; return *this; }
     ToolCallUpdate& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     ToolCallUpdate& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const ToolCallId& toolCallId() const { return _toolCallId; }
+    const Patch<QString>& name() const { return _name; }
     const Patch<QString>& title() const { return _title; }
     const Patch<ToolKind>& kind() const { return _kind; }
     const Patch<ToolCallStatus>& status() const { return _status; }
@@ -1760,6 +1980,7 @@ struct ToolCallUpdate {
     const Patch<QList<ToolCallLocation>>& locations() const { return _locations; }
     const std::optional<QJsonValue>& rawInput() const { return _rawInput; }
     const std::optional<QJsonValue>& rawOutput() const { return _rawOutput; }
+    const Patch<ToolCallCapabilities>& capabilities() const { return _capabilities; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const ToolCallUpdate &other) const = default;
@@ -1772,11 +1993,29 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCallUpdate &data);
 
 /** Permission request details for a tool call. */
 struct ToolCallPermissionSubject {
-    ToolCallUpdate _toolCall{};  //!< Details about the tool call requiring permission.
+    /**
+     * Details about the tool call requiring permission.
+     *
+     * Clients apply this to their stored tool call exactly like a `tool_call_update`
+     * notification, in the order it was received, before showing the prompt. A first-seen
+     * `toolCallId` creates the tool call.
+     */
+    ToolCallUpdate _toolCall{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
 
     ToolCallPermissionSubject& toolCall(const ToolCallUpdate & v) { _toolCall = v; return *this; }
+    ToolCallPermissionSubject& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    ToolCallPermissionSubject& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const ToolCallUpdate& toolCall() const { return _toolCall; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const ToolCallPermissionSubject &other) const = default;
 };
@@ -1819,14 +2058,14 @@ struct RequestPermissionRequest {
      * Optional human-readable explanation of why permission is needed.
      *
      * This text is specific to the permission prompt and does not update any
-     * subject's displayed content. Omitted or `null` both mean no separate
+     * subject's displayed content. Omitted and `null` are equivalent and mean no separate
      * permission description was provided.
      */
     Patch<QString> _description{};
     /**
      * Optional structured context about the operation requiring permission.
      *
-     * Omitted or `null` both mean no structured subject was provided.
+     * Omitted and `null` are equivalent and mean no structured subject was provided.
      */
     Patch<RequestPermissionSubject> _subject{};
     /**
@@ -1836,8 +2075,8 @@ struct RequestPermissionRequest {
     QList<PermissionOption> _options{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1891,12 +2130,60 @@ ACPLIB_EXPORT Utils::Result<AgentRequest> fromJson<AgentRequest>(const QJsonValu
 
 ACPLIB_EXPORT QJsonObject toJson(const AgentRequest &data);
 
+/** Response from cancelling a terminal. */
+struct CancelTerminalResponse {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CancelTerminalResponse& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CancelTerminalResponse& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CancelTerminalResponse &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CancelTerminalResponse> fromJson<CancelTerminalResponse>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CancelTerminalResponse &data);
+
+/** Response from cancelling a tool call. */
+struct CancelToolCallResponse {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CancelToolCallResponse& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CancelToolCallResponse& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CancelToolCallResponse &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CancelToolCallResponse> fromJson<CancelToolCallResponse>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CancelToolCallResponse &data);
+
 /** Response from closing a session. */
 struct CloseSessionResponse {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1919,8 +2206,8 @@ ACPLIB_EXPORT QJsonObject toJson(const CloseSessionResponse &data);
 struct DeleteSessionResponse {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -1942,8 +2229,9 @@ ACPLIB_EXPORT QJsonObject toJson(const DeleteSessionResponse &data);
 /**
  * Predefined error codes for common JSON-RPC and ACP-specific errors.
  *
- * These codes follow the JSON-RPC 2.0 specification for standard errors
- * and use the reserved range (-32000 to -32099) for protocol-specific errors.
+ * Standard errors use the JSON-RPC 2.0 codes. ACP-specific errors use the JSON-RPC
+ * server-error range (-32000 to -32099), and request cancellation uses -32800 from the
+ * range LSP reserves (-32899 to -32800).
  */
 namespace ErrorCode {
     constexpr int Parse_error = -32700;
@@ -1954,7 +2242,89 @@ namespace ErrorCode {
     constexpr int Request_cancelled = -32800;
     constexpr int Authentication_required = -32000;
     constexpr int Resource_not_found = -32002;
+    constexpr int Unsupported_protocol_version = -32022;
 } // namespace ErrorCode
+/**
+ * Data for the `-32002` (Resource not found) error when a session-scoped request names a
+ * session that does not exist or is not active.
+ *
+ * See protocol docs: [Unknown Sessions](https://agentclientprotocol.com/protocol/v2/error#unknown-sessions)
+ */
+struct SessionNotFoundErrorData {
+    SessionId _sessionId{};  //!< The session ID from the request.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    SessionNotFoundErrorData& sessionId(const SessionId & v) { _sessionId = v; return *this; }
+    SessionNotFoundErrorData& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    SessionNotFoundErrorData& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const SessionId& sessionId() const { return _sessionId; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionNotFoundErrorData &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionNotFoundErrorData> fromJson<SessionNotFoundErrorData>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionNotFoundErrorData &data);
+
+using ProtocolVersion = int;
+template<>
+ACPLIB_EXPORT Utils::Result<ProtocolVersion> fromJson<ProtocolVersion>(const QJsonValue &val);
+
+/**
+ * Data for the `-32022` (Unsupported protocol version) error.
+ *
+ * See protocol docs: [Version Negotiation](https://agentclientprotocol.com/protocol/v2/initialization#version-negotiation)
+ */
+struct UnsupportedProtocolVersionErrorData {
+    ProtocolVersion _requested{};  //!< The protocol version the Client requested.
+    QList<ProtocolVersion> _supported{};  //!< The protocol versions the Agent supports.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    UnsupportedProtocolVersionErrorData& requested(const ProtocolVersion & v) { _requested = v; return *this; }
+    UnsupportedProtocolVersionErrorData& supported(const QList<ProtocolVersion> & v) { _supported = v; return *this; }
+    UnsupportedProtocolVersionErrorData& addSupported(const ProtocolVersion & v) { _supported.append(v); return *this; }
+    UnsupportedProtocolVersionErrorData& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    UnsupportedProtocolVersionErrorData& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const ProtocolVersion& requested() const { return _requested; }
+    const QList<ProtocolVersion>& supported() const { return _supported; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const UnsupportedProtocolVersionErrorData &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<UnsupportedProtocolVersionErrorData> fromJson<UnsupportedProtocolVersionErrorData>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const UnsupportedProtocolVersionErrorData &data);
+
+/** Schema for [`Error::data`]: the shapes ACP defines, or any other value. */
+using ErrorData = std::variant<UnsupportedProtocolVersionErrorData, SessionNotFoundErrorData>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<ErrorData> fromJson<ErrorData>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ErrorData &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const ErrorData &val);
+
 /**
  * JSON-RPC error object.
  *
@@ -1977,16 +2347,21 @@ struct Error {
     /**
      * Optional primitive or structured value that contains additional information about the error.
      * This may include debugging information or context-specific details.
+     *
+     * Omitted and `null` are equivalent and mean no additional data is provided. Some codes
+     * define a shape: [`UnsupportedProtocolVersionErrorData`] for `-32022`, and
+     * [`SessionNotFoundErrorData`] for `-32002` when a session is not found.
      */
-    std::optional<QJsonValue> _data{};
+    Patch<ErrorData> _data{};
 
     Error& code(int v) { _code = v; return *this; }
     Error& message(const QString & v) { _message = v; return *this; }
-    Error& data(const std::optional<QJsonValue> & v) { _data = v; return *this; }
+    Error& data(const Patch<ErrorData> & v) { _data = v; return *this; }
+    Error& data(const ErrorData & v) { _data = v; return *this; }
 
     const int& code() const { return _code; }
     const QString& message() const { return _message; }
-    const std::optional<QJsonValue>& data() const { return _data; }
+    const Patch<ErrorData>& data() const { return _data; }
 
     bool operator==(const Error &other) const = default;
 };
@@ -2008,8 +2383,8 @@ ACPLIB_EXPORT QJsonObject toJson(const Error &data);
 struct AgentAuthCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2036,8 +2411,8 @@ ACPLIB_EXPORT QJsonObject toJson(const AgentAuthCapabilities &data);
 struct McpHttpCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2064,8 +2439,8 @@ ACPLIB_EXPORT QJsonObject toJson(const McpHttpCapabilities &data);
 struct McpStdioCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2087,23 +2462,23 @@ ACPLIB_EXPORT QJsonObject toJson(const McpStdioCapabilities &data);
 /** MCP capabilities supported by the agent for session lifecycle requests. */
 struct McpCapabilities {
     /**
-     * Agent supports [`McpServer::Stdio`].
+     * Agent supports `stdio` MCP servers.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports stdio MCP server transports.
      */
     Patch<McpStdioCapabilities> _stdio{};
     /**
-     * Agent supports [`McpServer::Http`].
+     * Agent supports `http` MCP servers.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports HTTP MCP server transports.
      */
     Patch<McpHttpCapabilities> _http{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2136,8 +2511,8 @@ ACPLIB_EXPORT QJsonObject toJson(const McpCapabilities &data);
 struct PromptAudioCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2164,8 +2539,8 @@ ACPLIB_EXPORT QJsonObject toJson(const PromptAudioCapabilities &data);
 struct PromptEmbeddedContextCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2192,8 +2567,8 @@ ACPLIB_EXPORT QJsonObject toJson(const PromptEmbeddedContextCapabilities &data);
 struct PromptImageCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2215,8 +2590,8 @@ ACPLIB_EXPORT QJsonObject toJson(const PromptImageCapabilities &data);
 /**
  * Prompt capabilities supported by the agent in `session/prompt` requests.
  *
- * Baseline agent functionality requires support for [`ContentBlock::Text`]
- * and [`ContentBlock::ResourceLink`] in prompt requests.
+ * Baseline agent functionality requires support for `text`
+ * and `resource_link` content blocks in prompt requests.
  *
  * Other variants must be explicitly opted in to.
  * Capabilities for different types of content in prompt requests.
@@ -2224,37 +2599,37 @@ ACPLIB_EXPORT QJsonObject toJson(const PromptImageCapabilities &data);
  * Indicates which content types beyond the baseline (text and resource links)
  * the agent can process.
  *
- * See protocol docs: [Prompt Capabilities](https://agentclientprotocol.com/protocol/v2/initialization#prompt-capabilities)
+ * See protocol docs: [Session Prompt Capabilities](https://agentclientprotocol.com/protocol/v2/initialization#session-prompt-capabilities)
  */
 struct PromptCapabilities {
     /**
-     * Agent supports [`ContentBlock::Image`].
+     * Agent supports `image` content blocks.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports image content in prompts.
      */
     Patch<PromptImageCapabilities> _image{};
     /**
-     * Agent supports [`ContentBlock::Audio`].
+     * Agent supports `audio` content blocks.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports audio content in prompts.
      */
     Patch<PromptAudioCapabilities> _audio{};
     /**
      * Agent supports embedded context in `session/prompt` requests.
      *
-     * When enabled, the Client is allowed to include [`ContentBlock::Resource`]
+     * When enabled, the Client is allowed to include `resource` content blocks
      * in prompt requests for pieces of context that are referenced in the message.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports embedded context in prompts.
      */
     Patch<PromptEmbeddedContextCapabilities> _embeddedContext{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2286,15 +2661,15 @@ ACPLIB_EXPORT QJsonObject toJson(const PromptCapabilities &data);
  * Capabilities for additional session directories support.
  *
  * Supplying `{}` means the agent supports the `additionalDirectories` field on
- * supported session lifecycle requests. Agents that also support
- * `session/list` may return `SessionInfo.additionalDirectories` to report the
+ * supported session lifecycle requests. Agents may return
+ * `SessionInfo.additionalDirectories` in `session/list` to report the
  * complete ordered additional-root list associated with a listed session.
  */
 struct SessionAdditionalDirectoriesCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2321,8 +2696,8 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionAdditionalDirectoriesCapabilities 
 struct SessionDeleteCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2342,6 +2717,113 @@ ACPLIB_EXPORT Utils::Result<SessionDeleteCapabilities> fromJson<SessionDeleteCap
 ACPLIB_EXPORT QJsonObject toJson(const SessionDeleteCapabilities &data);
 
 /**
+ * Capabilities for the `override` system prompt mode.
+ *
+ * Supplying `{}` means the agent supports replacing its built-in default
+ * instructions with the client-provided system prompt.
+ */
+struct SessionSystemPromptOverrideCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    SessionSystemPromptOverrideCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    SessionSystemPromptOverrideCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionSystemPromptOverrideCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionSystemPromptOverrideCapabilities> fromJson<SessionSystemPromptOverrideCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionSystemPromptOverrideCapabilities &data);
+
+/**
+ * System prompt delivery modes the agent supports in addition to `append`.
+ *
+ * `append` has no entry because every agent advertising `session.systemPrompt`
+ * supports it.
+ */
+struct SessionSystemPromptModeCapabilities {
+    /**
+     * Whether the agent supports `override` mode.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
+     * Supplying `{}` means the agent supports replacing its built-in default
+     * instructions with the client-provided system prompt.
+     */
+    Patch<SessionSystemPromptOverrideCapabilities> _override_{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    SessionSystemPromptModeCapabilities& override_(const Patch<SessionSystemPromptOverrideCapabilities> & v) { _override_ = v; return *this; }
+    SessionSystemPromptModeCapabilities& override_(const SessionSystemPromptOverrideCapabilities & v) { _override_ = v; return *this; }
+    SessionSystemPromptModeCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    SessionSystemPromptModeCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<SessionSystemPromptOverrideCapabilities>& override_() const { return _override_; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionSystemPromptModeCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionSystemPromptModeCapabilities> fromJson<SessionSystemPromptModeCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionSystemPromptModeCapabilities &data);
+
+/**
+ * Capabilities for client-provided system prompts.
+ *
+ * Supplying `{}` means the agent supports `systemPrompt` on session lifecycle
+ * requests in `append` mode.
+ */
+struct SessionSystemPromptCapabilities {
+    /**
+     * Delivery modes the agent supports in addition to `append`.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the agent supports only `append`.
+     */
+    Patch<SessionSystemPromptModeCapabilities> _mode{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    SessionSystemPromptCapabilities& mode(const Patch<SessionSystemPromptModeCapabilities> & v) { _mode = v; return *this; }
+    SessionSystemPromptCapabilities& mode(const SessionSystemPromptModeCapabilities & v) { _mode = v; return *this; }
+    SessionSystemPromptCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    SessionSystemPromptCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<SessionSystemPromptModeCapabilities>& mode() const { return _mode; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SessionSystemPromptCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SessionSystemPromptCapabilities> fromJson<SessionSystemPromptCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SessionSystemPromptCapabilities &data);
+
+/**
  * Session capabilities supported by the agent.
  *
  * Supplying `{}` means the agent supports the baseline session methods:
@@ -2358,7 +2840,7 @@ struct SessionCapabilities {
     /**
      * Prompt capabilities supported by the agent in `session/prompt` requests.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise any
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise any
      * prompt extensions beyond the baseline text and resource-link content
      * required by `session/prompt`.
      */
@@ -2366,21 +2848,21 @@ struct SessionCapabilities {
     /**
      * MCP capabilities supported by the agent for session lifecycle requests.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise MCP
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise MCP
      * server transport support for sessions.
      */
     Patch<McpCapabilities> _mcp{};
     /**
      * Whether the agent supports `session/delete`.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports deleting sessions from `session/list`.
      */
     Patch<SessionDeleteCapabilities> _delete_{};
     /**
      * Whether the agent supports `additionalDirectories` on supported session lifecycle requests.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
      * Supplying `{}` means the agent supports `additionalDirectories` on
      * supported session lifecycle requests.
      *
@@ -2389,9 +2871,16 @@ struct SessionCapabilities {
      */
     Patch<SessionAdditionalDirectoriesCapabilities> _additionalDirectories{};
     /**
+     * Whether the agent supports `systemPrompt` on session lifecycle requests.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise support.
+     * Supplying `{}` means the agent supports `systemPrompt` in `append` mode.
+     */
+    Patch<SessionSystemPromptCapabilities> _systemPrompt{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2405,6 +2894,8 @@ struct SessionCapabilities {
     SessionCapabilities& delete_(const SessionDeleteCapabilities & v) { _delete_ = v; return *this; }
     SessionCapabilities& additionalDirectories(const Patch<SessionAdditionalDirectoriesCapabilities> & v) { _additionalDirectories = v; return *this; }
     SessionCapabilities& additionalDirectories(const SessionAdditionalDirectoriesCapabilities & v) { _additionalDirectories = v; return *this; }
+    SessionCapabilities& systemPrompt(const Patch<SessionSystemPromptCapabilities> & v) { _systemPrompt = v; return *this; }
+    SessionCapabilities& systemPrompt(const SessionSystemPromptCapabilities & v) { _systemPrompt = v; return *this; }
     SessionCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     SessionCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
@@ -2412,6 +2903,7 @@ struct SessionCapabilities {
     const Patch<McpCapabilities>& mcp() const { return _mcp; }
     const Patch<SessionDeleteCapabilities>& delete_() const { return _delete_; }
     const Patch<SessionAdditionalDirectoriesCapabilities>& additionalDirectories() const { return _additionalDirectories; }
+    const Patch<SessionSystemPromptCapabilities>& systemPrompt() const { return _systemPrompt; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const SessionCapabilities &other) const = default;
@@ -2434,25 +2926,26 @@ struct AgentCapabilities {
     /**
      * Session capabilities supported by the agent.
      *
-     * Optional. Omitted or `null` both mean the agent does not support the
-     * `session/\*` method surface. Supplying `{}` means the agent supports the
-     * baseline session methods: `session/new`, `session/prompt`,
-     * `session/cancel`, and `session/update`.
+     * Optional. Omitted and `null` are equivalent and mean the agent does not support the
+     * `session/\*` methods. Supplying `{}` means the agent supports the
+     * baseline session methods: `session/new`, `session/list`,
+     * `session/resume`, `session/close`, `session/prompt`, `session/cancel`,
+     * and `session/update`.
      */
     Patch<SessionCapabilities> _session{};
     /**
      * Authentication-related extension capabilities supported by the agent.
      *
-     * Optional. Omitted or `null` both mean the agent does not advertise any
+     * Optional. Omitted and `null` are equivalent and mean the agent does not advertise any
      * authentication-related extensions. This field does not advertise support
-     * for `auth/login` or `auth/logout`; those methods are advertised by a
+     * for `auth/login` or `auth/logout`. Those methods are advertised by a
      * non-empty `authMethods` list in the `initialize` response.
      */
     Patch<AgentAuthCapabilities> _auth{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2487,11 +2980,16 @@ using AuthMethodId = QString;
 struct AuthMethodAgent {
     AuthMethodId _methodId{};  //!< Unique identifier for this authentication method.
     QString _name{};  //!< Human-readable name of the authentication method.
-    Patch<QString> _description{};  //!< Optional description providing more details about this authentication method.
+    /**
+     * Optional human-readable description of this authentication method.
+     *
+     * Omitted and `null` are equivalent and mean no description is provided.
+     */
+    Patch<QString> _description{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2523,8 +3021,8 @@ struct EnvVariable {
     QString _value{};  //!< The value to set for the environment variable.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2553,13 +3051,18 @@ ACPLIB_EXPORT QJsonObject toJson(const EnvVariable &data);
  * The client runs the configured agent program as a separate interactive
  * process for the user to authenticate via a TUI. Agents MUST advertise this
  * method only when the client enabled its terminal authentication capability.
- * A zero exit status signals success; any other termination signals failure.
+ * A zero exit status signals success. Any other termination signals failure.
  * The client MUST NOT pass this method to `auth/login`.
  */
 struct AuthMethodTerminal {
     AuthMethodId _methodId{};  //!< Unique identifier for this authentication method.
     QString _name{};  //!< Human-readable name of the authentication method.
-    Patch<QString> _description{};  //!< Optional description providing more details about this authentication method.
+    /**
+     * Optional human-readable description of this authentication method.
+     *
+     * Omitted and `null` are equivalent and mean no description is provided.
+     */
+    Patch<QString> _description{};
     std::optional<QStringList> _args{};  //!< Additional arguments to append to the configured agent invocation for terminal auth.
     /**
      * Additional environment variables to set on the configured agent invocation for terminal auth.
@@ -2569,8 +3072,8 @@ struct AuthMethodTerminal {
     std::optional<QList<EnvVariable>> _env{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2631,10 +3134,12 @@ struct Implementation {
      */
     QString _name{};
     /**
-     * Intended for UI and end-user contexts -- optimized to be human-readable
+     * Intended for UI and end-user contexts and optimized to be human-readable
      * and easily understood.
      *
      * If not provided, the name should be used for display.
+     *
+     * Omitted and `null` are equivalent and mean the `name` is used for display.
      */
     Patch<QString> _title{};
     /**
@@ -2644,8 +3149,8 @@ struct Implementation {
     QString _version{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2671,10 +3176,6 @@ ACPLIB_EXPORT Utils::Result<Implementation> fromJson<Implementation>(const QJson
 
 ACPLIB_EXPORT QJsonObject toJson(const Implementation &data);
 
-using ProtocolVersion = int;
-template<>
-ACPLIB_EXPORT Utils::Result<ProtocolVersion> fromJson<ProtocolVersion>(const QJsonValue &val);
-
 /**
  * Response to the `initialize` method.
  *
@@ -2684,10 +3185,12 @@ ACPLIB_EXPORT Utils::Result<ProtocolVersion> fromJson<ProtocolVersion>(const QJs
  */
 struct InitializeResponse {
     /**
-     * The protocol version the client specified if supported by the agent,
-     * or the latest protocol version supported by the agent.
+     * The highest protocol version supported by the agent that is at or below
+     * the version requested by the client. If no such version exists,
+     * initialization fails with error code -32022.
      *
-     * The client should disconnect, if it doesn't support this version.
+     * The client must check that it supports this version and should disconnect
+     * if it does not.
      */
     ProtocolVersion _protocolVersion{};
     Implementation _info{};  //!< Information about the implementation sending this initialize response.
@@ -2696,14 +3199,14 @@ struct InitializeResponse {
      * Authentication methods supported by the agent.
      *
      * Optional. Omitted or empty means the agent does not advertise the
-     * authentication method surface. Supplying one or more valid methods means
+     * `auth/login` and `auth/logout` methods. Supplying one or more methods means
      * the agent MUST support both `auth/login` and `auth/logout`.
      */
     std::optional<QList<AuthMethod>> _authMethods{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2743,12 +3246,22 @@ struct SessionInfo {
      * reports no additional roots.
      */
     std::optional<QList<AbsolutePath>> _additionalDirectories{};
-    Patch<QString> _title{};  //!< Human-readable title for the session
-    Patch<QString> _updatedAt{};  //!< RFC 3339 timestamp of last activity.
+    /**
+     * Human-readable title for the session
+     *
+     * Omitted and `null` are equivalent and mean no title is provided.
+     */
+    Patch<QString> _title{};
+    /**
+     * RFC 3339 timestamp of last activity.
+     *
+     * Omitted and `null` are equivalent and mean the last activity time is not reported.
+     */
+    Patch<QString> _updatedAt{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2787,13 +3300,14 @@ struct ListSessionsResponse {
     QList<SessionInfo> _sessions{};  //!< Array of session information objects.
     /**
      * Opaque cursor token. If present, pass this in the next request's cursor parameter
-     * to fetch the next page. If absent, there are no more results.
+     * to fetch the next page. Omitted and `null` are equivalent and mean there are no more
+     * results. An empty string is a valid cursor, not the end of results.
      */
     Patch<SessionListCursor> _nextCursor{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2822,8 +3336,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ListSessionsResponse &data);
 struct LoginAuthResponse {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2846,8 +3360,8 @@ ACPLIB_EXPORT QJsonObject toJson(const LoginAuthResponse &data);
 struct LogoutAuthResponse {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2865,6 +3379,111 @@ template<>
 ACPLIB_EXPORT Utils::Result<LogoutAuthResponse> fromJson<LogoutAuthResponse>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const LogoutAuthResponse &data);
+
+/** All text that was typed after the command name is provided as input. */
+struct TextCommandInput {
+    QString _hint{};  //!< A hint to display when the input hasn't been provided yet
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    TextCommandInput& hint(const QString & v) { _hint = v; return *this; }
+    TextCommandInput& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    TextCommandInput& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const QString& hint() const { return _hint; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const TextCommandInput &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<TextCommandInput> fromJson<TextCommandInput>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const TextCommandInput &data);
+
+/** The input specification for a command. */
+using AvailableCommandInput = std::variant<TextCommandInput, QJsonObject>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<AvailableCommandInput> fromJson<AvailableCommandInput>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const AvailableCommandInput &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const AvailableCommandInput &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const AvailableCommandInput &val);
+
+/**
+ * A slash command the user can invoke by including it in a prompt.
+ *
+ * The `type` discriminator value is `command`.
+ */
+struct Command {
+    /**
+     * Command name without the leading `/` (e.g., `create_plan`, `research_codebase`).
+     *
+     * MUST NOT contain whitespace and MUST be unique within the command list.
+     */
+    QString _name{};
+    QString _description{};  //!< Human-readable description of what the command does.
+    /**
+     * Input for the command if required
+     *
+     * Omitted and `null` are equivalent and mean the command takes no input.
+     */
+    Patch<AvailableCommandInput> _input{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    Command& name(const QString & v) { _name = v; return *this; }
+    Command& description(const QString & v) { _description = v; return *this; }
+    Command& input(const Patch<AvailableCommandInput> & v) { _input = v; return *this; }
+    Command& input(const AvailableCommandInput & v) { _input = v; return *this; }
+    Command& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    Command& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const QString& name() const { return _name; }
+    const QString& description() const { return _description; }
+    const Patch<AvailableCommandInput>& input() const { return _input; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const Command &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<Command> fromJson<Command>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const Command &data);
+
+/**
+ * A command the agent advertises to the client.
+ *
+ * The `type` field acts as the discriminator in the serialized JSON form.
+ */
+using AvailableCommand = std::variant<Command, QJsonObject>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const AvailableCommand &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const AvailableCommand &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const AvailableCommand &val);
 
 /** A boolean on/off toggle session configuration option payload. */
 struct SessionConfigBoolean {
@@ -2917,11 +3536,16 @@ using SessionConfigValueId = QString;
 struct SessionConfigSelectOption {
     SessionConfigValueId _value{};  //!< Unique identifier for this option value.
     QString _name{};  //!< Human-readable label for this option value.
-    Patch<QString> _description{};  //!< Optional description for this option value.
+    /**
+     * Optional description for this option value.
+     *
+     * Omitted and `null` are equivalent and mean no description is provided.
+     */
+    Patch<QString> _description{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2951,11 +3575,11 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionConfigSelectOption &data);
 struct SessionConfigSelectGroup {
     SessionConfigGroupId _groupId{};  //!< Unique identifier for this group.
     QString _name{};  //!< Human-readable label for this group.
-    QList<SessionConfigSelectOption> _options{};  //!< The set of option values in this group.
+    QList<SessionConfigSelectOption> _options{};  //!< The set of option values in this group. MUST contain at least one value.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -2991,8 +3615,12 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const SessionConfigSelectOptions &val);
 
 /** A single-value selector (dropdown) session configuration option payload. */
 struct SessionConfigSelect {
-    SessionConfigValueId _currentValue{};  //!< The currently selected value.
-    SessionConfigSelectOptions _options{};  //!< The set of selectable options.
+    SessionConfigValueId _currentValue{};  //!< The currently selected value. MUST be one of the `value`s in `options`.
+    /**
+     * The set of selectable options. MUST contain at least one value, and each `value` MUST be
+     * unique within the option, including across groups.
+     */
+    SessionConfigSelectOptions _options{};
 
     SessionConfigSelect& currentValue(const SessionConfigValueId & v) { _currentValue = v; return *this; }
     SessionConfigSelect& options(const SessionConfigSelectOptions & v) { _options = v; return *this; }
@@ -3012,12 +3640,22 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionConfigSelect &data);
 struct SessionConfigOption {
     SessionConfigId _configId{};  //!< Unique identifier for the configuration option.
     QString _name{};  //!< Human-readable label for the option.
-    Patch<QString> _description{};  //!< Optional description for the Client to display to the user.
-    Patch<SessionConfigOptionCategory> _category{};  //!< Optional semantic category for this option (UX only).
+    /**
+     * Optional description for the Client to display to the user.
+     *
+     * Omitted and `null` are equivalent and mean no description is provided.
+     */
+    Patch<QString> _description{};
+    /**
+     * Optional semantic category for this option (UX only).
+     *
+     * Omitted and `null` are equivalent and mean no category is provided.
+     */
+    Patch<SessionConfigOptionCategory> _category{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3053,6 +3691,10 @@ ACPLIB_EXPORT QJsonObject toJson(const SessionConfigOption &data);
 /**
  * Response from creating a new session.
  *
+ * New sessions default to `idle` until a state update reports otherwise.
+ * Updates may arrive before or after this response. Clients MUST NOT overwrite
+ * an already-reported state when the response arrives.
+ *
  * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/v2/session-setup#creating-a-session)
  */
 struct NewSessionResponse {
@@ -3062,11 +3704,26 @@ struct NewSessionResponse {
      * Used in all subsequent requests for this conversation.
      */
     SessionId _sessionId{};
-    std::optional<QList<SessionConfigOption>> _configOptions{};  //!< Initial session configuration options.
+    /**
+     * Initial session configuration options.
+     *
+     * Optional. Omitted or empty means no config options are advertised.
+     * Senders MUST use an array, not `null`. Receivers treat `null` like omission.
+     * Later `config_option_update` notifications replace this list.
+     */
+    std::optional<QList<SessionConfigOption>> _configOptions{};
+    /**
+     * Initial commands the agent can execute in this session.
+     *
+     * Optional. Omitted or empty means no initial commands are advertised.
+     * Senders MUST use an array, not `null`. Receivers treat `null` like omission.
+     * Later `available_commands_update` notifications replace this list.
+     */
+    std::optional<QList<AvailableCommand>> _availableCommands{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3075,11 +3732,14 @@ struct NewSessionResponse {
     NewSessionResponse& sessionId(const SessionId & v) { _sessionId = v; return *this; }
     NewSessionResponse& configOptions(const std::optional<QList<SessionConfigOption>> & v) { _configOptions = v; return *this; }
     NewSessionResponse& addConfigOption(const SessionConfigOption & v) { if (!_configOptions) _configOptions = QList<SessionConfigOption>{}; (*_configOptions).append(v); return *this; }
+    NewSessionResponse& availableCommands(const std::optional<QList<AvailableCommand>> & v) { _availableCommands = v; return *this; }
+    NewSessionResponse& addAvailableCommand(const AvailableCommand & v) { if (!_availableCommands) _availableCommands = QList<AvailableCommand>{}; (*_availableCommands).append(v); return *this; }
     NewSessionResponse& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     NewSessionResponse& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const SessionId& sessionId() const { return _sessionId; }
     const std::optional<QList<SessionConfigOption>>& configOptions() const { return _configOptions; }
+    const std::optional<QList<AvailableCommand>>& availableCommands() const { return _availableCommands; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const NewSessionResponse &other) const = default;
@@ -3090,27 +3750,45 @@ ACPLIB_EXPORT Utils::Result<NewSessionResponse> fromJson<NewSessionResponse>(con
 
 ACPLIB_EXPORT QJsonObject toJson(const NewSessionResponse &data);
 
+using MessageId = QString;
+
 /**
- * Response acknowledging that a user prompt was accepted.
+ * Response acknowledging that a user prompt was inserted into the ACP conversation.
  *
- * This response does not indicate that the agent has finished processing.
+ * This response does not indicate that the prompt was merely received or held, nor that the
+ * agent has finished processing it.
  * Processing and completion are reported through `state_update` session updates.
+ *
+ * Insertion is the logical addition of a user message with a message ID and a position
+ * relative to other messages in the ACP conversation.
  *
  * See protocol docs: [Prompt Accepted](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#2-prompt-accepted)
  */
 struct PromptResponse {
     /**
+     * Identifies the user message inserted into the ACP conversation.
+     *
+     * Required and non-null. Omission and explicit `null` are both invalid.
+     *
+     * The corresponding user-message session update carries this same identifier and may arrive
+     * before or after this response. Agents must echo the message during the live session, but are
+     * not required to retain it. If retained and replayed, the message keeps this identifier.
+     */
+    MessageId _messageId{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
+    PromptResponse& messageId(const MessageId & v) { _messageId = v; return *this; }
     PromptResponse& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     PromptResponse& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
+    const MessageId& messageId() const { return _messageId; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const PromptResponse &other) const = default;
@@ -3121,13 +3799,36 @@ ACPLIB_EXPORT Utils::Result<PromptResponse> fromJson<PromptResponse>(const QJson
 
 ACPLIB_EXPORT QJsonObject toJson(const PromptResponse &data);
 
-/** Response from resuming an existing session. */
+/**
+ * Response from resuming an existing session.
+ *
+ * The agent MUST send a current `state_update` after any requested history
+ * replay and before this response, even without replay. The update reports
+ * foreground state after resuming. The response alone does not imply `idle`.
+ *
+ * See protocol docs: [Current-State Synchronization](https://agentclientprotocol.com/protocol/v2/session-setup#current-state-synchronization)
+ */
 struct ResumeSessionResponse {
-    std::optional<QList<SessionConfigOption>> _configOptions{};  //!< Initial session configuration options.
+    /**
+     * Initial session configuration options.
+     *
+     * Optional. Omitted or empty means no config options are advertised.
+     * Senders MUST use an array, not `null`. Receivers treat `null` like omission.
+     * Later `config_option_update` notifications replace this list.
+     */
+    std::optional<QList<SessionConfigOption>> _configOptions{};
+    /**
+     * Initial commands the agent can execute in this session.
+     *
+     * Optional. Omitted or empty means no initial commands are advertised.
+     * Senders MUST use an array, not `null`. Receivers treat `null` like omission.
+     * Later `available_commands_update` notifications replace this list.
+     */
+    std::optional<QList<AvailableCommand>> _availableCommands{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3135,10 +3836,13 @@ struct ResumeSessionResponse {
 
     ResumeSessionResponse& configOptions(const std::optional<QList<SessionConfigOption>> & v) { _configOptions = v; return *this; }
     ResumeSessionResponse& addConfigOption(const SessionConfigOption & v) { if (!_configOptions) _configOptions = QList<SessionConfigOption>{}; (*_configOptions).append(v); return *this; }
+    ResumeSessionResponse& availableCommands(const std::optional<QList<AvailableCommand>> & v) { _availableCommands = v; return *this; }
+    ResumeSessionResponse& addAvailableCommand(const AvailableCommand & v) { if (!_availableCommands) _availableCommands = QList<AvailableCommand>{}; (*_availableCommands).append(v); return *this; }
     ResumeSessionResponse& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     ResumeSessionResponse& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const std::optional<QList<SessionConfigOption>>& configOptions() const { return _configOptions; }
+    const std::optional<QList<AvailableCommand>>& availableCommands() const { return _availableCommands; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const ResumeSessionResponse &other) const = default;
@@ -3154,8 +3858,8 @@ struct SetSessionConfigOptionResponse {
     QList<SessionConfigOption> _configOptions{};  //!< The full set of configuration options and their current values.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3185,15 +3889,17 @@ ACPLIB_EXPORT Utils::Result<AgentResponse> fromJson<AgentResponse>(const QJsonVa
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const AgentResponse &val);
 
-/** Notification sent by the agent when a URL-based elicitation is complete. */
+/**
+ * Notification sent by the agent when a URL-based elicitation is complete.
+ *
+ * This notification is not a foreground state update.
+ */
 struct CompleteElicitationNotification {
     ElicitationId _elicitationId{};  //!< The ID of the elicitation that completed.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3216,16 +3922,14 @@ ACPLIB_EXPORT QJsonObject toJson(const CompleteElicitationNotification &data);
 
 // Skipped unknown type alias: ExtNotification
 
-using MessageId = QString;
-
 /**
  * An agent message upsert.
  *
- * Only [`AgentMessage::message_id`] is required. `content` has patch semantics:
+ * Only `messageId` is required. `content` has patch semantics:
  * an omitted field leaves existing message content unchanged, `null` clears the
  * value, and a concrete array replaces the previous value. For a new
- * `messageId`, omitted fields use client defaults. `content` is replaced as a
- * whole array; send `[]` or `null` to clear it.
+ * `messageId`, omitted `content` starts empty. `content` is replaced as a
+ * whole array. Send `[]` or `null` to clear it.
  *
  * Message updates and chunks are applied in the order they are received. When
  * an `agent_message` update includes `content`, that array replaces any
@@ -3238,10 +3942,13 @@ struct AgentMessage {
     Patch<QList<ContentBlock>> _content{};  //!< Complete replacement content for this message.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. Omitted means no metadata update; `null` is an explicit clear signal.
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
      */
     Patch<QJsonObject> __meta{};
 
@@ -3266,11 +3973,11 @@ ACPLIB_EXPORT QJsonObject toJson(const AgentMessage &data);
 /**
  * An agent thought or reasoning message upsert.
  *
- * Only [`AgentThought::message_id`] is required. `content` has patch semantics:
+ * Only `messageId` is required. `content` has patch semantics:
  * an omitted field leaves existing thought content unchanged, `null` clears the
  * value, and a concrete array replaces the previous value. For a new
- * `messageId`, omitted fields use client defaults. `content` is replaced as a
- * whole array; send `[]` or `null` to clear it.
+ * `messageId`, omitted `content` starts empty. `content` is replaced as a
+ * whole array. Send `[]` or `null` to clear it.
  *
  * Message updates and chunks are applied in the order they are received. When
  * an `agent_thought` update includes `content`, that array replaces any
@@ -3283,10 +3990,13 @@ struct AgentThought {
     Patch<QList<ContentBlock>> _content{};  //!< Complete replacement content for this thought message.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. Omitted means no metadata update; `null` is an explicit clear signal.
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
      */
     Patch<QJsonObject> __meta{};
 
@@ -3308,84 +4018,13 @@ ACPLIB_EXPORT Utils::Result<AgentThought> fromJson<AgentThought>(const QJsonValu
 
 ACPLIB_EXPORT QJsonObject toJson(const AgentThought &data);
 
-/** All text that was typed after the command name is provided as input. */
-struct TextCommandInput {
-    QString _hint{};  //!< A hint to display when the input hasn't been provided yet
-    /**
-     * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
-     */
-    Patch<QJsonObject> __meta{};
-
-    TextCommandInput& hint(const QString & v) { _hint = v; return *this; }
-    TextCommandInput& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
-    TextCommandInput& _meta(const QJsonObject & v) { __meta = v; return *this; }
-
-    const QString& hint() const { return _hint; }
-    const Patch<QJsonObject>& _meta() const { return __meta; }
-
-    bool operator==(const TextCommandInput &other) const = default;
-};
-
-template<>
-ACPLIB_EXPORT Utils::Result<TextCommandInput> fromJson<TextCommandInput>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonObject toJson(const TextCommandInput &data);
-
-/** The input specification for a command. */
-using AvailableCommandInput = std::variant<TextCommandInput, QJsonObject>;
-
-template<>
-ACPLIB_EXPORT Utils::Result<AvailableCommandInput> fromJson<AvailableCommandInput>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonObject toJson(const AvailableCommandInput &val);
-
-ACPLIB_EXPORT QJsonValue toJsonValue(const AvailableCommandInput &val);
-
-/** Information about a command. */
-struct AvailableCommand {
-    QString _name{};  //!< Command name (e.g., `create_plan`, `research_codebase`).
-    QString _description{};  //!< Human-readable description of what the command does.
-    Patch<AvailableCommandInput> _input{};  //!< Input for the command if required
-    /**
-     * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
-     */
-    Patch<QJsonObject> __meta{};
-
-    AvailableCommand& name(const QString & v) { _name = v; return *this; }
-    AvailableCommand& description(const QString & v) { _description = v; return *this; }
-    AvailableCommand& input(const Patch<AvailableCommandInput> & v) { _input = v; return *this; }
-    AvailableCommand& input(const AvailableCommandInput & v) { _input = v; return *this; }
-    AvailableCommand& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
-    AvailableCommand& _meta(const QJsonObject & v) { __meta = v; return *this; }
-
-    const QString& name() const { return _name; }
-    const QString& description() const { return _description; }
-    const Patch<AvailableCommandInput>& input() const { return _input; }
-    const Patch<QJsonObject>& _meta() const { return __meta; }
-
-    bool operator==(const AvailableCommand &other) const = default;
-};
-
-template<>
-ACPLIB_EXPORT Utils::Result<AvailableCommand> fromJson<AvailableCommand>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonObject toJson(const AvailableCommand &data);
-
 /** Available commands are ready or have changed */
 struct AvailableCommandsUpdate {
     QList<AvailableCommand> _availableCommands{};  //!< Commands the agent can execute.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3407,13 +4046,113 @@ ACPLIB_EXPORT Utils::Result<AvailableCommandsUpdate> fromJson<AvailableCommandsU
 
 ACPLIB_EXPORT QJsonObject toJson(const AvailableCommandsUpdate &data);
 
+using CompactionId = QString;
+
+/**
+ * A content block appended to a compaction's summary. A first-seen ID creates
+ * an in-progress compaction. Chunks append in receive order.
+ */
+struct CompactionSummaryChunk {
+    CompactionId _compactionId{};  //!< ID of the compaction whose summary receives this content.
+    ContentBlock _content{};  //!< One content block to append.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     * This metadata is scoped to the chunk and does not patch stored metadata.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CompactionSummaryChunk& compactionId(const CompactionId & v) { _compactionId = v; return *this; }
+    CompactionSummaryChunk& content(const ContentBlock & v) { _content = v; return *this; }
+    CompactionSummaryChunk& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CompactionSummaryChunk& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const CompactionId& compactionId() const { return _compactionId; }
+    const ContentBlock& content() const { return _content; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CompactionSummaryChunk &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompactionSummaryChunk> fromJson<CompactionSummaryChunk>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CompactionSummaryChunk &data);
+
+/** Lifecycle state of a context compaction. */
+enum class CompactionStatus {
+    in_progress,
+    completed,
+    failed,
+    cancelled
+};
+
+ACPLIB_EXPORT QString toString(CompactionStatus v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompactionStatus> fromJson<CompactionStatus>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const CompactionStatus &v);
+
+/**
+ * A context compaction upsert. The first notification fixes the compaction's
+ * timeline position. Later updates with the same ID patch that entity in place.
+ *
+ * `summary`, `error`, and `_meta` have patch semantics: omission leaves the
+ * stored value unchanged, `null` clears it, and a concrete value replaces it.
+ * `summary: []` also clears the summary. A concrete `_meta` object patches the
+ * stored metadata by top-level key instead of replacing it.
+ */
+struct CompactionUpdate {
+    CompactionId _compactionId{};  //!< The Agent-owned ID of this compaction, unique within the session.
+    CompactionStatus _status{};  //!< Current lifecycle status.
+    Patch<QList<ContentBlock>> _summary{};  //!< Complete replacement user-displayable summary content for the compaction.
+    Patch<QString> _error{};  //!< Human-readable error details for the compaction.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CompactionUpdate& compactionId(const CompactionId & v) { _compactionId = v; return *this; }
+    CompactionUpdate& status(const CompactionStatus & v) { _status = v; return *this; }
+    CompactionUpdate& summary(const Patch<QList<ContentBlock>> & v) { _summary = v; return *this; }
+    CompactionUpdate& summary(const QList<ContentBlock> & v) { _summary = v; return *this; }
+    CompactionUpdate& error(const Patch<QString> & v) { _error = v; return *this; }
+    CompactionUpdate& error(const QString & v) { _error = v; return *this; }
+    CompactionUpdate& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CompactionUpdate& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const CompactionId& compactionId() const { return _compactionId; }
+    const CompactionStatus& status() const { return _status; }
+    const Patch<QList<ContentBlock>>& summary() const { return _summary; }
+    const Patch<QString>& error() const { return _error; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CompactionUpdate &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CompactionUpdate> fromJson<CompactionUpdate>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CompactionUpdate &data);
+
 /** Session configuration options have been updated. */
 struct ConfigOptionUpdate {
     QList<SessionConfigOption> _configOptions{};  //!< The full set of configuration options and their current values.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3441,14 +4180,15 @@ struct ContentChunk {
      * A unique identifier for the message this chunk belongs to.
      *
      * All chunks belonging to the same message share the same `messageId`.
-     * A change in `messageId` indicates a new message has started.
+     * Chunks for different messages can interleave.
      */
     MessageId _messageId{};
     ContentBlock _content{};  //!< A single item of content
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. This field is chunk-scoped.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     * This metadata is scoped to the chunk and does not patch stored metadata.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3470,6 +4210,67 @@ template<>
 ACPLIB_EXPORT Utils::Result<ContentChunk> fromJson<ContentChunk>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const ContentChunk &data);
+
+/** Severity hint for a session notice. */
+enum class NoticeSeverity {
+    info,
+    warning,
+    error
+};
+
+ACPLIB_EXPORT QString toString(NoticeSeverity v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<NoticeSeverity> fromJson<NoticeSeverity>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const NoticeSeverity &v);
+
+/**
+ * Fire-and-forget information for the user.
+ *
+ * Notices are live events rather than session history. Agents must not rely on
+ * a notice being received, displayed, or seen by the user.
+ * No Client capability is required, and unsupported Clients may ignore notices.
+ *
+ * See protocol docs: [Session Notices](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#session-notices)
+ */
+struct Notice {
+    NoticeSeverity _severity{};  //!< Presentation severity hint.
+    QString _title{};  //!< Required non-empty plain-text title that can stand alone.
+    /**
+     * Optional plain-text detail or guidance.
+     *
+     * Omitted and `null` are equivalent and mean no description was supplied.
+     */
+    Patch<QString> _description{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    Notice& severity(const NoticeSeverity & v) { _severity = v; return *this; }
+    Notice& title(const QString & v) { _title = v; return *this; }
+    Notice& description(const Patch<QString> & v) { _description = v; return *this; }
+    Notice& description(const QString & v) { _description = v; return *this; }
+    Notice& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    Notice& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const NoticeSeverity& severity() const { return _severity; }
+    const QString& title() const { return _title; }
+    const Patch<QString>& description() const { return _description; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const Notice &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<Notice> fromJson<Notice>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const Notice &data);
 
 using PlanId = QString;
 
@@ -3530,8 +4331,8 @@ struct PlanEntry {
     PlanEntryStatus _status{};  //!< Current execution status of this task.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3568,8 +4369,8 @@ struct PlanItems {
     QList<PlanEntry> _entries{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3599,6 +4400,9 @@ using PlanUpdateContent = std::variant<PlanItems, QJsonObject>;
 template<>
 ACPLIB_EXPORT Utils::Result<PlanUpdateContent> fromJson<PlanUpdateContent>(const QJsonValue &val);
 
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const PlanUpdateContent &val);
+
 ACPLIB_EXPORT QJsonObject toJson(const PlanUpdateContent &val);
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const PlanUpdateContent &val);
@@ -3608,8 +4412,8 @@ struct PlanUpdate {
     PlanUpdateContent _plan{};  //!< The updated plan content.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3634,20 +4438,24 @@ ACPLIB_EXPORT QJsonObject toJson(const PlanUpdate &data);
  * Update to session metadata. All fields are optional to support partial updates.
  *
  * Agents send this notification to update session information like title or custom metadata.
- * This allows clients to display dynamic session names and track session state changes.
+ * Clients can use it to keep session titles and state current.
  *
  * Omitted fields leave the existing session info unchanged. `null` clears the
- * corresponding value.
+ * corresponding value. A concrete `_meta` object patches the stored metadata by
+ * top-level key.
  */
 struct SessionInfoUpdate {
     Patch<QString> _title{};  //!< Human-readable title for the session. Set to null to clear.
     Patch<QString> _updatedAt{};  //!< RFC 3339 timestamp of last activity. Set to null to clear.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Omitted means no metadata update; `null` is an
-     * explicit clear signal. Implementations MUST NOT make assumptions about values at these keys.
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
      */
     Patch<QJsonObject> __meta{};
 
@@ -3670,51 +4478,158 @@ ACPLIB_EXPORT Utils::Result<SessionInfoUpdate> fromJson<SessionInfoUpdate>(const
 
 ACPLIB_EXPORT QJsonObject toJson(const SessionInfoUpdate &data);
 
-/**
- * Reasons why an agent stops active session work.
- *
- * See protocol docs: [Stop Reasons](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#stop-reasons)
- */
-enum class StopReason {
-    end_turn,
-    max_tokens,
-    max_turn_requests,
-    refusal,
-    cancelled
-};
-
-ACPLIB_EXPORT QString toString(StopReason v);
-
-template<>
-ACPLIB_EXPORT Utils::Result<StopReason> fromJson<StopReason>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonValue toJsonValue(const StopReason &v);
-
-/** The agent is ready to process a new prompt. */
-struct IdleStateUpdate {
-    /**
-     * Indicates why foreground work stopped.
-     *
-     * Optional. Omitted or `null` both mean the agent is not reporting a stop reason.
-     * Agents SHOULD include this when the idle transition ends foreground work.
-     */
-    Patch<StopReason> _stopReason{};
+/** A listed terminal running in the background. */
+struct BackgroundTerminal {
+    TerminalId _terminalId{};  //!< The ID of the listed terminal.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
-    IdleStateUpdate& stopReason(const Patch<StopReason> & v) { _stopReason = v; return *this; }
-    IdleStateUpdate& stopReason(const StopReason & v) { _stopReason = v; return *this; }
+    BackgroundTerminal& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
+    BackgroundTerminal& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    BackgroundTerminal& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const TerminalId& terminalId() const { return _terminalId; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const BackgroundTerminal &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<BackgroundTerminal> fromJson<BackgroundTerminal>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const BackgroundTerminal &data);
+
+/** A listed tool call whose work continues in the background. */
+struct BackgroundToolCall {
+    ToolCallId _toolCallId{};  //!< The ID of the listed tool call.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    BackgroundToolCall& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
+    BackgroundToolCall& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    BackgroundToolCall& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const ToolCallId& toolCallId() const { return _toolCallId; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const BackgroundToolCall &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<BackgroundToolCall> fromJson<BackgroundToolCall>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const BackgroundToolCall &data);
+
+/**
+ * One piece of work running independently of the session's foreground work.
+ *
+ * Items reference entities the Client already tracks. The Agent MUST announce each item
+ * before the first snapshot that lists it, and MUST report a terminal's `exitStatus` or a
+ * tool call's final status before the snapshot that removes it. Each piece of work is
+ * listed once: process-backed work is listed as its terminal, not also as its tool call.
+ *
+ * See protocol docs: [Background Work](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#background-work)
+ */
+using BackgroundWork = std::variant<BackgroundTerminal, BackgroundToolCall, QJsonObject>;
+
+template<>
+ACPLIB_EXPORT Utils::Result<BackgroundWork> fromJson<BackgroundWork>(const QJsonValue &val);
+
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const BackgroundWork &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const BackgroundWork &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const BackgroundWork &val);
+
+/** Details of a failure that ended active work. */
+struct ErrorStopReason {
+    /**
+     * The failure, as a JSON-RPC error object.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the agent is not reporting failure details.
+     * Agents SHOULD include it.
+     */
+    Patch<Error> _error{};
+
+    ErrorStopReason& error(const Patch<Error> & v) { _error = v; return *this; }
+    ErrorStopReason& error(const Error & v) { _error = v; return *this; }
+
+    const Patch<Error>& error() const { return _error; }
+
+    bool operator==(const ErrorStopReason &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<ErrorStopReason> fromJson<ErrorStopReason>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const ErrorStopReason &data);
+
+/**
+ * No foreground work is active. Background activity may continue.
+ *
+ * Agents SHOULD include a `stopReason` when the idle transition ends foreground
+ * work. An idle update that does not end foreground work need not include one.
+ * Receivers treat an omitted, `null`, or malformed `stopReason` as the agent not
+ * reporting one.
+ * Repeated or resume snapshots may carry the last stop reason for context.
+ * They MUST NOT be counted as new completions, cancellations, or additional usage.
+ */
+struct IdleStateUpdate {
+    /**
+     * Work running independently of foreground work, as a complete snapshot.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the Agent is not reporting
+     * background work, not that nothing is running. `[]` means no background work is
+     * running. An Agent that reports background work MUST include it on every state
+     * update for the session. A malformed list is treated as not reported.
+     *
+     * See protocol docs: [Background Work](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#background-work)
+     */
+    Patch<QList<BackgroundWork>> _background{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+    /**
+     * Why foreground work stopped. The value selects one of this type's variants, which may add fields of their own.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the agent is not reporting a stop reason; a malformed value is treated the same way.
+     *
+     * See protocol docs: [Stop Reasons](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#stop-reasons)
+     */
+    Patch<QString> _stopReason{};
+    QJsonObject _additionalProperties;  //!< additional properties
+
+    IdleStateUpdate& background(const Patch<QList<BackgroundWork>> & v) { _background = v; return *this; }
+    IdleStateUpdate& background(const QList<BackgroundWork> & v) { _background = v; return *this; }
     IdleStateUpdate& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     IdleStateUpdate& _meta(const QJsonObject & v) { __meta = v; return *this; }
+    IdleStateUpdate& stopReason(const Patch<QString> & v) { _stopReason = v; return *this; }
+    IdleStateUpdate& stopReason(const QString & v) { _stopReason = v; return *this; }
+    IdleStateUpdate& additionalProperties(const QString &key, const QJsonValue &v) { _additionalProperties.insert(key, v); return *this; }
+    IdleStateUpdate& additionalProperties(const QJsonObject &obj) { for (auto it = obj.constBegin(); it != obj.constEnd(); ++it) _additionalProperties.insert(it.key(), it.value()); return *this; }
 
-    const Patch<StopReason>& stopReason() const { return _stopReason; }
+    const Patch<QList<BackgroundWork>>& background() const { return _background; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
+    const Patch<QString>& stopReason() const { return _stopReason; }
+    const QJsonObject& additionalProperties() const { return _additionalProperties; }
 
     bool operator==(const IdleStateUpdate &other) const = default;
 };
@@ -3724,20 +4639,43 @@ ACPLIB_EXPORT Utils::Result<IdleStateUpdate> fromJson<IdleStateUpdate>(const QJs
 
 ACPLIB_EXPORT QJsonObject toJson(const IdleStateUpdate &data);
 
-/** Foreground work is blocked on user action. */
+/**
+ * The foreground workflow as a whole is blocked on user action.
+ *
+ * Agents SHOULD report this state when foreground work cannot progress without
+ * user action. Pending permissions or elicitations alone do not imply this
+ * state if other foreground work can progress, or if the requests belong only
+ * to independent background activity. Once reported, agents MUST report
+ * `running` when progress resumes, or `idle` if the work ends without resuming.
+ * Responding to one request does not itself imply `running`.
+ */
 struct RequiresActionStateUpdate {
     /**
+     * Work running independently of foreground work, as a complete snapshot.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the Agent is not reporting
+     * background work, not that nothing is running. `[]` means no background work is
+     * running. An Agent that reports background work MUST include it on every state
+     * update for the session. A malformed list is treated as not reported.
+     *
+     * See protocol docs: [Background Work](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#background-work)
+     */
+    Patch<QList<BackgroundWork>> _background{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
+    RequiresActionStateUpdate& background(const Patch<QList<BackgroundWork>> & v) { _background = v; return *this; }
+    RequiresActionStateUpdate& background(const QList<BackgroundWork> & v) { _background = v; return *this; }
     RequiresActionStateUpdate& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     RequiresActionStateUpdate& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
+    const Patch<QList<BackgroundWork>>& background() const { return _background; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const RequiresActionStateUpdate &other) const = default;
@@ -3751,17 +4689,31 @@ ACPLIB_EXPORT QJsonObject toJson(const RequiresActionStateUpdate &data);
 /** Foreground work is in progress. */
 struct RunningStateUpdate {
     /**
+     * Work running independently of foreground work, as a complete snapshot.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the Agent is not reporting
+     * background work, not that nothing is running. `[]` means no background work is
+     * running. An Agent that reports background work MUST include it on every state
+     * update for the session. A malformed list is treated as not reported.
+     *
+     * See protocol docs: [Background Work](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#background-work)
+     */
+    Patch<QList<BackgroundWork>> _background{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
+    RunningStateUpdate& background(const Patch<QList<BackgroundWork>> & v) { _background = v; return *this; }
+    RunningStateUpdate& background(const QList<BackgroundWork> & v) { _background = v; return *this; }
     RunningStateUpdate& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     RunningStateUpdate& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
+    const Patch<QList<BackgroundWork>>& background() const { return _background; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const RunningStateUpdate &other) const = default;
@@ -3773,10 +4725,46 @@ ACPLIB_EXPORT Utils::Result<RunningStateUpdate> fromJson<RunningStateUpdate>(con
 ACPLIB_EXPORT QJsonObject toJson(const RunningStateUpdate &data);
 
 /**
- * The state of the agent's foreground work has changed.
+ * A snapshot of the session's aggregate foreground activity.
+ *
+ * Foreground work is the agent's active response or workflow in the session,
+ * including model processing, tool execution, and waiting for user action needed
+ * to continue that work. It can start with a prompt or be agent-initiated, for
+ * example to pursue an ongoing goal or follow up on a completed background task.
+ * Either way, the agent MUST report `running` when foreground work starts,
+ * or `requires_action` if it starts blocked on user action, and `idle` when it
+ * ends. The agent SHOULD include a stop reason on that idle update.
+ * Agent-initiated work does not require a prompt request or a synthetic user
+ * message.
+ *
+ * `running` may precede user-message insertion, for example during a foreground
+ * hook. It is not acknowledgment of insertion, and rejecting a prompt does not
+ * itself end foreground work.
  *
  * Background activity can continue and emit other `session/update` notifications
- * while `idle`. Those notifications do not change this state.
+ * while `idle`. Those notifications, including a detached task's progress or
+ * completion, do not by themselves change this state. A permission request only
+ * warrants `requires_action` when foreground work is blocked on user action.
+ *
+ * The agent SHOULD report `requires_action` when the foreground workflow as a
+ * whole cannot progress without user action, including permissions or elicitations.
+ * Once reported, it MUST report `running` when progress resumes, or `idle` when
+ * work ends without resuming.
+ * If other foreground work can progress, the state remains `running`. Resolving
+ * one of several requests does not itself change the state. Agents SHOULD ignore
+ * responses for work that has already ended rather than use them to resume it.
+ *
+ * A new session defaults to idle until a state update reports otherwise.
+ * Resume MUST send a current-state snapshot after any replay and before its
+ * response. The snapshot reports foreground state after resuming.
+ * The response alone does not imply idle.
+ * Repeated snapshots are idempotent, not additional work, completions, or usage.
+ * A repeated state may carry updated information without another state transition.
+ * The agent MUST report `idle` when no foreground activity remains. Completing
+ * an individual activity while other foreground work continues does not require
+ * an idle boundary. Local commands use the same lifecycle even without model work.
+ *
+ * See protocol docs: [Session States](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#session-states)
  */
 using StateUpdate = std::variant<RunningStateUpdate, IdleStateUpdate, RequiresActionStateUpdate, QJsonObject>;
 
@@ -3796,9 +4784,9 @@ struct TerminalOutputChunk {
     QString _data{};  //!< Independently base64-encoded terminal output bytes.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. This field is chunk-scoped. Omitted and `null` are
-     * equivalent and mean no chunk metadata was provided.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     * This metadata is scoped to the chunk and does not patch stored metadata.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3822,13 +4810,86 @@ ACPLIB_EXPORT Utils::Result<TerminalOutputChunk> fromJson<TerminalOutputChunk>(c
 ACPLIB_EXPORT QJsonObject toJson(const TerminalOutputChunk &data);
 
 /**
+ * Capability to cancel a terminal with `terminal/cancel`.
+ *
+ * Supplying `{}` advertises support. An omitted or `null` `cancel` does not.
+ */
+struct TerminalCancelCapabilities {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    TerminalCancelCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalCancelCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const TerminalCancelCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<TerminalCancelCapabilities> fromJson<TerminalCancelCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const TerminalCancelCapabilities &data);
+
+/**
+ * Client-initiated controls a terminal currently supports.
+ *
+ * A malformed value falls back to no controls, so the Client never sends a request the
+ * Agent did not advertise.
+ *
+ * See protocol docs: [Cancelling Terminals](https://agentclientprotocol.com/protocol/v2/tool-calls#cancelling-terminals)
+ */
+struct TerminalCapabilities {
+    /**
+     * Permits the Client to cancel this terminal with `terminal/cancel`.
+     *
+     * Omitted and `null` are equivalent and mean unsupported. An object (including `{}`)
+     * means supported. Agents SHOULD stop advertising it once the terminal reports `exitStatus`.
+     */
+    Patch<TerminalCancelCapabilities> _cancel{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    TerminalCapabilities& cancel(const Patch<TerminalCancelCapabilities> & v) { _cancel = v; return *this; }
+    TerminalCapabilities& cancel(const TerminalCancelCapabilities & v) { _cancel = v; return *this; }
+    TerminalCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<TerminalCancelCapabilities>& cancel() const { return _cancel; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const TerminalCapabilities &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<TerminalCapabilities> fromJson<TerminalCapabilities>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const TerminalCapabilities &data);
+
+/**
  * Exit information for an agent-owned terminal.
  *
  * The presence of this object marks the terminal as exited, even when neither
  * an exit code nor a signal is known.
  */
 struct TerminalExitStatus {
-    Patch<int> _exitCode{};  //!< Process exit code, when known. Omitted and `null` are equivalent.
+    /**
+     * Process exit code as the platform reports it, when known. Negative values are
+     * allowed, for example signed Windows exit codes. Omitted and `null` are equivalent.
+     */
+    Patch<int> _exitCode{};
     /**
      * Signal that terminated the process, when known.
      *
@@ -3839,9 +4900,8 @@ struct TerminalExitStatus {
     Patch<QString> _signal{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. This metadata is scoped to the exit information. Omitted
-     * and `null` are equivalent and mean no exit metadata was provided.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3871,9 +4931,8 @@ struct TerminalOutput {
     QString _data{};  //!< Base64-encoded replacement terminal output bytes.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. This metadata is scoped to the replacement snapshot. Omitted
-     * and `null` are equivalent and mean no snapshot metadata was provided.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3894,13 +4953,44 @@ ACPLIB_EXPORT Utils::Result<TerminalOutput> fromJson<TerminalOutput>(const QJson
 
 ACPLIB_EXPORT QJsonObject toJson(const TerminalOutput &data);
 
+/** The size of an agent-owned terminal in character cells. */
+struct TerminalSize {
+    int _cols{};  //!< Number of columns.
+    int _rows{};  //!< Number of rows.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    TerminalSize& cols(int v) { _cols = v; return *this; }
+    TerminalSize& rows(int v) { _rows = v; return *this; }
+    TerminalSize& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    TerminalSize& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const int& cols() const { return _cols; }
+    const int& rows() const { return _rows; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const TerminalSize &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<TerminalSize> fromJson<TerminalSize>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const TerminalSize &data);
+
 /**
  * An upsert for the stored state of an agent-owned terminal.
  *
- * Only [`TerminalUpdate::terminal_id`] is required. Other fields have patch
+ * Only `terminalId` is required. Other fields have patch
  * semantics: omitted fields leave the stored value unchanged, `null` clears
- * it, and concrete values replace it. When the terminal ID is new, omitted
- * fields start unknown.
+ * it, and concrete values replace it. A concrete `_meta` object instead
+ * patches the stored metadata by top-level key. When the terminal ID is new,
+ * omitted fields start unknown.
  */
 struct TerminalUpdate {
     TerminalId _terminalId{};  //!< Unique identifier for this terminal within the session.
@@ -3909,11 +4999,28 @@ struct TerminalUpdate {
     Patch<TerminalOutput> _output{};  //!< An authoritative replacement snapshot of terminal output bytes.
     Patch<TerminalExitStatus> _exitStatus{};  //!< Exit information. A concrete object marks the terminal as exited.
     /**
-     * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Omitted means no metadata update; `null` is an
-     * explicit clear signal. Implementations MUST NOT make assumptions about values at these keys.
+     * The terminal size the command runs with, when known.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     * Clients can render output at this size so that column layouts, progress bars,
+     * and cursor-positioned output display as the program wrote them.
+     */
+    Patch<TerminalSize> _size{};
+    /**
+     * Client-initiated controls this terminal currently supports, such as cancellation.
+     *
+     * Omission leaves the capabilities unchanged, `null` clears them, and an object replaces
+     * the whole previous value. A new terminal starts with none.
+     */
+    Patch<TerminalCapabilities> _capabilities{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
      */
     Patch<QJsonObject> __meta{};
 
@@ -3926,6 +5033,10 @@ struct TerminalUpdate {
     TerminalUpdate& output(const TerminalOutput & v) { _output = v; return *this; }
     TerminalUpdate& exitStatus(const Patch<TerminalExitStatus> & v) { _exitStatus = v; return *this; }
     TerminalUpdate& exitStatus(const TerminalExitStatus & v) { _exitStatus = v; return *this; }
+    TerminalUpdate& size(const Patch<TerminalSize> & v) { _size = v; return *this; }
+    TerminalUpdate& size(const TerminalSize & v) { _size = v; return *this; }
+    TerminalUpdate& capabilities(const Patch<TerminalCapabilities> & v) { _capabilities = v; return *this; }
+    TerminalUpdate& capabilities(const TerminalCapabilities & v) { _capabilities = v; return *this; }
     TerminalUpdate& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     TerminalUpdate& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
@@ -3934,6 +5045,8 @@ struct TerminalUpdate {
     const Patch<AbsolutePath>& cwd() const { return _cwd; }
     const Patch<TerminalOutput>& output() const { return _output; }
     const Patch<TerminalExitStatus>& exitStatus() const { return _exitStatus; }
+    const Patch<TerminalSize>& size() const { return _size; }
+    const Patch<TerminalCapabilities>& capabilities() const { return _capabilities; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const TerminalUpdate &other) const = default;
@@ -3947,18 +5060,19 @@ ACPLIB_EXPORT QJsonObject toJson(const TerminalUpdate &data);
 /**
  * A streamed item of tool-call content.
  *
- * Tool-call content chunks append one [`ToolCallContent`] item to the current
- * content for the matching [`ToolCallId`]. Agents can use
- * [`ToolCallUpdate::content`] when they need to replace the whole content
- * collection instead.
+ * Tool-call content chunks append one `ToolCallContent` item to the current
+ * content for the matching `toolCallId`. Agents can send a `tool_call_update`
+ * with `content` when they need to replace the whole content collection
+ * instead.
  */
 struct ToolCallContentChunk {
     ToolCallId _toolCallId{};  //!< The ID of the tool call this content belongs to.
     ToolCallContent _content{};  //!< A single item of content produced by the tool call.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. This field is chunk-scoped.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     * This metadata is scoped to the chunk and does not patch stored metadata.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -3984,11 +5098,15 @@ ACPLIB_EXPORT QJsonObject toJson(const ToolCallContentChunk &data);
 /** Cost information for a session. */
 struct Cost {
     double _amount{};  //!< Total cumulative cost for session.
-    QString _currency{};  //!< ISO 4217 currency code (e.g., "USD", "EUR").
+    /**
+     * Unit of `amount`: an ISO 4217 currency code (e.g., "USD", "EUR") for money, or another
+     * unit such as "credits".
+     */
+    QString _currency{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4015,11 +5133,16 @@ ACPLIB_EXPORT QJsonObject toJson(const Cost &data);
 struct UsageUpdate {
     int _used{};  //!< Tokens currently in context.
     int _size{};  //!< Total context window size in tokens.
-    Patch<Cost> _cost{};  //!< Cumulative session cost (optional).
+    /**
+     * Cumulative session cost.
+     *
+     * Omitted leaves the last reported cost unchanged. `null` clears it. A value replaces it.
+     */
+    Patch<Cost> _cost{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4048,11 +5171,11 @@ ACPLIB_EXPORT QJsonObject toJson(const UsageUpdate &data);
 /**
  * A user message upsert.
  *
- * Only [`UserMessage::message_id`] is required. `content` has patch semantics:
+ * Only `messageId` is required. `content` has patch semantics:
  * an omitted field leaves existing message content unchanged, `null` clears the
  * value, and a concrete array replaces the previous value. For a new
- * `messageId`, omitted fields use client defaults. `content` is replaced as a
- * whole array; send `[]` or `null` to clear it.
+ * `messageId`, omitted `content` starts empty. `content` is replaced as a
+ * whole array. Send `[]` or `null` to clear it.
  *
  * Message updates and chunks are applied in the order they are received. When
  * a `user_message` update includes `content`, that array replaces any content
@@ -4065,10 +5188,13 @@ struct UserMessage {
     Patch<QList<ContentBlock>> _content{};  //!< Complete replacement content for this message.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys. Omitted means no metadata update; `null` is an explicit clear signal.
+     * metadata to their interactions. Omitted leaves the stored metadata unchanged. `null`
+     * clears it. An object patches the stored metadata by top-level key: keys it omits are
+     * unchanged, a key set to `null` is removed, and any other value replaces that key's
+     * stored value without merging nested objects. Beyond this patch rule, implementations
+     * MUST NOT assign meaning to keys they do not recognize.
      *
-     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     * See protocol docs: [Metadata Patches](https://agentclientprotocol.com/protocol/v2/extensibility#metadata-patches)
      */
     Patch<QJsonObject> __meta{};
 
@@ -4098,7 +5224,7 @@ ACPLIB_EXPORT QJsonObject toJson(const UserMessage &data);
  * See protocol docs: [Agent Reports Output](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#3-agent-reports-output)
  */
 struct SessionUpdate {
-    using Variant = std::variant<ContentChunk, UserMessage, AgentMessage, AgentThought, StateUpdate, ToolCallContentChunk, ToolCallUpdate, TerminalUpdate, TerminalOutputChunk, PlanUpdate, AvailableCommandsUpdate, ConfigOptionUpdate, SessionInfoUpdate, UsageUpdate, QJsonObject>;
+    using Variant = std::variant<ContentChunk, UserMessage, AgentMessage, AgentThought, StateUpdate, ToolCallContentChunk, ToolCallUpdate, TerminalUpdate, TerminalOutputChunk, PlanUpdate, AvailableCommandsUpdate, ConfigOptionUpdate, SessionInfoUpdate, UsageUpdate, Notice, CompactionUpdate, CompactionSummaryChunk, QJsonObject>;
     Variant _value;
     QString _kind;  //!< discriminator value (sessionUpdate)
 
@@ -4127,8 +5253,8 @@ struct UpdateSessionNotification {
     SessionUpdate _update{};  //!< The actual update content.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4171,18 +5297,120 @@ ACPLIB_EXPORT Utils::Result<AgentNotification> fromJson<AgentNotification>(const
 ACPLIB_EXPORT QJsonObject toJson(const AgentNotification &data);
 
 /**
+ * Request parameters for cancelling one terminal.
+ *
+ * Clients MUST NOT send it unless the terminal currently advertises `capabilities.cancel`.
+ *
+ * The Agent responds once it has accepted the cancellation. The response does not mean
+ * the work has stopped. The Agent confirms it with a `terminal_update` that sets
+ * `exitStatus`. Cancelling stops the process but does not release the terminal, and does
+ * not change the status of a tool call that references it.
+ *
+ * The Agent responds with `-32602` if the terminal is unknown, has already exited, or is not
+ * cancellable. Cancelling a terminal does not change the foreground state by itself.
+ *
+ * See protocol docs: [Cancelling Terminals](https://agentclientprotocol.com/protocol/v2/tool-calls#cancelling-terminals)
+ */
+struct CancelTerminalRequest {
+    SessionId _sessionId{};  //!< The ID of the session that owns the terminal.
+    TerminalId _terminalId{};  //!< The ID of the terminal to cancel.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CancelTerminalRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
+    CancelTerminalRequest& terminalId(const TerminalId & v) { _terminalId = v; return *this; }
+    CancelTerminalRequest& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CancelTerminalRequest& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const SessionId& sessionId() const { return _sessionId; }
+    const TerminalId& terminalId() const { return _terminalId; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CancelTerminalRequest &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CancelTerminalRequest> fromJson<CancelTerminalRequest>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CancelTerminalRequest &data);
+
+/**
+ * Request parameters for cancelling one tool call.
+ *
+ * Clients MUST NOT send it unless the tool call currently advertises `capabilities.cancel`.
+ *
+ * The Agent responds once it has accepted the cancellation. The response does not mean
+ * the work has stopped. The Agent confirms it with a `tool_call_update` to a final
+ * status: normally `cancelled`, or `completed` or `failed` if the work finished first.
+ *
+ * The Agent responds with `-32602` if the tool call is unknown, already final, or not
+ * cancellable. Cancelling a tool call does not change the foreground state by itself.
+ *
+ * See protocol docs: [Cancelling Tool Calls](https://agentclientprotocol.com/protocol/v2/tool-calls#cancelling-tool-calls)
+ */
+struct CancelToolCallRequest {
+    SessionId _sessionId{};  //!< The ID of the session that owns the tool call.
+    ToolCallId _toolCallId{};  //!< The ID of the tool call to cancel.
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CancelToolCallRequest& sessionId(const SessionId & v) { _sessionId = v; return *this; }
+    CancelToolCallRequest& toolCallId(const ToolCallId & v) { _toolCallId = v; return *this; }
+    CancelToolCallRequest& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CancelToolCallRequest& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const SessionId& sessionId() const { return _sessionId; }
+    const ToolCallId& toolCallId() const { return _toolCallId; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CancelToolCallRequest &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CancelToolCallRequest> fromJson<CancelToolCallRequest>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CancelToolCallRequest &data);
+
+/**
  * Request parameters for closing an active session.
  *
- * The agent **must** cancel any ongoing work related to the session (treat it
- * as if `session/cancel` was called) and then free up any resources associated
- * with the session.
+ * The Agent MUST cancel any ongoing work related to the session as if `session/cancel`
+ * was called, then free the resources associated with the session. Unlike `session/cancel`,
+ * closing also stops the session's background work. After the close response, the Agent
+ * sends no other messages for the session on that connection.
+ *
+ * Closing a session that does not exist or is not active SHOULD succeed, and Clients SHOULD
+ * treat a `-32002` response as a successful close.
+ *
+ * When closing cancels active foreground work, the Agent MUST send the final
+ * updates for that work and the idle `state_update` with `stopReason: "cancelled"`
+ * before responding successfully to `session/close`. Closing an idle session
+ * does not itself require another idle update.
+ *
+ * Closing also cancels pending `session/prompt` requests whose messages have not
+ * been inserted, including held prompts. If closing prevents a prompt's user message from being inserted, the
+ * Agent MUST answer that request with `-32800` (Request Cancelled). If the message
+ * has already been inserted, the Agent MUST respond successfully with its
+ * `messageId`. Prompt responses need not precede the close response.
  */
 struct CloseSessionRequest {
     SessionId _sessionId{};  //!< The ID of the session to close.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4212,8 +5440,8 @@ struct DeleteSessionRequest {
     SessionId _sessionId{};  //!< The ID of the session to delete.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4244,8 +5472,8 @@ ACPLIB_EXPORT QJsonObject toJson(const DeleteSessionRequest &data);
 struct TerminalAuthCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4271,11 +5499,11 @@ ACPLIB_EXPORT QJsonObject toJson(const TerminalAuthCapabilities &data);
  * method types the client can handle. This governs opt-in types that require
  * additional client-side support.
  */
-struct AuthCapabilities {
+struct ClientAuthCapabilities {
     /**
      * Whether the client supports `terminal` authentication methods.
      *
-     * Optional. Omitted or `null` both mean the client does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the client does not advertise support.
      * The client should supply `{}` only when it can reproduce the configured
      * agent invocation in an interactive terminal. Supplying `{}` means the
      * agent may include `terminal` entries in its authentication methods.
@@ -4283,28 +5511,28 @@ struct AuthCapabilities {
     Patch<TerminalAuthCapabilities> _terminal{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
-    AuthCapabilities& terminal(const Patch<TerminalAuthCapabilities> & v) { _terminal = v; return *this; }
-    AuthCapabilities& terminal(const TerminalAuthCapabilities & v) { _terminal = v; return *this; }
-    AuthCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
-    AuthCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
+    ClientAuthCapabilities& terminal(const Patch<TerminalAuthCapabilities> & v) { _terminal = v; return *this; }
+    ClientAuthCapabilities& terminal(const TerminalAuthCapabilities & v) { _terminal = v; return *this; }
+    ClientAuthCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    ClientAuthCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const Patch<TerminalAuthCapabilities>& terminal() const { return _terminal; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
-    bool operator==(const AuthCapabilities &other) const = default;
+    bool operator==(const ClientAuthCapabilities &other) const = default;
 };
 
 template<>
-ACPLIB_EXPORT Utils::Result<AuthCapabilities> fromJson<AuthCapabilities>(const QJsonValue &val);
+ACPLIB_EXPORT Utils::Result<ClientAuthCapabilities> fromJson<ClientAuthCapabilities>(const QJsonValue &val);
 
-ACPLIB_EXPORT QJsonObject toJson(const AuthCapabilities &data);
+ACPLIB_EXPORT QJsonObject toJson(const ClientAuthCapabilities &data);
 
 /**
  * Form-based elicitation capabilities.
@@ -4314,10 +5542,8 @@ ACPLIB_EXPORT QJsonObject toJson(const AuthCapabilities &data);
 struct ElicitationFormCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4344,10 +5570,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationFormCapabilities &data);
 struct ElicitationUrlCapabilities {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4378,16 +5602,14 @@ struct ElicitationCapabilities {
     /**
      * Whether the client supports URL-based elicitation.
      *
-     * Optional. Omitted or `null` both mean the client does not advertise support.
+     * Optional. Omitted and `null` are equivalent and mean the client does not advertise support.
      * Supplying `{}` means the client supports URL-based elicitation.
      */
     Patch<ElicitationUrlCapabilities> _url{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4426,35 +5648,35 @@ struct ClientCapabilities {
      * Determines which authentication method types the agent may include
      * in its `InitializeResponse`.
      *
-     * Optional. Omitted or `null` both mean the client does not advertise any
+     * Optional. Omitted and `null` are equivalent and mean the client does not advertise any
      * authentication-method extensions.
      */
-    Patch<AuthCapabilities> _auth{};
+    Patch<ClientAuthCapabilities> _auth{};
     /**
      * Elicitation capabilities supported by the client.
      * Determines which elicitation modes the agent may use.
      *
-     * Optional. Omitted or `null` both mean the client does not advertise
+     * Optional. Omitted and `null` are equivalent and mean the client does not advertise
      * elicitation support.
      */
     Patch<ElicitationCapabilities> _elicitation{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
     Patch<QJsonObject> __meta{};
 
-    ClientCapabilities& auth(const Patch<AuthCapabilities> & v) { _auth = v; return *this; }
-    ClientCapabilities& auth(const AuthCapabilities & v) { _auth = v; return *this; }
+    ClientCapabilities& auth(const Patch<ClientAuthCapabilities> & v) { _auth = v; return *this; }
+    ClientCapabilities& auth(const ClientAuthCapabilities & v) { _auth = v; return *this; }
     ClientCapabilities& elicitation(const Patch<ElicitationCapabilities> & v) { _elicitation = v; return *this; }
     ClientCapabilities& elicitation(const ElicitationCapabilities & v) { _elicitation = v; return *this; }
     ClientCapabilities& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     ClientCapabilities& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
-    const Patch<AuthCapabilities>& auth() const { return _auth; }
+    const Patch<ClientAuthCapabilities>& auth() const { return _auth; }
     const Patch<ElicitationCapabilities>& elicitation() const { return _elicitation; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
@@ -4479,8 +5701,8 @@ struct InitializeRequest {
     std::optional<ClientCapabilities> _capabilities{};  //!< Capabilities supported by the client.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4507,12 +5729,25 @@ ACPLIB_EXPORT QJsonObject toJson(const InitializeRequest &data);
 
 /** Request parameters for listing existing sessions. */
 struct ListSessionsRequest {
-    Patch<AbsolutePath> _cwd{};  //!< Filter sessions by working directory. Must be an absolute path.
-    Patch<SessionListCursor> _cursor{};  //!< Opaque cursor token from a previous response's nextCursor field for cursor-based pagination
+    /**
+     * Filter sessions by working directory. Must be an absolute path.
+     *
+     * Only sessions whose `cwd` is this same directory match. Subdirectories and
+     * `additionalDirectories` don't. Agents MAY normalize paths when comparing.
+     *
+     * Omitted and `null` are equivalent and mean sessions are not filtered by working directory.
+     */
+    Patch<AbsolutePath> _cwd{};
+    /**
+     * Opaque cursor token from a previous response's nextCursor field for cursor-based pagination
+     *
+     * Omitted and `null` are equivalent and mean the first page is requested.
+     */
+    Patch<SessionListCursor> _cursor{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4542,8 +5777,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ListSessionsRequest &data);
  *
  * Specifies which authentication method to use.
  *
- * Agents MUST support this method when their `initialize` response advertised
- * at least one valid authentication method. Clients MUST NOT call this method
+ * Agents MUST support this method when their `initialize` response included
+ * a non-empty `authMethods` list. Clients MUST NOT call this method
  * when `authMethods` was omitted or empty.
  */
 struct LoginAuthRequest {
@@ -4554,8 +5789,8 @@ struct LoginAuthRequest {
     AuthMethodId _methodId{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4581,15 +5816,15 @@ ACPLIB_EXPORT QJsonObject toJson(const LoginAuthRequest &data);
  *
  * Terminates the current authenticated session.
  *
- * Agents MUST support this method when their `initialize` response advertised
- * at least one valid authentication method. Clients MUST NOT call this method
+ * Agents MUST support this method when their `initialize` response included
+ * a non-empty `authMethods` list. Clients MUST NOT call this method
  * when `authMethods` was omitted or empty.
  */
 struct LogoutAuthRequest {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4614,8 +5849,8 @@ struct HttpHeader {
     QString _value{};  //!< The value to set for the HTTP header.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4642,11 +5877,15 @@ ACPLIB_EXPORT QJsonObject toJson(const HttpHeader &data);
 struct McpServerHttp {
     QString _name{};  //!< Human-readable name identifying this MCP server.
     QString _url{};  //!< URL to the MCP server.
-    std::optional<QList<HttpHeader>> _headers{};  //!< HTTP headers to set when making requests to the MCP server.
+    /**
+     * HTTP headers to set when making requests to the MCP server. Headers the MCP transport
+     * defines are owned by the transport, and Agents use the transport's values for them.
+     */
+    std::optional<QList<HttpHeader>> _headers{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4677,11 +5916,15 @@ struct McpServerStdio {
     QString _name{};  //!< Human-readable name identifying this MCP server.
     AbsolutePath _command{};  //!< Absolute path to the MCP server executable.
     std::optional<QStringList> _args{};  //!< Command-line arguments to pass to the MCP server.
-    std::optional<QList<EnvVariable>> _env{};  //!< Environment variables to set when launching the MCP server.
+    /**
+     * Environment variables to set when launching the MCP server. Names SHOULD be unique.
+     * Agents MAY reject duplicates with `-32602`, and otherwise the last entry wins.
+     */
+    std::optional<QList<EnvVariable>> _env{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4731,6 +5974,80 @@ ACPLIB_EXPORT QJsonObject toJson(const McpServer &val);
 ACPLIB_EXPORT QJsonValue toJsonValue(const McpServer &val);
 
 /**
+ * How the Agent combines a client-provided system prompt with its own instructions.
+ *
+ * Unknown modes are preserved so they can be stored,
+ * proxied, or forwarded. An Agent MUST return an error for a mode it does not
+ * support rather than treating it as `append` or `override`.
+ */
+enum class SystemPromptMode {
+    append,
+    override_
+};
+
+ACPLIB_EXPORT QString toString(SystemPromptMode v);
+
+template<>
+ACPLIB_EXPORT Utils::Result<SystemPromptMode> fromJson<SystemPromptMode>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonValue toJsonValue(const SystemPromptMode &v);
+
+/**
+ * Client-provided system-level instructions for a session.
+ *
+ * Clients MUST only send this when the Agent advertises
+ * `session.systemPrompt`. Agents that cannot apply it, for example because of
+ * an unadvertised mode or an unsupported content block type, MUST return an
+ * error instead of creating or resuming the session.
+ */
+struct SystemPrompt {
+    /**
+     * How the Agent combines `content` with its own instructions.
+     *
+     * Required. Agents MUST return an error for a mode they do not support rather than
+     * treating it as `append` or `override`.
+     */
+    SystemPromptMode _mode{};
+    /**
+     * The system prompt content.
+     *
+     * Agents advertising the capability MUST accept `text` content blocks.
+     * Clients MUST NOT send other content block types until a future
+     * capability allows them, and Agents MUST return an error for content
+     * blocks they do not support, including unknown types.
+     *
+     * Clients MUST NOT send an empty array. Agents MAY reject one with
+     * `-32602` without creating or resuming the session.
+     */
+    QList<ContentBlock> _content{};
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    SystemPrompt& mode(const SystemPromptMode & v) { _mode = v; return *this; }
+    SystemPrompt& content(const QList<ContentBlock> & v) { _content = v; return *this; }
+    SystemPrompt& addContent(const ContentBlock & v) { _content.append(v); return *this; }
+    SystemPrompt& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    SystemPrompt& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const SystemPromptMode& mode() const { return _mode; }
+    const QList<ContentBlock>& content() const { return _content; }
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const SystemPrompt &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<SystemPrompt> fromJson<SystemPrompt>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const SystemPrompt &data);
+
+/**
  * Request parameters for creating a new session.
  *
  * See protocol docs: [Creating a Session](https://agentclientprotocol.com/protocol/v2/session-setup#creating-a-session)
@@ -4747,9 +6064,17 @@ struct NewSessionRequest {
     std::optional<QList<AbsolutePath>> _additionalDirectories{};
     std::optional<QList<McpServer>> _mcpServers{};  //!< List of MCP (Model Context Protocol) servers the agent should connect to.
     /**
+     * System-level instructions for the new session.
+     *
+     * Optional. Omitted and `null` are equivalent and mean the Agent uses its
+     * own default instructions. Clients MUST only send this when the Agent
+     * advertises `session.systemPrompt`.
+     */
+    Patch<SystemPrompt> _systemPrompt{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4760,12 +6085,15 @@ struct NewSessionRequest {
     NewSessionRequest& addAdditionalDirectory(const AbsolutePath & v) { if (!_additionalDirectories) _additionalDirectories = QList<AbsolutePath>{}; (*_additionalDirectories).append(v); return *this; }
     NewSessionRequest& mcpServers(const std::optional<QList<McpServer>> & v) { _mcpServers = v; return *this; }
     NewSessionRequest& addMcpServer(const McpServer & v) { if (!_mcpServers) _mcpServers = QList<McpServer>{}; (*_mcpServers).append(v); return *this; }
+    NewSessionRequest& systemPrompt(const Patch<SystemPrompt> & v) { _systemPrompt = v; return *this; }
+    NewSessionRequest& systemPrompt(const SystemPrompt & v) { _systemPrompt = v; return *this; }
     NewSessionRequest& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     NewSessionRequest& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
     const AbsolutePath& cwd() const { return _cwd; }
     const std::optional<QList<AbsolutePath>>& additionalDirectories() const { return _additionalDirectories; }
     const std::optional<QList<McpServer>>& mcpServers() const { return _mcpServers; }
+    const Patch<SystemPrompt>& systemPrompt() const { return _systemPrompt; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const NewSessionRequest &other) const = default;
@@ -4788,23 +6116,26 @@ struct PromptRequest {
     /**
      * The blocks of content that compose the user's message.
      *
-     * As a baseline, the Agent MUST support [`ContentBlock::Text`] and [`ContentBlock::ResourceLink`],
-     * while other variants are optionally enabled via [`PromptCapabilities`].
+     * As a baseline, the Agent MUST support `text` and `resource_link` content blocks,
+     * while other variants are optionally enabled via `PromptCapabilities`.
      *
-     * The Client MUST adapt its interface according to [`PromptCapabilities`].
+     * The Client MUST adapt its interface according to `PromptCapabilities`.
      *
      * The client MAY include referenced pieces of context as either
-     * [`ContentBlock::Resource`] or [`ContentBlock::ResourceLink`].
+     * `resource` or `resource_link` content blocks.
      *
-     * When available, [`ContentBlock::Resource`] is preferred
+     * When available, `resource` is preferred
      * as it avoids extra round-trips and allows the message to include
      * pieces of context from sources the agent may not have access to.
+     *
+     * Clients MUST NOT send an empty array. Agents MAY reject one with `-32602` without
+     * inserting it.
      */
     QList<ContentBlock> _prompt{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4828,12 +6159,12 @@ ACPLIB_EXPORT Utils::Result<PromptRequest> fromJson<PromptRequest>(const QJsonVa
 
 ACPLIB_EXPORT QJsonObject toJson(const PromptRequest &data);
 
-/** Inclusive replay cursor requesting replay from the start of the conversation. */
+/** Inclusive replay cursor requesting replay from the start of retained conversation history. */
 struct ReplayFromStart {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4862,6 +6193,9 @@ using ReplayFrom = std::variant<ReplayFromStart, QJsonObject>;
 template<>
 ACPLIB_EXPORT Utils::Result<ReplayFrom> fromJson<ReplayFrom>(const QJsonValue &val);
 
+/** Returns the 'type' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const ReplayFrom &val);
+
 ACPLIB_EXPORT QJsonObject toJson(const ReplayFrom &val);
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const ReplayFrom &val);
@@ -4869,12 +6203,18 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ReplayFrom &val);
 /**
  * Request parameters for resuming an existing session.
  *
- * Resumes an existing session and optionally replays prior conversation
+ * Resumes an existing session and optionally replays retained conversation
  * history according to `replayFrom`.
  */
 struct ResumeSessionRequest {
     SessionId _sessionId{};  //!< The ID of the session to resume.
-    AbsolutePath _cwd{};  //!< The working directory for this session. Must be an absolute path.
+    /**
+     * The working directory for this session. Must be an absolute path.
+     *
+     * Clients MUST send the session's working directory. Agents MAY reject a different directory
+     * with `-32602`, and MAY normalize paths when comparing.
+     */
+    AbsolutePath _cwd{};
     /**
      * Additional workspace roots to activate for this session. Each path must be absolute.
      *
@@ -4884,21 +6224,41 @@ struct ResumeSessionRequest {
      * the request `cwd` matches the session's `cwd`.
      */
     std::optional<QList<AbsolutePath>> _additionalDirectories{};
-    std::optional<QList<McpServer>> _mcpServers{};  //!< List of MCP servers to connect to for this session.
+    /**
+     * List of MCP servers to connect to for this session.
+     *
+     * The complete set of Client-provided servers. Omitted and `[]` mean none. Agents SHOULD
+     * NOT restore servers from earlier requests.
+     */
+    std::optional<QList<McpServer>> _mcpServers{};
     /**
      * Inclusive cursor describing where conversation replay should begin.
      *
-     * Optional. Omitted or `null` both mean the Agent should resume without
+     * Optional. Omitted and `null` are equivalent and mean the Agent should resume without
      * replaying previous conversation history. Replay cursors are inclusive:
      * replay includes the position identified by the cursor. Supplying
-     * `{ "type": "start" }` means the Agent should replay the whole
-     * conversation before responding.
+     * `{ "type": "start" }` means the Agent should replay all retained
+     * conversation history before responding.
+     *
+     * Agents MUST reject unsupported cursor types or malformed cursor values
+     * with `-32602` (Invalid params), rather than substituting another cursor
+     * or resuming without replay.
      */
     Patch<ReplayFrom> _replayFrom{};
     /**
+     * System-level instructions for the resumed session.
+     *
+     * Optional. Omitted and `null` are equivalent. The Agent may then keep a
+     * system prompt it stored with the session or use its default instructions.
+     * Clients MUST only send this when the Agent advertises
+     * `session.systemPrompt`, and SHOULD send the same value they used when the
+     * session was created.
+     */
+    Patch<SystemPrompt> _systemPrompt{};
+    /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4912,6 +6272,8 @@ struct ResumeSessionRequest {
     ResumeSessionRequest& addMcpServer(const McpServer & v) { if (!_mcpServers) _mcpServers = QList<McpServer>{}; (*_mcpServers).append(v); return *this; }
     ResumeSessionRequest& replayFrom(const Patch<ReplayFrom> & v) { _replayFrom = v; return *this; }
     ResumeSessionRequest& replayFrom(const ReplayFrom & v) { _replayFrom = v; return *this; }
+    ResumeSessionRequest& systemPrompt(const Patch<SystemPrompt> & v) { _systemPrompt = v; return *this; }
+    ResumeSessionRequest& systemPrompt(const SystemPrompt & v) { _systemPrompt = v; return *this; }
     ResumeSessionRequest& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
     ResumeSessionRequest& _meta(const QJsonObject & v) { __meta = v; return *this; }
 
@@ -4920,6 +6282,7 @@ struct ResumeSessionRequest {
     const std::optional<QList<AbsolutePath>>& additionalDirectories() const { return _additionalDirectories; }
     const std::optional<QList<McpServer>>& mcpServers() const { return _mcpServers; }
     const Patch<ReplayFrom>& replayFrom() const { return _replayFrom; }
+    const Patch<SystemPrompt>& systemPrompt() const { return _systemPrompt; }
     const Patch<QJsonObject>& _meta() const { return __meta; }
 
     bool operator==(const ResumeSessionRequest &other) const = default;
@@ -4930,14 +6293,22 @@ ACPLIB_EXPORT Utils::Result<ResumeSessionRequest> fromJson<ResumeSessionRequest>
 
 ACPLIB_EXPORT QJsonObject toJson(const ResumeSessionRequest &data);
 
-/** Request parameters for setting a session configuration option. */
+/**
+ * Request parameters for setting a session configuration option.
+ *
+ * Agents MUST support this method for any session where they advertise config options.
+ * Agents MUST reject an unknown `configId` or invalid value with `-32602` and leave the
+ * configuration unchanged.
+ *
+ * See protocol docs: [Session Config Options](https://agentclientprotocol.com/protocol/v2/session-config-options#setting-a-config-option)
+ */
 struct SetSessionConfigOptionRequest {
     SessionId _sessionId{};  //!< The ID of the session to set the configuration option for.
     SessionConfigId _configId{};  //!< The ID of the configuration option to set.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -4986,7 +6357,7 @@ ACPLIB_EXPORT Utils::Result<ClientRequest> fromJson<ClientRequest>(const QJsonVa
 
 ACPLIB_EXPORT QJsonObject toJson(const ClientRequest &data);
 
-/** Allowed wire representations for [`ElicitationContentValue`]. */
+/** Allowed wire representations for `ElicitationContentValue`. */
 using ElicitationContentValue = std::variant<QString, int, double, bool, QList<QString>>;
 
 template<>
@@ -4996,7 +6367,12 @@ ACPLIB_EXPORT QJsonValue toJsonValue(const ElicitationContentValue &val);
 
 /** The user accepted the elicitation and provided content. */
 struct ElicitationAcceptAction {
-    Patch<QJsonObject> _content{};  //!< The user-provided content, if any, as an object matching the requested schema.
+    /**
+     * The user-provided content, if any, as an object matching the requested schema.
+     *
+     * Omitted and `null` are equivalent and mean no content is provided.
+     */
+    Patch<QJsonObject> _content{};
 
     ElicitationAcceptAction& content(const Patch<QJsonObject> & v) { _content = v; return *this; }
     ElicitationAcceptAction& content(const QJsonObject & v) { _content = v; return *this; }
@@ -5015,10 +6391,8 @@ ACPLIB_EXPORT QJsonObject toJson(const ElicitationAcceptAction &data);
 struct CreateElicitationResponse {
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
-     *
-     * Optional. Omitted and `null` are equivalent and mean no metadata.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -5041,13 +6415,37 @@ ACPLIB_EXPORT Utils::Result<CreateElicitationResponse> fromJson<CreateElicitatio
 
 ACPLIB_EXPORT QJsonObject toJson(const CreateElicitationResponse &data);
 
+/** The request was not approved and no option was selected. */
+struct CancelledPermissionOutcome {
+    /**
+     * The _meta property is reserved by ACP to allow clients and agents to attach additional
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
+     *
+     * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
+     */
+    Patch<QJsonObject> __meta{};
+
+    CancelledPermissionOutcome& _meta(const Patch<QJsonObject> & v) { __meta = v; return *this; }
+    CancelledPermissionOutcome& _meta(const QJsonObject & v) { __meta = v; return *this; }
+
+    const Patch<QJsonObject>& _meta() const { return __meta; }
+
+    bool operator==(const CancelledPermissionOutcome &other) const = default;
+};
+
+template<>
+ACPLIB_EXPORT Utils::Result<CancelledPermissionOutcome> fromJson<CancelledPermissionOutcome>(const QJsonValue &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const CancelledPermissionOutcome &data);
+
 /** The user selected one of the provided options. */
 struct SelectedPermissionOutcome {
     PermissionOptionId _optionId{};  //!< The ID of the option the user selected.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -5069,21 +6467,15 @@ ACPLIB_EXPORT Utils::Result<SelectedPermissionOutcome> fromJson<SelectedPermissi
 ACPLIB_EXPORT QJsonObject toJson(const SelectedPermissionOutcome &data);
 
 /** The outcome of a permission request. */
-struct RequestPermissionOutcome {
-    using Variant = std::variant<std::monostate, SelectedPermissionOutcome, QJsonObject>;
-    Variant _value;
-    QString _kind;  //!< discriminator value (outcome)
-
-    template<typename T> const T* get() const { return std::get_if<T>(&_value); }
-    const QString& kind() const { return _kind; }
-
-    bool operator==(const RequestPermissionOutcome &other) const = default;
-};
+using RequestPermissionOutcome = std::variant<CancelledPermissionOutcome, SelectedPermissionOutcome, QJsonObject>;
 
 template<>
 ACPLIB_EXPORT Utils::Result<RequestPermissionOutcome> fromJson<RequestPermissionOutcome>(const QJsonValue &val);
 
-ACPLIB_EXPORT QJsonObject toJson(const RequestPermissionOutcome &data);
+/** Returns the 'outcome' dispatch field value for the active variant. */
+ACPLIB_EXPORT QString dispatchValue(const RequestPermissionOutcome &val);
+
+ACPLIB_EXPORT QJsonObject toJson(const RequestPermissionOutcome &val);
 
 ACPLIB_EXPORT QJsonValue toJsonValue(const RequestPermissionOutcome &val);
 
@@ -5092,8 +6484,8 @@ struct RequestPermissionResponse {
     RequestPermissionOutcome _outcome{};  //!< The user's decision on the permission request.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -5118,16 +6510,16 @@ ACPLIB_EXPORT QJsonObject toJson(const RequestPermissionResponse &data);
 using ClientResponse = std::variant<QJsonObject>;
 
 /**
- * Notification to cancel ongoing operations for a session.
+ * Notification to cancel a session's foreground work and its prompts not yet inserted.
  *
  * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/v2/prompt-lifecycle#cancellation)
  */
 struct CancelSessionNotification {
-    SessionId _sessionId{};  //!< The ID of the session to cancel operations for.
+    SessionId _sessionId{};  //!< The ID of the session whose foreground work to cancel.
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -5173,11 +6565,15 @@ ACPLIB_EXPORT QJsonObject toJson(const ClientNotification &data);
  * See protocol docs: [Cancellation](https://agentclientprotocol.com/protocol/v2/cancellation)
  */
 struct CancelRequestNotification {
-    RequestId _requestId{};  //!< The ID of the request to cancel.
+    /**
+     * The ID of the request to cancel: a request that the sender of this notification issued.
+     * Receivers match it only against requests they received from that sender.
+     */
+    RequestId _requestId{};
     /**
      * The _meta property is reserved by ACP to allow clients and agents to attach additional
-     * metadata to their interactions. Implementations MUST NOT make assumptions about values at
-     * these keys.
+     * metadata to their interactions. Omitted and `null` are equivalent and mean no metadata.
+     * Implementations MUST NOT assign meaning to keys they do not recognize.
      *
      * See protocol docs: [Extensibility](https://agentclientprotocol.com/protocol/v2/extensibility)
      */
@@ -5197,24 +6593,5 @@ template<>
 ACPLIB_EXPORT Utils::Result<CancelRequestNotification> fromJson<CancelRequestNotification>(const QJsonValue &val);
 
 ACPLIB_EXPORT QJsonObject toJson(const CancelRequestNotification &data);
-
-/** A JSON-RPC notification object. */
-struct ProtocolLevelNotification {
-    QString _method{};  //!< The notification method name.
-    std::optional<QString> _params{};  //!< Method-specific notification parameters.
-
-    ProtocolLevelNotification& method(const QString & v) { _method = v; return *this; }
-    ProtocolLevelNotification& params(const std::optional<QString> & v) { _params = v; return *this; }
-
-    const QString& method() const { return _method; }
-    const std::optional<QString>& params() const { return _params; }
-
-    bool operator==(const ProtocolLevelNotification &other) const = default;
-};
-
-template<>
-ACPLIB_EXPORT Utils::Result<ProtocolLevelNotification> fromJson<ProtocolLevelNotification>(const QJsonValue &val);
-
-ACPLIB_EXPORT QJsonObject toJson(const ProtocolLevelNotification &data);
 
 } // namespace Acp::V2

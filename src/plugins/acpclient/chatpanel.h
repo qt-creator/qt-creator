@@ -89,7 +89,7 @@ public:
     void clear();
     void clearConfigOptions();
 
-    void updateAvailableCommands(const QList<Acp::V2::AvailableCommand> &commands);
+    void updateAvailableCommands(const QList<Acp::V2::AvailableCommand> &available);
     bool includeCurrentEditorContext() const { return m_includeCurrentEditorContext; }
     QList<Utils::FilePath> manualContextFiles() const { return m_manualContextFiles; }
     QList<TextContext> textContexts() const { return m_textContexts; }

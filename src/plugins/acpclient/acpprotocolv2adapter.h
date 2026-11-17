@@ -39,7 +39,7 @@ public:
     QList<Acp::V2::AuthMethod> authMethods() const override;
 
 private:
-    void finishTurn(const std::optional<Acp::V2::StopReason> &stopReason);
+    void finishTurn(const std::optional<QString> &stopReason);
     void reportIdleError(const QJsonObject &update);
     void handleNotification(const QString &method, const QJsonObject &params);
     void handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params);

@@ -208,7 +208,7 @@ void AcpProtocolV2Adapter::prompt(const QString &sessionId, const QJsonArray &co
 
 // The turn ends either on a failed acknowledgement or on the idle state that
 // follows it, whichever arrives first.
-void AcpProtocolV2Adapter::finishTurn(const std::optional<StopReason> &stopReason)
+void AcpProtocolV2Adapter::finishTurn(const std::optional<QString> &stopReason)
 {
     if (!m_turnActive)
         return;

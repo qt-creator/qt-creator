@@ -37,7 +37,17 @@ void AcpElicitationHandler::handleRequest(const QJsonValue &id, const QString &m
     const QString mode = params.value("mode").toString();
     if (mode == QLatin1String("form")) {
         request.mode = ElicitationRequest::Mode::Form;
-        const auto schema = V2::fromJson<V2::ElicitationSchema>(params.value("requestedSchema"));
+        // v1 makes "type" and "properties" optional, v2 requires them.
+        QJsonValue schemaJson = params.value("requestedSchema");
+        if (schemaJson.isObject()) {
+            QJsonObject schemaObject = schemaJson.toObject();
+            if (!schemaObject.contains("type"))
+                schemaObject.insert("type", QStringLiteral("object"));
+            if (!schemaObject.contains("properties"))
+                schemaObject.insert("properties", QJsonObject());
+            schemaJson = schemaObject;
+        }
+        const auto schema = V2::fromJson<V2::ElicitationSchema>(schemaJson);
         if (!schema) {
             m_client->sendErrorResponse(id, ErrorCode::Invalid_params,
                                         QStringLiteral("Invalid requestedSchema: %1")
