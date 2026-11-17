@@ -1312,6 +1312,23 @@ void ManhattanStyle::drawControl(
 void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                         QPainter *painter, const QWidget *widget) const
 {
+    // Fusion derives both the groove and the slider from QPalette::Button, which leaves
+    // no visible contrast between them in dark themes.
+    if (control == CC_ScrollBar && isDarkFusionStyle(baseStyle())) {
+        if (const auto slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
+            QStyleOptionSlider sliderOpt = *slider;
+            sliderOpt.subControls &= ~SC_ScrollBarSlider;
+            QProxyStyle::drawComplexControl(control, &sliderOpt, painter, widget);
+            if (slider->subControls & SC_ScrollBarSlider) {
+                sliderOpt.subControls = SC_ScrollBarSlider;
+                sliderOpt.palette.setColor(QPalette::Button,
+                                           creatorColor(Theme::Token_Foreground_Default));
+                QProxyStyle::drawComplexControl(control, &sliderOpt, painter, widget);
+            }
+            return;
+        }
+    }
+
     if (!panelWidget(widget))
          return QProxyStyle::drawComplexControl(control, option, painter, widget);
 
