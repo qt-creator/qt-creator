@@ -39,6 +39,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -56,6 +57,7 @@
 #include <QVersionNumber>
 #include <QUrl>
 
+#include <functional>
 #include <memory>
 #include <optional>
 
@@ -531,10 +533,29 @@ static QString widgetClassName(QDesignerFormWindowInterface *fwi, const QString 
     return {};
 }
 
+using FileFilter = std::function<bool(const FilePath &)>;
+
+// The search can also find definitions in files outside of the snapshot, which the code
+// model reads on request, so the restriction of the snapshot is applied to the result.
+static const Function *acceptedDefinition(CppEditor::SymbolFinder &symbolFinder,
+                                          Symbol *declaration, Snapshot &snapshot,
+                                          const FileFilter &accepted)
+{
+    const Function * const first = symbolFinder.findMatchingDefinition(declaration, snapshot, true);
+    if (!first || accepted(first->filePath()))
+        return first;
+    const QList<Function *> all
+        = symbolFinder.findMatchingDefinitions(declaration, snapshot, true, false);
+    return Utils::findOrDefault(all, [&accepted](const Function *definition) {
+        return accepted(definition->filePath());
+    });
+}
+
 // Insert an explicit pointer-to-member connect() into the constructor that calls
 // setupUi(). The widget-access prefix ("ui->", "ui.", "") is taken from the
 // existing setupUi() call, which sidesteps having to resolve the ui member.
-static bool insertPointerToMemberConnection(const Snapshot &snapshot, const Class *cl,
+static bool insertPointerToMemberConnection(const Snapshot &snapshot, const FileFilter &accepted,
+                                const Class *cl,
                                 const QString &className, const QString &objectName,
                                 const QString &widgetClass, const QString &signalName,
                                 const QString &slotBaseName)
@@ -545,12 +566,13 @@ static bool insertPointerToMemberConnection(const Snapshot &snapshot, const Clas
     // Find a constructor with a definition that calls setupUi().
     const Overview overview;
     CppEditor::SymbolFinder symbolFinder;
+    Snapshot lookupSnapshot = snapshot;
     for (int i = 0, count = cl->memberCount(); i < count; ++i) {
         const Declaration *decl = cl->memberAt(i)->asDeclaration();
         Function *ctor = decl ? decl->type()->asFunctionType() : cl->memberAt(i)->asFunction();
         if (!ctor || overview.prettyName(ctor->name()) != className)
             continue;
-        const Function *def = symbolFinder.findMatchingDefinition(ctor, snapshot, true);
+        const Function *def = acceptedDefinition(symbolFinder, ctor, lookupSnapshot, accepted);
         if (!def)
             def = ctor; // possibly an inline definition
         const FilePath ctorFile = FilePath::fromString(QString::fromUtf8(def->fileName()));
@@ -624,22 +646,31 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
     Snapshot docTable = CppEditor::CppModelManager::snapshot();
     Snapshot newDocTable;
+    FileFilter accepted;
     const Project *uiProject = ProjectManager::projectForFile(currentUiFile);
     if (uiProject) {
+        accepted = [uiProject](const FilePath &filePath) {
+            return ProjectManager::projectForFile(filePath) == uiProject;
+        };
         for (Snapshot::const_iterator i = docTable.begin(), ei = docTable.end(); i != ei; ++i) {
-            const Project *project = ProjectManager::projectForFile(i.key());
-            if (project == uiProject)
+            if (accepted(i.key()))
                 newDocTable.insert(i.value());
         }
     } else {
         const FilePath configFileName = CppEditor::CppModelManager::configurationFileName();
         const CppEditor::WorkingCopy::Table elements =
                 CppEditor::CppModelManager::workingCopy().elements();
+        QSet<FilePath> workingCopyFiles;
         for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
             const FilePath &fileName = it.key();
-            if (fileName != configFileName)
+            if (fileName != configFileName) {
                 newDocTable.insert(docTable.document(fileName));
+                workingCopyFiles.insert(fileName);
+            }
         }
+        accepted = [workingCopyFiles](const FilePath &filePath) {
+            return workingCopyFiles.contains(filePath);
+        };
     }
     docTable = newDocTable;
 
@@ -751,7 +782,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
     CppEditor::CppRefactoringChanges refactoring(docTable);
     CppEditor::SymbolFinder symbolFinder;
-    if (const Function *funImpl = symbolFinder.findMatchingDefinition(fun, docTable, true)) {
+    if (const Function *funImpl = acceptedDefinition(symbolFinder, fun, docTable, accepted)) {
         Core::EditorManager::openEditorAt(
             {FilePath::fromString(QString::fromUtf8(funImpl->fileName())), funImpl->line() + 2});
         return true;
@@ -780,7 +811,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         Utils::Text::convertPosition(file->document(), openPos, &line, &column);
 
         if (usePmf && slotDidNotExist) {
-            insertPointerToMemberConnection(docTable, cl, className, objectName,
+            insertPointerToMemberConnection(docTable, accepted, cl, className, objectName,
                                             widgetClass, signalName, slotBaseName);
         }
 

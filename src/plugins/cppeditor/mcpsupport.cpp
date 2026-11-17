@@ -769,8 +769,9 @@ void registerMcpTools()
                 result.insert("declaration", location(symbol));
 
             SymbolFinder finder;
+            CPlusPlus::Snapshot snapshot = context.snapshot();
             if (CPlusPlus::Function *def
-                    = finder.findMatchingDefinition(symbol, context.snapshot(), false)) {
+                    = finder.findMatchingDefinition(symbol, snapshot, false)) {
                 result.insert("definition", location(def));
             }
 
@@ -1035,7 +1036,7 @@ void registerMcpTools()
 
             // Prefer the definition (which has a body); fall back to the symbol
             // itself when no separate definition is found.
-            const CPlusPlus::Snapshot snapshot = context.snapshot();
+            CPlusPlus::Snapshot snapshot = context.snapshot();
             SymbolFinder finder;
             const CPlusPlus::Symbol *defSymbol = symbol;
             if (CPlusPlus::Function *def = finder.findMatchingDefinition(symbol, snapshot, false))

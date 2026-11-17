@@ -60,6 +60,14 @@ private slots:
     void testReadingOnRequestKeepsTheDocumentsThatAreThere();
     void testReadingOnRequestFollowsTheIndexersRules_data();
     void testReadingOnRequestFollowsTheIndexersRules();
+    void testADefinitionInAFileTheIndexerDoesNotDeliverIsFound();
+    void testOnlyFilesThatCanHoldTheDefinitionAreRead_data();
+    void testOnlyFilesThatCanHoldTheDefinitionAreRead();
+    void testAllDefinitionsIncludeThoseInFilesTheIndexerDoesNotDeliver();
+    void testACopyTakenBeforeAReadOnRequestStillFindsTheDefinition();
+    void testTheClosestDefinitionOutsideTheSnapshotIsFound();
+    void testASourceThatLeftTheSnapshotIsStillSearched();
+    void testAFileThatCannotBeReadOnRequestIsSkipped();
 };
 
 } // namespace CppEditor::Internal

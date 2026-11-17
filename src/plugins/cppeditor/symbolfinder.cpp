@@ -7,10 +7,13 @@
 
 #include "symbolfinder.h"
 
+#include "cpplocatordata.h"
 #include "cppmodelmanager.h"
 
 #include <cplusplus/LookupContext.h>
+#include <cplusplus/Overview.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -271,16 +274,145 @@ SymbolFinder::SymbolFinder() = default;
 
 // strict means the returned symbol has to match exactly,
 // including argument count, argument types, constness and volatileness.
+// The documents read on request are added to the snapshot, together with what they
+// include, so that the returned symbols belong to it.
 Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
-                                             const Snapshot &snapshot,
+                                             Snapshot &snapshot,
                                              bool strict)
 {
     const QList<Function *> defs = findMatchingDefinitions(declaration, snapshot, strict, true);
     return defs.isEmpty() ? nullptr : defs.first();
 }
 
+// The innermost component of a scope as the locator index spells it, without template
+// arguments, e.g. "Foo" for "NS::Foo<Bar::Baz>". A placeholder such as
+// "<anonymous namespace>" stays whole, so that it matches no name.
+static QStringView innermostScopeName(QStringView scope)
+{
+    int depth = 0;
+    for (qsizetype i = scope.size() - 1; i >= 0; --i) {
+        if (scope.at(i) == '>') {
+            ++depth;
+        } else if (scope.at(i) == '<') {
+            --depth;
+        } else if (depth == 0 && scope.at(i) == ':') {
+            scope = scope.mid(i + 1);
+            break;
+        }
+    }
+    const qsizetype templateArgs = scope.indexOf('<');
+    return templateArgs <= 0 ? scope : scope.left(templateArgs);
+}
+
+static QString identifierName(const Name *name)
+{
+    const Identifier * const id = name ? name->identifier() : nullptr;
+    return id ? QString::fromUtf8(id->chars(), id->size()) : QString();
+}
+
+// The names that the innermost scope of the declaration's definition can have in the
+// locator index. An empty name stands for the global namespace, an empty list means
+// that any name can do.
+// As in FindMatchingDefinition, a member can only be defined in a scope named like its
+// class. A function of a namespace can only be defined in that namespace or, for an
+// inline namespace, also in the namespaces enclosing it. Friends are declared inside
+// a class without being members of it, so they are exempt.
+static QStringList definingScopeNames(Symbol *declaration)
+{
+    if (declaration->isFriend())
+        return {};
+    if (const Class * const klass = declaration->enclosingClass()) {
+        const QString className = identifierName(klass->name());
+        return className.isEmpty() ? QStringList() : QStringList(className);
+    }
+    QStringList names;
+    for (const Namespace *ns = declaration->enclosingNamespace(); ns;
+         ns = ns->enclosingNamespace()) {
+        const bool isGlobal = !ns->enclosingNamespace();
+        const QString name = identifierName(ns->name());
+        if (!isGlobal && name.isEmpty())
+            return {}; // Anonymous
+        names.append(name);
+        if (!ns->isInline())
+            break;
+    }
+    return names;
+}
+
+static const QString projectPartIdForFile(const FilePath &filePath)
+{
+    const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(filePath);
+    if (!parts.isEmpty())
+        return parts.first()->id();
+    return QString();
+}
+
+// The files outside of the snapshot that, according to the locator index, define a
+// function of the declaration's name, those whose definition has the declaration's
+// qualified name first, each in the order of closeness to the declaring file.
+static FilePaths filesDefining(Symbol *declaration, const Snapshot &snapshot)
+{
+    CppLocatorData * const index = CppModelManager::locatorData();
+    if (!index)
+        return {};
+
+    // As in SearchSymbols, which stores "Foo<T>" for members of templates and "~Foo"
+    // for destructors.
+    Overview overview;
+    overview.showTemplateParameters = true;
+    overview.includeWhiteSpaceInOperatorName = false;
+    const QString name = overview.prettyName(declaration->unqualifiedName());
+    if (name.isEmpty())
+        return {};
+    const QString qualified
+        = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
+
+    const QStringList scopeNames = definingScopeNames(declaration);
+    const auto maybeDefinedInSameScope = [&scopeNames](const IndexItem::Ptr &entry) {
+        return scopeNames.isEmpty()
+               || scopeNames.contains(innermostScopeName(entry->symbolScope()));
+    };
+
+    FilePaths qualifiedMatches;
+    FilePaths plainMatches;
+    const auto outsideSnapshot = [&snapshot](const FilePath &filePath) {
+        return !snapshot.contains(filePath);
+    };
+    index->filterFiles(outsideSnapshot, [&](const IndexItem::Ptr &entry) {
+        if ((entry->type() & IndexItem::Function) && entry->isFunctionDefinition()
+            && entry->symbolName() == name) {
+            if (!qualified.isEmpty() && entry->scopedSymbolName() == qualified) {
+                if (!qualifiedMatches.contains(entry->filePath()))
+                    qualifiedMatches.append(entry->filePath());
+            } else if (maybeDefinedInSameScope(entry)) {
+                if (!plainMatches.contains(entry->filePath()))
+                    plainMatches.append(entry->filePath());
+            }
+        }
+        if (entry->type() & IndexItem::Enum)
+            return IndexItem::Continue;
+        return IndexItem::Recurse;
+    });
+
+    const FilePath declFile = declaration->filePath();
+    const auto byCloseness = [&declFile](FilePaths filePaths) {
+        // Sorted first, as files of equal closeness keep their order.
+        Utils::sort(filePaths);
+        FileIterationOrder order(declFile, projectPartIdForFile(declFile));
+        for (const FilePath &filePath : std::as_const(filePaths))
+            order.insert(filePath, projectPartIdForFile(filePath));
+        return order.toFilePaths();
+    };
+    FilePaths candidates = byCloseness(qualifiedMatches);
+    for (const FilePath &filePath : byCloseness(plainMatches)) {
+        if (!candidates.contains(filePath))
+            candidates.append(filePath);
+    }
+    return candidates;
+}
+
 QList<Function *> SymbolFinder::findMatchingDefinitions(
-    CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot, bool strict,
+    CPlusPlus::Symbol *declaration, CPlusPlus::Snapshot &snapshot, bool strict,
     bool stopAtFirstResult)
 {
     if (!declaration)
@@ -302,16 +434,41 @@ QList<Function *> SymbolFinder::findMatchingDefinitions(
     }
 
     MatchingDefinitions matches(declaration, declarationTy, strict, stopAtFirstResult);
-    const FilePaths filePaths = fileIterationOrder(declFile, snapshot);
-    for (const FilePath &filePath : filePaths) {
-        Document::Ptr doc = snapshot.document(filePath);
-        if (!doc) {
-            clearCache(declFile, filePath);
-            continue;
+
+    // Returns whether the search is done.
+    const auto scan = [&](const FilePaths &filePaths, bool mayRead) {
+        for (const FilePath &filePath : filePaths) {
+            Document::Ptr doc = snapshot.document(filePath);
+            if (!doc && mayRead) {
+                doc = CppModelManager::document(filePath, DocumentLookup::ReadIfNeeded);
+                if (doc) {
+                    const Snapshot globalSnapshot = CppModelManager::snapshot();
+                    snapshot.insert(doc);
+                    const QSet<FilePath> closure = globalSnapshot.allIncludesForDocument(filePath);
+                    for (const FilePath &included : closure) {
+                        if (snapshot.contains(included))
+                            continue;
+                        if (const Document::Ptr header = globalSnapshot.document(included))
+                            snapshot.insert(header);
+                    }
+                }
+            }
+            if (!doc) {
+                if (!mayRead) // The files to be read on request are not in the cache.
+                    clearCache(declFile, filePath);
+                continue;
+            }
+            if (matches.addFrom(doc, snapshot))
+                return true;
         }
-        if (matches.addFrom(doc, snapshot))
-            break;
-    }
+        return false;
+    };
+
+    // Unless the search already stopped at an exact definition, also search the files
+    // outside of the snapshot: they can hold an exact definition that the snapshot lacks
+    // or, when all definitions are asked for, more definitions.
+    if (!scan(fileIterationOrder(declFile, snapshot), false))
+        scan(filesDefining(declaration, snapshot), true);
     return matches.result();
 }
 
@@ -580,14 +737,6 @@ void SymbolFinder::checkCacheConsistency(const FilePath &referenceFile, const Sn
         if (!meta.contains(doc->filePath()))
             insertCache(referenceFile, doc->filePath());
     }
-}
-
-static const QString projectPartIdForFile(const FilePath &filePath)
-{
-    const QList<ProjectPart::ConstPtr> parts = CppModelManager::projectPart(filePath);
-    if (!parts.isEmpty())
-        return parts.first()->id();
-    return QString();
 }
 
 void SymbolFinder::clearCache(const FilePath &referenceFile, const FilePath &comparingFile)

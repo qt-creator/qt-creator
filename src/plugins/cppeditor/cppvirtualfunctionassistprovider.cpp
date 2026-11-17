@@ -129,16 +129,17 @@ public:
     }
 
 private:
-    Function *maybeDefinitionFor(Function *func) const
+    Utils::Link linkToDefinitionOrDeclaration(Function *func) const
     {
-        if (Function *definition = m_finder.findMatchingDefinition(func, m_params.snapshot, true))
-            return definition;
-        return func;
+        Snapshot snapshot = m_params.snapshot;
+        if (Function *definition = m_finder.findMatchingDefinition(func, snapshot, true))
+            return definition->toLink();
+        return func->toLink();
     }
 
     VirtualFunctionProposalItem *itemFromFunction(Function *func) const
     {
-        const Utils::Link link = maybeDefinitionFor(func)->toLink();
+        const Utils::Link link = linkToDefinitionOrDeclaration(func);
         QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(func));
         if (func->isPureVirtual())
             text += QLatin1String(" = 0");

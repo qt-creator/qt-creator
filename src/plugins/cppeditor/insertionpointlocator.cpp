@@ -560,6 +560,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
 
     // scan preceding declarations for a function declaration (and see if it is defined)
     SymbolFinder symbolFinder;
+    Snapshot snapshot = changes.snapshot();
     Function *definitionFunction = nullptr;
     QString prefix, suffix;
     Declaration *surroundingFunctionDecl = nullptr;
@@ -568,7 +569,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
         if (s->isGenerated() || !(surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s)))
             continue;
         if ((definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
-                                                                      changes.snapshot(), true)))
+                                                                      snapshot, true)))
         {
             if (destinationFile.isEmpty() || destinationFile == definitionFunction->filePath()) {
                 prefix = QLatin1String("\n\n");
@@ -585,7 +586,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
             if (!surroundingFunctionDecl)
                 continue;
             if ((definitionFunction = symbolFinder.findMatchingDefinition(
-                     surroundingFunctionDecl, changes.snapshot(), true))) {
+                     surroundingFunctionDecl, snapshot, true))) {
                 if (destinationFile.isEmpty() || destinationFile ==  definitionFunction->filePath()) {
                     suffix = QLatin1String("\n\n");
                     break;
@@ -600,7 +601,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
 
     int line, column;
     if (suffix.isEmpty()) {
-        Document::Ptr targetDoc = changes.snapshot().document(definitionFunction->filePath());
+        Document::Ptr targetDoc = snapshot.document(definitionFunction->filePath());
         if (!targetDoc)
             return noResult;
 
@@ -641,7 +642,7 @@ const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
 
     if (useSymbolFinder) {
         SymbolFinder symbolFinder;
-        const Snapshot &snapshot = m_refactoringChanges.snapshot();
+        Snapshot snapshot = m_refactoringChanges.snapshot();
         if (declaration->type()->asFunctionType()) {
             if (symbolFinder.findMatchingDefinition(declaration, snapshot, true))
                 return result;

@@ -386,8 +386,9 @@ private:
     {
         QList<Symbol *> unimplemented;
         SymbolFinder symbolFinder;
+        Snapshot lookupSnapshot = snapshot();
         for (Symbol * const s : std::as_const(m_declarations)) {
-            if (!symbolFinder.findMatchingDefinition(s, snapshot(), true))
+            if (!symbolFinder.findMatchingDefinition(s, lookupSnapshot, true))
                 unimplemented << s;
         }
         if (unimplemented.isEmpty())
@@ -560,10 +561,11 @@ private:
 
             // Check if there is already a definition in this product.
             SymbolFinder symbolFinder;
+            Snapshot lookupSnapshot = interface.snapshot();
             QList<Symbol *> defs;
             if (func) {
                 const QList<Function *> funcDefs
-                    = symbolFinder.findMatchingDefinitions(symbol, interface.snapshot(), true, false);
+                    = symbolFinder.findMatchingDefinitions(symbol, lookupSnapshot, true, false);
                 for (Function *const def : funcDefs)
                     defs << def;
             } else if (forwardDecl) {

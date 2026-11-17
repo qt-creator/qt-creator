@@ -24,13 +24,21 @@ class CPPEDITOR_EXPORT CppLocatorData : public QObject
 public:
     void filterAllFiles(IndexItem::Visitor func) const
     {
+        filterFiles([](const Utils::FilePath &) { return true; }, func);
+    }
+
+    // Visits the entries of only those files that fileFilter accepts.
+    void filterFiles(const std::function<bool(const Utils::FilePath &)> &fileFilter,
+                     IndexItem::Visitor func) const
+    {
         QMutexLocker locker(&m_pendingDocumentsMutex);
         flushPendingDocument(true);
-        QHash<Utils::FilePath, IndexItem::Ptr> infosByFile = m_infosByFile;
+        const QHash<Utils::FilePath, IndexItem::Ptr> infosByFile = m_infosByFile;
         locker.unlock();
-        for (auto i = infosByFile.constBegin(), ei = infosByFile.constEnd(); i != ei; ++i)
-            if (i.value()->visitAllChildren(func) == IndexItem::Break)
+        for (const auto &[file, entries] : infosByFile.asKeyValueRange()) {
+            if (fileFilter(file) && entries->visitAllChildren(func) == IndexItem::Break)
                 return;
+        }
     }
 
     QList<IndexItem::Ptr> findSymbols(IndexItem::ItemType type, const QString &symbolName) const;

@@ -9,6 +9,7 @@
 #include "cppindexingsupport.h"
 #include "cppindexqueries.h"
 #include "cpplocatordata.h"
+#include "cppsourceprocessor.h"
 #include "cpptoolstestcase.h"
 #include "editordocumenthandle.h"
 #include "modelmanagertesthelper.h"
@@ -2098,8 +2099,9 @@ void ModelManagerTest::testASecondSessionFindsTheSameDefinition()
     QVERIFY2(declaration, "no declaration to look for a definition of");
 
     SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
     CPlusPlus::Symbol * const definition
-        = finder.findMatchingDefinition(declaration, CppModelManager::snapshot(), false);
+        = finder.findMatchingDefinition(declaration, snapshot, false);
     QVERIFY2(definition, "the definition was not found");
     QCOMPARE(definition->filePath(), source);
 }
@@ -2491,6 +2493,347 @@ void ModelManagerTest::testReadingOnRequestFollowsTheIndexersRules()
     QCOMPARE(bool(CppModelManager::document(included, DocumentLookup::SnapshotOnly)),
              enableIndexing);
     QVERIFY(!CppModelManager::document(excluded, DocumentLookup::ReadIfNeeded));
+}
+
+void ModelManagerTest::testADefinitionInAFileTheIndexerDoesNotDeliverIsFound()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath header = projectDir / "declared.h";
+    const FilePath source = projectDir / "defined.cpp";
+    QVERIFY(header.writeFileContents("class Declared { public: void theFunction(); };\n"));
+    QVERIFY(source.writeFileContents("#include \"declared.h\"\n"
+                                     "void Declared::theFunction() {}\n"));
+
+    const auto project = helper.createProject("test_modelmanager_definition_not_delivered",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {{source, ProjectFile::CXXSource},
+                                           {header, ProjectFile::CXXHeader}});
+    helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+
+    // The index still has the definition, the snapshot no longer has its file.
+    helper.removeFromSnapshot({source});
+
+    const Document::Ptr headerDocument
+        = CppModelManager::document(header, DocumentLookup::SnapshotOnly);
+    QVERIFY(headerDocument);
+    QCOMPARE(headerDocument->globalSymbolCount(), 1);
+    CPlusPlus::Class * const klass = headerDocument->globalSymbolAt(0)->asClass();
+    QVERIFY(klass);
+    QCOMPARE(klass->memberCount(), 1);
+    CPlusPlus::Symbol * const declaration = klass->memberAt(0);
+
+    SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    CPlusPlus::Symbol * const definition
+        = finder.findMatchingDefinition(declaration, snapshot, true);
+    QVERIFY2(definition, "the definition in a file the snapshot lacks was not found");
+    QCOMPARE(definition->filePath(), source);
+
+    // The snapshot passed now has the document, which must outlive a re-read of it.
+    const QWeakPointer<CPlusPlus::Document> definedIn = snapshot.document(source);
+    QVERIFY(definedIn);
+    CppSourceProcessor processor(CPlusPlus::Snapshot(), [](const Document::Ptr &) {});
+    processor.run(source);
+    const Document::Ptr readAgain = processor.snapshot().document(source);
+    QVERIFY(readAgain);
+    readAgain->setRevision(definedIn.toStrongRef()->revision() + 1);
+    QVERIFY(CppModelManager::replaceDocument(readAgain));
+    QVERIFY2(!definedIn.isNull(),
+             "the document behind the definition went with the snapshot's copy of it");
+    QCOMPARE(definition->filePath(), source);
+}
+
+// The first function declaration in the scope, looking into namespaces and classes.
+static CPlusPlus::Symbol *firstFunctionDeclaration(const CPlusPlus::Scope *scope)
+{
+    for (int i = 0; i < scope->memberCount(); ++i) {
+        CPlusPlus::Symbol * const member = scope->memberAt(i);
+        if (member->asDeclaration() && member->type()->asFunctionType())
+            return member;
+        if (const CPlusPlus::Scope * const nested = member->asNamespace()) {
+            if (CPlusPlus::Symbol * const declaration = firstFunctionDeclaration(nested))
+                return declaration;
+        }
+        if (const CPlusPlus::Scope * const nested = member->asClass()) {
+            if (CPlusPlus::Symbol * const declaration = firstFunctionDeclaration(nested))
+                return declaration;
+        }
+    }
+    return nullptr;
+}
+
+// Indexes a project of the given header and sources, then removes the sources from the
+// snapshot, so that only the locator index still knows them. Returns the header's first
+// function declaration.
+static CPlusPlus::Symbol *declarationWithSourcesOutsideSnapshot(
+    ModelManagerTestHelper &helper, const FilePath &header, const FilePaths &sources)
+{
+    const auto project = helper.createProject("test_modelmanager_sources_outside_snapshot",
+                                              header.parentDir() / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    QList<ProjectFile> files{{header, ProjectFile::CXXHeader}};
+    for (const FilePath &source : sources)
+        files.append({source, ProjectFile::CXXSource});
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {}, files);
+    helper.updateProjectInfo(ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+    helper.removeFromSnapshot(Utils::toSet(sources));
+
+    const Document::Ptr headerDocument
+        = CppModelManager::document(header, DocumentLookup::SnapshotOnly);
+    return headerDocument ? firstFunctionDeclaration(headerDocument->globalNamespace())
+                          : nullptr;
+}
+
+void ModelManagerTest::testOnlyFilesThatCanHoldTheDefinitionAreRead_data()
+{
+    QTest::addColumn<QByteArray>("headerContents");
+    QTest::addColumn<QByteArray>("sourceContents");
+    QTest::addColumn<bool>("found");
+
+    QTest::newRow("destructor")
+        << QByteArray("class Declared { public: ~Declared(); };\n")
+        << QByteArray("#include \"declared.h\"\n"
+                      "Declared::~Declared() {}\n")
+        << true;
+    QTest::newRow("operator")
+        << QByteArray("class Declared { public: bool operator==(const Declared &) const; };\n")
+        << QByteArray("#include \"declared.h\"\n"
+                      "bool Declared::operator==(const Declared &) const { return true; }\n")
+        << true;
+    QTest::newRow("class named in a using directive")
+        << QByteArray("namespace NS { class Declared { public: void theFunction(); }; }\n")
+        << QByteArray("#include \"declared.h\"\n"
+                      "using namespace NS;\n"
+                      "void Declared::theFunction() {}\n")
+        << true;
+    QTest::newRow("member of another class")
+        << QByteArray("class Declared { public: void theFunction(); };\n")
+        << QByteArray("class Other { public: void theFunction(); };\n"
+                      "void Other::theFunction() {}\n")
+        << false;
+    QTest::newRow("member of a class instead of a free function")
+        << QByteArray("void theFunction();\n")
+        << QByteArray("class Other { public: void theFunction(); };\n"
+                      "void Other::theFunction() {}\n")
+        << false;
+    QTest::newRow("function of another namespace")
+        << QByteArray("namespace NS { void theFunction(); }\n")
+        << QByteArray("namespace Other { void theFunction() {} }\n")
+        << false;
+    QTest::newRow("function of an anonymous namespace instead of a global one")
+        << QByteArray("void theFunction();\n")
+        << QByteArray("namespace { void theFunction() {} }\n")
+        << false;
+    QTest::newRow("function of an inline namespace defined in the enclosing one")
+        << QByteArray("namespace NS { inline namespace V1 { void theFunction(); } }\n")
+        << QByteArray("#include \"declared.h\"\n"
+                      "void NS::theFunction() {}\n")
+        << true;
+}
+
+void ModelManagerTest::testOnlyFilesThatCanHoldTheDefinitionAreRead()
+{
+    QFETCH(QByteArray, headerContents);
+    QFETCH(QByteArray, sourceContents);
+    QFETCH(bool, found);
+
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath header = tmpDir.filePath() / "declared.h";
+    const FilePath source = tmpDir.filePath() / "defined.cpp";
+    QVERIFY(header.writeFileContents(headerContents));
+    QVERIFY(source.writeFileContents(sourceContents));
+
+    CPlusPlus::Symbol * const declaration
+        = declarationWithSourcesOutsideSnapshot(helper, header, {source});
+    QVERIFY(declaration);
+
+    SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    CPlusPlus::Function * const definition
+        = finder.findMatchingDefinition(declaration, snapshot, true);
+    QCOMPARE(definition ? definition->filePath() : FilePath(), found ? source : FilePath());
+    QCOMPARE(bool(CppModelManager::document(source, DocumentLookup::SnapshotOnly)), found);
+
+    // Closing the project removes from the index only what is in the snapshot.
+    QVERIFY(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+}
+
+void ModelManagerTest::testAllDefinitionsIncludeThoseInFilesTheIndexerDoesNotDeliver()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath header = tmpDir.filePath() / "declared.h";
+    const FilePath inSnapshot = tmpDir.filePath() / "defined_here.cpp";
+    const FilePath outsideSnapshot = tmpDir.filePath() / "defined_there.cpp";
+    QVERIFY(header.writeFileContents("class Declared { public: void theFunction(); };\n"));
+    const QByteArray definition = "#include \"declared.h\"\n"
+                                  "void Declared::theFunction() {}\n";
+    QVERIFY(inSnapshot.writeFileContents(definition));
+    QVERIFY(outsideSnapshot.writeFileContents(definition));
+
+    CPlusPlus::Symbol * const declaration
+        = declarationWithSourcesOutsideSnapshot(helper, header, {inSnapshot, outsideSnapshot});
+    QVERIFY(declaration);
+    QVERIFY(CppModelManager::document(inSnapshot, DocumentLookup::ReadIfNeeded));
+
+    SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    const QList<CPlusPlus::Function *> definitions
+        = finder.findMatchingDefinitions(declaration, snapshot, true, false);
+    QCOMPARE(Utils::transform<QSet>(definitions, &CPlusPlus::Symbol::filePath),
+             QSet<FilePath>({inSnapshot, outsideSnapshot}));
+}
+
+void ModelManagerTest::testACopyTakenBeforeAReadOnRequestStillFindsTheDefinition()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath header = tmpDir.filePath() / "declared.h";
+    const FilePath source = tmpDir.filePath() / "defined.cpp";
+    QVERIFY(header.writeFileContents("class Declared { public: void theFunction(); };\n"));
+    QVERIFY(source.writeFileContents("#include \"declared.h\"\n"
+                                     "void Declared::theFunction() {}\n"));
+
+    CPlusPlus::Symbol * const declaration
+        = declarationWithSourcesOutsideSnapshot(helper, header, {source});
+    QVERIFY(declaration);
+
+    // As when a caller copies its snapshot for each of several searches.
+    CPlusPlus::Snapshot first = CppModelManager::snapshot();
+    CPlusPlus::Snapshot second = first;
+    SymbolFinder finder;
+    CPlusPlus::Function *definition = finder.findMatchingDefinition(declaration, first, true);
+    QCOMPARE(definition ? definition->filePath() : FilePath(), source);
+    QVERIFY(CppModelManager::document(source, DocumentLookup::SnapshotOnly));
+    definition = finder.findMatchingDefinition(declaration, second, true);
+    QCOMPARE(definition ? definition->filePath() : FilePath(), source);
+}
+
+void ModelManagerTest::testTheClosestDefinitionOutsideTheSnapshotIsFound()
+{
+    ModelManagerTestHelper helper;
+
+    // Defined alike in each directory, as by several applications with a class of the
+    // same name.
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath header = tmpDir.filePath() / "near" / "declared.h";
+    QVERIFY(header.parentDir().ensureWritableDir());
+    QVERIFY(header.writeFileContents("class Declared { public: void theFunction(); };\n"));
+    const FilePath nearSource = header.parentDir() / "defined.cpp";
+    FilePaths sources{nearSource};
+    for (int i = 0; i < 8; ++i)
+        sources.append(tmpDir.filePath() / QString("far%1").arg(i) / "defined.cpp");
+    for (const FilePath &source : std::as_const(sources)) {
+        QVERIFY(source.parentDir().ensureWritableDir());
+        QVERIFY(source.writeFileContents("#include \"" + header.path().toUtf8() + "\"\n"
+                                         "void Declared::theFunction() {}\n"));
+    }
+
+    CPlusPlus::Symbol * const declaration
+        = declarationWithSourcesOutsideSnapshot(helper, header, sources);
+    QVERIFY(declaration);
+
+    SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    CPlusPlus::Function * const definition
+        = finder.findMatchingDefinition(declaration, snapshot, true);
+    QCOMPARE(definition ? definition->filePath() : FilePath(), nearSource);
+
+    // Closing the project removes from the index only what is in the snapshot.
+    for (const FilePath &source : std::as_const(sources))
+        QVERIFY(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+}
+
+void ModelManagerTest::testASourceThatLeftTheSnapshotIsStillSearched()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath header = tmpDir.filePath() / "declared.h";
+    const FilePath source = tmpDir.filePath() / "defined.cpp";
+    QVERIFY(header.writeFileContents("class Declared { public: void theFunction(); };\n"));
+    QVERIFY(source.writeFileContents("#include \"declared.h\"\n"
+                                     "void Declared::theFunction() {}\n"));
+
+    CPlusPlus::Symbol * const declaration
+        = declarationWithSourcesOutsideSnapshot(helper, header, {source});
+    QVERIFY(declaration);
+
+    // The finder remembers the files of a first search, among them the source.
+    QVERIFY(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+    SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    CPlusPlus::Function *definition = finder.findMatchingDefinition(declaration, snapshot, true);
+    QCOMPARE(definition ? definition->filePath() : FilePath(), source);
+
+    helper.removeFromSnapshot({source});
+    snapshot = CppModelManager::snapshot();
+    definition = finder.findMatchingDefinition(declaration, snapshot, true);
+    QCOMPARE(definition ? definition->filePath() : FilePath(), source);
+}
+
+static int softAssertCount = 0;
+static QtMessageHandler previousMessageHandler = nullptr;
+
+static void countSoftAsserts(
+    QtMsgType type, const QMessageLogContext &context, const QString &message)
+{
+    if (message.contains("SOFT ASSERT"))
+        ++softAssertCount;
+    if (previousMessageHandler)
+        previousMessageHandler(type, context, message);
+}
+
+void ModelManagerTest::testAFileThatCannotBeReadOnRequestIsSkipped()
+{
+    ModelManagerTestHelper helper;
+
+    // The indexer reads the unlisted header as an include, reading on request does not.
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath header = tmpDir.filePath() / "declared.h";
+    const FilePath unlisted = tmpDir.filePath() / "unlisted.h";
+    const FilePath source = tmpDir.filePath() / "main.cpp";
+    QVERIFY(header.writeFileContents("class Declared { public: void theFunction(); };\n"));
+    QVERIFY(unlisted.writeFileContents("#include \"declared.h\"\n"
+                                       "inline void Declared::theFunction() {}\n"));
+    QVERIFY(source.writeFileContents("#include \"unlisted.h\"\n"));
+
+    CPlusPlus::Symbol * const declaration
+        = declarationWithSourcesOutsideSnapshot(helper, header, {source});
+    QVERIFY(declaration);
+    helper.removeFromSnapshot({unlisted});
+    QVERIFY(!CppModelManager::document(unlisted, DocumentLookup::ReadIfNeeded));
+
+    softAssertCount = 0;
+    previousMessageHandler = qInstallMessageHandler(countSoftAsserts);
+    const QScopeGuard restoreMessageHandler(
+        [] { qInstallMessageHandler(previousMessageHandler); });
+    SymbolFinder finder;
+    CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
+    QVERIFY(!finder.findMatchingDefinition(declaration, snapshot, true));
+    QCOMPARE(softAssertCount, 0);
+
+    // Closing the project removes from the index only what is in the snapshot.
+    QVERIFY(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+    QVERIFY(CppModelManager::document(unlisted, DocumentLookup::SnapshotOnly));
 }
 
 } // CppEditor::Internal

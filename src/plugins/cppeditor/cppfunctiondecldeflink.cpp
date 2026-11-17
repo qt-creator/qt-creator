@@ -116,7 +116,7 @@ static DeclaratorIdAST *getDeclaratorId(DeclaratorAST *declarator)
 static std::shared_ptr<FunctionDeclDefLink> findLinkHelper(std::shared_ptr<FunctionDeclDefLink> link, CppRefactoringChanges changes)
 {
     std::shared_ptr<FunctionDeclDefLink> noResult;
-    const Snapshot &snapshot = changes.snapshot();
+    Snapshot snapshot = changes.snapshot();
 
     // find the matching decl/def symbol
     Symbol *target = nullptr;

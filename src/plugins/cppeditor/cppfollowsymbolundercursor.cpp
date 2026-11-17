@@ -425,7 +425,7 @@ Link attemptDeclDef(const QTextCursor &cursor, Snapshot snapshot,
     return result;
 }
 
-Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *symbolFinder)
+Symbol *findDefinition(Symbol *symbol, Snapshot &snapshot, SymbolFinder *symbolFinder)
 {
     if (symbol->asFunction())
         return nullptr; // symbol is a function definition.
@@ -919,8 +919,9 @@ void FollowSymbolUnderCursor::findParentImpl(
                     && func->type() && func->type()->match(funcDecl->type().type())) {
 
                     // Prefer implementation.
+                    Snapshot lookupSnapshot = snapshot;
                     if (const Function * const def
-                        = symbolFinder->findMatchingDefinition(func, snapshot, true)) {
+                        = symbolFinder->findMatchingDefinition(func, lookupSnapshot, true)) {
                         return processLinkCallback(def->toLink());
                     }
                     return processLinkCallback(func->toLink());
@@ -949,8 +950,11 @@ void FollowSymbolUnderCursor::switchDeclDef(
 
     Utils::Link symbolLink;
     if (decls.funcDecl) {
-        if (Symbol *symbol = symbolFinder->findMatchingDefinition(decls.funcDecl, snapshot, false))
+        Snapshot lookupSnapshot = snapshot;
+        if (Symbol *symbol
+            = symbolFinder->findMatchingDefinition(decls.funcDecl, lookupSnapshot, false)) {
             symbolLink = symbol->toLink();
+        }
     } else if (decls.decl) {
         if (Symbol *symbol = symbolFinder->findMatchingVarDefinition(decls.decl, snapshot))
             symbolLink = symbol->toLink();

@@ -478,7 +478,7 @@ QVariant QtTestTreeItem::linkForTreeItem() const
 {
     QVariant itemLink;
     using namespace CPlusPlus;
-    const Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
     const Document::Ptr doc = snapshot.document(filePath());
     Symbol *symbol = doc->lastVisibleSymbolAt(line(), this->column() + 1);
     if (auto decl = symbol->asDeclaration()) {

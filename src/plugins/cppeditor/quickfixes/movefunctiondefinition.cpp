@@ -297,7 +297,8 @@ public:
         , m_fromFilePath(fromFilePath)
         , m_toFilePath(toFilePath)
         , m_funcAST(funcAst)
-        , m_func(func)
+        , m_funcLine(func ? func->line() : 0)
+        , m_funcColumn(func ? func->column() : 0)
         , m_declarationText(declText)
         , m_fromRange(fromRange)
         , m_toRange(toRange)
@@ -349,9 +350,8 @@ private:
             QTC_CHECK(m_fromRange.end > m_fromRange.start);
             return;
         }
-        QTC_ASSERT(m_func, return);
-        const QList<AST *> astPath = ASTPath(defFile.cppDocument())(m_func->line(),
-                                                                    m_func->column());
+        QTC_ASSERT(m_funcLine > 0, return);
+        const QList<AST *> astPath = ASTPath(defFile.cppDocument())(m_funcLine, m_funcColumn);
         if (astPath.isEmpty())
             return;
         for (auto it = std::rbegin(astPath); it != std::rend(astPath); ++it) {
@@ -372,7 +372,8 @@ private:
     const FilePath m_fromFilePath;
     const FilePath m_toFilePath;
     FunctionDefinitionAST *m_funcAST;
-    Function *m_func;
+    const int m_funcLine;
+    const int m_funcColumn;
     const QString m_declarationText;
     ChangeSet::Range m_fromRange;
     const ChangeSet::Range m_toRange;
@@ -640,8 +641,9 @@ private:
                 = declProject ? declProject->productNodeForFilePath(funcDecl->filePath()) : nullptr;
 
             SymbolFinder symbolFinder;
+            Snapshot lookupSnapshot = interface.snapshot();
             const QList<Function *> defs
-                = symbolFinder.findMatchingDefinitions(decl, interface.snapshot(), true, false);
+                = symbolFinder.findMatchingDefinitions(decl, lookupSnapshot, true, false);
             Function *funcDef = nullptr;
             for (Function * const f : defs) {
                 Project * const defProject = ProjectManager::projectForFile(f->filePath());

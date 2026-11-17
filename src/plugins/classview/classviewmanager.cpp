@@ -397,7 +397,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
 
     // The Class View knows only declaration locations. If the symbol at the
     // location is a function, prefer jumping to its definition (implementation).
-    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+    CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
     if (const CPlusPlus::Document::Ptr doc = snapshot.document(location.filePath())) {
         CPlusPlus::Symbol *symbol = doc->lastVisibleSymbolAt(location.line(), location.column());
         CPlusPlus::Symbol *def = nullptr;

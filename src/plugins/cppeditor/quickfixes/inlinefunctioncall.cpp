@@ -87,6 +87,9 @@ struct RawParameterReference
 
 struct CalleeInfo
 {
+    // The snapshot that the symbols below belong to; it can hold documents that the
+    // interface's snapshot lacks.
+    Snapshot snapshot;
     // The declaration symbol is needed for checks on virtualness, template-ness etc.
     Function *declarationSymbol = nullptr;
     Function *definitionSymbol = nullptr;
@@ -468,6 +471,7 @@ std::optional<CalleeInfo> resolveCallee(const CppQuickFixInterface &interface, C
     CppRefactoringChanges changes(interface.snapshot());
     QSet<Function *> definitions;
     CalleeInfo result;
+    result.snapshot = interface.snapshot();
 
     for (const LookupItem &item : items) {
         Symbol * const decl = item.declaration();
@@ -491,7 +495,7 @@ std::optional<CalleeInfo> resolveCallee(const CppQuickFixInterface &interface, C
         CppRefactoringFilePtr defFile = candidateFile;
         if (!defAst) {
             Function * const found
-                = SymbolFinder().findMatchingDefinition(candidateSymbol, interface.snapshot(), true);
+                = SymbolFinder().findMatchingDefinition(candidateSymbol, result.snapshot, true);
             if (!found)
                 continue;
             defFile = found->filePath() == file->filePath() ? file
