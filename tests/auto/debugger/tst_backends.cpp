@@ -65,6 +65,9 @@ static Q_LOGGING_CATEGORY(engineLog, "qtc.dbg.tst_backends", QtWarningMsg)
 static constexpr std::chrono::seconds s_timeout{5};
 static constexpr std::chrono::seconds s_warmUpTimeout{30};
 static constexpr std::chrono::seconds s_qmlStartupTimeout{15};
+// lldb loads the symbols of every library the inferior links before it is
+// ready, which takes about 7 s on a fully loaded macOS host.
+static constexpr std::chrono::seconds s_lldbStartupTimeout{15};
 // Running a full Qt Quick process under a native debugger to its first C++
 // breakpoint includes loading the debug info of the whole Qt Quick stack.
 static constexpr std::chrono::seconds s_nativeQmlStartupTimeout{60};
@@ -185,7 +188,11 @@ enum class Backend {
 // The Qml runtime takes longer to come up than a debugger does.
 static std::chrono::seconds startupTimeout(Backend backend)
 {
-    return backend == Backend::Qml ? s_qmlStartupTimeout : s_timeout;
+    if (backend == Backend::Qml)
+        return s_qmlStartupTimeout;
+    if (backend == Backend::Lldb)
+        return s_lldbStartupTimeout;
+    return s_timeout;
 }
 
 Q_DECLARE_METATYPE(Backend)
@@ -6372,18 +6379,19 @@ exec "$@"
     // from this process as well.
     const QByteArray originalPath = qgetenv("PATH");
     qputenv("PATH", (stubDir.nativePath() + ":" + QString::fromLocal8Bit(originalPath)).toLocal8Bit());
+    const QScopeGuard restorePath = qScopeGuard([originalPath] { qputenv("PATH", originalPath); });
 
     const QString user = "qtc-test-user";
     std::unique_ptr<DebuggerBackend> debuggerBackend
         = createEngineRunningAsUser(backend, user, debuggerEnvironment);
-    if (!debuggerBackend) {
-        qputenv("PATH", originalPath);
+    if (!debuggerBackend)
         QSKIP("This backend's start data carries no user to run as.");
-    }
 
     debuggerBackend->engine()->start();
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
-                              "the debugger never came up through the wrapper", s_timeout);
+                              qPrintable("the debugger never came up through the wrapper. "
+                                         + debuggerBackend->lastMessages()),
+                              startupTimeout(backend));
 
     const QString firstCall = QString::fromUtf8(log.fileContents().value_or(QByteArray()));
     QVERIFY2(firstCall.contains("-u " + user),
@@ -6394,21 +6402,26 @@ exec "$@"
     // An interrupt needs something to interrupt: a backend that reports the
     // setup before the inferior is going has nothing to signal yet.
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
-                              "the inferior never started running", s_timeout);
+                              qPrintable("the inferior never started running. "
+                                         + debuggerBackend->lastMessages()),
+                              startupTimeout(backend));
 
     // Interrupting has to take the same route, or the signal is refused.
     debuggerBackend->clearEvents();
     debuggerBackend->execute({ExecutionCommand::Interrupt});
-    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk),
-                              "the inferior never stopped", s_timeout);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopOk)
+                                  || debuggerBackend->contains(InferiorEvent::StopFailed),
+                              qPrintable("the inferior never stopped. "
+                                         + debuggerBackend->lastMessages()),
+                              s_timeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::StopOk),
+             qPrintable("the interrupt was refused. " + debuggerBackend->lastMessages()));
     if (interruptsThroughAWrapper(backend)) {
         const QString afterInterrupt
             = QString::fromUtf8(log.fileContents().value_or(QByteArray()));
         QVERIFY2(afterInterrupt.contains("kill -s SIGINT"),
                  qPrintable("the interrupt did not go through the wrapper: " + afterInterrupt));
     }
-
-    qputenv("PATH", originalPath);
 }
 
 void tst_backends::reportsAnInterruptTheWrapperRefuses()
@@ -6453,13 +6466,12 @@ exec "$@"
     debuggerEnvironment.prependOrSetPath(stubDir);
     const QByteArray originalPath = qgetenv("PATH");
     qputenv("PATH", (stubDir.nativePath() + ":" + QString::fromLocal8Bit(originalPath)).toLocal8Bit());
+    const QScopeGuard restorePath = qScopeGuard([originalPath] { qputenv("PATH", originalPath); });
 
     std::unique_ptr<DebuggerBackend> debuggerBackend
         = createEngineRunningAsUser(backend, "qtc-test-user", debuggerEnvironment);
-    if (!debuggerBackend) {
-        qputenv("PATH", originalPath);
+    if (!debuggerBackend)
         QSKIP("This backend's start data carries no user to run as.");
-    }
 
     debuggerBackend->engine()->start();
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupOk),
@@ -6472,8 +6484,6 @@ exec "$@"
     QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::StopFailed),
                               "an interrupt the wrapper refused was never reported as failed",
                               s_timeout);
-
-    qputenv("PATH", originalPath);
 }
 
 void tst_backends::runsAUserStartScriptAtStartup()
