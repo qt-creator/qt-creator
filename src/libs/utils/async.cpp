@@ -10,6 +10,20 @@
 #include <QElapsedTimer>
 
 #include <emscripten.h>
+
+// Resumes through a message rather than a timer, which emscripten_sleep() would use: a
+// browser may limit a frame's timers to one a second, also while the frame is shown, and
+// a computation that yields every few milliseconds then takes a hundred times as long.
+EM_ASYNC_JS(void, qtcYieldToBrowser, (), {
+    await new Promise(resolve => {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = () => {
+            channel.port1.close();
+            resolve();
+        };
+        channel.port2.postMessage(null);
+    });
+});
 #endif
 
 namespace Utils {
@@ -49,7 +63,7 @@ void asyncYield()
         return;
 
     suspended = true;
-    emscripten_sleep(0);
+    qtcYieldToBrowser();
     suspended = false;
     sinceLastYield.restart();
 }
