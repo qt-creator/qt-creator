@@ -796,6 +796,11 @@ ChatPanel::ChatPanel(QWidget *parent)
     m_inputInfoTimer->setSingleShot(true);
     connect(m_inputInfoTimer, &QTimer::timeout, m_inputInfoLabel, &QWidget::hide);
 
+    m_backgroundWorkLabel = new InfoLabel({}, InfoLabelType::Information);
+    m_backgroundWorkLabel->setObjectName("backgroundWork");
+    m_backgroundWorkLabel->hide();
+
+    inputOuterLayout->addWidget(m_backgroundWorkLabel);
     inputOuterLayout->addWidget(m_inputInfoLabel);
     inputOuterLayout->addWidget(m_textContextEditor);
     inputOuterLayout->addWidget(inputContainer);
@@ -803,6 +808,10 @@ ChatPanel::ChatPanel(QWidget *parent)
 
     // --- Connections ---
     connect(m_inputEdit, &ChatInputEdit::imagePasted, this, &ChatPanel::addImageContext);
+    connect(m_messageView, &AcpMessageView::toolCallCancelRequested,
+            this, &ChatPanel::toolCallCancelRequested);
+    connect(m_messageView, &AcpMessageView::terminalCancelRequested,
+            this, &ChatPanel::terminalCancelRequested);
 
     connect(m_inputEdit, &ChatInputEdit::sendRequested, this, [this] {
         const QString text = m_inputEdit->toPlainText().trimmed();
@@ -1254,6 +1263,7 @@ void ChatPanel::resizeEvent(QResizeEvent *event)
 void ChatPanel::clear()
 {
     m_messageView->clear();
+    m_backgroundWorkLabel->hide();
     m_messageView->setLiveUsage(std::nullopt);
     m_usage.reset();
     m_usageAtPromptStart.reset();
@@ -1320,6 +1330,34 @@ void ChatPanel::addPlan(const PlanUpdate &plan)
 void ChatPanel::addErrorMessage(const QString &text)
 {
     m_messageView->addErrorMessage(text);
+}
+
+void ChatPanel::addNotice(const Notice &notice)
+{
+    m_messageView->addNotice(notice);
+}
+
+void ChatPanel::addStopReason(const QString &stopReason)
+{
+    m_messageView->addStopReason(stopReason);
+}
+
+void ChatPanel::updateCompaction(const CompactionUpdate &update)
+{
+    m_messageView->updateCompaction(update);
+}
+
+void ChatPanel::appendCompactionSummary(const CompactionSummaryChunk &chunk)
+{
+    m_messageView->appendCompactionSummary(chunk);
+}
+
+void ChatPanel::setBackgroundWork(const QList<BackgroundWork> &work)
+{
+    m_messageView->setBackgroundWork(work);
+    m_backgroundWorkLabel->setText(
+        Tr::tr("%n task(s) running in the background.", nullptr, int(work.size())));
+    m_backgroundWorkLabel->setVisible(!work.isEmpty());
 }
 
 void ChatPanel::finishAgentMessage()

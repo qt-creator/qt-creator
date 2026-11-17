@@ -7,6 +7,8 @@
 
 #include <acp/acpv2.h>
 
+#include <utils/infolabel.h>
+
 #include <QHash>
 #include <QJsonValue>
 #include <QList>
@@ -30,6 +32,7 @@ namespace AcpClient::Internal {
 
 class AgentMessageWidget;
 class AuthenticationWidget;
+class CompactionWidget;
 class ElicitationWidget;
 class SessionPickerWidget;
 class TerminalDisplayWidget;
@@ -72,6 +75,12 @@ public:
     void addPlan(const Acp::V2::PlanUpdate &plan);
     void addStatusMessage(const QString &text);
     void addErrorMessage(const QString &text);
+    void addNotice(const Acp::V2::Notice &notice);
+    void addStopReason(const QString &stopReason);
+    void updateCompaction(const Acp::V2::CompactionUpdate &update);
+    void appendCompactionSummary(const Acp::V2::CompactionSummaryChunk &chunk);
+    // The complete set of work the agent runs in the background.
+    void setBackgroundWork(const QList<Acp::V2::BackgroundWork> &work);
     void finishAgentMessage();
 
     void addPermissionRequest(const QJsonValue &id,
@@ -100,6 +109,8 @@ signals:
     void elicitationDeclined(const QJsonValue &id);
     void elicitationCancelled(const QJsonValue &id);
     void authenticateRequested(const QString &methodId);
+    void toolCallCancelRequested(const QString &toolCallId);
+    void terminalCancelRequested(const QString &terminalId);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -112,6 +123,11 @@ private:
     ToolCallGroupWidget *ensureToolCallGroup();
     void finishToolCallGroup();
     TerminalDisplayWidget *ensureTerminalWidget(const QString &terminalId);
+    ToolCallDetailWidget *createToolCallDetail(const Acp::V2::ToolCallUpdate &toolCall,
+                                               ToolCallGroupWidget *group);
+    CompactionWidget *ensureCompactionWidget(const QString &compactionId);
+    void addInfoMessage(const QString &html, Utils::InfoLabelType type,
+                        const QString &objectName);
     void embedTerminals(ToolCallDetailWidget *detail, const Acp::V2::ToolCallUpdate &update);
     void addWidget(QWidget *widget);
     int contentMaxWidth() const;
@@ -140,6 +156,9 @@ private:
     QHash<QString, ToolCallGroupWidget *> m_toolCallGroups; // toolCallId -> owning group
     QHash<QString, TerminalDisplayWidget *> m_terminalWidgets;
     QList<TerminalDisplayWidget *> m_unplacedTerminals;
+    QHash<QString, CompactionWidget *> m_compactionWidgets;
+    QSet<QString> m_backgroundToolCalls;
+    QHash<QString, QString> m_terminalToolCalls; // terminalId -> toolCallId showing it
     QHash<QString, UserMessageWidget *> m_userMessages;
     UserMessageWidget *m_sentUserMessage = nullptr;
     QSet<QString> m_sentMessageIds;

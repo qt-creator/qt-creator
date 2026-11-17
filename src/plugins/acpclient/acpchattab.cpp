@@ -425,6 +425,10 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->clearImageContexts();
     });
     connect(m_chatPanel, &ChatPanel::cancelRequested, m_controller, &AcpChatController::cancelPrompt);
+    connect(m_chatPanel, &ChatPanel::toolCallCancelRequested,
+            m_controller, &AcpChatController::cancelToolCall);
+    connect(m_chatPanel, &ChatPanel::terminalCancelRequested,
+            m_controller, &AcpChatController::cancelTerminal);
     connect(m_chatPanel, &ChatPanel::configOptionChanged,
             m_controller, &AcpChatController::setConfigOption);
     connect(m_chatPanel, &ChatPanel::inspectRequested,
@@ -593,6 +597,30 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         } else if (kind == QLatin1String("usage_update")) {
             if (const auto *uu = update.get<UsageUpdate>())
                 m_chatPanel->setUsage(*uu);
+        } else if (kind == QLatin1String("notice")) {
+            if (const auto *notice = update.get<Notice>())
+                m_chatPanel->addNotice(*notice);
+        } else if (kind == QLatin1String("compaction_update")) {
+            if (const auto *compaction = update.get<CompactionUpdate>())
+                m_chatPanel->updateCompaction(*compaction);
+        } else if (kind == QLatin1String("compaction_summary_chunk")) {
+            if (const auto *chunk = update.get<CompactionSummaryChunk>())
+                m_chatPanel->appendCompactionSummary(*chunk);
+        } else if (kind == QLatin1String("state_update")) {
+            // An omitted or null list means the agent does not report
+            // background work, not that none is running.
+            if (const auto *state = update.get<StateUpdate>()) {
+                const Patch<QList<BackgroundWork>> background = std::visit(
+                    [](const auto &s) -> Patch<QList<BackgroundWork>> {
+                        if constexpr (std::is_same_v<std::decay_t<decltype(s)>, QJsonObject>)
+                            return {};
+                        else
+                            return s.background();
+                    },
+                    *state);
+                if (background.has_value())
+                    m_chatPanel->setBackgroundWork(*background);
+            }
         }
     });
     connect(m_controller, &AcpChatController::permissionRequested,
@@ -647,9 +675,12 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         }
     });
 
-    connect(m_controller, &AcpChatController::promptFinished, this, [this] {
+    connect(m_controller, &AcpChatController::promptFinished,
+            this, [this](const std::optional<QString> &stopReason) {
         m_chatPanel->setPrompting(false);
         m_chatPanel->finishAgentMessage();
+        if (stopReason)
+            m_chatPanel->addStopReason(*stopReason);
     });
 
     connect(m_chatPanel, &ChatPanel::activityChanged, this, &AcpChatTab::updateActivity);

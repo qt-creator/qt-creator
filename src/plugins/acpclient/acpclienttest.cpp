@@ -650,6 +650,11 @@ private slots:
     void testChatPanelSelectButtonElide();
     void testMessageViewRunningToolTitleClamp();
     void testMessageViewTerminalInToolCall();
+    void testMessageViewNotice();
+    void testMessageViewCompaction();
+    void testMessageViewBackgroundToolCall();
+    void testChatPanelBackgroundWork();
+    void testMessageViewCancelButtons();
 
     // Tier 5: terms and conditions, chat widget
     void testTermsWidget();
@@ -5805,6 +5810,189 @@ void AcpClientTest::testV2AvailableCommandsOnNewSession()
     const auto *command = std::get_if<V2::Command>(&fixture.availableCommands.first());
     QVERIFY(command);
     QCOMPARE(command->name(), "review");
+}
+
+// --- Tier 4b: presentation of ACP v2 additions --------------------------------
+
+void AcpClientTest::testMessageViewNotice()
+{
+    AcpMessageView view;
+    view.addNotice(V2::Notice()
+                       .severity(V2::NoticeSeverity::warning)
+                       .title("Rate limited")
+                       .description("Retrying <soon>."));
+    const QList<QWidget *> notices = view.findChildren<QWidget *>("notice");
+    QCOMPARE(notices.size(), 1);
+    const auto *label = static_cast<const Utils::InfoLabel *>(
+        notices.first()->findChild<QLabel *>());
+    QVERIFY(label);
+    QCOMPARE(label->type(), Utils::InfoLabelType::Warning);
+    QVERIFY(label->text().contains("Rate limited"));
+    QVERIFY(label->text().contains("Retrying &lt;soon&gt;."));
+}
+
+void AcpClientTest::testMessageViewCompaction()
+{
+    AcpMessageView view;
+    const auto title = [&view] {
+        const QWidget *compaction = view.findChild<QWidget *>("compaction");
+        return compaction ? compaction->findChild<Utils::ElidingLabel *>()->text() : QString();
+    };
+    const auto summary = [&view] {
+        return view.findChild<QWidget *>("compaction")
+            ->findChild<Utils::MarkdownBrowser *>()->toPlainText();
+    };
+
+    view.appendCompactionSummary(V2::CompactionSummaryChunk()
+                                     .compactionId("c-1")
+                                     .content(V2::TextContent().text("Part one. ")));
+    view.appendCompactionSummary(V2::CompactionSummaryChunk()
+                                     .compactionId("c-1")
+                                     .content(V2::TextContent().text("Part two.")));
+    QCOMPARE(view.findChildren<QWidget *>("compaction").size(), 1);
+    QCOMPARE(title(), "Compacting context...");
+    QCOMPARE(summary(), "Part one. Part two.");
+
+    // An omitted summary leaves it alone.
+    view.updateCompaction(V2::CompactionUpdate()
+                              .compactionId("c-1")
+                              .status(V2::CompactionStatus::completed));
+    QCOMPARE(title(), "Context compacted");
+    QCOMPARE(summary(), "Part one. Part two.");
+
+    view.updateCompaction(V2::CompactionUpdate()
+                              .compactionId("c-1")
+                              .status(V2::CompactionStatus::failed)
+                              .error(QString("No space"))
+                              .summary(std::nullopt));
+    QCOMPARE(title(), "Context compaction failed: No space");
+    QCOMPARE(summary(), QString());
+    QCOMPARE(view.findChildren<QWidget *>("compaction").size(), 1);
+
+    // An omitted error leaves it alone.
+    view.updateCompaction(V2::CompactionUpdate()
+                              .compactionId("c-1")
+                              .status(V2::CompactionStatus::failed)
+                              .summary({V2::TextContent().text("Late summary.")}));
+    QCOMPARE(title(), "Context compaction failed: No space");
+    QCOMPARE(summary(), "Late summary.");
+
+    view.updateCompaction(V2::CompactionUpdate()
+                              .compactionId("c-1")
+                              .status(V2::CompactionStatus::failed)
+                              .error(std::nullopt));
+    QCOMPARE(title(), "Context compaction failed");
+}
+
+// The end of a turn fails tool calls that are still running, unless the agent
+// reports them as running in the background.
+void AcpClientTest::testMessageViewBackgroundToolCall()
+{
+    AcpMessageView view;
+    view.setPrompting(true);
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("foreground")
+                            .status(V2::ToolCallStatus::in_progress));
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("background")
+                            .status(V2::ToolCallStatus::in_progress));
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("paused")
+                            .name("wait_for_input")
+                            .status(V2::ToolCallStatus::paused));
+    // Process-backed work is listed as its terminal, not as the tool call
+    // that shows it.
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("shell")
+                            .status(V2::ToolCallStatus::in_progress)
+                            .content({V2::Terminal().terminalId("term-bg")}));
+    view.setBackgroundWork({V2::BackgroundToolCall().toolCallId("background"),
+                            V2::BackgroundTerminal().terminalId("term-bg")});
+    view.setPrompting(false);
+
+    const QList<ToolCallDetailWidget *> details = view.findChildren<ToolCallDetailWidget *>();
+    QCOMPARE(details.size(), 4);
+    QVERIFY(details.at(0)->status() == V2::ToolCallStatus::failed);
+    QVERIFY(details.at(1)->status() == V2::ToolCallStatus::in_progress);
+    QVERIFY(details.at(2)->status() == V2::ToolCallStatus::paused);
+    QVERIFY(details.at(3)->status() == V2::ToolCallStatus::in_progress);
+    // A tool call without a title is named after its tool.
+    QCOMPARE(details.at(2)->findChild<Utils::ElidingLabel *>()->text(), "wait_for_input");
+}
+
+void AcpClientTest::testChatPanelBackgroundWork()
+{
+    ChatPanel panel;
+    auto *label = panel.findChild<QWidget *>("backgroundWork");
+    QVERIFY(label);
+    QVERIFY(!label->isVisibleTo(&panel));
+    panel.setBackgroundWork({V2::BackgroundToolCall().toolCallId("tool-1"),
+                             V2::BackgroundTerminal().terminalId("term-1")});
+    QVERIFY(label->isVisibleTo(&panel));
+    panel.setBackgroundWork({});
+    QVERIFY(!label->isVisibleTo(&panel));
+}
+
+void AcpClientTest::testMessageViewCancelButtons()
+{
+    AcpMessageView view;
+    QSignalSpy toolCallSpy(&view, &AcpMessageView::toolCallCancelRequested);
+    QSignalSpy terminalSpy(&view, &AcpMessageView::terminalCancelRequested);
+
+    view.updateToolCall(V2::ToolCallUpdate().toolCallId("plain").title("Plain").name("read_file"));
+    view.updateToolCall(
+        V2::ToolCallUpdate()
+            .toolCallId("cancellable")
+            .title("Cancellable")
+            .capabilities(V2::ToolCallCapabilities().cancel(V2::ToolCallCancelCapabilities())));
+    const QList<ToolCallDetailWidget *> details = view.findChildren<ToolCallDetailWidget *>();
+    QCOMPARE(details.size(), 2);
+    // The label sets its tool tip when it paints.
+    auto *plainTitle = details.at(0)->findChild<Utils::ElidingLabel *>();
+    plainTitle->grab();
+    QVERIFY2(plainTitle->toolTip().contains("read_file"), qPrintable(plainTitle->toolTip()));
+    QVERIFY(!buttonWithText(details.at(0), "Cancel")->isVisibleTo(details.at(0)));
+    QAbstractButton *cancel = buttonWithText(details.at(1), "Cancel");
+    QVERIFY(cancel->isVisibleTo(details.at(1)));
+
+    cancel->click();
+    QCOMPARE(toolCallSpy.size(), 1);
+    QCOMPARE(toolCallSpy.first().first().toString(), "cancellable");
+    QVERIFY(!cancel->isVisibleTo(details.at(1)));
+
+    view.updateToolCall(V2::ToolCallUpdate()
+                            .toolCallId("cancellable")
+                            .status(V2::ToolCallStatus::cancelled)
+                            .capabilities(std::nullopt));
+    QVERIFY(!cancel->isVisibleTo(details.at(1)));
+
+    view.updateTerminal(
+        V2::TerminalUpdate()
+            .terminalId("term-1")
+            .command("sleep")
+            .size(V2::TerminalSize().cols(80).rows(24))
+            .capabilities(V2::TerminalCapabilities().cancel(V2::TerminalCancelCapabilities())));
+    view.placeUnreferencedTerminals();
+    QWidget *terminal = view.findChild<QWidget *>("terminal");
+    QVERIFY(terminal);
+    auto *terminalTitle = terminal->findChild<Utils::ElidingLabel *>();
+    terminalTitle->grab();
+    QVERIFY2(terminalTitle->toolTip().contains("80 columns, 24 rows"),
+             qPrintable(terminalTitle->toolTip()));
+    QAbstractButton *terminalCancel = buttonWithText(terminal, "Cancel");
+    QVERIFY(terminalCancel->isVisibleTo(terminal));
+    terminalCancel->click();
+    QCOMPARE(terminalSpy.size(), 1);
+    QCOMPARE(terminalSpy.first().first().toString(), "term-1");
+    QVERIFY(!terminalCancel->isVisibleTo(terminal));
+
+    view.updateTerminal(V2::TerminalUpdate().terminalId("term-1").exitStatus(
+        V2::TerminalExitStatus().exitCode(130)));
+    view.updateTerminal(
+        V2::TerminalUpdate()
+            .terminalId("term-1")
+            .capabilities(V2::TerminalCapabilities().cancel(V2::TerminalCancelCapabilities())));
+    QVERIFY(!terminalCancel->isVisibleTo(terminal));
 }
 
 QObject *createAcpClientTest()

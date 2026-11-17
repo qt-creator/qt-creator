@@ -45,6 +45,7 @@ public:
 signals:
     void permissionOptionSelected(const QString &optionId);
     void permissionCancelled();
+    void cancelRequested();
 
 protected:
     void paintEvent(QPaintEvent *e) override;
@@ -56,6 +57,7 @@ private:
     void addLocations(const QList<Acp::V2::ToolCallLocation> &locations);
     void addRawInputContent(const QJsonValue &rawInput);
     void addBodyWidget(QWidget *widget);
+    void updateCancelButton();
 
     QWidget *m_statusWidget = nullptr;
     Utils::ElidingLabel *m_titleLabel = nullptr;
@@ -64,6 +66,11 @@ private:
     Utils::MarkdownBrowser *m_rawInputContent = nullptr;
     Acp::V2::ToolCallStatus m_status = Acp::V2::ToolCallStatus::in_progress;
     int m_contentMaxWidth = -1;
+    bool m_hasTitle = false;
+
+    QAbstractButton *m_cancelButton = nullptr;
+    bool m_cancellable = false;
+    bool m_cancelRequested = false;
 
     QWidget *m_permissionRow = nullptr;
     QLabel *m_permissionStatusLabel = nullptr;

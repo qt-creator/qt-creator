@@ -51,6 +51,7 @@ QWidget *toolCallStatusWidget(ToolCallStatus status, QWidget *parent)
     case ToolCallStatus::completed: icon = Utils::Icons::OK; break;
     case ToolCallStatus::failed:    icon = Utils::Icons::CRITICAL; break;
     case ToolCallStatus::cancelled: icon = Utils::Icons::STOP_SMALL; break;
+    case ToolCallStatus::paused:    icon = Utils::Icons::INTERRUPT_SMALL; break;
     default: break;
     }
     auto *display = new Utils::QtcIconDisplay(parent);
@@ -95,6 +96,7 @@ static Utils::Theme::Color toolCallBorderColor(ToolCallStatus status)
     case ToolCallStatus::completed:   return Utils::Theme::Token_Notification_Success_Muted;
     case ToolCallStatus::failed:      return Utils::Theme::Token_Notification_Danger_Muted;
     case ToolCallStatus::cancelled:   return Utils::Theme::Token_Foreground_Muted;
+    case ToolCallStatus::paused:      return Utils::Theme::Token_Notification_Alert_Muted;
     }
     return Utils::Theme::ChatPlanBackground;
 }
@@ -118,13 +120,34 @@ ToolCallDetailWidget::ToolCallDetailWidget(const ToolCallUpdate &toolCall, QWidg
         m_headerLayout->addWidget(kindIcon);
     }
 
-    m_titleLabel = new Utils::ElidingLabel(
-        toolCall.title().asOptional().value_or(QStringLiteral("Tool Call")), this);
+    m_titleLabel = new Utils::ElidingLabel(Tr::tr("Tool Call"), this);
     m_titleLabel->setElideMode(Qt::ElideRight);
     m_headerLayout->addWidget(m_titleLabel, 1);
 
+    m_cancelButton = new Utils::QtcButton(Tr::tr("Cancel"), Utils::QtcButton::SmallTertiary,
+                                          this);
+    m_cancelButton->setToolTip(Tr::tr("Cancel this tool call."));
+    m_cancelButton->hide();
+    m_headerLayout->addWidget(m_cancelButton);
+    connect(m_cancelButton, &QAbstractButton::clicked, this, [this] {
+        m_cancelRequested = true;
+        updateCancelButton();
+        emit cancelRequested();
+    });
+
     m_status = status;
     updateContent(toolCall);
+}
+
+static bool isFinished(ToolCallStatus status)
+{
+    return status == ToolCallStatus::completed || status == ToolCallStatus::failed
+           || status == ToolCallStatus::cancelled;
+}
+
+void ToolCallDetailWidget::updateCancelButton()
+{
+    m_cancelButton->setVisible(m_cancellable && !m_cancelRequested && !isFinished(m_status));
 }
 
 void ToolCallDetailWidget::applyStatus(ToolCallStatus status)
@@ -134,6 +157,7 @@ void ToolCallDetailWidget::applyStatus(ToolCallStatus status)
     delete m_statusWidget;
     m_statusWidget = newWidget;
     m_status = status;
+    updateCancelButton();
     update();
 }
 
@@ -166,8 +190,24 @@ void ToolCallDetailWidget::updateContent(const ToolCallUpdate &update)
 {
     if (update.status().has_value())
         applyStatus(*update.status());
-    if (const auto &title = update.title(); title.has_value() && !title->isEmpty())
+    if (const auto &title = update.title(); title.has_value() && !title->isEmpty()) {
         m_titleLabel->setText(*title);
+        m_hasTitle = true;
+    }
+    if (const auto &name = update.name(); !name.isAbsent()) {
+        const QString nameText = name.asOptional().value_or(QString());
+        m_titleLabel->setAdditionalToolTip(nameText);
+        m_titleLabel->update();
+        if (!m_hasTitle && !nameText.isEmpty())
+            m_titleLabel->setText(nameText);
+    }
+    // Capabilities describe what the tool call supports right now, so a
+    // cancellation that was asked for may be offered again by a later update.
+    if (const auto &capabilities = update.capabilities(); !capabilities.isAbsent()) {
+        m_cancellable = capabilities.has_value() && capabilities->cancel().has_value();
+        m_cancelRequested = false;
+        updateCancelButton();
+    }
 
     if (const auto &rawInput = update.rawInput())
         addRawInputContent(*rawInput);

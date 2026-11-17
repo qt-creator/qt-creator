@@ -331,6 +331,16 @@ public:
         m_titleLabel->setElideMode(Qt::ElideRight);
         m_headerLayout->addWidget(m_titleLabel, 1);
 
+        m_cancelButton = new Utils::QtcButton(Tr::tr("Cancel"), Utils::QtcButton::SmallTertiary,
+                                              this);
+        m_cancelButton->setToolTip(Tr::tr("Cancel the command running in this terminal."));
+        m_cancelButton->hide();
+        m_headerLayout->addWidget(m_cancelButton);
+        connect(m_cancelButton, &QAbstractButton::clicked, this, [this] {
+            m_cancelRequested = true;
+            updateCancelButton();
+        });
+
         m_browser = new Utils::MarkdownBrowser(this);
         m_browser->setFrameShape(QFrame::NoFrame);
         m_browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -374,7 +384,29 @@ public:
         }
         m_exitLabel->setText(exitCode ? Tr::tr("Exited (%1)").arg(*exitCode)
                                       : Tr::tr("Exited"));
+        m_exited = true;
+        updateCancelButton();
     }
+
+    // Capabilities describe what the terminal supports right now, so a
+    // cancellation that was asked for may be offered again by a later update.
+    void setCancellable(bool cancellable)
+    {
+        m_cancellable = cancellable;
+        m_cancelRequested = false;
+        updateCancelButton();
+    }
+
+    void setSize(const std::optional<TerminalSize> &size)
+    {
+        m_titleLabel->setAdditionalToolTip(size ? Tr::tr("%1 columns, %2 rows")
+                                                      .arg(size->cols())
+                                                      .arg(size->rows())
+                                                : QString());
+        m_titleLabel->update();
+    }
+
+    QAbstractButton *cancelButton() const { return m_cancelButton; }
 
 private:
     void renderOutput()
@@ -392,10 +424,123 @@ private:
         m_browser->setMarkdown(fence + QLatin1Char('\n') + text + QLatin1Char('\n') + fence);
     }
 
+    void updateCancelButton()
+    {
+        m_cancelButton->setVisible(m_cancellable && !m_cancelRequested && !m_exited);
+    }
+
     Utils::ElidingLabel *m_titleLabel = nullptr;
     QLabel *m_exitLabel = nullptr;
+    QAbstractButton *m_cancelButton = nullptr;
     Utils::MarkdownBrowser *m_browser = nullptr;
     QByteArray m_output;
+    bool m_cancellable = false;
+    bool m_cancelRequested = false;
+    bool m_exited = false;
+};
+
+// ---------------------------------------------------------------------------
+// CompactionWidget — a context compaction and its summary
+// ---------------------------------------------------------------------------
+
+class CompactionWidget : public CollapsibleFrame
+{
+public:
+    explicit CompactionWidget(QWidget *parent = nullptr)
+        : CollapsibleFrame(parent)
+    {
+        setFrameShape(QFrame::NoFrame);
+        setCollapsible(true);
+        setCollapsed(true);
+
+        m_titleLabel = new Utils::ElidingLabel(this);
+        m_titleLabel->setElideMode(Qt::ElideRight);
+        m_headerLayout->addWidget(m_titleLabel, 1);
+
+        m_browser = new Utils::MarkdownBrowser(this);
+        m_browser->setFrameShape(QFrame::NoFrame);
+        m_browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        m_browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        m_browser->setMargins({0, 0, 0, 0});
+        m_browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        setupChatBrowser(m_browser);
+        connect(m_browser->document()->documentLayout(),
+                &QAbstractTextDocumentLayout::documentSizeChanged,
+                m_browser, [browser = m_browser] {
+            const int h = qCeil(browser->document()->size().height())
+                          + browser->contentsMargins().top()
+                          + browser->contentsMargins().bottom();
+            browser->setFixedHeight(qMax(h, browser->fontMetrics().height()));
+        });
+        m_bodyLayout->addWidget(m_browser);
+
+        setStatus(CompactionStatus::in_progress);
+    }
+
+    CompactionStatus status() const { return m_status; }
+
+    void setError(const QString &error)
+    {
+        m_error = error;
+        setStatus(m_status);
+    }
+
+    void setStatus(CompactionStatus status)
+    {
+        m_status = status;
+        ToolCallStatus iconStatus = ToolCallStatus::in_progress;
+        QString title;
+        switch (status) {
+        case CompactionStatus::in_progress:
+            title = Tr::tr("Compacting context...");
+            break;
+        case CompactionStatus::completed:
+            iconStatus = ToolCallStatus::completed;
+            title = Tr::tr("Context compacted");
+            break;
+        case CompactionStatus::failed:
+            iconStatus = ToolCallStatus::failed;
+            title = m_error.isEmpty() ? Tr::tr("Context compaction failed")
+                                      : Tr::tr("Context compaction failed: %1").arg(m_error);
+            break;
+        case CompactionStatus::cancelled:
+            iconStatus = ToolCallStatus::cancelled;
+            title = Tr::tr("Context compaction cancelled");
+            break;
+        }
+        QWidget *statusWidget = toolCallStatusWidget(iconStatus, this);
+        if (m_statusWidget) {
+            delete m_headerLayout->replaceWidget(m_statusWidget, statusWidget);
+            delete m_statusWidget;
+        } else {
+            m_headerLayout->insertWidget(0, statusWidget);
+        }
+        m_statusWidget = statusWidget;
+        m_titleLabel->setText(title);
+        m_titleLabel->setAdditionalToolTip(m_error);
+        m_titleLabel->update();
+    }
+
+    QString summary() const { return m_summary; }
+
+    void setSummary(const QString &summary)
+    {
+        m_summary = summary;
+        m_browser->setMarkdown(m_summary);
+    }
+
+    void appendSummary(const QString &text)
+    {
+        setSummary(m_summary + text);
+    }
+
+private:
+    QWidget *m_statusWidget = nullptr;
+    Utils::ElidingLabel *m_titleLabel = nullptr;
+    Utils::MarkdownBrowser *m_browser = nullptr;
+    CompactionStatus m_status = CompactionStatus::in_progress;
+    QString m_error;
+    QString m_summary;
 };
 
 // ---------------------------------------------------------------------------
@@ -538,6 +683,7 @@ public:
             ToolCallStatus::failed,
             ToolCallStatus::pending,
             ToolCallStatus::cancelled,
+            ToolCallStatus::paused,
         };
         for (int i = 0; i < StatusCount; ++i) {
             m_statusIcons[i] = toolCallStatusWidget(statusMap[i], this);
@@ -624,6 +770,9 @@ public:
             case ToolCallStatus::cancelled:
                 ++counts[Cancelled];
                 break;
+            case ToolCallStatus::paused:
+                ++counts[Paused];
+                break;
             }
         }
 
@@ -649,7 +798,7 @@ public:
     }
 
 private:
-    enum StatusIndex { Completed, InProgress, Failed, Pending, Cancelled, StatusCount };
+    enum StatusIndex { Completed, InProgress, Failed, Pending, Cancelled, Paused, StatusCount };
     static constexpr int CollapsedRunningLines = 3;
 
     Utils::QtcIconDisplay *m_summaryIcon = nullptr;
@@ -1879,8 +2028,12 @@ void AcpMessageView::setPrompting(bool prompting)
         m_progressUpdateTimer->start();
     } else {
         m_progressUpdateTimer->stop();
+        // Tool calls the agent reports as running in the background outlive
+        // the turn and are still updated after it.
         for (auto it = m_toolCallDetailWidgets.constBegin();
              it != m_toolCallDetailWidgets.constEnd(); ++it) {
+            if (m_backgroundToolCalls.contains(it.key()))
+                continue;
             if (it.value()->status() == ToolCallStatus::in_progress
                 || it.value()->status() == ToolCallStatus::pending) {
                 it.value()->applyStatus(ToolCallStatus::failed);
@@ -1954,6 +2107,9 @@ void AcpMessageView::clear()
     m_pendingElicitationRequests.clear();
     m_toolCallGroups.clear();
     m_terminalWidgets.clear();
+    m_compactionWidgets.clear();
+    m_backgroundToolCalls.clear();
+    m_terminalToolCalls.clear();
     qDeleteAll(m_unplacedTerminals);
     m_unplacedTerminals.clear();
     m_userMessages.clear();
@@ -2091,16 +2247,15 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
     ToolCallDetailWidget *detail = m_toolCallDetailWidgets.value(update.toolCallId());
     if (!detail) {
         finishAgentMessage();
-        const QString title = update.title().asOptional().value_or(QStringLiteral("Tool Call"));
+        QString title = update.title().asOptional().value_or(QString());
+        if (title.isEmpty())
+            title = update.name().asOptional().value_or(Tr::tr("Tool Call"));
         auto *group = ensureToolCallGroup();
         group->trackStatus(update.toolCallId(),
                            update.status().asOptional().value_or(ToolCallStatus::in_progress));
         group->trackTitle(update.toolCallId(), title);
         m_toolCallGroups[update.toolCallId()] = group;
-        detail = new ToolCallDetailWidget(update, group);
-        detail->setContentMaxWidth(contentMaxWidth());
-        group->addChildWidget(detail);
-        m_toolCallDetailWidgets[update.toolCallId()] = detail;
+        detail = createToolCallDetail(update, group);
         embedTerminals(detail, update);
         return;
     }
@@ -2112,6 +2267,20 @@ void AcpMessageView::updateToolCall(const ToolCallUpdate &update)
         if (update.title().has_value())
             group->trackTitle(update.toolCallId(), *update.title());
     }
+}
+
+ToolCallDetailWidget *AcpMessageView::createToolCallDetail(const ToolCallUpdate &toolCall,
+                                                           ToolCallGroupWidget *group)
+{
+    auto *detail = new ToolCallDetailWidget(toolCall, group);
+    detail->setContentMaxWidth(contentMaxWidth());
+    group->addChildWidget(detail);
+    m_toolCallDetailWidgets[toolCall.toolCallId()] = detail;
+    connect(detail, &ToolCallDetailWidget::cancelRequested,
+            this, [this, toolCallId = toolCall.toolCallId()] {
+        emit toolCallCancelRequested(toolCallId);
+    });
+    return detail;
 }
 
 // A terminal is shown inside the first tool call that references it. Its
@@ -2128,6 +2297,7 @@ void AcpMessageView::embedTerminals(ToolCallDetailWidget *detail, const ToolCall
         if (m_unplacedTerminals.removeOne(terminal)) {
             detail->addContentWidget(terminal);
             terminal->show();
+            m_terminalToolCalls.insert(reference->terminalId(), update.toolCallId());
         }
     }
 }
@@ -2153,6 +2323,9 @@ TerminalDisplayWidget *AcpMessageView::ensureTerminalWidget(const QString &termi
     if (!terminal) {
         terminal = new TerminalDisplayWidget(terminalId, m_container);
         terminal->setObjectName("terminal");
+        connect(terminal->cancelButton(), &QAbstractButton::clicked, this, [this, terminalId] {
+            emit terminalCancelRequested(terminalId);
+        });
         terminal->hide();
         m_terminalWidgets[terminalId] = terminal;
         m_unplacedTerminals.append(terminal);
@@ -2171,6 +2344,10 @@ void AcpMessageView::updateTerminal(const TerminalUpdate &update)
         terminal->setOutput({});
     if (update.exitStatus().has_value())
         terminal->setExited(update.exitStatus()->exitCode().asOptional());
+    if (!update.size().isAbsent())
+        terminal->setSize(update.size().asOptional());
+    if (const auto &capabilities = update.capabilities(); !capabilities.isAbsent())
+        terminal->setCancellable(capabilities.has_value() && capabilities->cancel().has_value());
 }
 
 void AcpMessageView::appendTerminalOutput(const TerminalOutputChunk &chunk)
@@ -2219,10 +2396,7 @@ void AcpMessageView::addPermissionRequest(const QJsonValue &id,
         if (!title.isEmpty())
             group->trackTitle(toolCallId, title);
         m_toolCallGroups[toolCallId] = group;
-        detail = new ToolCallDetailWidget(toolCall, group);
-        detail->setContentMaxWidth(contentMaxWidth());
-        group->addChildWidget(detail);
-        m_toolCallDetailWidgets[toolCallId] = detail;
+        detail = createToolCallDetail(toolCall, group);
     }
     if (group)
         group->setCollapsed(false);
@@ -2366,19 +2540,18 @@ SessionPickerWidget *AcpMessageView::addSessionPicker()
     return m_sessionPicker;
 }
 
-void AcpMessageView::addErrorMessage(const QString &text)
+void AcpMessageView::addInfoMessage(const QString &html, Utils::InfoLabelType type,
+                                    const QString &objectName)
 {
     finishAgentMessage();
     finishToolCallGroup();
 
     auto *widget = new CollapsibleFrame(m_container);
+    widget->setObjectName(objectName);
     widget->setFrameShape(QFrame::NoFrame);
     widget->setCollapsible(false);
 
-    auto *label = new Utils::InfoLabel(
-        QStringLiteral("<b>Error:</b> %1").arg(text.toHtmlEscaped()),
-        Utils::InfoLabelType::Error,
-        widget);
+    auto *label = new Utils::InfoLabel(html, type, widget);
     label->setFilled(true);
     label->setElideMode(Qt::ElideNone);
     label->setTextFormat(Qt::RichText);
@@ -2386,6 +2559,103 @@ void AcpMessageView::addErrorMessage(const QString &text)
     widget->headerLayout()->addWidget(label, 1);
 
     addWidget(widget);
+}
+
+void AcpMessageView::addErrorMessage(const QString &text)
+{
+    addInfoMessage(QStringLiteral("<b>Error:</b> %1").arg(text.toHtmlEscaped()),
+                   Utils::InfoLabelType::Error, {});
+}
+
+void AcpMessageView::addNotice(const Notice &notice)
+{
+    Utils::InfoLabelType type = Utils::InfoLabelType::Information;
+    switch (notice.severity()) {
+    case NoticeSeverity::info:    type = Utils::InfoLabelType::Information; break;
+    case NoticeSeverity::warning: type = Utils::InfoLabelType::Warning; break;
+    case NoticeSeverity::error:   type = Utils::InfoLabelType::Error; break;
+    }
+    QString html = QStringLiteral("<b>%1</b>").arg(notice.title().toHtmlEscaped());
+    if (const QString description = notice.description().asOptional().value_or(QString());
+        !description.isEmpty()) {
+        html += QStringLiteral("<br>") + description.toHtmlEscaped();
+    }
+    addInfoMessage(html, type, QStringLiteral("notice"));
+}
+
+// Reports why the agent ended a turn where the conversation does not show it.
+// An error is reported with its message by the adapter.
+void AcpMessageView::addStopReason(const QString &stopReason)
+{
+    QString text;
+    if (stopReason == QLatin1String("max_tokens"))
+        text = Tr::tr("The agent stopped because it reached its token limit.");
+    else if (stopReason == QLatin1String("max_turn_requests"))
+        text = Tr::tr("The agent stopped because it reached its limit of requests per turn.");
+    else if (stopReason == QLatin1String("refusal"))
+        text = Tr::tr("The agent refused to continue.");
+    if (!text.isEmpty()) {
+        addInfoMessage(text.toHtmlEscaped(), Utils::InfoLabelType::Warning,
+                       QStringLiteral("stopReason"));
+    }
+}
+
+static QString contentText(const ContentBlock &block)
+{
+    if (const auto *text = std::get_if<TextContent>(&block))
+        return text->text();
+    return {};
+}
+
+CompactionWidget *AcpMessageView::ensureCompactionWidget(const QString &compactionId)
+{
+    CompactionWidget *widget = m_compactionWidgets.value(compactionId);
+    if (!widget) {
+        finishAgentMessage();
+        finishToolCallGroup();
+        widget = new CompactionWidget(m_container);
+        widget->setObjectName("compaction");
+        m_compactionWidgets.insert(compactionId, widget);
+        addWidget(widget);
+    }
+    return widget;
+}
+
+void AcpMessageView::updateCompaction(const CompactionUpdate &update)
+{
+    CompactionWidget *widget = ensureCompactionWidget(update.compactionId());
+    if (!update.error().isAbsent())
+        widget->setError(update.error().asOptional().value_or(QString()));
+    widget->setStatus(update.status());
+    if (update.summary().has_value()) {
+        QString summary;
+        for (const ContentBlock &block : *update.summary())
+            summary += contentText(block);
+        widget->setSummary(summary);
+    } else if (update.summary().isNull()) {
+        widget->setSummary({});
+    }
+}
+
+void AcpMessageView::appendCompactionSummary(const CompactionSummaryChunk &chunk)
+{
+    ensureCompactionWidget(chunk.compactionId())->appendSummary(contentText(chunk.content()));
+}
+
+void AcpMessageView::setBackgroundWork(const QList<BackgroundWork> &work)
+{
+    m_backgroundToolCalls.clear();
+    for (const BackgroundWork &item : work) {
+        if (const auto *toolCall = std::get_if<BackgroundToolCall>(&item)) {
+            m_backgroundToolCalls.insert(toolCall->toolCallId());
+        } else if (const auto *terminal = std::get_if<BackgroundTerminal>(&item)) {
+            // Process-backed work is listed as its terminal only, so the tool
+            // call showing that terminal keeps running with it.
+            const QString toolCallId = m_terminalToolCalls.value(terminal->terminalId());
+            if (!toolCallId.isEmpty())
+                m_backgroundToolCalls.insert(toolCallId);
+        }
+    }
 }
 
 void AcpMessageView::finishAgentMessage()

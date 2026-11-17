@@ -107,6 +107,12 @@ public:
     void appendTerminalOutput(const Acp::V2::TerminalOutputChunk &chunk);
     void addPlan(const Acp::V2::PlanUpdate &plan);
     void addErrorMessage(const QString &text);
+    void addNotice(const Acp::V2::Notice &notice);
+    void addStopReason(const QString &stopReason);
+    void updateCompaction(const Acp::V2::CompactionUpdate &update);
+    void appendCompactionSummary(const Acp::V2::CompactionSummaryChunk &chunk);
+    // The complete set of work the agent runs in the background.
+    void setBackgroundWork(const QList<Acp::V2::BackgroundWork> &work);
     void finishAgentMessage();
     void addPermissionRequest(const QJsonValue &id,
                               const Acp::V2::RequestPermissionRequest &request);
@@ -124,6 +130,8 @@ public:
 signals:
     void sendRequested(const QString &text);
     void cancelRequested();
+    void toolCallCancelRequested(const QString &toolCallId);
+    void terminalCancelRequested(const QString &terminalId);
     void configOptionChanged(const QString &configId, const QJsonValue &value);
     void permissionOptionSelected(const QJsonValue &id, const QString &optionId);
     void permissionCancelled(const QJsonValue &id);
@@ -223,6 +231,7 @@ private:
     bool m_imagePasteSupported = false;
 
     Utils::InfoLabel *m_inputInfoLabel = nullptr;
+    Utils::InfoLabel *m_backgroundWorkLabel = nullptr;
     QTimer *m_inputInfoTimer = nullptr;
 };
 
