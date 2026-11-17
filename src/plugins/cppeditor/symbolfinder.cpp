@@ -169,6 +169,100 @@ public:
     bool visit(Block *) override { return false; }
 };
 
+// The definitions of one declaration, collected document by document.
+class MatchingDefinitions
+{
+public:
+    MatchingDefinitions(Symbol *declaration, Function *declarationType, bool strict,
+                        bool stopAtFirstResult)
+        : m_declaration(declaration)
+        , m_declarationType(declarationType)
+        , m_strict(strict)
+        , m_stopAtFirstResult(stopAtFirstResult)
+    {}
+
+    // Returns whether the search is done.
+    bool addFrom(const Document::Ptr &doc, const Snapshot &snapshot)
+    {
+        const Identifier *id = m_declaration->identifier();
+        if (id && !doc->control()->findIdentifier(id->chars(), id->size()))
+            return false;
+
+        if (!id) {
+            const Name * const name = m_declaration->name();
+            if (!name)
+                return false;
+            if (const OperatorNameId * const oper = name->asOperatorNameId()) {
+                if (!doc->control()->findOperatorNameId(oper->kind()))
+                    return false;
+            } else if (const ConversionNameId * const conv = name->asConversionNameId()) {
+                if (!doc->control()->findConversionNameId(conv->type()))
+                    return false;
+            } else {
+                return false;
+            }
+        }
+
+        FindMatchingDefinition candidates(m_declaration, m_strict);
+        candidates.accept(doc->globalNamespace());
+
+        const QList<Hit> hits = candidates.result();
+        if (hits.isEmpty())
+            return false;
+
+        LookupContext context(doc, snapshot);
+        ClassOrNamespace *enclosingType = context.lookupType(m_declaration);
+        if (!enclosingType)
+            return false; // nothing to do
+
+        for (const Hit &hit : hits) {
+            QTC_CHECK(!m_strict || hit.exact);
+
+            const QList<LookupItem> declarations = context.lookup(hit.func->name(),
+                                                                  hit.func->enclosingScope());
+            if (declarations.isEmpty())
+                continue;
+            if (enclosingType != context.lookupType(declarations.first().declaration()))
+                continue;
+
+            if (hit.exact) {
+                if (!m_bestAreExact)
+                    m_best.clear();
+                m_best << hit.func;
+                if (m_stopAtFirstResult) {
+                    m_done = true;
+                    return true;
+                }
+                m_bestAreExact = true;
+            }
+
+            if (!m_bestAreExact
+                || hit.func->argumentCount() == m_declarationType->argumentCount()) {
+                m_best << hit.func;
+            }
+        }
+        return false;
+    }
+
+    QList<Function *> result() const
+    {
+        if (m_done)
+            return m_best;
+        if (m_strict && !m_bestAreExact)
+            return {};
+        return m_best;
+    }
+
+private:
+    Symbol * const m_declaration;
+    Function * const m_declarationType;
+    const bool m_strict;
+    const bool m_stopAtFirstResult;
+    QList<Function *> m_best;
+    bool m_bestAreExact = false;
+    bool m_done = false;
+};
+
 } // end of anonymous namespace
 
 static const int kMaxCacheSize = 10;
@@ -207,8 +301,7 @@ QList<Function *> SymbolFinder::findMatchingDefinitions(
         return {};
     }
 
-    QList<Function *> best;
-    bool bestAreExact = false;
+    MatchingDefinitions matches(declaration, declarationTy, strict, stopAtFirstResult);
     const FilePaths filePaths = fileIterationOrder(declFile, snapshot);
     for (const FilePath &filePath : filePaths) {
         Document::Ptr doc = snapshot.document(filePath);
@@ -216,65 +309,10 @@ QList<Function *> SymbolFinder::findMatchingDefinitions(
             clearCache(declFile, filePath);
             continue;
         }
-
-        const Identifier *id = declaration->identifier();
-        if (id && !doc->control()->findIdentifier(id->chars(), id->size()))
-            continue;
-
-        if (!id) {
-            const Name * const name = declaration->name();
-            if (!name)
-                continue;
-            if (const OperatorNameId * const oper = name->asOperatorNameId()) {
-                if (!doc->control()->findOperatorNameId(oper->kind()))
-                    continue;
-            } else if (const ConversionNameId * const conv = name->asConversionNameId()) {
-                if (!doc->control()->findConversionNameId(conv->type()))
-                    continue;
-            } else {
-                continue;
-            }
-        }
-
-        FindMatchingDefinition candidates(declaration, strict);
-        candidates.accept(doc->globalNamespace());
-
-        const QList<Hit> result = candidates.result();
-        if (result.isEmpty())
-            continue;
-
-        LookupContext context(doc, snapshot);
-        ClassOrNamespace *enclosingType = context.lookupType(declaration);
-        if (!enclosingType)
-            continue; // nothing to do
-
-        for (const Hit &hit : result) {
-            QTC_CHECK(!strict || hit.exact);
-
-            const QList<LookupItem> declarations = context.lookup(hit.func->name(),
-                                                                  hit.func->enclosingScope());
-            if (declarations.isEmpty())
-                continue;
-            if (enclosingType != context.lookupType(declarations.first().declaration()))
-                continue;
-
-            if (hit.exact) {
-                if (!bestAreExact)
-                    best.clear();
-                best << hit.func;
-                if (stopAtFirstResult)
-                    return best;
-                bestAreExact = true;
-            }
-
-            if (!bestAreExact || hit.func->argumentCount() == declarationTy->argumentCount())
-                best << hit.func;
-        }
+        if (matches.addFrom(doc, snapshot))
+            break;
     }
-
-    if (strict && !bestAreExact)
-        return {};
-    return best;
+    return matches.result();
 }
 
 Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snapshot &snapshot)
