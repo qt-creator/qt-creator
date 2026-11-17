@@ -14,6 +14,7 @@ class QmlProfilerToolTest : public QObject
 private slots:
     void testAttachToWaitingApplication();
     void testClearEvents();
+    void testCancelBeforeConnectReportsOnce();
 };
 
 } // namespace Profiler::Internal

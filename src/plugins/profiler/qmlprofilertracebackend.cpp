@@ -11,6 +11,9 @@
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilerstatewidget.h"
 #include "qmlprofilerstatisticsview.h"
+#ifndef QTPROFILER_WASM // qmlprofilertool.cpp is not built for the standalone viewer
+#include "qmlprofilertool.h"
+#endif
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -70,6 +73,9 @@ public:
 
     QPointer<QWidget> traceView; // The view the timeline search acts on.
     QPointer<QmlProfilerStatisticsView> statisticsView; // Owns this trace's text marks.
+
+    bool everConnected = false; // Whether the current run got a debug connection.
+    bool stopReported = false; // Whether the current run's failure was reported.
 };
 
 static void addFeatureToMenu(QMenu *menu, ProfileFeature feature, quint64 enabledFeatures)
@@ -167,6 +173,8 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget
     d->clientManager.setProfilerStateManager(&d->stateManager);
     connect(&d->clientManager, &QmlProfilerClientManager::connectionClosed,
             this, &QmlProfilerTraceBackend::clientsDisconnected);
+    connect(&d->clientManager, &QmlProfilerClientManager::connectionOpened,
+            this, [this] { d->everConnected = true; });
 
     connect(&d->stateManager, &QmlProfilerStateManager::stateChanged,
             this, &QmlProfilerTraceBackend::profilerStateChanged);
@@ -451,15 +459,26 @@ void QmlProfilerTraceBackend::prepareRun(const ProjectExplorer::BuildConfigurati
     modelManager()->setAggregateTraces(aggregateTraces);
     modelManager()->populateFileFinder(bc);
     d->stopAction.setEnabled(true);
+    d->everConnected = false;
+    d->stopReported = false;
     d->stateManager.setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 
 void QmlProfilerTraceBackend::handleStop()
 {
     d->stopAction.setEnabled(false);
-    if (d->clientManager.isConnecting()) {
-        emit error(Tr::tr("The application finished before a connection could be established. "
-                          "No data was loaded."));
+    if (!d->everConnected && !d->clientManager.isConnected() && !d->stopReported) {
+        d->stopReported = true; // Run controls call this more than once per run.
+        const QString message = Tr::tr("The application finished or was stopped before a QML debug "
+                                       "connection could be established. No data was loaded.\n"
+                                       "Make sure the application uses Qt Quick and has QML "
+                                       "debugging enabled.");
+        // The connection failures are logged as they happen; say what they add up
+        // to, so the run leaves a trace in the General Messages pane.
+#ifndef QTPROFILER_WASM // qmlprofilertool.cpp is not built for the standalone viewer
+        QmlProfilerTool::logState(QLatin1String("QML Profiler: ") + message);
+#endif
+        emit error(message);
     }
     d->clientManager.disconnectFromServer();
 }

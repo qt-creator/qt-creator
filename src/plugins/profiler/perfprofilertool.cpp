@@ -211,6 +211,14 @@ void PerfProfilerTool::onRunControlStarted()
 void PerfProfilerTool::onRunControlFinished()
 {
     d->m_processRunning = false;
+    // A run whose recording side failed tears down without the reader ever
+    // reporting finished: finalize the trace here, or the tool would stay
+    // "in progress" forever and the user would never learn that the run
+    // captured nothing.
+    if (PerfProfilerTraceBackend *backend = liveBackend()) {
+        if (backend->isReaderRunning())
+            backend->traceManager()->finalize();
+    }
     updateRunActions();
 }
 

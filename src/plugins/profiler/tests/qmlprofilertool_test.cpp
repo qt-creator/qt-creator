@@ -23,6 +23,7 @@
 #include <utils/url.h>
 
 #include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTcpServer>
 #include <QTest>
 
@@ -142,6 +143,22 @@ void QmlProfilerToolTest::testClearEvents()
     modelManager->appendEvent(QmlEvent(0ns, typeIndex, ""));
     QCOMPARE(modelManager->numEventTypes(), 1);
     QCOMPARE(modelManager->numEvents(), 1);
+}
+
+void QmlProfilerToolTest::testCancelBeforeConnectReportsOnce()
+{
+    // The stop path must report a never-connected run only once even when it
+    // is entered repeatedly; calling handleStop() twice here exercises that
+    // guard directly.
+    Timeline::TimelineDetailsWidget details;
+    QmlProfilerTraceBackend backend(&details);
+    QSignalSpy errors(&backend, &ProfilerTraceBackend::error);
+
+    backend.prepareRun(nullptr, false, 100ms);
+    backend.handleStop();
+    backend.handleStop();
+
+    QCOMPARE(errors.count(), 1);
 }
 
 } // namespace Profiler::Internal

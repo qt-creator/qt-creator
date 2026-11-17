@@ -142,10 +142,9 @@ PerfProfilerTraceBackend::PerfProfilerTraceBackend(Timeline::TimelineDetailsWidg
 #else
         Core::MessageManager::writeDisrupting(
             Tr::tr("The profiler did not produce any samples. "
-                   "Make sure that you are running a recent Linux kernel and that "
-                   "the \"perf\" utility is available and generates useful call "
-                   "graphs.\nYou might find further explanations in the "
-                   "Application Output view."));
+                   "Check the Application Output view for errors. On Linux, make "
+                   "sure the \"perf\" utility is available and that you are "
+                   "running a recent kernel that generates useful call graphs."));
 #endif
         clear();
     });
