@@ -51,12 +51,35 @@ int main(int argc, char *argv[])
                                           "instead of negotiating one.", "version"});
     parser.addOption({"omit-protocol-version",
                       "Answer initialize without a protocolVersion field."});
+    parser.addOption({"reject-protocol-version",
+                      "Answer initialize with an unsupported protocol version error "
+                      "that names version 1 as supported."});
     parser.addOption({"idle-error",
                       "End the v2 turn with an idle state update carrying an unknown "
                       "stop reason and an error."});
     parser.addOption({"idle-unparseable",
                       "End the v2 turn with an idle state update that does not parse, "
                       "carrying an error."});
+    parser.addOption({"notice", "Send a notice during v2 prompts."});
+    parser.addOption({"compaction", "Compact the context during v2 prompts."});
+    parser.addOption({"cancellable-tool-call",
+                      "Run a tool call that can be cancelled during v2 prompts and wait "
+                      "for tool_call/cancel."});
+    parser.addOption({"cancellable-terminal",
+                      "Run a terminal that can be cancelled during v2 prompts and wait "
+                      "for terminal/cancel."});
+    parser.addOption({"background-work",
+                      "End v2 prompts with a tool call running in the background, which "
+                      "completes when the next prompt arrives."});
+    parser.addOption({"paused-tool-call", "Leave a tool call paused at the end of v2 "
+                                          "prompts."});
+    parser.addOption({"stop-reason", "End v2 prompts with <reason> (default end_turn).",
+                      "reason"});
+    parser.addOption({"system-prompt",
+                      "Advertise system prompt support in v2 and echo the received system "
+                      "prompt in each prompt's answer."});
+    parser.addOption({"available-commands",
+                      "Report available commands in the v2 session/new response."});
     parser.process(app);
 
     AcpTestServer::ServerScenario scenario;
@@ -82,8 +105,19 @@ int main(int argc, char *argv[])
     if (parser.isSet("protocol-version"))
         scenario.protocolVersion = parser.value("protocol-version").toInt();
     scenario.omitProtocolVersion = parser.isSet("omit-protocol-version");
+    scenario.rejectProtocolVersion = parser.isSet("reject-protocol-version");
     scenario.idleError = parser.isSet("idle-error");
     scenario.idleUnparseable = parser.isSet("idle-unparseable");
+    scenario.emitNotice = parser.isSet("notice");
+    scenario.emitCompaction = parser.isSet("compaction");
+    scenario.cancellableToolCall = parser.isSet("cancellable-tool-call");
+    scenario.cancellableTerminal = parser.isSet("cancellable-terminal");
+    scenario.backgroundWork = parser.isSet("background-work");
+    scenario.pausedToolCall = parser.isSet("paused-tool-call");
+    if (parser.isSet("stop-reason"))
+        scenario.stopReason = parser.value("stop-reason");
+    scenario.systemPrompt = parser.isSet("system-prompt");
+    scenario.availableCommands = parser.isSet("available-commands");
 
     AcpTestServer::Server server(scenario);
     return server.run();

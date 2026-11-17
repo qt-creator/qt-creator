@@ -403,6 +403,23 @@ public:
 
         environment.setSettingsKey("environment");
         environment.setLabelText(Tr::tr("Environment changes:"));
+
+        systemPrompt.setLabelText(Tr::tr("System prompt:"));
+        systemPrompt.setSettingsKey("systemPrompt");
+        systemPrompt.setDisplayStyle(StringAspect::DisplayStyle::TextEditDisplay);
+        systemPrompt.setToolTip(
+            Tr::tr("Instructions passed to the agent when a session is created or resumed. "
+                   "Only used if the agent supports client-provided system prompts."));
+
+        systemPromptMode.setLabelText(Tr::tr("System prompt mode:"));
+        systemPromptMode.setSettingsKey("systemPromptMode");
+        systemPromptMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+        systemPromptMode.addOption(Tr::tr("Append"),
+                                   Tr::tr("Add the instructions to the agent's own."));
+        systemPromptMode.addOption(Tr::tr("Override"),
+                                   Tr::tr("Replace the agent's own instructions. Only used if "
+                                          "the agent supports this, otherwise no system prompt "
+                                          "is sent."));
         connect(&registryBrowser, &AcpRegistryBrowser::volatileValueChanged, this, [this]() {
             applyRegistryTemplate();
         });
@@ -494,6 +511,8 @@ public:
                 launchCommand, br,
                 launchArguments, br,
                 environment, br,
+                systemPrompt, br,
+                systemPromptMode, br,
                 templateCmdInfo, br,
                 cmdNotFoundLabel, br,
             };
@@ -590,6 +609,8 @@ public:
             launchArguments.value(),
             CommandLine::Raw);
         info.envChanges = environment.value();
+        info.systemPrompt = systemPrompt.value();
+        info.systemPromptOverride = systemPromptMode.value() == 1;
         return info;
     }
 
@@ -602,6 +623,8 @@ public:
     FilePathAspect launchCommand{this};
     StringAspect launchArguments{this};
     EnvironmentChangesAspect environment{this};
+    StringAspect systemPrompt{this};
+    SelectionAspect systemPromptMode{this};
 };
 
 class AcpManagerSettings : public AspectContainer

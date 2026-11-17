@@ -74,6 +74,14 @@ void Server::handleRequest(const QJsonValue &id, const QString &method, const QJ
     if (method == "initialize")
         beforeInitialize();
 
+    if (method == "initialize" && m_scenario.rejectProtocolVersion) {
+        sendError(id, V2::ErrorCode::Unsupported_protocol_version,
+                  "Unsupported protocol version",
+                  QJsonObject{{"requested", params.value("protocolVersion")},
+                              {"supported", QJsonArray{1}}});
+        return;
+    }
+
     if (m_scenario.protocolVersion == 2) {
         if (method == "initialize")
             handleInitializeV2(id, params);
@@ -612,6 +620,8 @@ void Server::handleInitializeV2(const QJsonValue &id, const QJsonObject &params)
                                     {"embeddedContext", QJsonObject()}};
     if (m_scenario.seededSessions > 0)
         session["delete"] = QJsonObject();
+    if (m_scenario.systemPrompt)
+        session["systemPrompt"] = QJsonObject{{"mode", QJsonObject{{"override", QJsonObject()}}}};
 
     QJsonObject result;
     result["protocolVersion"] = 2;
@@ -651,11 +661,17 @@ void Server::handleNewSessionV2(const QJsonValue &id, const QJsonObject &params)
 
     const QString sessionId = QString("session-%1").arg(m_nextSessionNumber++);
     m_sessions.append(sessionId);
+    m_systemPrompt = params.value("systemPrompt").toObject();
 
     QJsonObject result;
     result["sessionId"] = sessionId;
     if (m_scenario.configOptions)
         result["configOptions"] = configOptionsJsonV2();
+    if (m_scenario.availableCommands) {
+        result["availableCommands"] = QJsonArray{QJsonObject{{"type", "command"},
+                                                             {"name", "review"},
+                                                             {"description", "Review"}}};
+    }
     sendResult(id, result);
 }
 
@@ -668,9 +684,11 @@ void Server::handleResumeSession(const QJsonValue &id, const QJsonObject &params
     }
     if (!m_sessions.contains(request->sessionId())) {
         sendError(id, ErrorCode::Resource_not_found,
-                  QString("Unknown session: %1").arg(request->sessionId()));
+                  QString("Unknown session: %1").arg(request->sessionId()),
+                  QJsonObject{{"sessionId", request->sessionId()}});
         return;
     }
+    m_systemPrompt = params.value("systemPrompt").toObject();
 
     // With a replay cursor, history is replayed as ordinary session updates
     // before the response.
@@ -710,8 +728,8 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
     // The response only acknowledges acceptance; the turn runs on afterwards.
     // The accepted prompt is echoed as a chunk followed by an upsert of the
     // same message.
-    sendResult(id, QJsonObject());
     const QString userMessageId = QString("user-%1").arg(++m_messageCounter);
+    sendResult(id, QJsonObject{{"messageId", userMessageId}});
     sendSessionUpdateV2(sessionId,
                         QJsonObject{{"sessionUpdate", "user_message_chunk"},
                                     {"messageId", userMessageId},
@@ -725,6 +743,35 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
     sendStateUpdate(sessionId, "running");
 
     const QString messageId = QString("msg-%1").arg(++m_messageCounter);
+
+    // Work left in the background by the previous prompt ends now.
+    if (m_backgroundRunning) {
+        m_backgroundRunning = false;
+        sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                                   {"toolCallId", "tool-background"},
+                                                   {"status", "completed"}});
+        sendStateUpdate(sessionId, "running", {}, QJsonArray());
+    }
+
+    if (!m_systemPrompt.isEmpty()) {
+        const QJsonArray content = m_systemPrompt.value("content").toArray();
+        sendAgentMessageChunkV2(sessionId, messageId,
+                                QString("system-prompt:%1:%2")
+                                    .arg(m_systemPrompt.value("mode").toString(),
+                                         content.first().toObject().value("text").toString()));
+    }
+
+    if (m_scenario.cancellableToolCall) {
+        if (runCancellableToolCall(sessionId))
+            sendFinalStateUpdate(sessionId);
+        return;
+    }
+
+    if (m_scenario.cancellableTerminal) {
+        if (runCancellableTerminal(sessionId))
+            sendFinalStateUpdate(sessionId);
+        return;
+    }
 
     if (m_scenario.permission) {
         sendAgentMessageChunkV2(sessionId, messageId, QString("chunk-1:%1").arg(promptText));
@@ -850,9 +897,40 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
     if (m_scenario.emitUnknownUpdate)
         sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "_test_future_kind"},
                                                    {"x", 1}});
+    if (m_scenario.emitNotice) {
+        sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "notice"},
+                                                   {"severity", "warning"},
+                                                   {"title", "Rate limited"},
+                                                   {"description", "Retrying shortly."}});
+    }
+    if (m_scenario.emitCompaction) {
+        sendSessionUpdateV2(sessionId,
+                            QJsonObject{{"sessionUpdate", "compaction_summary_chunk"},
+                                        {"compactionId", "compaction-1"},
+                                        {"content", QJsonObject{{"type", "text"},
+                                                                {"text", "Summary so far"}}}});
+        sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "compaction_update"},
+                                                   {"compactionId", "compaction-1"},
+                                                   {"status", "completed"}});
+    }
+    if (m_scenario.pausedToolCall) {
+        sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                                   {"toolCallId", "tool-paused"},
+                                                   {"name", "wait_for_input"},
+                                                   {"status", "paused"}});
+    }
+    // The background work is started by the first prompt only.
+    if (m_scenario.backgroundWork && !m_backgroundStarted) {
+        m_backgroundStarted = true;
+        m_backgroundRunning = true;
+        sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                                   {"toolCallId", "tool-background"},
+                                                   {"title", "Long build"},
+                                                   {"status", "in_progress"}});
+    }
     if (m_scenario.idleError) {
-        // An unknown stop reason next to an error outside the v2 schema,
-        // as Claude Code reports a turn that could not run.
+        // The stop reason "error" next to an error, as Claude Code reports
+        // a turn that could not run.
         sendSessionUpdateV2(sessionId,
                             QJsonObject{{"sessionUpdate", "state_update"},
                                         {"state", "idle"},
@@ -871,7 +949,85 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
         return;
     }
 
-    sendStateUpdate(sessionId, "idle", "end_turn");
+    sendFinalStateUpdate(sessionId);
+}
+
+void Server::sendFinalStateUpdate(const QString &sessionId)
+{
+    std::optional<QJsonArray> background;
+    if (m_scenario.backgroundWork) {
+        background = QJsonArray();
+        if (m_backgroundRunning) {
+            background->append(QJsonObject{{"type", "tool_call"},
+                                           {"toolCallId", "tool-background"}});
+        }
+    }
+    sendStateUpdate(sessionId, "idle", m_scenario.stopReason, background);
+}
+
+// Returns false if stdin was closed.
+bool Server::runCancellableToolCall(const QString &sessionId)
+{
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                    {"toolCallId", "tool-cancellable"},
+                                    {"title", "Slow search"},
+                                    {"status", "in_progress"},
+                                    {"capabilities", QJsonObject{{"cancel", QJsonObject()}}}});
+    const auto request = readUntil([](const QJsonObject &message) {
+        return message.value("method").toString() == QLatin1String("tool_call/cancel");
+    });
+    if (!request)
+        return false;
+    const QJsonObject params = request->value("params").toObject();
+    if (params.value("toolCallId").toString() != QLatin1String("tool-cancellable")) {
+        sendError(request->value("id"), ErrorCode::Invalid_params, "Unknown tool call");
+        return true;
+    }
+    sendResult(request->value("id"), QJsonObject());
+    sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                               {"toolCallId", "tool-cancellable"},
+                                               {"status", "cancelled"},
+                                               {"capabilities", QJsonValue::Null}});
+    return true;
+}
+
+// Returns false if stdin was closed.
+bool Server::runCancellableTerminal(const QString &sessionId)
+{
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "terminal_update"},
+                                    {"terminalId", "term-1"},
+                                    {"command", "sleep 1000"},
+                                    {"size", QJsonObject{{"cols", 80}, {"rows", 24}}},
+                                    {"capabilities", QJsonObject{{"cancel", QJsonObject()}}}});
+    sendSessionUpdateV2(sessionId,
+                        QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                    {"toolCallId", "tool-terminal"},
+                                    {"title", "Run sleep"},
+                                    {"kind", "execute"},
+                                    {"status", "in_progress"},
+                                    {"content", QJsonArray{QJsonObject{{"type", "terminal"},
+                                                                       {"terminalId", "term-1"}}}}});
+    const auto request = readUntil([](const QJsonObject &message) {
+        return message.value("method").toString() == QLatin1String("terminal/cancel");
+    });
+    if (!request)
+        return false;
+    const QJsonObject params = request->value("params").toObject();
+    if (params.value("terminalId").toString() != QLatin1String("term-1")) {
+        sendError(request->value("id"), ErrorCode::Invalid_params, "Unknown terminal");
+        return true;
+    }
+    sendResult(request->value("id"), QJsonObject());
+    sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "terminal_update"},
+                                               {"terminalId", "term-1"},
+                                               {"exitStatus", QJsonObject{{"exitCode", 130}}},
+                                               {"capabilities", QJsonValue::Null}});
+    sendSessionUpdateV2(sessionId, QJsonObject{{"sessionUpdate", "tool_call_update"},
+                                               {"toolCallId", "tool-terminal"},
+                                               {"status", "cancelled"}});
+    return true;
 }
 
 QJsonArray Server::configOptionsJson() const
@@ -934,11 +1090,16 @@ void Server::sendAgentMessageChunkV2(const QString &sessionId, const QString &me
 }
 
 void Server::sendStateUpdate(const QString &sessionId, const QString &state,
-                             const QString &stopReason)
+                             const QString &stopReason,
+                             const std::optional<QJsonArray> &background)
 {
     QJsonObject update{{"sessionUpdate", "state_update"}, {"state", state}};
     if (!stopReason.isEmpty())
         update["stopReason"] = stopReason;
+    if (stopReason == QLatin1String("error"))
+        update["error"] = QJsonObject{{"code", -32603}, {"message", "Model overloaded"}};
+    if (background)
+        update["background"] = *background;
     sendSessionUpdateV2(sessionId, update);
 }
 
@@ -952,12 +1113,16 @@ void Server::sendResult(const QJsonValue &id, const QJsonObject &result)
     writeLine(message);
 }
 
-void Server::sendError(const QJsonValue &id, int code, const QString &errorMessage)
+void Server::sendError(const QJsonValue &id, int code, const QString &errorMessage,
+                       const QJsonValue &data)
 {
+    QJsonObject error = toJson(Error().code(code).message(errorMessage));
+    if (!data.isUndefined())
+        error["data"] = data;
     QJsonObject message;
     message["jsonrpc"] = "2.0";
     message["id"] = id;
-    message["error"] = toJson(Error().code(code).message(errorMessage));
+    message["error"] = error;
     noise("error response");
     writeLine(message);
 }

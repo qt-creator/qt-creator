@@ -27,14 +27,18 @@ public:
 
     virtual int protocolVersion() const = 0;
 
-    virtual void newSession(const QString &cwd, const QJsonArray &mcpServers) = 0;
+    virtual void newSession(const QString &cwd, const QJsonArray &mcpServers,
+                            const std::optional<Acp::V2::SystemPrompt> &systemPrompt) = 0;
     virtual void resumeSession(const QString &sessionId, const QString &cwd,
-                               const QJsonArray &mcpServers) = 0;
+                               const QJsonArray &mcpServers,
+                               const std::optional<Acp::V2::SystemPrompt> &systemPrompt) = 0;
     virtual void listSessions(const std::optional<QString> &cursor) = 0;
     virtual void deleteSession(const QString &sessionId) = 0;
     virtual void closeSession(const QString &sessionId) = 0;
     virtual void prompt(const QString &sessionId, const QJsonArray &content) = 0;
     virtual void cancel(const QString &sessionId) = 0;
+    virtual void cancelToolCall(const QString &sessionId, const QString &toolCallId) = 0;
+    virtual void cancelTerminal(const QString &sessionId, const QString &terminalId) = 0;
     virtual void authenticate(const QString &methodId) = 0;
     virtual void setConfigOption(const QString &sessionId, const QString &configId,
                                  const QJsonValue &value) = 0;
@@ -44,6 +48,8 @@ public:
     virtual bool supportsSessionClose() const = 0;
     virtual bool supportsImagePrompt() const = 0;
     virtual bool supportsEmbeddedContext() const = 0;
+    virtual bool supportsSystemPrompt() const = 0;
+    virtual bool supportsSystemPromptOverride() const = 0;
     virtual QList<Acp::V2::AuthMethod> authMethods() const = 0;
 
 signals:
@@ -54,6 +60,7 @@ signals:
     void sessionDeleted(const QString &sessionId);
     void sessionClosed(const QString &sessionId);
     void configOptionsReceived(const QList<Acp::V2::SessionConfigOption> &configOptions);
+    void availableCommandsReceived(const QList<Acp::V2::AvailableCommand> &commands);
     void sessionUpdate(const QString &sessionId, const Acp::V2::SessionUpdate &update);
     void permissionRequested(const QJsonValue &id,
                              const Acp::V2::RequestPermissionRequest &request);

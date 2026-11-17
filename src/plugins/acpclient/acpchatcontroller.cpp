@@ -27,11 +27,30 @@
 #include <QBuffer>
 #include <QImage>
 #include <QJsonArray>
+#include <QLoggingCategory>
+
+static Q_LOGGING_CATEGORY(logController, "qtc.acpclient.controller", QtWarningMsg);
 
 using namespace Acp;
 using namespace Utils;
 
 namespace AcpClient::Internal {
+
+static QString initializeErrorMessage(const Error &error)
+{
+    if (error.code() != V2::ErrorCode::Unsupported_protocol_version)
+        return error.message();
+    const auto data = V2::fromJson<V2::UnsupportedProtocolVersionErrorData>(
+        error.data().value_or(QJsonValue()));
+    if (!data)
+        return error.message();
+    const QStringList supported = Utils::transform(data->supported(), [](int version) {
+        return QString::number(version);
+    });
+    return Tr::tr("The agent does not support ACP protocol version %1. Supported versions: %2.")
+        .arg(data->requested())
+        .arg(supported.join(", "));
+}
 
 AcpChatController::AcpChatController(QObject *parent)
     : QObject(parent)
@@ -80,6 +99,8 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
 
     m_serverName = serverInfo.name;
     m_iconUrl = serverInfo.iconUrl;
+    m_systemPrompt = serverInfo.systemPrompt;
+    m_systemPromptOverride = serverInfo.systemPromptOverride;
 
     const CommandLine &cmdLine = serverInfo.launchCommand;
     auto *transport = new AcpStdioTransport(this);
@@ -125,7 +146,8 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
                                 [this](const QJsonObject &result,
                                        const std::optional<Error> &error) {
             if (error) {
-                emit errorOccurred(Tr::tr("Initialization failed: %1").arg(error->message()));
+                emit errorOccurred(
+                    Tr::tr("Initialization failed: %1").arg(initializeErrorMessage(*error)));
                 return;
             }
             onInitializeResult(result);
@@ -167,6 +189,8 @@ QJsonObject AcpChatController::buildInitializeParams()
     configOptionsCaps.boolean(BooleanConfigOptionCapabilities());
     ClientSessionCapabilities sessionCaps;
     sessionCaps.configOptions(configOptionsCaps);
+    sessionCaps.compaction(CompactionCapabilities());
+    sessionCaps.notices(NoticeCapabilities());
     caps.session(sessionCaps);
 
     ElicitationCapabilities elicitationCaps;
@@ -233,6 +257,8 @@ void AcpChatController::disconnectFromServer()
     m_agentVersion.clear();
     m_serverName.clear();
     m_iconUrl.clear();
+    m_systemPrompt.clear();
+    m_systemPromptOverride = false;
     m_initialized = false;
 
     if (wasConnected)
@@ -246,7 +272,8 @@ void AcpChatController::createNewSession(const FilePath &workingDirectory)
 
     m_workingDirectory = workingDirectory;
 
-    m_adapter->newSession(m_workingDirectory.toFSPathString(), buildMcpServersJson());
+    m_adapter->newSession(m_workingDirectory.toFSPathString(), buildMcpServersJson(),
+                          systemPrompt());
 }
 
 void AcpChatController::sendPrompt(const QString &text,
@@ -357,6 +384,22 @@ void AcpChatController::cancelPrompt()
         return;
 
     m_adapter->cancel(m_sessionId);
+}
+
+void AcpChatController::cancelToolCall(const QString &toolCallId)
+{
+    if (!m_adapter || m_sessionId.isEmpty())
+        return;
+
+    m_adapter->cancelToolCall(m_sessionId, toolCallId);
+}
+
+void AcpChatController::cancelTerminal(const QString &terminalId)
+{
+    if (!m_adapter || m_sessionId.isEmpty())
+        return;
+
+    m_adapter->cancelTerminal(m_sessionId, terminalId);
 }
 
 void AcpChatController::authenticate(const QString &methodId)
@@ -509,6 +552,8 @@ void AcpChatController::connectAdapter()
     });
     connect(m_adapter, &AcpProtocolAdapter::configOptionsReceived,
             this, &AcpChatController::configOptionsReceived);
+    connect(m_adapter, &AcpProtocolAdapter::availableCommandsReceived,
+            this, &AcpChatController::availableCommandsReceived);
     connect(m_adapter, &AcpProtocolAdapter::sessionUpdate,
             this, &AcpChatController::sessionUpdate);
     connect(m_adapter, &AcpProtocolAdapter::permissionRequested,
@@ -520,7 +565,7 @@ void AcpChatController::connectAdapter()
     connect(m_adapter, &AcpProtocolAdapter::authenticated,
             this, [this] { createNewSession(); });
     connect(m_adapter, &AcpProtocolAdapter::promptFinished,
-            this, [this](const std::optional<QString> &) { emit promptFinished(); });
+            this, &AcpChatController::promptFinished);
     connect(m_adapter, &AcpProtocolAdapter::errorOccurred,
             this, &AcpChatController::errorOccurred);
 }
@@ -665,7 +710,24 @@ void AcpChatController::loadSession(const QString &sessionId, const FilePath &wo
     m_workingDirectory = workingDirectory;
 
     m_adapter->resumeSession(sessionId, m_workingDirectory.toFSPathString(),
-                             buildMcpServersJson());
+                             buildMcpServersJson(), systemPrompt());
+}
+
+// An override the agent cannot apply is not downgraded to an append: the
+// user asked for the agent's own instructions to be replaced.
+std::optional<V2::SystemPrompt> AcpChatController::systemPrompt() const
+{
+    if (m_systemPrompt.trimmed().isEmpty() || !m_adapter || !m_adapter->supportsSystemPrompt())
+        return {};
+    if (m_systemPromptOverride && !m_adapter->supportsSystemPromptOverride()) {
+        qCWarning(logController) << "The agent cannot override its system prompt, "
+                                    "not sending one.";
+        return {};
+    }
+    return V2::SystemPrompt()
+        .mode(m_systemPromptOverride ? V2::SystemPromptMode::override_
+                                     : V2::SystemPromptMode::append)
+        .content({V2::TextContent().text(m_systemPrompt)});
 }
 
 } // namespace AcpClient::Internal

@@ -69,6 +69,47 @@ bool AcpProtocolV2Adapter::supportsEmbeddedContext() const
     return promptCaps.has_value() && promptCaps->embeddedContext().has_value();
 }
 
+bool AcpProtocolV2Adapter::supportsSystemPrompt() const
+{
+    const auto &caps = m_initializeResponse.capabilities();
+    return caps && caps->session().has_value() && caps->session()->systemPrompt().has_value();
+}
+
+bool AcpProtocolV2Adapter::supportsSystemPromptOverride() const
+{
+    if (!supportsSystemPrompt())
+        return false;
+    const auto &mode = m_initializeResponse.capabilities()->session()->systemPrompt()->mode();
+    return mode.has_value() && mode->override_().has_value();
+}
+
+void AcpProtocolV2Adapter::emitAvailableCommands(const QJsonObject &result)
+{
+    if (!result.value("availableCommands").isArray())
+        return;
+    QList<AvailableCommand> commands;
+    for (const QJsonValue &item : result.value("availableCommands").toArray()) {
+        if (const auto command = fromJson<AvailableCommand>(item))
+            commands.append(*command);
+        else
+            qCWarning(logAdapter) << "Dropping invalid command:" << item;
+    }
+    emit availableCommandsReceived(commands);
+}
+
+// Error data is parsed on its own: an Acp::V2::Error with data of a shape
+// unknown to the client would not parse at all.
+static QString sessionErrorMessage(const Acp::Error &error)
+{
+    if (error.code() == ErrorCode::Resource_not_found) {
+        const auto data = fromJson<SessionNotFoundErrorData>(error.data().value_or(QJsonValue()));
+        if (data)
+            return Tr::tr("The session \"%1\" does not exist or is not active.")
+                .arg(data->sessionId());
+    }
+    return error.message();
+}
+
 void AcpProtocolV2Adapter::emitConfigOptions(const QJsonArray &options)
 {
     QList<SessionConfigOption> result;
@@ -81,12 +122,15 @@ void AcpProtocolV2Adapter::emitConfigOptions(const QJsonArray &options)
     emit configOptionsReceived(result);
 }
 
-void AcpProtocolV2Adapter::newSession(const QString &cwd, const QJsonArray &mcpServers)
+void AcpProtocolV2Adapter::newSession(const QString &cwd, const QJsonArray &mcpServers,
+                                      const std::optional<SystemPrompt> &systemPrompt)
 {
     QJsonObject params;
     params["cwd"] = cwd;
     if (!mcpServers.isEmpty())
         params["mcpServers"] = mcpServers;
+    if (systemPrompt)
+        params["systemPrompt"] = toJson(*systemPrompt);
     m_client->sendRequest(QStringLiteral("session/new"), params,
                           [this](const QJsonObject &result,
                                  const std::optional<Acp::Error> &error) {
@@ -109,29 +153,35 @@ void AcpProtocolV2Adapter::newSession(const QString &cwd, const QJsonArray &mcpS
         emit sessionCreated(sessionId);
         if (result.value("configOptions").isArray())
             emitConfigOptions(result.value("configOptions").toArray());
+        emitAvailableCommands(result);
         qCDebug(logAdapter) << "Session created:" << sessionId;
     });
 }
 
 void AcpProtocolV2Adapter::resumeSession(const QString &sessionId, const QString &cwd,
-                                         const QJsonArray &mcpServers)
+                                         const QJsonArray &mcpServers,
+                                         const std::optional<SystemPrompt> &systemPrompt)
 {
     QJsonObject params;
     params["sessionId"] = sessionId;
     params["cwd"] = cwd;
     if (!mcpServers.isEmpty())
         params["mcpServers"] = mcpServers;
+    if (systemPrompt)
+        params["systemPrompt"] = toJson(*systemPrompt);
     params["replayFrom"] = QJsonObject{{"type", QStringLiteral("start")}};
     m_client->sendRequest(QStringLiteral("session/resume"), params,
                           [this, sessionId](const QJsonObject &result,
                                             const std::optional<Acp::Error> &error) {
         if (error) {
-            emit errorOccurred(Tr::tr("Failed to resume session: %1").arg(error->message()));
+            emit errorOccurred(
+                Tr::tr("Failed to resume session: %1").arg(sessionErrorMessage(*error)));
             return;
         }
         emit sessionResumed(sessionId);
         if (result.value("configOptions").isArray())
             emitConfigOptions(result.value("configOptions").toArray());
+        emitAvailableCommands(result);
     });
 }
 
@@ -198,11 +248,17 @@ void AcpProtocolV2Adapter::prompt(const QString &sessionId, const QJsonArray &co
     params["sessionId"] = sessionId;
     params["prompt"] = content;
     m_client->sendRequest(QStringLiteral("session/prompt"), params,
-                          [this](const QJsonObject &, const std::optional<Acp::Error> &error) {
+                          [this](const QJsonObject &result,
+                                 const std::optional<Acp::Error> &error) {
         if (error) {
-            emit errorOccurred(Tr::tr("Prompt error: %1").arg(error->message()));
+            emit errorOccurred(Tr::tr("Prompt error: %1").arg(sessionErrorMessage(*error)));
             finishTurn({});
+            return;
         }
+        if (const auto response = fromJson<PromptResponse>(QJsonValue(result)))
+            qCDebug(logAdapter) << "Prompt accepted as message" << response->messageId();
+        else
+            qCWarning(logAdapter) << "Invalid prompt response:" << result << response.error();
     });
 }
 
@@ -232,6 +288,34 @@ void AcpProtocolV2Adapter::reportIdleError(const QJsonObject &update)
 void AcpProtocolV2Adapter::cancel(const QString &sessionId)
 {
     m_client->sendNotification(QStringLiteral("session/cancel"), {{"sessionId", sessionId}});
+}
+
+// The response only acknowledges the cancellation. The tool call or terminal
+// reports that it stopped through its own update.
+void AcpProtocolV2Adapter::cancelToolCall(const QString &sessionId, const QString &toolCallId)
+{
+    const CancelToolCallRequest request
+        = CancelToolCallRequest().sessionId(sessionId).toolCallId(toolCallId);
+    m_client->sendRequest(QStringLiteral("tool_call/cancel"), toJson(request),
+                          [this](const QJsonObject &, const std::optional<Acp::Error> &error) {
+        if (error) {
+            emit errorOccurred(
+                Tr::tr("Failed to cancel tool call: %1").arg(sessionErrorMessage(*error)));
+        }
+    });
+}
+
+void AcpProtocolV2Adapter::cancelTerminal(const QString &sessionId, const QString &terminalId)
+{
+    const CancelTerminalRequest request
+        = CancelTerminalRequest().sessionId(sessionId).terminalId(terminalId);
+    m_client->sendRequest(QStringLiteral("terminal/cancel"), toJson(request),
+                          [this](const QJsonObject &, const std::optional<Acp::Error> &error) {
+        if (error) {
+            emit errorOccurred(
+                Tr::tr("Failed to cancel terminal: %1").arg(sessionErrorMessage(*error)));
+        }
+    });
 }
 
 void AcpProtocolV2Adapter::authenticate(const QString &methodId)
@@ -290,6 +374,10 @@ void AcpProtocolV2Adapter::handleNotification(const QString &method, const QJson
         return;
     }
 
+    // The state, including the work that continues in the background, is
+    // known before the turn ends.
+    emit sessionUpdate(sessionId, *update);
+
     if (update->kind() == QLatin1String("state_update")) {
         if (const StateUpdate *state = update->get<StateUpdate>()) {
             if (const auto *idle = std::get_if<IdleStateUpdate>(state)) {
@@ -298,8 +386,6 @@ void AcpProtocolV2Adapter::handleNotification(const QString &method, const QJson
             }
         }
     }
-
-    emit sessionUpdate(sessionId, *update);
 }
 
 void AcpProtocolV2Adapter::handleRequest(const QJsonValue &id, const QString &method,

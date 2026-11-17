@@ -520,6 +520,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     });
     connect(m_controller, &AcpChatController::configOptionsReceived,
             m_chatPanel, &ChatPanel::setConfigOptions);
+    connect(m_controller, &AcpChatController::availableCommandsReceived,
+            m_chatPanel, &ChatPanel::updateAvailableCommands);
     connect(m_controller, &AcpChatController::sessionUpdate,
             this, [this](const QString &sessionId, const SessionUpdate &update) {
         Q_UNUSED(sessionId)

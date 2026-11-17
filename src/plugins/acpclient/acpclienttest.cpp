@@ -354,7 +354,14 @@ public:
                              updates.append(update);
                          });
         QObject::connect(&controller, &AcpChatController::promptFinished, &controller,
-                         [this] { ++promptFinishedCount; });
+                         [this](const std::optional<QString> &stopReason) {
+                             ++promptFinishedCount;
+                             stopReasons.append(stopReason);
+                         });
+        QObject::connect(&controller, &AcpChatController::availableCommandsReceived,
+                         &controller, [this](const QList<V2::AvailableCommand> &commands) {
+                             availableCommands = commands;
+                         });
         QObject::connect(&controller, &AcpChatController::authenticationRequired, &controller,
                          [this](const QList<V2::AuthMethod> &methods) { authMethods = methods; });
         QObject::connect(&controller, &AcpChatController::authenticationFailed, &controller,
@@ -398,6 +405,8 @@ public:
         AcpSettings::ServerInfo info = serverInfo(arguments);
         if (QTest::currentTestFailed())
             return;
+        info.systemPrompt = systemPrompt;
+        info.systemPromptOverride = systemPromptOverride;
         controller.connectToServer(info);
         // Bail out quickly with the actual error text if the server fails to
         // come up, instead of running into the timeout.
@@ -470,6 +479,10 @@ public:
     QList<V2::SessionConfigOption> configOptions;
     QList<V2::SessionUpdate> updates;
     int promptFinishedCount = 0;
+    QList<std::optional<QString>> stopReasons;
+    QList<V2::AvailableCommand> availableCommands;
+    QString systemPrompt;
+    bool systemPromptOverride = false;
     QList<V2::AuthMethod> authMethods;
     QStringList authErrors;
     QList<QJsonValue> permissionIds;
@@ -552,6 +565,7 @@ private slots:
     void testInitializeDowngradeToV1();
     void testInitializeUnsupportedVersion();
     void testInitializeMissingVersion();
+    void testInitializeRejectedVersion();
     void testControllerConnectAndSession();
     void testControllerPromptStreaming();
     void testControllerAuthentication();
@@ -576,8 +590,16 @@ private slots:
     void testV2PromptIdleUnparseable();
     void testV2PermissionRequest();
     void testV2SessionResume();
+    void testV2SessionResumeUnknown();
     void testV2UnknownSessionUpdateIgnored();
     void testV2Elicitation();
+    void testV2NoticeAndCompaction();
+    void testV2CancelToolCall();
+    void testV2CancelTerminal();
+    void testV2BackgroundWork();
+    void testV2StopReason();
+    void testV2SystemPrompt();
+    void testV2AvailableCommandsOnNewSession();
 
     // Tier 4: chat panel presentation
     void testChatPanelTurnStats();
@@ -636,6 +658,7 @@ private slots:
     void testSessionSwitcherButton();
     void testChatWidgetOverview();
     void testChatWidgetServerIconClearedOnDisconnect();
+    void testChatTabResponseCommands();
     void testChatWidgetOverviewHeight();
     void testChatEditorRoundTrip();
 
@@ -1798,6 +1821,9 @@ void AcpClientTest::testHybridInitializeParams()
     const QJsonObject clientCaps = params.value("clientCapabilities").toObject();
     QVERIFY(clientCaps.value("terminal").toBool());
     QVERIFY(clientCaps.value("fs").toObject().value("readTextFile").toBool());
+    const QJsonObject sessionCaps = clientCaps.value("session").toObject();
+    QVERIFY(sessionCaps.value("compaction").isObject());
+    QVERIFY(sessionCaps.value("notices").isObject());
 }
 
 // A v1-only agent answers the version-2 request with protocolVersion 1; the
@@ -1841,6 +1867,21 @@ void AcpClientTest::testInitializeMissingVersion()
     QCOMPARE(fixture.errors.size(), 1);
     QVERIFY2(!fixture.errors.first().endsWith(": "), qPrintable(fixture.errors.first()));
     QVERIFY2(fixture.errors.first().contains("did not report"),
+             qPrintable(fixture.errors.first()));
+}
+
+// An agent rejecting the requested version names the ones it supports, and
+// the message lists them.
+void AcpClientTest::testInitializeRejectedVersion()
+{
+    ControllerFixture fixture;
+    fixture.connectExpectingFailure({"--reject-protocol-version"});
+    if (QTest::currentTestFailed())
+        return;
+
+    QVERIFY(!fixture.controller.isInitialized());
+    QCOMPARE(fixture.errors.size(), 1);
+    QVERIFY2(fixture.errors.first().contains("Supported versions: 1."),
              qPrintable(fixture.errors.first()));
 }
 
@@ -2450,6 +2491,22 @@ void AcpClientTest::testV2SessionResume()
         return update.kind() == QLatin1String("agent_message_chunk");
     }));
     QVERIFY(fixture.errors.isEmpty());
+}
+
+// Resuming a session the agent does not know names the session from the
+// error data.
+void AcpClientTest::testV2SessionResumeUnknown()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--sessions", "1"});
+
+    fixture.controller.loadSession("no-such-session",
+                                   Utils::FilePath::fromUserInput(QDir::currentPath()));
+    QTRY_COMPARE(fixture.errors.size(), 1);
+    QVERIFY2(fixture.errors.first().contains(
+                 "The session \"no-such-session\" does not exist or is not active."),
+             qPrintable(fixture.errors.first()));
+    QVERIFY(fixture.loadedSessions.isEmpty());
 }
 
 // Unknown session update kinds are tolerated: they parse to the raw fallback,
@@ -4847,6 +4904,39 @@ void AcpClientTest::testChatWidgetServerIconClearedOnDisconnect()
     QVERIFY(switcher->icon().isNull());
 }
 
+// The commands an agent reports in its session/new response reach the chat
+// panel's commands button.
+void AcpClientTest::testChatTabResponseCommands()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo(
+        {"--protocol-version", "2", "--available-commands"});
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpChatWidget widget;
+    auto *tab = widget.findChild<AcpChatTab *>();
+    QVERIFY(tab);
+    auto *controller = tab->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    QAbstractButton *commandsButton = Utils::findOrDefault(
+        tab->findChildren<QAbstractButton *>(), [](const QAbstractButton *button) {
+            return button->toolTip() == Tr::tr("Insert Command");
+        });
+    QVERIFY(commandsButton);
+    QVERIFY(commandsButton->isHidden());
+
+    QSignalSpy created(controller, &AcpChatController::sessionCreated);
+    controller->connectToServer(info);
+    QTRY_VERIFY_WITH_TIMEOUT(controller->isInitialized(), 15000);
+    controller->createNewSession();
+    QTRY_COMPARE(created.count(), 1);
+    QVERIFY(!commandsButton->isHidden());
+}
+
 static QList<Core::IDocument *> chatEditorDocuments()
 {
     return Utils::filtered(Core::DocumentModel::openedDocuments(), [](Core::IDocument *document) {
@@ -5491,6 +5581,230 @@ void AcpClientTest::testRegistryBrowserAfterBlockOnce()
     const std::unique_ptr<QWidget> second(createRegistryBrowserWidget());
     QVERIFY(!registryAccessDialog());
     QCOMPARE(denied.count(), 1);
+}
+
+// --- Tier 3c: ACP v2 additions ----------------------------------------------
+
+static const V2::SessionUpdate *findUpdate(const QList<V2::SessionUpdate> &updates,
+                                           const std::function<bool(const V2::SessionUpdate &)> &pred)
+{
+    for (const V2::SessionUpdate &update : updates) {
+        if (pred(update))
+            return &update;
+    }
+    return nullptr;
+}
+
+static bool isAgentText(const V2::SessionUpdate &update, const QString &text)
+{
+    if (update.kind() != QLatin1String("agent_message_chunk"))
+        return false;
+    const auto *chunk = update.get<V2::ContentChunk>();
+    const auto *textBlock = chunk ? std::get_if<V2::TextContent>(&chunk->content()) : nullptr;
+    return textBlock && textBlock->text() == text;
+}
+
+static bool hasToolCallStatus(const QList<V2::SessionUpdate> &updates, const QString &toolCallId,
+                              V2::ToolCallStatus status)
+{
+    return findUpdate(updates, [&](const V2::SessionUpdate &update) {
+        const auto *toolCall = update.get<V2::ToolCallUpdate>();
+        return toolCall && toolCall->toolCallId() == toolCallId
+               && toolCall->status().asOptional() == status;
+    });
+}
+
+static std::optional<QList<V2::BackgroundWork>> lastBackground(
+    const QList<V2::SessionUpdate> &updates)
+{
+    for (auto it = updates.crbegin(); it != updates.crend(); ++it) {
+        const auto *state = it->get<V2::StateUpdate>();
+        const auto *idle = state ? std::get_if<V2::IdleStateUpdate>(state) : nullptr;
+        if (idle)
+            return idle->background().asOptional();
+    }
+    return std::nullopt;
+}
+
+void AcpClientTest::testV2NoticeAndCompaction()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--notice", "--compaction"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    const V2::SessionUpdate *notice = findUpdate(fixture.updates, [](const auto &update) {
+        return update.kind() == QLatin1String("notice");
+    });
+    QVERIFY(notice);
+    QVERIFY(notice->get<V2::Notice>());
+    QVERIFY(notice->get<V2::Notice>()->severity() == V2::NoticeSeverity::warning);
+    QCOMPARE(notice->get<V2::Notice>()->title(), "Rate limited");
+
+    const V2::SessionUpdate *chunk = findUpdate(fixture.updates, [](const auto &update) {
+        return update.kind() == QLatin1String("compaction_summary_chunk");
+    });
+    QVERIFY(chunk);
+    QCOMPARE(chunk->get<V2::CompactionSummaryChunk>()->compactionId(), "compaction-1");
+    const V2::SessionUpdate *compaction = findUpdate(fixture.updates, [](const auto &update) {
+        return update.kind() == QLatin1String("compaction_update");
+    });
+    QVERIFY(compaction);
+    QVERIFY(compaction->get<V2::CompactionUpdate>()->status() == V2::CompactionStatus::completed);
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+// The agent waits for tool_call/cancel, so the turn only ends if the request
+// was sent and accepted.
+void AcpClientTest::testV2CancelToolCall()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--cancellable-tool-call"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_VERIFY(findUpdate(fixture.updates, [](const V2::SessionUpdate &update) {
+        const auto *toolCall = update.get<V2::ToolCallUpdate>();
+        return toolCall && toolCall->capabilities().has_value()
+               && toolCall->capabilities()->cancel().has_value();
+    }));
+
+    fixture.controller.cancelToolCall("tool-cancellable");
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+    QVERIFY(hasToolCallStatus(fixture.updates, "tool-cancellable",
+                              V2::ToolCallStatus::cancelled));
+    QVERIFY2(fixture.errors.isEmpty(), qPrintable(fixture.errors.join("; ")));
+}
+
+void AcpClientTest::testV2CancelTerminal()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--cancellable-terminal"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+    fixture.controller.sendPrompt("hello", {}, false);
+    QTRY_VERIFY(findUpdate(fixture.updates, [](const V2::SessionUpdate &update) {
+        const auto *terminal = update.get<V2::TerminalUpdate>();
+        return terminal && terminal->capabilities().has_value();
+    }));
+
+    fixture.controller.cancelTerminal("term-1");
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+    QVERIFY(findUpdate(fixture.updates, [](const V2::SessionUpdate &update) {
+        const auto *terminal = update.get<V2::TerminalUpdate>();
+        return terminal && terminal->exitStatus().has_value();
+    }));
+    QVERIFY2(fixture.errors.isEmpty(), qPrintable(fixture.errors.join("; ")));
+}
+
+void AcpClientTest::testV2BackgroundWork()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--background-work"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.createdSessions.size(), 1);
+    fixture.controller.sendPrompt("first", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 1);
+
+    const auto background = lastBackground(fixture.updates);
+    QVERIFY(background);
+    QCOMPARE(background->size(), 1);
+    const auto *toolCall = std::get_if<V2::BackgroundToolCall>(&background->first());
+    QVERIFY(toolCall);
+    QCOMPARE(toolCall->toolCallId(), "tool-background");
+    QVERIFY(!hasToolCallStatus(fixture.updates, "tool-background",
+                               V2::ToolCallStatus::completed));
+
+    fixture.controller.sendPrompt("second", {}, false);
+    QTRY_COMPARE(fixture.promptFinishedCount, 2);
+    // Completed, and not started again.
+    const qsizetype completed = Utils::indexOf(fixture.updates, [](const V2::SessionUpdate &u) {
+        const auto *toolCall = u.get<V2::ToolCallUpdate>();
+        return toolCall && toolCall->toolCallId() == QLatin1String("tool-background")
+               && toolCall->status().asOptional() == V2::ToolCallStatus::completed;
+    });
+    QVERIFY(completed >= 0);
+    QVERIFY(!hasToolCallStatus(fixture.updates.mid(completed), "tool-background",
+                               V2::ToolCallStatus::in_progress));
+    const auto backgroundAfter = lastBackground(fixture.updates);
+    QVERIFY(backgroundAfter);
+    QVERIFY(backgroundAfter->isEmpty());
+    QVERIFY(fixture.errors.isEmpty());
+}
+
+void AcpClientTest::testV2StopReason()
+{
+    {
+        ControllerFixture fixture;
+        CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--stop-reason", "max_tokens"});
+        fixture.controller.createNewSession();
+        QTRY_COMPARE(fixture.createdSessions.size(), 1);
+        fixture.controller.sendPrompt("hello", {}, false);
+        QTRY_COMPARE(fixture.stopReasons.size(), 1);
+        QCOMPARE(fixture.stopReasons.first().value_or(QString()), "max_tokens");
+        QVERIFY(fixture.errors.isEmpty());
+    }
+    {
+        ControllerFixture fixture;
+        CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--stop-reason", "error"});
+        fixture.controller.createNewSession();
+        QTRY_COMPARE(fixture.createdSessions.size(), 1);
+        fixture.controller.sendPrompt("hello", {}, false);
+        QTRY_COMPARE(fixture.stopReasons.size(), 1);
+        QCOMPARE(fixture.stopReasons.first().value_or(QString()), "error");
+        QCOMPARE(fixture.errors.size(), 1);
+        QVERIFY2(fixture.errors.first().contains("Model overloaded"),
+                 qPrintable(fixture.errors.first()));
+    }
+}
+
+void AcpClientTest::testV2SystemPrompt()
+{
+    {
+        ControllerFixture fixture;
+        fixture.systemPrompt = "Be brief.";
+        fixture.systemPromptOverride = true;
+        CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--system-prompt"});
+        fixture.controller.createNewSession();
+        QTRY_COMPARE(fixture.createdSessions.size(), 1);
+        fixture.controller.sendPrompt("hello", {}, false);
+        QTRY_COMPARE(fixture.promptFinishedCount, 1);
+        QVERIFY(findUpdate(fixture.updates, [](const V2::SessionUpdate &update) {
+            return isAgentText(update, "system-prompt:override:Be brief.");
+        }));
+    }
+    {
+        // Without the capability, nothing is sent.
+        ControllerFixture fixture;
+        fixture.systemPrompt = "Be brief.";
+        CONNECT_CONTROLLER(fixture, {"--protocol-version", "2"});
+        fixture.controller.createNewSession();
+        QTRY_COMPARE(fixture.createdSessions.size(), 1);
+        fixture.controller.sendPrompt("hello", {}, false);
+        QTRY_COMPARE(fixture.promptFinishedCount, 1);
+        QVERIFY(!findUpdate(fixture.updates, [](const V2::SessionUpdate &update) {
+            return isAgentText(update, "system-prompt:append:Be brief.")
+                   || isAgentText(update, "system-prompt:override:Be brief.");
+        }));
+    }
+}
+
+void AcpClientTest::testV2AvailableCommandsOnNewSession()
+{
+    ControllerFixture fixture;
+    CONNECT_CONTROLLER(fixture, {"--protocol-version", "2", "--available-commands"});
+
+    fixture.controller.createNewSession();
+    QTRY_COMPARE(fixture.availableCommands.size(), 1);
+    const auto *command = std::get_if<V2::Command>(&fixture.availableCommands.first());
+    QVERIFY(command);
+    QCOMPARE(command->name(), "review");
 }
 
 QObject *createAcpClientTest()

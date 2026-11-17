@@ -27,6 +27,8 @@ public:
         QString iconUrl;
         Utils::CommandLine launchCommand;
         Utils::EnvironmentChanges envChanges;
+        QString systemPrompt;
+        bool systemPromptOverride = false;
     };
 
     static QFuture<QIcon> iconForUrl(const QString &url);

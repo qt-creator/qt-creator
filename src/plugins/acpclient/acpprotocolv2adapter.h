@@ -19,14 +19,18 @@ public:
 
     int protocolVersion() const override { return 2; }
 
-    void newSession(const QString &cwd, const QJsonArray &mcpServers) override;
+    void newSession(const QString &cwd, const QJsonArray &mcpServers,
+                    const std::optional<Acp::V2::SystemPrompt> &systemPrompt) override;
     void resumeSession(const QString &sessionId, const QString &cwd,
-                       const QJsonArray &mcpServers) override;
+                       const QJsonArray &mcpServers,
+                       const std::optional<Acp::V2::SystemPrompt> &systemPrompt) override;
     void listSessions(const std::optional<QString> &cursor) override;
     void deleteSession(const QString &sessionId) override;
     void closeSession(const QString &sessionId) override;
     void prompt(const QString &sessionId, const QJsonArray &content) override;
     void cancel(const QString &sessionId) override;
+    void cancelToolCall(const QString &sessionId, const QString &toolCallId) override;
+    void cancelTerminal(const QString &sessionId, const QString &terminalId) override;
     void authenticate(const QString &methodId) override;
     void setConfigOption(const QString &sessionId, const QString &configId,
                          const QJsonValue &value) override;
@@ -36,6 +40,8 @@ public:
     bool supportsSessionClose() const override;
     bool supportsImagePrompt() const override;
     bool supportsEmbeddedContext() const override;
+    bool supportsSystemPrompt() const override;
+    bool supportsSystemPromptOverride() const override;
     QList<Acp::V2::AuthMethod> authMethods() const override;
 
 private:
@@ -44,6 +50,7 @@ private:
     void handleNotification(const QString &method, const QJsonObject &params);
     void handleRequest(const QJsonValue &id, const QString &method, const QJsonObject &params);
     void emitConfigOptions(const QJsonArray &options);
+    void emitAvailableCommands(const QJsonObject &result);
 
     Acp::V2::InitializeResponse m_initializeResponse;
     bool m_turnActive = false;

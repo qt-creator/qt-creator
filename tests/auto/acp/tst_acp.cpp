@@ -123,6 +123,9 @@ private slots:
     void v2OpenUnionKnownVariant();
     void v2StateUpdateRoundtrip();
     void v2StateUpdateUnknownStopReason();
+    void v2StateUpdateBackground();
+    void v2NoticeUpdate();
+    void v2CompactionUpdates();
     void v2AuthMethodUnknownType();
     void v2InitializeResponseRoundtrip();
     void v2PromptResponseMessageId();
@@ -985,6 +988,90 @@ void tst_Acp::v2StateUpdateUnknownStopReason()
              QString("_vendor_reason"));
 }
 
+
+void tst_Acp::v2StateUpdateBackground()
+{
+    const QJsonObject idle = jsonObj(R"({
+        "state": "idle",
+        "stopReason": "error",
+        "error": {"code": -32603, "message": "Model overloaded"},
+        "background": [
+            {"type": "tool_call", "toolCallId": "call-1"},
+            {"type": "terminal", "terminalId": "term-1"},
+            {"type": "_vendor_work", "id": 7}
+        ]
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::StateUpdate>(QJsonValue(idle));
+    QVERIFY_RESULT(parsed);
+    const auto *idleState = std::get_if<Acp::V2::IdleStateUpdate>(&*parsed);
+    QVERIFY(idleState);
+    QCOMPARE(idleState->stopReason().asOptional().value_or(QString()), QString("error"));
+    QVERIFY(idleState->background().has_value());
+    const QList<Acp::V2::BackgroundWork> &background = *idleState->background();
+    QCOMPARE(background.size(), 3);
+    QVERIFY(std::get_if<Acp::V2::BackgroundToolCall>(&background.at(0)));
+    QVERIFY(std::get_if<Acp::V2::BackgroundTerminal>(&background.at(1)));
+    QVERIFY(std::get_if<QJsonObject>(&background.at(2)));
+    QCOMPARE(Acp::V2::toJson(*parsed), idle);
+
+    // Omitted and empty are different: the agent does not report background
+    // work, or reports that none runs.
+    const QJsonObject empty = jsonObj(R"({"state": "running", "background": []})");
+    auto parsedEmpty = Acp::V2::fromJson<Acp::V2::StateUpdate>(QJsonValue(empty));
+    QVERIFY_RESULT(parsedEmpty);
+    const auto *running = std::get_if<Acp::V2::RunningStateUpdate>(&*parsedEmpty);
+    QVERIFY(running);
+    QVERIFY(running->background().has_value());
+    QVERIFY(running->background()->isEmpty());
+    QCOMPARE(Acp::V2::toJson(*parsedEmpty), empty);
+}
+
+void tst_Acp::v2NoticeUpdate()
+{
+    const QJsonObject obj = jsonObj(R"({
+        "sessionUpdate": "notice",
+        "severity": "warning",
+        "title": "Rate limited",
+        "description": "Retrying shortly."
+    })");
+    auto parsed = Acp::V2::fromJson<Acp::V2::SessionUpdate>(QJsonValue(obj));
+    QVERIFY_RESULT(parsed);
+    QCOMPARE(parsed->kind(), QString("notice"));
+    const auto *notice = parsed->get<Acp::V2::Notice>();
+    QVERIFY(notice);
+    QVERIFY(notice->severity() == Acp::V2::NoticeSeverity::warning);
+    QCOMPARE(notice->title(), QString("Rate limited"));
+    QCOMPARE(Acp::V2::toJson(*parsed), obj);
+}
+
+void tst_Acp::v2CompactionUpdates()
+{
+    const QJsonObject chunk = jsonObj(R"({
+        "sessionUpdate": "compaction_summary_chunk",
+        "compactionId": "c-1",
+        "content": {"type": "text", "text": "Summary"}
+    })");
+    auto parsedChunk = Acp::V2::fromJson<Acp::V2::SessionUpdate>(QJsonValue(chunk));
+    QVERIFY_RESULT(parsedChunk);
+    QVERIFY(parsedChunk->get<Acp::V2::CompactionSummaryChunk>());
+    QCOMPARE(Acp::V2::toJson(*parsedChunk), chunk);
+
+    for (const QByteArray &summary : {QByteArray(), QByteArray(R"(, "summary": null)"),
+                                      QByteArray(R"(, "summary": [{"type": "text", "text": "S"}])")}) {
+        const QJsonObject update = jsonObj(R"({
+            "sessionUpdate": "compaction_update",
+            "compactionId": "c-1",
+            "status": "completed")" + summary + "}");
+        auto parsed = Acp::V2::fromJson<Acp::V2::SessionUpdate>(QJsonValue(update));
+        QVERIFY_RESULT(parsed);
+        const auto *compaction = parsed->get<Acp::V2::CompactionUpdate>();
+        QVERIFY(compaction);
+        QVERIFY(compaction->status() == Acp::V2::CompactionStatus::completed);
+        QCOMPARE(compaction->summary().isAbsent(), summary.isEmpty());
+        QCOMPARE(compaction->summary().isNull(), summary.contains("null"));
+        QCOMPARE(Acp::V2::toJson(*parsed), update);
+    }
+}
 
 void tst_Acp::v2AuthMethodUnknownType()
 {

@@ -35,8 +35,18 @@ public:
     int chunks = 3;                // --chunks <N>
     int protocolVersion = -1;      // --protocol-version <N>, -1 negotiates
     bool omitProtocolVersion = false; // --omit-protocol-version
+    bool rejectProtocolVersion = false; // --reject-protocol-version
     bool idleError = false;        // --idle-error
     bool idleUnparseable = false;  // --idle-unparseable
+    bool emitNotice = false;       // --notice
+    bool emitCompaction = false;   // --compaction
+    bool cancellableToolCall = false; // --cancellable-tool-call
+    bool cancellableTerminal = false; // --cancellable-terminal
+    bool backgroundWork = false;   // --background-work
+    bool pausedToolCall = false;   // --paused-tool-call
+    QString stopReason = "end_turn"; // --stop-reason <reason>
+    bool systemPrompt = false;     // --system-prompt
+    bool availableCommands = false; // --available-commands
 
 };
 
@@ -74,7 +84,8 @@ private:
     void handlePromptV2(const QJsonValue &id, const QJsonObject &params);
 
     void sendResult(const QJsonValue &id, const QJsonObject &result);
-    void sendError(const QJsonValue &id, int code, const QString &message);
+    void sendError(const QJsonValue &id, int code, const QString &message,
+                   const QJsonValue &data = QJsonValue::Undefined);
     void sendNotification(const QString &method, const QJsonObject &params);
     void sendAgentMessageChunk(const QString &sessionId, const QString &text);
     void sendUserMessageChunk(const QString &sessionId, const QString &text);
@@ -82,7 +93,11 @@ private:
     void sendAgentMessageChunkV2(const QString &sessionId, const QString &messageId,
                                  const QString &text);
     void sendStateUpdate(const QString &sessionId, const QString &state,
-                         const QString &stopReason = {});
+                         const QString &stopReason = {},
+                         const std::optional<QJsonArray> &background = {});
+    void sendFinalStateUpdate(const QString &sessionId);
+    bool runCancellableToolCall(const QString &sessionId);
+    bool runCancellableTerminal(const QString &sessionId);
     void writeLine(const QJsonObject &message);
     void writeRawLine(const QByteArray &line);
     void noise(const char *context);
@@ -100,6 +115,9 @@ private:
     bool m_autoApprove = false;
     QString m_model = "small";
     QString m_currentModeId = "ask";
+    QJsonObject m_systemPrompt;
+    bool m_backgroundStarted = false;
+    bool m_backgroundRunning = false;
     QStringList m_sessions;
     int m_nextSessionNumber = 1;
     int m_messageCounter = 0;

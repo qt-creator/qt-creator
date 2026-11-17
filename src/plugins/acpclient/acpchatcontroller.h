@@ -49,6 +49,8 @@ public:
                     const QList<TextContext> &textContexts = {},
                     const QList<ImageContext> &imageContexts = {});
     void cancelPrompt();
+    void cancelToolCall(const QString &toolCallId);
+    void cancelTerminal(const QString &terminalId);
     void authenticate(const QString &methodId);
     void setConfigOption(const QString &configId, const QJsonValue &value);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
@@ -87,6 +89,7 @@ signals:
     void sessionDeleted(const QString &sessionId);
     void sessionClosed(const QString &sessionId);
     void configOptionsReceived(const QList<Acp::V2::SessionConfigOption> &configOptions);
+    void availableCommandsReceived(const QList<Acp::V2::AvailableCommand> &commands);
     void sessionUpdate(const QString &sessionId, const Acp::V2::SessionUpdate &update);
     void authenticationRequired(const QList<Acp::V2::AuthMethod> &methods);
     void authenticationFailed(const QString &error);
@@ -95,7 +98,7 @@ signals:
     void elicitationRequested(const QJsonValue &id, const ElicitationRequest &request);
     void elicitationCancelledByAgent(const QJsonValue &id);
     void elicitationCompletedByAgent(const QJsonValue &id);
-    void promptFinished();
+    void promptFinished(const std::optional<QString> &stopReason);
     void errorOccurred(const QString &error);
 
 public:
@@ -109,6 +112,7 @@ private:
                         const QJsonObject &rawCapabilities);
     void connectAdapter();
     QJsonArray buildMcpServersJson() const;
+    std::optional<Acp::V2::SystemPrompt> systemPrompt() const;
 
     AcpInspector *m_inspector = nullptr;
     AcpTransport *m_transport = nullptr;
@@ -125,6 +129,8 @@ private:
     QString m_agentVersion;
     QString m_serverName;
     QString m_iconUrl;
+    QString m_systemPrompt;
+    bool m_systemPromptOverride = false;
     bool m_initialized = false;
 };
 

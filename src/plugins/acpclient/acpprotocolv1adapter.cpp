@@ -6,6 +6,8 @@
 #include "acpclientobject.h"
 #include "acpclienttr.h"
 
+#include <utils/qtcassert.h>
+
 #include <QJsonArray>
 #include <QLoggingCategory>
 
@@ -180,6 +182,24 @@ bool AcpProtocolV1Adapter::supportsEmbeddedContext() const
     return false;
 }
 
+bool AcpProtocolV1Adapter::supportsSystemPrompt() const
+{
+    const auto &caps = m_initializeResponse.agentCapabilities();
+    if (!caps)
+        return false;
+    const auto &sessionCaps = caps->sessionCapabilities();
+    return sessionCaps.has_value() && sessionCaps->systemPrompt().has_value();
+}
+
+bool AcpProtocolV1Adapter::supportsSystemPromptOverride() const
+{
+    if (!supportsSystemPrompt())
+        return false;
+    const auto &mode
+        = m_initializeResponse.agentCapabilities()->sessionCapabilities()->systemPrompt()->mode();
+    return mode.has_value() && mode->override_().has_value();
+}
+
 QList<V2::SessionConfigOption> AcpProtocolV1Adapter::convertConfigOptions(
     const QJsonArray &options) const
 {
@@ -257,11 +277,15 @@ void AcpProtocolV1Adapter::applySessionSetup(const QJsonObject &result)
     emit configOptionsReceived(fullConfigOptions());
 }
 
-void AcpProtocolV1Adapter::newSession(const QString &cwd, const QJsonArray &mcpServers)
+// The system prompt has the same shape in v1 and v2.
+void AcpProtocolV1Adapter::newSession(const QString &cwd, const QJsonArray &mcpServers,
+                                      const std::optional<V2::SystemPrompt> &systemPrompt)
 {
     QJsonObject params;
     params["cwd"] = cwd;
     params["mcpServers"] = mcpServers;
+    if (systemPrompt)
+        params["systemPrompt"] = V2::toJson(*systemPrompt);
     m_client->sendRequest(QStringLiteral("session/new"), params,
                           [this](const QJsonObject &result, const std::optional<Error> &error) {
         if (error) {
@@ -287,12 +311,15 @@ void AcpProtocolV1Adapter::newSession(const QString &cwd, const QJsonArray &mcpS
 }
 
 void AcpProtocolV1Adapter::resumeSession(const QString &sessionId, const QString &cwd,
-                                         const QJsonArray &mcpServers)
+                                         const QJsonArray &mcpServers,
+                                         const std::optional<V2::SystemPrompt> &systemPrompt)
 {
     QJsonObject params;
     params["sessionId"] = sessionId;
     params["cwd"] = cwd;
     params["mcpServers"] = mcpServers;
+    if (systemPrompt)
+        params["systemPrompt"] = V2::toJson(*systemPrompt);
     m_client->sendRequest(QStringLiteral("session/load"), params,
                           [this, sessionId](const QJsonObject &result,
                                             const std::optional<Error> &error) {
@@ -390,6 +417,18 @@ void AcpProtocolV1Adapter::prompt(const QString &sessionId, const QJsonArray &co
 void AcpProtocolV1Adapter::cancel(const QString &sessionId)
 {
     m_client->sendNotification(QStringLiteral("session/cancel"), {{"sessionId", sessionId}});
+}
+
+// v1 tool calls and terminals never advertise a cancel capability, so these
+// are never offered.
+void AcpProtocolV1Adapter::cancelToolCall(const QString &, const QString &)
+{
+    QTC_CHECK(false);
+}
+
+void AcpProtocolV1Adapter::cancelTerminal(const QString &, const QString &)
+{
+    QTC_CHECK(false);
 }
 
 void AcpProtocolV1Adapter::authenticate(const QString &methodId)
