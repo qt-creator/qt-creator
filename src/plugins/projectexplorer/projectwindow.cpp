@@ -751,6 +751,12 @@ public:
     }
 
 protected:
+    void showEvent(QShowEvent *event) final
+    {
+        ensurePage();
+        QWidget::showEvent(event);
+    }
+
     void keyReleaseEvent(QKeyEvent *event) final
     {
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
@@ -759,8 +765,10 @@ protected:
 
     void keyPressEvent(QKeyEvent *event) final
     {
-        if (m_targetSetupPage->importLineEditHasFocus() || !m_configureButton.isEnabled())
+        if (!m_targetSetupPage || m_targetSetupPage->importLineEditHasFocus()
+            || !m_configureButton.isEnabled()) {
             return;
+        }
 
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
             event->accept();
@@ -771,14 +779,17 @@ protected:
 private:
     void done()
     {
+        QTC_ASSERT(m_targetSetupPage, return);
         m_targetSetupPage->setupProject(m_project);
         delete m_targetSetupPage;
+        m_configureButton.setEnabled(false);
 
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
     void onCompleteChanged()
     {
+        QTC_ASSERT(m_targetSetupPage, return);
         m_configureButton.setEnabled(m_targetSetupPage->isComplete());
     }
 
