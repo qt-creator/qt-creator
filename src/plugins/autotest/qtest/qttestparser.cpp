@@ -61,8 +61,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
     }
 
     for (const QString &prefix : expectedHeaderPrefixes) {
-        if (CppParser::precompiledHeaderContains(snapshot,
-                                                 doc->filePath(),
+        if (CppParser::precompiledHeaderContains(doc->filePath(),
                                                  QString("%1/qtest.h").arg(prefix))) {
             return true;
         }
@@ -87,7 +86,7 @@ TestCases QtTestParser::testCases(const QtTestParseContext &context,
 {
     const QByteArray &fileContent = getFileContent(context, filePath);
     CPlusPlus::Document::Ptr document
-        = CppEditor::CppModelManager::document(filePath, CppEditor::DocumentLookup::SnapshotOnly);
+        = CppEditor::CppModelManager::document(filePath, CppEditor::DocumentLookup::ReadIfNeeded);
     if (document.isNull())
         return {};
 
@@ -103,10 +102,12 @@ TestCases QtTestParser::testCases(const QtTestParseContext &context,
         }
     }
     // check if one has used a self-defined macro or QTest::qExec() directly
-    document = context.cppSnapshot.preprocessedDocument(fileContent, filePath);
+    // Fresh, the one taken when the scan began predates reading this file.
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+    document = snapshot.preprocessedDocument(fileContent, filePath);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
-    TestAstVisitor astVisitor(document, context.cppSnapshot);
+    TestAstVisitor astVisitor(document, snapshot);
     astVisitor.accept(ast);
     if (!astVisitor.testCases().isEmpty())
         return astVisitor.testCases();
@@ -154,7 +155,9 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     // fallback for inherited functions
     if (lookupItems.isEmpty() && !alternativeFiles.isEmpty()) {
         for (const FilePath &alternativeFile : alternativeFiles) {
-            if (CPlusPlus::Document::Ptr document = snapshot.document(alternativeFile)) {
+            if (CPlusPlus::Document::Ptr document
+                = CppEditor::CppModelManager::document(alternativeFile,
+                                                       CppEditor::DocumentLookup::ReadIfNeeded)) {
                 CPlusPlus::TypeOfExpression typeOfExpr; // we need a new one with no bindings
                 typeOfExpr.init(document, snapshot);
                 lookupItems = typeOfExpr(testCaseName.toUtf8(), document->globalNamespace());
@@ -167,7 +170,8 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     for (const CPlusPlus::LookupItem &item : std::as_const(lookupItems)) {
         if (CPlusPlus::Symbol *symbol = item.declaration()) {
             if (CPlusPlus::Class *toeClass = symbol->asClass()) {
-                declaringDoc = snapshot.document(toeClass->filePath());
+                declaringDoc = CppEditor::CppModelManager::document(
+                    toeClass->filePath(), CppEditor::DocumentLookup::ReadIfNeeded);
                 if (line)
                     *line = toeClass->line();
                 if (column)
@@ -198,7 +202,7 @@ QHash<QString, QtTestCodeLocationList> QtTestParser::checkForDataTags(
 {
     const QByteArray fileContent = getFileContent(context, fileName);
     CPlusPlus::Document::Ptr document
-        = context.cppSnapshot.preprocessedDocument(fileContent, fileName);
+        = CppEditor::CppModelManager::snapshot().preprocessedDocument(fileContent, fileName);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     TestDataFunctionVisitor visitor(document);
@@ -300,11 +304,15 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     if (!context.prefilteredFiles.contains(fileName))
         return false;
 
-    CPlusPlus::Document::Ptr doc = document(context, fileName);
+    CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull())
         return false;
+
+    // After document(), which may read the file and its headers into the snapshot.
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+
     const TestCases &oldTestCases = context.cachedTestCases.value(fileName);
-    if ((!includesQtTest(doc, context.cppSnapshot) || !qtTestLibDefined(fileName))
+    if ((!includesQtTest(doc, snapshot) || !qtTestLibDefined(fileName))
         && oldTestCases.isEmpty()) {
         return false;
     }
@@ -318,7 +326,7 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         if (!testCase.name.isEmpty()) {
             TestCaseData data;
             std::optional<bool> earlyReturn
-                = fillTestCaseData(context, testCase.name, doc, data);
+                = fillTestCaseData(context, snapshot, testCase.name, doc, data);
             if (earlyReturn.has_value() || !data.valid)
                 continue;
 
@@ -338,17 +346,18 @@ bool QtTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
 }
 
 std::optional<bool> QtTestParser::fillTestCaseData(
-        const QtTestParseContext &context, const QString &testCaseName,
-        const CPlusPlus::Document::Ptr &doc, TestCaseData &data) const
+        const QtTestParseContext &context, const CPlusPlus::Snapshot &snapshot,
+        const QString &testCaseName, const CPlusPlus::Document::Ptr &doc,
+        TestCaseData &data) const
 {
     const FilePaths &alternativeFiles = context.alternativeFiles.values(doc->filePath());
-    CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, context.cppSnapshot,
-                                                              testCaseName, alternativeFiles,
+    CPlusPlus::Document::Ptr declaringDoc = declaringDocument(doc, snapshot, testCaseName,
+                                                              alternativeFiles,
                                                               &(data.line), &(data.column));
     if (declaringDoc.isNull())
         return false;
 
-    TestVisitor visitor(testCaseName, context.cppSnapshot);
+    TestVisitor visitor(testCaseName, snapshot);
     visitor.accept(declaringDoc->globalNamespace());
     if (!visitor.resultValid())
         return false;
@@ -357,7 +366,7 @@ std::optional<bool> QtTestParser::fillTestCaseData(
     // gather appropriate information of base classes as well and merge into already found
     // functions - but only as far as QtTest can handle this appropriate
     fetchAndMergeBaseTestFunctions(
-                visitor.baseClasses(), data.testFunctions, declaringDoc, context.cppSnapshot);
+                visitor.baseClasses(), data.testFunctions, declaringDoc, snapshot);
 
     // handle tests that are not runnable without more information (plugin unit test of QC)
     if (data.testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))

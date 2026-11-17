@@ -89,8 +89,7 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
     }
 
     for (const QString &prefix : expectedHeaderPrefixes) {
-        if (CppParser::precompiledHeaderContains(snapshot,
-                                                 doc->filePath(),
+        if (CppParser::precompiledHeaderContains(doc->filePath(),
                                                  QString("%1/quicktest.h").arg(prefix))) {
             return true;
         }
@@ -141,7 +140,7 @@ QString QuickTestParser::quickTestName(const QuickTestParseContext &context,
     const QByteArray fileContent = getFileContent(context, filePath);
     // check for using quick_test_main() directly
     CPlusPlus::Document::Ptr document
-        = context.cppSnapshot.preprocessedDocument(fileContent, filePath);
+        = CppEditor::CppModelManager::snapshot().preprocessedDocument(fileContent, filePath);
     if (document.isNull())
         return {};
     document->check();
@@ -157,7 +156,7 @@ QString QuickTestParser::quickTestName(const QuickTestParseContext &context,
             : QStringList({"QtQuickTest"});
     bool pchIncludes = false;
     for (const QString &prefix : expectedHeaderPrefixes) {
-        if (CppParser::precompiledHeaderContains(context.cppSnapshot, filePath,
+        if (CppParser::precompiledHeaderContains(filePath,
                                                  QString("%1/quicktest.h").arg(prefix))) {
             pchIncludes = true;
             break;
@@ -415,8 +414,12 @@ bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     if (!context.prefilteredFiles.contains(fileName))
         return false;
 
-   CPlusPlus::Document::Ptr cppdoc = document(context, fileName);
-   if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, context.cppSnapshot))
+   CPlusPlus::Document::Ptr cppdoc = document(fileName);
+   if (cppdoc.isNull())
+       return false;
+
+   // After document(), which may read the file and its headers into the snapshot.
+   if (!includesQtQuickTest(cppdoc, CppEditor::CppModelManager::snapshot()))
        return false;
 
    return handleQtQuickTest(promise, context, cppdoc, framework());

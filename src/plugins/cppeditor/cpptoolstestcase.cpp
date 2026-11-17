@@ -9,6 +9,7 @@
 #include "cppmodelmanager.h"
 #include "cppworkingcopy.h"
 #include "editordocumenthandle.h"
+#include "modelmanagertesthelper.h"
 #include "projectinfo.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -539,6 +540,12 @@ Kit *kitWithCMake()
         const IDevice::ConstPtr device = BuildDeviceKitAspect::device(k);
         return device && !device->deviceToolPath("CMakeExecutable").isEmpty();
     });
+}
+
+// Leaves the files out of the snapshot as if the indexer had never delivered them.
+void removeFromSnapshot(const QSet<FilePath> &files)
+{
+    ModelManagerTestHelper::removeFromSnapshot(files);
 }
 
 // The clangd settings live in ClangCodeModel, which sets these hooks.

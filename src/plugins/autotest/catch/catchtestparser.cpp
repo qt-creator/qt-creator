@@ -69,7 +69,7 @@ static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
     }
 
     for (const QString &catchHeader : catchHeaders) {
-        if (CppParser::precompiledHeaderContains(snapshot, doc->filePath(), catchHeader))
+        if (CppParser::precompiledHeaderContains(doc->filePath(), catchHeader))
             return true;
     }
     return false;
@@ -105,8 +105,12 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                       const CppParseContext &context,
                                       const FilePath &fileName)
 {
-    CPlusPlus::Document::Ptr doc = document(context, fileName);
-    if (doc.isNull() || !includesCatchHeader(doc, context.cppSnapshot))
+    CPlusPlus::Document::Ptr doc = document(fileName);
+    if (doc.isNull())
+        return false;
+
+    // After document(), which may read the file and its headers into the snapshot.
+    if (!includesCatchHeader(doc, CppEditor::CppModelManager::snapshot()))
         return false;
 
     const QString &filePath = doc->filePath().toUserOutput();

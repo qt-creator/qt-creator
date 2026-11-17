@@ -46,7 +46,6 @@ public:
 class CppParseContext
 {
 public:
-    CPlusPlus::Snapshot cppSnapshot;
     CppEditor::WorkingCopy workingCopy;
 };
 
@@ -81,14 +80,12 @@ public:
     static QByteArray getFileContent(const CppParseContext &context,
                                      const Utils::FilePath &filePath);
 
-    static CPlusPlus::Document::Ptr document(const CppParseContext &context,
-                                             const Utils::FilePath &fileName);
+    // The file as the code model has it, read now if the indexer does not deliver it.
+    static CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName);
 
-    static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                                          const Utils::FilePath &filePath,
+    static bool precompiledHeaderContains(const Utils::FilePath &filePath,
                                           const QString &headerFilePath);
-    static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                                          const Utils::FilePath &filePath,
+    static bool precompiledHeaderContains(const Utils::FilePath &filePath,
                                           const QRegularExpression &headerFileRegex);
     // returns all files of the startup project whose ProjectPart has the given \a macroName
     // set as a project define

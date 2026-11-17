@@ -62,6 +62,8 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void testASecondSessionFindsTheSameTests();
+    void testATestInAFileTheIndexerDoesNotDeliverIsFound_data();
+    void testATestInAFileTheIndexerDoesNotDeliverIsFound();
     void testCodeParser();
     void testCodeParser_data();
     void testCodeParserSwitchStartup();
@@ -122,6 +124,22 @@ void AutotestUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
+// Falls back to the googletest submodule if GOOGLETEST_DIR is not set.
+static bool findGoogleTest()
+{
+    if (!qtcEnvironmentVariableIsEmpty("GOOGLETEST_DIR"))
+        return true;
+    const QString qcSource = QString(QTCREATORDIR);
+    const FilePath gtestSrc = FilePath::fromUserInput(qcSource)
+                                  .pathAppended("src/libs/3rdparty/googletest");
+    if (!gtestSrc.exists())
+        return false;
+    qDebug() << "Trying to use googletest submodule in" << gtestSrc.toUserOutput() << ".";
+    Environment::modifySystemEnvironment({EnvironmentItem{"GOOGLETEST_DIR",
+                                                          gtestSrc.toUserOutput()}});
+    return true;
+}
+
 void AutotestUnitTests::testASecondSessionFindsTheSameTests()
 {
     const FilePath projectFilePath = m_tmpDir->filePath() / "plain/plain.pro";
@@ -148,6 +166,69 @@ void AutotestUnitTests::testASecondSessionFindsTheSameTests()
     QVERIFY(modelUpdateSpy.wait());
 
     QCOMPARE(m_model->autoTestsCount(), 1);
+}
+
+void AutotestUnitTests::testATestInAFileTheIndexerDoesNotDeliverIsFound_data()
+{
+    QTest::addColumn<FilePath>("projectFilePath");
+    QTest::addColumn<FilePath>("testSource");
+    QTest::addColumn<QString>("counted");
+    QTest::addColumn<int>("expectedCount");
+
+    const FilePath base = m_tmpDir->filePath();
+    QTest::newRow("Qt Test") << base / "plain/plain.pro"
+                             << base / "plain/test_plain/tst_simple.cpp" << QString("qt") << 1;
+    QTest::newRow("Qt Test data tags")
+        << base / "mixed_atp/mixed_atp.pro" << base / "mixed_atp/tests/auto/derived/origin.cpp"
+        << QString("data tags") << 10;
+    QTest::newRow("Quick Test")
+        << base / "mixed_atp/mixed_atp.pro" << base / "mixed_atp/tests/auto/quickauto/main.cpp"
+        << QString("quick") << 10;
+    QTest::newRow("Google Test") << base / "simple_gt/simple_gt.pro"
+                                 << base / "simple_gt/tests/gt2/main.cpp" << QString("gtest") << 13;
+    QTest::newRow("Boost Test") << base / "simple_boost/simple_boost.pro"
+                                << base / "simple_boost/tests/fix/fix.cpp" << QString("boost") << 5;
+}
+
+void AutotestUnitTests::testATestInAFileTheIndexerDoesNotDeliverIsFound()
+{
+    QFETCH(FilePath, projectFilePath);
+    QFETCH(FilePath, testSource);
+    QFETCH(QString, counted);
+    QFETCH(int, expectedCount);
+    if (counted == "gtest" && !findGoogleTest())
+        QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
+    if (counted == "boost" && !m_checkBoost)
+        QSKIP("This test needs boost - set BOOST_INCLUDE_DIR (or have it installed)");
+    const auto count = [this, &counted] {
+        if (counted == "data tags")
+            return m_model->dataTagsCount();
+        if (counted == "quick")
+            return m_model->namedQuickTestsCount();
+        if (counted == "gtest")
+            return m_model->gtestNamesCount();
+        if (counted == "boost")
+            return m_model->boostTestNamesCount();
+        return m_model->autoTestsCount();
+    };
+
+    QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
+    QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
+    CppEditor::Tests::ProjectOpenerAndCloser projectManager;
+    QVERIFY(projectManager.open(projectFilePath, m_kit));
+    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(modelUpdateSpy.wait());
+    QCOMPARE(count(), expectedCount);
+
+    CppEditor::Tests::removeFromSnapshot({testSource});
+
+    parserSpy.clear();
+    modelUpdateSpy.clear();
+    m_model->parser()->updateTestTree();
+    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(modelUpdateSpy.wait());
+
+    QCOMPARE(count(), expectedCount);
 }
 
 void AutotestUnitTests::testCodeParser()
@@ -261,18 +342,8 @@ void AutotestUnitTests::testCodeParserSwitchStartup_data()
 
 void AutotestUnitTests::testCodeParserGTest()
 {
-    if (qtcEnvironmentVariableIsEmpty("GOOGLETEST_DIR")) {
-        const QString qcSource = QString(QTCREATORDIR);
-        const FilePath gtestSrc = FilePath::fromUserInput(qcSource)
-                                      .pathAppended("src/libs/3rdparty/googletest");
-        if (gtestSrc.exists()) {
-            qDebug() << "Trying to use googletest submodule in" << gtestSrc.toUserOutput() << ".";
-            Environment::modifySystemEnvironment({EnvironmentItem{"GOOGLETEST_DIR",
-                                                                  gtestSrc.toUserOutput()}});
-        } else {
-            QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
-        }
-    }
+    if (!findGoogleTest())
+        QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
 
     QFETCH(FilePath, projectFilePath);
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;

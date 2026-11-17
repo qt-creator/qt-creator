@@ -64,7 +64,7 @@ static bool includesBoostTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    return CppParser::precompiledHeaderContains(snapshot, doc->filePath(), boostTestHpp);
+    return CppParser::precompiledHeaderContains(doc->filePath(), boostTestHpp);
 }
 
 static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
@@ -110,8 +110,14 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                       const CppParseContext &context,
                                       const FilePath &fileName)
 {
-    CPlusPlus::Document::Ptr doc = document(context, fileName);
-    if (doc.isNull() || !includesBoostTest(doc, context.cppSnapshot) || !hasBoostTestMacros(doc))
+    CPlusPlus::Document::Ptr doc = document(fileName);
+    if (doc.isNull())
+        return false;
+
+    // After document(), which may read the file and its headers into the snapshot.
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+
+    if (!includesBoostTest(doc, snapshot) || !hasBoostTestMacros(doc))
         return false;
 
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts
@@ -122,8 +128,7 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     const FilePath &projectFile = projectPart->projectFile;
     const QByteArray &fileContent = getFileContent(context, fileName);
 
-    BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc,
-                               context.cppSnapshot);
+    BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, snapshot);
     const BoostTestCodeLocationList foundTests = codeParser.findTests();
     if (foundTests.isEmpty())
         return false;

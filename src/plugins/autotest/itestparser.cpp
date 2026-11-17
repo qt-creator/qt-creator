@@ -28,7 +28,6 @@ CppParser::CppParser(ITestFramework *framework)
 
 void CppParser::fillContext(CppParseContext &context)
 {
-    context.cppSnapshot = CppEditor::CppModelManager::snapshot();
     context.workingCopy = CppEditor::CppModelManager::workingCopy();
 }
 
@@ -63,7 +62,6 @@ QByteArray CppParser::getFileContent(const CppParseContext &context, const FileP
 }
 
 static bool precompiledHeaderContains(
-    const CPlusPlus::Snapshot &snapshot,
     const FilePath &filePath,
     const QString &cacheString,
     const std::function<bool(const FilePath &)> &checker)
@@ -78,7 +76,10 @@ static bool precompiledHeaderContains(
         auto it = s_pchLookupCache.find(info);
         if (it == s_pchLookupCache.end()) {
             it = s_pchLookupCache.insert(
-                info, Utils::anyOf(CppEditor::includeClosureOf(snapshot, header), checker));
+                info,
+                Utils::anyOf(CppEditor::includeClosureOf(CppEditor::CppModelManager::snapshot(),
+                                                         header),
+                             checker));
         }
         return it.value();
     };
@@ -86,24 +87,20 @@ static bool precompiledHeaderContains(
     return Utils::anyOf(precompiledHeaders, headerContains);
 }
 
-bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                                          const FilePath &filePath,
+bool CppParser::precompiledHeaderContains(const FilePath &filePath,
                                           const QString &headerFilePath)
 {
-    return Autotest::precompiledHeaderContains(snapshot,
-                                               filePath,
+    return Autotest::precompiledHeaderContains(filePath,
                                                headerFilePath,
                                                [&](const FilePath &include) {
                                                    return include.path().endsWith(headerFilePath);
                                                });
 }
 
-bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
-                                          const FilePath &filePath,
+bool CppParser::precompiledHeaderContains(const FilePath &filePath,
                                           const QRegularExpression &headerFileRegex)
 {
-    return Autotest::precompiledHeaderContains(snapshot,
-                                               filePath,
+    return Autotest::precompiledHeaderContains(filePath,
                                                headerFileRegex.pattern(),
                                                [&](const FilePath &include) {
                                                    return headerFileRegex.match(include.path()).hasMatch();
@@ -140,10 +137,11 @@ void CppParser::clearCaches()
     s_pchLookupCache.clear();
 }
 
-CPlusPlus::Document::Ptr CppParser::document(const CppParseContext &context,
-                                             const FilePath &fileName)
+CPlusPlus::Document::Ptr CppParser::document(const FilePath &fileName)
 {
-    return selectedForBuilding(fileName) ? context.cppSnapshot.document(fileName) : nullptr;
+    if (!selectedForBuilding(fileName))
+        return nullptr;
+    return CppEditor::CppModelManager::document(fileName, CppEditor::DocumentLookup::ReadIfNeeded);
 }
 
 } // namespace Autotest

@@ -59,6 +59,7 @@ private:
     };
 
     std::optional<bool> fillTestCaseData(const QtTestParseContext &context,
+                                         const CPlusPlus::Snapshot &snapshot,
                                          const QString &testCaseName,
                                          const CPlusPlus::Document::Ptr &doc,
                                          TestCaseData &data) const;

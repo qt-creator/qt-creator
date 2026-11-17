@@ -478,10 +478,11 @@ QVariant QtTestTreeItem::linkForTreeItem() const
 {
     QVariant itemLink;
     using namespace CPlusPlus;
-    Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
-    const Document::Ptr doc = snapshot.document(filePath());
-    Symbol *symbol = doc->lastVisibleSymbolAt(line(), this->column() + 1);
-    if (auto decl = symbol->asDeclaration()) {
+    const Document::Ptr doc
+        = CppEditor::CppModelManager::document(filePath(), CppEditor::DocumentLookup::ReadIfNeeded);
+    Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+    Symbol *symbol = doc ? doc->lastVisibleSymbolAt(line(), this->column() + 1) : nullptr;
+    if (auto decl = symbol ? symbol->asDeclaration() : nullptr) {
         static CppEditor::SymbolFinder symbolFinder;
         if (Symbol *definition = symbolFinder.findMatchingDefinition(decl, snapshot, true);
                 definition && definition->fileId()) {

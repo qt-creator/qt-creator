@@ -106,6 +106,7 @@ CPPEDITOR_EXPORT std::function<bool(const Utils::FilePath &clangd)> &setClangdFi
 CPPEDITOR_EXPORT std::function<bool(bool use)> &setUseClangdHook();
 CPPEDITOR_EXPORT ProjectExplorer::Kit *kitWithQt();
 CPPEDITOR_EXPORT ProjectExplorer::Kit *kitWithCMake();
+CPPEDITOR_EXPORT void removeFromSnapshot(const QSet<Utils::FilePath> &files);
 
 template <typename Signal> inline bool waitForSignalOrTimeout(
         const typename QtPrivate::FunctionPointer<Signal>::Object *sender, Signal signal,

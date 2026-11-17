@@ -54,7 +54,7 @@ static bool includesGTest(const CPlusPlus::Document::Ptr &doc,
             return true;
     }
 
-    return CppParser::precompiledHeaderContains(snapshot, doc->filePath(), gtestH);
+    return CppParser::precompiledHeaderContains(doc->filePath(), gtestH);
 }
 
 static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
@@ -106,8 +106,14 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                   const CppParseContext &context,
                                   const FilePath &fileName)
 {
-    CPlusPlus::Document::Ptr doc = document(context, fileName);
-    if (doc.isNull() || !includesGTest(doc, context.cppSnapshot))
+    CPlusPlus::Document::Ptr doc = document(fileName);
+    if (doc.isNull())
+        return false;
+
+    // After document(), which may read the file and its headers into the snapshot.
+    const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+
+    if (!includesGTest(doc, snapshot))
         return false;
 
     const QByteArray &fileContent = getFileContent(context, fileName);
@@ -119,8 +125,7 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     }
 
     const FilePath filePath = doc->filePath();
-    CPlusPlus::Document::Ptr document
-        = context.cppSnapshot.preprocessedDocument(fileContent, fileName, false);
+    CPlusPlus::Document::Ptr document = snapshot.preprocessedDocument(fileContent, fileName, false);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     GTestVisitor visitor(document, {}, fileContent);
@@ -129,7 +134,7 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     QMap<GTestCaseSpec, GTestCodeLocationList> result = visitor.gtestFunctions();
     if (customMacros) {
         CPlusPlus::Document::Ptr expanded
-            = context.cppSnapshot.preprocessedDocument(fileContent, fileName, true);
+            = snapshot.preprocessedDocument(fileContent, fileName, true);
         expanded->check();
         GTestVisitor expandedVisitor(expanded, result, fileContent);
         expandedVisitor.accept(expanded->translationUnit()->ast());

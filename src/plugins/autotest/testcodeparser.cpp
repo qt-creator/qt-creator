@@ -471,8 +471,9 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         for (const QString &ext : parser->supportedExtensions())
             extensions.insert(ext);
     }
-    // We are only interested in files that have been either parsed by the c++ parser,
-    // or have an extension that one of the parsers is specifically interested in.
+    // We are only interested in files that the C++ code model knows, either from parsing them
+    // or as part of a project, or that have an extension that one of the parsers is
+    // specifically interested in.
     const QSet<FilePath> filteredFiles
         = Utils::filtered(files, [&extensions, &cppSnapshot](const FilePath &fn) {
               const bool isSupportedExtension = Utils::anyOf(extensions, [&fn](const QString &ext) {
@@ -480,7 +481,8 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
               });
               if (isSupportedExtension)
                   return true;
-              return cppSnapshot.contains(fn);
+              return cppSnapshot.contains(fn)
+                     || !CppEditor::CppModelManager::projectPart(fn).isEmpty();
           });
     m_withTaskProgress = isFullParse || filteredFiles.size() > 20;
 
