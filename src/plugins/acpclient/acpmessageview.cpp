@@ -166,49 +166,27 @@ private:
 };
 
 // ---------------------------------------------------------------------------
-// AgentMessageWidget — rendered via MarkdownBrowser
+// AgentMessageWidget — rendered via MarkdownBrowsers
 // ---------------------------------------------------------------------------
 
-class AgentMessageWidget : public Utils::MarkdownBrowser
+// Shows prose in word-wrapping browsers and each code block in its own
+// browser that scrolls horizontally instead of wrapping.
+class AgentMessageWidget : public QWidget
 {
 public:
     explicit AgentMessageWidget(QWidget *parent = nullptr)
-        : Utils::MarkdownBrowser(parent)
+        : QWidget(parent)
     {
-        setFrameShape(QFrame::NoFrame);
-        setOpenExternalLinks(true);
-        setEnableCodeCopyButton(true);
-        setAllowEmbeddedHtml(false);
-        setMargins({0, 0, 0, 0});
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setTextColor(Utils::creatorColor(Utils::Theme::Token_Text_Default));
+        m_layout = new QVBoxLayout(this);
+        m_layout->setContentsMargins(0, 0, 0, 0);
+        m_layout->setSpacing(0);
         setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         setMinimumWidth(1);
-        setupChatBrowser(this);
 
         m_renderTimer = new QTimer(this);
         m_renderTimer->setSingleShot(true);
         m_renderTimer->setInterval(100);
-        connect(m_renderTimer, &QTimer::timeout, this, [this] {
-            setMarkdown(m_rawText);
-        });
-
-        connect(document()->documentLayout(),
-                &QAbstractTextDocumentLayout::documentSizeChanged,
-                this, [this] {
-            if (!m_heightUpdatePending) {
-                m_heightUpdatePending = true;
-                QTimer::singleShot(0, this, [this] {
-                    m_heightUpdatePending = false;
-                    updateBrowserHeight();
-                    updateGeometry();
-                });
-            }
-        });
-
-        connect(document(), &QTextDocument::contentsChanged,
-                this, [this] { m_cachedUnwrappedIdealWidth = -1; });
+        connect(m_renderTimer, &QTimer::timeout, this, &AgentMessageWidget::render);
     }
 
     void appendText(const QString &text)
@@ -221,41 +199,59 @@ public:
     {
         if (m_renderTimer->isActive()) {
             m_renderTimer->stop();
-            setMarkdown(m_rawText);
+            render();
         }
-    }
-
-    QSize sizeHint() const override
-    {
-        QTextDocument *doc = document();
-        if (m_cachedUnwrappedIdealWidth < 0) {
-            const qreal savedTextWidth = doc->textWidth();
-            doc->setTextWidth(-1);
-            m_cachedUnwrappedIdealWidth = doc->idealWidth();
-            doc->setTextWidth(savedTextWidth);
-        }
-        if (m_cachedUnwrappedIdealWidth <= 0)
-            return Utils::MarkdownBrowser::sizeHint();
-        const QMargins bcm = contentsMargins();
-        const int docMargin = static_cast<int>(doc->documentMargin());
-        const int contentWidth = qCeil(m_cachedUnwrappedIdealWidth)
-                                 + bcm.left() + bcm.right() + 2 * docMargin;
-        return QSize(contentWidth, Utils::MarkdownBrowser::sizeHint().height());
     }
 
 private:
-    void updateBrowserHeight()
+    struct SegmentView
     {
-        const int docHeight = qCeil(document()->size().height())
-                              + contentsMargins().top()
-                              + contentsMargins().bottom();
-        setFixedHeight(qMax(docHeight, fontMetrics().height()));
+        MarkdownSegment segment;
+        ChatMarkdownBrowser *browser = nullptr;
+    };
+
+    ChatMarkdownBrowser *createBrowser(bool isCode)
+    {
+        auto *browser = new ChatMarkdownBrowser(this);
+        browser->setOpenExternalLinks(true);
+        browser->setTextColor(Utils::creatorColor(Utils::Theme::Token_Text_Default));
+        browser->setMinimumWidth(1);
+        browser->setContentWidthHint(true);
+        browser->setScrollHorizontally(isCode);
+        return browser;
     }
 
+    void render()
+    {
+        const QList<MarkdownSegment> segments = splitCodeBlocks(m_rawText);
+
+        // Keep the leading views whose kind still matches; while streaming,
+        // usually only the last segment changes.
+        int i = 0;
+        for (; i < segments.size() && i < m_views.size(); ++i) {
+            SegmentView &view = m_views[i];
+            if (view.segment.isCode != segments[i].isCode)
+                break;
+            if (view.segment.text != segments[i].text) {
+                view.segment = segments[i];
+                view.browser->setMarkdown(view.segment.text);
+            }
+        }
+        while (m_views.size() > i)
+            delete m_views.takeLast().browser;
+        for (; i < segments.size(); ++i) {
+            SegmentView view{segments[i], createBrowser(segments[i].isCode)};
+            m_layout->addWidget(view.browser);
+            view.browser->setMarkdown(view.segment.text);
+            m_views.append(view);
+        }
+        updateGeometry();
+    }
+
+    QVBoxLayout *m_layout = nullptr;
     QTimer *m_renderTimer = nullptr;
     QString m_rawText;
-    bool m_heightUpdatePending = false;
-    mutable qreal m_cachedUnwrappedIdealWidth = -1;
+    QList<SegmentView> m_views;
 };
 
 // ---------------------------------------------------------------------------

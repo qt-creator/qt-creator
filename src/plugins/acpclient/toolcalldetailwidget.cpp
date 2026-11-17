@@ -278,26 +278,8 @@ void ToolCallDetailWidget::addMarkdownContent(const QString &markdown)
     if (markdown.isEmpty())
         return;
 
-    auto *browser = new Utils::MarkdownBrowser(this);
-    browser->setFrameShape(QFrame::NoFrame);
-    browser->setEnableCodeCopyButton(true);
-    browser->setAllowEmbeddedHtml(false);
-    browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    browser->setMargins({0, 0, 0, 0});
-    browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    setupChatBrowser(browser);
-
-    // Auto-size height on document size changes (content change and reflow)
-    connect(browser->document()->documentLayout(),
-            &QAbstractTextDocumentLayout::documentSizeChanged,
-            browser, [browser] {
-        const int h = qCeil(browser->document()->size().height())
-                      + browser->contentsMargins().top()
-                      + browser->contentsMargins().bottom();
-        browser->setFixedHeight(qMax(h, browser->fontMetrics().height()));
-    });
-
+    auto *browser = new ChatMarkdownBrowser(this);
+    browser->setScrollHorizontally(isSingleCodeBlock(markdown));
     addBodyWidget(browser);
     browser->setMarkdown(markdown);
 }
@@ -394,24 +376,8 @@ void ToolCallDetailWidget::addRawInputContent(const QJsonValue &rawInput)
 
         frame->headerLayout()->addWidget(new QLabel(Tr::tr("Raw Input"), frame), 1);
 
-        auto *browser = new Utils::MarkdownBrowser(frame);
-        browser->setFrameShape(QFrame::NoFrame);
-        browser->setEnableCodeCopyButton(true);
-        browser->setAllowEmbeddedHtml(false);
-        browser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        browser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        browser->setMargins({0, 0, 0, 0});
-        browser->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        setupChatBrowser(browser);
-
-        connect(browser->document()->documentLayout(),
-                &QAbstractTextDocumentLayout::documentSizeChanged,
-                browser, [browser] {
-            const int h = qCeil(browser->document()->size().height())
-                          + browser->contentsMargins().top()
-                          + browser->contentsMargins().bottom();
-            browser->setFixedHeight(qMax(h, browser->fontMetrics().height()));
-        });
+        auto *browser = new ChatMarkdownBrowser(frame);
+        browser->setScrollHorizontally(true);
         frame->bodyLayout()->addWidget(browser);
 
         if (m_contentMaxWidth >= 0)

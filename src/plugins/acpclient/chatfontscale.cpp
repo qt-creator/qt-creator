@@ -17,12 +17,17 @@
 #include <utils/qtcsettings.h>
 
 #include <QAbstractScrollArea>
+#include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QApplication>
 #include <QChildEvent>
 #include <QLabel>
 #include <QLayout>
+#include <QRegularExpression>
+#include <QScrollBar>
+#include <QTextDocument>
 #include <QWheelEvent>
+#include <QtMath>
 
 namespace AcpClient::Internal {
 
@@ -331,6 +336,137 @@ void enableChatZoom(QWidget *widget)
     widget->installEventFilter(ChatZoomFilter::instance());
     if (auto *area = qobject_cast<QAbstractScrollArea *>(widget))
         area->viewport()->installEventFilter(ChatZoomFilter::instance());
+}
+
+ChatMarkdownBrowser::ChatMarkdownBrowser(QWidget *parent)
+    : Utils::MarkdownBrowser(parent)
+{
+    setFrameShape(QFrame::NoFrame);
+    setEnableCodeCopyButton(true);
+    setAllowEmbeddedHtml(false);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setMargins({0, 0, 0, 0});
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    setupChatBrowser(this);
+
+    // Auto-size height on document size changes (content change and reflow)
+    connect(document()->documentLayout(), &QAbstractTextDocumentLayout::documentSizeChanged,
+            this, &ChatMarkdownBrowser::updateHeight);
+    connect(document(), &QTextDocument::contentsChanged,
+            this, [this] {
+        m_cachedUnwrappedIdealWidth = -1;
+        if (m_contentWidthHint)
+            updateGeometry();
+    });
+}
+
+void ChatMarkdownBrowser::setScrollHorizontally(bool scroll)
+{
+    setLineWrapMode(scroll ? QTextEdit::NoWrap : QTextEdit::WidgetWidth);
+    setHorizontalScrollBarPolicy(scroll ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
+    updateHeight();
+}
+
+void ChatMarkdownBrowser::setContentWidthHint(bool enable)
+{
+    m_contentWidthHint = enable;
+    updateGeometry();
+}
+
+QSize ChatMarkdownBrowser::sizeHint() const
+{
+    const QSize hint = Utils::MarkdownBrowser::sizeHint();
+    if (!m_contentWidthHint)
+        return hint;
+
+    QTextDocument *doc = document();
+    if (m_cachedUnwrappedIdealWidth < 0) {
+        // Temporarily lays out the document unwrapped; must not resize the widget.
+        m_measuring = true;
+        const qreal savedTextWidth = doc->textWidth();
+        doc->setTextWidth(-1);
+        m_cachedUnwrappedIdealWidth = doc->idealWidth();
+        doc->setTextWidth(savedTextWidth);
+        m_measuring = false;
+    }
+    if (m_cachedUnwrappedIdealWidth <= 0)
+        return hint;
+    const QMargins cm = contentsMargins();
+    const int docMargin = qRound(doc->documentMargin());
+    return QSize(qCeil(m_cachedUnwrappedIdealWidth) + cm.left() + cm.right() + 2 * docMargin,
+                 hint.height());
+}
+
+void ChatMarkdownBrowser::resizeEvent(QResizeEvent *event)
+{
+    Utils::MarkdownBrowser::resizeEvent(event);
+    updateHeight();
+}
+
+void ChatMarkdownBrowser::updateHeight()
+{
+    if (m_measuring)
+        return;
+    int h = qCeil(document()->size().height()) + contentsMargins().top()
+            + contentsMargins().bottom();
+    // Make room for the horizontal scroll bar, so it does not cover the last line.
+    if (lineWrapMode() == QTextEdit::NoWrap
+        && qCeil(document()->size().width()) > viewport()->width()) {
+        h += horizontalScrollBar()->sizeHint().height();
+    }
+    h = qMax(h, fontMetrics().height());
+    if (h != height())
+        setFixedHeight(h);
+}
+
+QList<MarkdownSegment> splitCodeBlocks(const QString &markdown)
+{
+    static const QRegularExpression fenceRe(QStringLiteral("^ {0,3}(`{3,}|~{3,})"));
+
+    QList<MarkdownSegment> result;
+    MarkdownSegment current;
+    QString openFence;
+    const auto finishSegment = [&] {
+        if (!current.text.trimmed().isEmpty())
+            result.append(current);
+        current = {};
+    };
+
+    for (const QString &line : markdown.split(QLatin1Char('\n'))) {
+        const QRegularExpressionMatch match = fenceRe.match(line);
+        if (openFence.isEmpty()) {
+            const QString fence = match.captured(1);
+            // A backtick fence's info string must not contain backticks.
+            const bool isOpening = match.hasMatch()
+                                   && !(fence.startsWith(QLatin1Char('`'))
+                                        && line.mid(match.capturedEnd(1)).contains(QLatin1Char('`')));
+            if (isOpening) {
+                finishSegment();
+                current.isCode = true;
+                openFence = fence;
+            }
+            current.text += line + QLatin1Char('\n');
+        } else {
+            current.text += line + QLatin1Char('\n');
+            const QString fence = match.captured(1);
+            const bool isClosing = match.hasMatch() && fence.at(0) == openFence.at(0)
+                                   && fence.size() >= openFence.size()
+                                   && line.mid(match.capturedEnd(1)).trimmed().isEmpty();
+            if (isClosing) {
+                openFence.clear();
+                finishSegment();
+            }
+        }
+    }
+    finishSegment();
+    return result;
+}
+
+bool isSingleCodeBlock(const QString &markdown)
+{
+    const QList<MarkdownSegment> segments = splitCodeBlocks(markdown);
+    return segments.size() == 1 && segments.first().isCode;
 }
 
 } // namespace AcpClient::Internal

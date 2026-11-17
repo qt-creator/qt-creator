@@ -5,6 +5,7 @@
 
 #include <QObject>
 
+#include <utils/markdownbrowser.h>
 #include <utils/stylehelper.h>
 
 QT_BEGIN_NAMESPACE
@@ -13,9 +14,46 @@ class QLabel;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Utils { class MarkdownBrowser; }
-
 namespace AcpClient::Internal {
+
+// Markdown browser for chat content. Never scrolls vertically; its height
+// follows the document. Code-only content can scroll horizontally instead
+// of wrapping.
+class ChatMarkdownBrowser : public Utils::MarkdownBrowser
+{
+public:
+    explicit ChatMarkdownBrowser(QWidget *parent = nullptr);
+
+    // Disables line wrapping and shows a horizontal scroll bar when needed.
+    void setScrollHorizontally(bool scroll);
+    // Reports the unwrapped content width as size hint width.
+    void setContentWidthHint(bool enable);
+
+    QSize sizeHint() const override;
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
+private:
+    void updateHeight();
+
+    bool m_contentWidthHint = false;
+    mutable bool m_measuring = false;
+    mutable qreal m_cachedUnwrappedIdealWidth = -1;
+};
+
+struct MarkdownSegment
+{
+    QString text;
+    bool isCode = false;
+};
+
+// Splits markdown into prose and fenced code block segments. An unterminated
+// code block (still streaming in) extends to the end of the text.
+QList<MarkdownSegment> splitCodeBlocks(const QString &markdown);
+
+// True if the markdown consists of exactly one fenced code block.
+bool isSingleCodeBlock(const QString &markdown);
 
 class ChatFontScale : public QObject
 {

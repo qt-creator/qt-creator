@@ -656,6 +656,9 @@ private slots:
     void testMessageViewBackgroundToolCall();
     void testChatPanelBackgroundWork();
     void testMessageViewCancelButtons();
+    void testSplitCodeBlocks_data();
+    void testSplitCodeBlocks();
+    void testMessageViewCodeBlockSegments();
 
     // Tier 5: terms and conditions, chat widget
     void testTermsWidget();
@@ -4638,6 +4641,80 @@ void AcpClientTest::testMessageViewTerminalInToolCall()
     QVERIFY(!late->isVisibleTo(&view));
     view.addUserMessage("next");
     QVERIFY(late->isVisibleTo(&view));
+}
+
+// Kinds are given as one character per segment: 'p' for prose, 'c' for code.
+void AcpClientTest::testSplitCodeBlocks_data()
+{
+    QTest::addColumn<QString>("markdown");
+    QTest::addColumn<QStringList>("texts");
+    QTest::addColumn<QString>("kinds");
+
+    QTest::newRow("prose only") << "Hello\nworld" << QStringList{"Hello\nworld\n"} << "p";
+    QTest::newRow("prose, code, prose")
+        << "Text\n```cpp\nint x;\n```\nMore"
+        << QStringList{"Text\n", "```cpp\nint x;\n```\n", "More\n"} << "pcp";
+    QTest::newRow("longer fence around backtick fence")
+        << "````\n# README\n```bash\nmake\n```\n````"
+        << QStringList{"````\n# README\n```bash\nmake\n```\n````\n"} << "c";
+    QTest::newRow("tilde fence") << "~~~\ncode\n~~~" << QStringList{"~~~\ncode\n~~~\n"} << "c";
+    QTest::newRow("backtick fence does not close tilde fence")
+        << "~~~\n```\n~~~" << QStringList{"~~~\n```\n~~~\n"} << "c";
+    QTest::newRow("indented fence") << "   ```\nx\n   ```" << QStringList{"   ```\nx\n   ```\n"}
+                                    << "c";
+    QTest::newRow("indented code is no fence") << "    ```\nx\n    ```"
+                                               << QStringList{"    ```\nx\n    ```\n"} << "p";
+    QTest::newRow("backtick in info string") << "``` `x` ```" << QStringList{"``` `x` ```\n"}
+                                             << "p";
+    QTest::newRow("unterminated") << "Text\n```\ncode" << QStringList{"Text\n", "```\ncode\n"}
+                                  << "pc";
+    QTest::newRow("closing fence with trailing text")
+        << "```\na\n``` no\nb" << QStringList{"```\na\n``` no\nb\n"} << "c";
+    QTest::newRow("whitespace-only segments dropped")
+        << "\n```\nx\n```\n\n" << QStringList{"```\nx\n```\n"} << "c";
+}
+
+void AcpClientTest::testSplitCodeBlocks()
+{
+    QFETCH(QString, markdown);
+    QFETCH(QStringList, texts);
+    QFETCH(QString, kinds);
+
+    const QList<MarkdownSegment> segments = splitCodeBlocks(markdown);
+    QStringList actualTexts;
+    QString actualKinds;
+    for (const MarkdownSegment &segment : segments) {
+        actualTexts.append(segment.text);
+        actualKinds.append(segment.isCode ? QLatin1Char('c') : QLatin1Char('p'));
+    }
+    QCOMPARE(actualTexts, texts);
+    QCOMPARE(actualKinds, kinds);
+    QCOMPARE(isSingleCodeBlock(markdown), kinds == "c");
+}
+
+// A streamed agent message is split into prose and code block browsers; only
+// the code block scrolls horizontally. Browsers of segments that keep their
+// kind are reused when more text arrives.
+void AcpClientTest::testMessageViewCodeBlockSegments()
+{
+    AcpMessageView view;
+    view.appendAgentText("Text\n```");
+    QTRY_COMPARE(view.findChildren<Utils::MarkdownBrowser *>().size(), 2);
+    const QList<Utils::MarkdownBrowser *> streamed = view.findChildren<Utils::MarkdownBrowser *>();
+    const QPointer<Utils::MarkdownBrowser> prose = streamed.at(0);
+    const QPointer<Utils::MarkdownBrowser> code = streamed.at(1);
+
+    view.appendAgentText("cpp\nint x;\n```\nMore");
+    view.finishAgentMessage();
+
+    const QList<Utils::MarkdownBrowser *> browsers = view.findChildren<Utils::MarkdownBrowser *>();
+    QCOMPARE(browsers.size(), 3);
+    QCOMPARE(browsers.at(0), prose.data());
+    QCOMPARE(browsers.at(1), code.data());
+    QCOMPARE(browsers.at(0)->lineWrapMode(), QTextEdit::WidgetWidth);
+    QCOMPARE(browsers.at(1)->lineWrapMode(), QTextEdit::NoWrap);
+    QCOMPARE(browsers.at(2)->lineWrapMode(), QTextEdit::WidgetWidth);
+    QVERIFY(browsers.at(1)->toPlainText().contains("int x;"));
 }
 
 // --- Tier 5 ------------------------------------------------------------------

@@ -1261,7 +1261,9 @@ void MarkdownBrowser::updateCopyButtonPositions()
         const QRectF inner = frameRect.adjusted(fmt.leftMargin(), fmt.topMargin(),
                                                 -fmt.rightMargin(), -fmt.bottomMargin());
         const QSize s = entry.button->size();
-        entry.button->move(int(inner.right()) - s.width() - kCopyButtonMargin,
+        // Keep the button visible when the frame is wider than the viewport (no line wrap).
+        const int right = qMin(int(inner.right()), viewport()->width());
+        entry.button->move(right - s.width() - kCopyButtonMargin,
                            int(inner.top()) + kCopyButtonMargin);
     }
 }
