@@ -342,9 +342,10 @@ void CMakeProject::readPresets()
     }
 }
 
-void CMakeProject::createKitsFromPresets() const
+void CMakeProject::createKitsFromPresets()
 {
     static_cast<CMakeProjectImporter *>(projectImporter())->createKitsFromPresets();
+    emit kitsCreated();
 }
 
 const QList<Id> &CMakeProject::presetKitIds() const

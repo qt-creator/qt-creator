@@ -37,7 +37,7 @@ public:
     Internal::PresetsData presetsData() const;
     void readPresets();
     Utils::FilePath buildDirectoryToImport() const;
-    void createKitsFromPresets() const;
+    void createKitsFromPresets();
     const QList<Utils::Id> &presetKitIds() const;
 
     Internal::CMakeSpecificSettings &settings();

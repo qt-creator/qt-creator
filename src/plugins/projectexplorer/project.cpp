@@ -102,6 +102,13 @@ namespace ProjectExplorer {
 */
 
 /*!
+   \fn void ProjectExplorer::Project::kitsCreated()
+
+   This signal is emitted after the project created the kits that it brings,
+   such as those of its CMake presets, and finished setting them up.
+*/
+
+/*!
    \fn void ProjectExplorer::Project::buildConfigurationEnabledChanged()
 
    A convenience signal emitted if activeBuildConfiguration emits

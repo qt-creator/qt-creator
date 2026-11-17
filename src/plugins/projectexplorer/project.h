@@ -245,6 +245,8 @@ signals:
 
     void vanishedTargetsChanged();
 
+    void kitsCreated();
+
     void settingsLoaded();
     void aboutToSaveSettings();
 

@@ -228,8 +228,18 @@ TargetSetupWidget *TargetSetupPagePrivate::widget(const Id kitId) const
 
 void TargetSetupPage::setProjectAndPath(Project *project, const FilePath &path)
 {
+    if (d->project)
+        disconnect(d->project, &Project::kitsCreated, d->guard, nullptr);
     d->project = project;
     d->projectPath = path;
+
+    // The kits the page chose from can be gone, e.g. on reloading the CMake presets
+    if (d->project) {
+        connect(d->project, &Project::kitsCreated, d->guard, [this] {
+            d->selectAtLeastOneEnabledKit();
+            d->kitSelectionChanged();
+        });
+    }
 
     if (!d->projectPath.isEmpty()) {
         QFileInfo fileInfo(QDir::cleanPath(path.toUrlishString()));

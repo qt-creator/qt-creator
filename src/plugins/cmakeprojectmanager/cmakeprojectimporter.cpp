@@ -8,6 +8,7 @@
 #include "cmakekitaspect.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanager.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 #include "presetsmacros.h"
@@ -2261,6 +2262,8 @@ private slots:
     void testPresetProbeIsRedoneWhenTheEnvironmentChanges();
     void testBrokenPresetKeepsTheKitsOfTheOthers();
     void testSetupPageSelectsTheKitsOfTheVendorKey();
+    void testSetupPageSelectsTheKitsOfReloadedPresets_data();
+    void testSetupPageSelectsTheKitsOfReloadedPresets();
     void testUnusablePresetsLeaveTheOtherKits();
     void testSetupPagePrefersPresetKits();
     void testQtFromFilesIsFoundByPrefixPath();
@@ -2765,6 +2768,112 @@ void CMakeProjectImporterTest::testSetupPageSelectsTheKitsOfTheVendorKey()
     page.initializePage();
     const QSet<Id> selected = Utils::toSet(page.selectedKits());
     QCOMPARE(selected, QSet<Id>({presetKit("first"), presetKit("second")}));
+}
+
+void CMakeProjectImporterTest::testSetupPageSelectsTheKitsOfReloadedPresets_data()
+{
+    QTest::addColumn<bool>("selectedByDefault");
+    QTest::addColumn<QString>("unusablePreset");
+
+    QTest::newRow("selectedByDefault") << true << QString();
+    QTest::newRow("the first kit") << false << QString();
+    // The kits of the presets arrive in the order their probes finish
+    QTest::newRow("first preset unusable") << false << QString("first");
+    QTest::newRow("second preset unusable") << false << QString("second");
+}
+
+void CMakeProjectImporterTest::testSetupPageSelectsTheKitsOfReloadedPresets()
+{
+    QFETCH(bool, selectedByDefault);
+    QFETCH(QString, unusablePreset);
+
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-reload-selection");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, QByteArray(R"({
+        "version": 3,
+        "vendor": {
+            "qt.io/QtCreator/1.0": {
+                "AskBeforePresetsReload": false
+            }
+        },
+        "configurePresets": [
+            {
+                "name": "base",
+                "hidden": true,
+                "generator": "Ninja",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                },
+                "vendor": {
+                    "qt.io/QtCreator/1.0": {
+                        "selectedByDefault": @SELECTED@
+                    }
+                }
+            },
+            {
+                "name": "first",
+                "inherits": "base",
+                "binaryDir": "${sourceDir}/build-first"
+            },
+            {
+                "name": "second",
+                "inherits": "base",
+                "binaryDir": "${sourceDir}/build-second"
+            }
+        ]
+    })").replace("@SELECTED@", selectedByDefault ? "true" : "false")));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const auto deregisterKits = qScopeGuard([&project] { deregisterPresetKits(project); });
+    // The vendor section reaches the settings the way opening the project would
+    project.settings().readSettings();
+    QVERIFY(!project.settings().askBeforePresetsReload());
+
+    // The page falls back to the default kit when no preset kit is usable
+    Kit * const otherKit = KitManager::registerKit(
+        [](Kit *k) { k->setUnexpandedDisplayName("Not from a preset"); });
+    QVERIFY(otherKit);
+    Kit * const previousDefaultKit = KitManager::defaultKit();
+    const auto restoreKits = qScopeGuard([otherKit, previousDefaultKit] {
+        KitManager::setDefaultKit(previousDefaultKit);
+        KitManager::deregisterKit(otherKit);
+    });
+    KitManager::setDefaultKit(otherKit);
+
+    TargetSetupPage page;
+    page.setTasksGenerator([unusablePreset](const Kit *k) -> Tasks {
+        if (!unusablePreset.isEmpty()
+            && k->value(Constants::KIT_PRESET_NAME).toString() == unusablePreset) {
+            return {BuildSystemTask(Task::Warning, "The kit cannot be used.")};
+        }
+        return {};
+    });
+    page.setProjectAndPath(&project, project.projectFilePath());
+    page.initializePage();
+    const QList<Id> selectedBefore = page.selectedKits();
+    QVERIFY(!selectedBefore.isEmpty());
+    if (!unusablePreset.isEmpty()) {
+        QCOMPARE(selectedBefore.size(), 1);
+        const Kit * const k = KitManager::kit(selectedBefore.first());
+        QVERIFY(k);
+        QVERIFY(project.presetKitIds().contains(k->id()));
+        QVERIFY(k->value(Constants::KIT_PRESET_NAME).toString() != unusablePreset);
+    }
+
+    // Replaces the kits that the page chose from
+    reloadCMakePresets(&project);
+
+    const QList<Id> selected = page.selectedKits();
+    QCOMPARE(Utils::toSet(selected), Utils::toSet(selectedBefore));
+    QCOMPARE(selected.size(), selectedByDefault ? 2 : 1);
+    QVERIFY2(project.presetKitIds().contains(selected.first()), "A preset kit is selected.");
 }
 
 void CMakeProjectImporterTest::testUnusablePresetsLeaveTheOtherKits()
