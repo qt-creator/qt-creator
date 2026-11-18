@@ -36,6 +36,7 @@
 #include "qml/qmlengine.h"
 #include "qml/qmlinspectoragent.h"
 #include "gdb/gdbengine.h"
+#include "gdb/gdbsettings.h"
 #include "lldb/lldbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
@@ -175,6 +176,10 @@ private slots:
 
     void testInferiorStartData();
     void testLldbInferiorStartData();
+    void testDebugInfoDEnvironment_data();
+    void testDebugInfoDEnvironment();
+    void testDebugInfoDMigration_data();
+    void testDebugInfoDMigration();
     void testCdbImplStartData();
     void testCdbImplCommandLine();
     void testCdbImplArtificialThreadStop();
@@ -1306,6 +1311,78 @@ void DebuggerUnitTests::testLldbInferiorStartData()
         QVERIFY(attachData);
         QCOMPARE(attachData->pid.pid(), 4711);
     }
+}
+
+void DebuggerUnitTests::testDebugInfoDEnvironment_data()
+{
+    QTest::addColumn<int>("mode");
+    QTest::addColumn<int>("timeout");
+    QTest::addColumn<QString>("inheritedTimeout");
+    QTest::addColumn<QString>("expectedUrls");
+    QTest::addColumn<QString>("expectedTimeout");
+
+    const QString inherited = "https://inherited.invalid/";
+    const QString none; // Null means unset.
+    QTest::newRow("disabled") << int(DebugInfoDDisabled) << 10 << none << none << none;
+    QTest::newRow("from environment")
+        << int(DebugInfoDFromEnvironment) << 10 << none << inherited << QString("10");
+    QTest::newRow("custom") << int(DebugInfoDCustom) << 10 << none
+                            << QString("https://custom.invalid/") << QString("10");
+    QTest::newRow("user timeout wins")
+        << int(DebugInfoDFromEnvironment) << 10 << QString("3") << inherited << QString("3");
+    QTest::newRow("no timeout")
+        << int(DebugInfoDFromEnvironment) << 0 << none << inherited << none;
+}
+
+void DebuggerUnitTests::testDebugInfoDEnvironment()
+{
+    QFETCH(int, mode);
+    QFETCH(int, timeout);
+    QFETCH(QString, inheritedTimeout);
+    QFETCH(QString, expectedUrls);
+    QFETCH(QString, expectedTimeout);
+
+    DebuggerSettings &s = settings();
+    const int oldMode = s.debugInfoDMode();
+    const QString oldUrls = s.debugInfoDUrls();
+    const qint64 oldTimeout = s.debugInfoDTimeout();
+    const auto restore = qScopeGuard([&] {
+        s.debugInfoDMode.setValue(oldMode);
+        s.debugInfoDUrls.setValue(oldUrls);
+        s.debugInfoDTimeout.setValue(oldTimeout);
+    });
+    s.debugInfoDMode.setValue(mode);
+    s.debugInfoDUrls.setValue(" https://custom.invalid/ ");
+    s.debugInfoDTimeout.setValue(timeout);
+
+    Environment env;
+    env.set("DEBUGINFOD_URLS", "https://inherited.invalid/");
+    if (!inheritedTimeout.isNull())
+        env.set("DEBUGINFOD_TIMEOUT", inheritedTimeout);
+    setupDebugInfoDEnvironment(env);
+
+    QCOMPARE(env.hasKey("DEBUGINFOD_URLS"), !expectedUrls.isNull());
+    QCOMPARE(env.value("DEBUGINFOD_URLS"), expectedUrls);
+    QCOMPARE(env.hasKey("DEBUGINFOD_TIMEOUT"), !expectedTimeout.isNull());
+    QCOMPARE(env.value("DEBUGINFOD_TIMEOUT"), expectedTimeout);
+}
+
+void DebuggerUnitTests::testDebugInfoDMigration_data()
+{
+    QTest::addColumn<QVariant>("oldValue");
+    QTest::addColumn<int>("expectedMode");
+
+    QTest::newRow("enabled") << QVariant(0) << int(DebugInfoDFromEnvironment);
+    QTest::newRow("disabled") << QVariant(1) << int(DebugInfoDDisabled);
+    QTest::newRow("not stored") << QVariant() << int(DebugInfoDDisabled);
+}
+
+void DebuggerUnitTests::testDebugInfoDMigration()
+{
+    QFETCH(QVariant, oldValue);
+    QFETCH(int, expectedMode);
+
+    QCOMPARE(debugInfoDModeFromOldSetting(oldValue), expectedMode);
 }
 
 void DebuggerUnitTests::testCdbImplStartData()

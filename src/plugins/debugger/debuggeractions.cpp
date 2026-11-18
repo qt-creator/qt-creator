@@ -10,6 +10,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/environment.h>
+
 #include <QDebug>
 #include <QGuiApplication>
 
@@ -23,6 +25,41 @@ DebuggerSettings &settings()
 {
     static DebuggerSettings settings;
     return settings;
+}
+
+bool isDebugInfoDEnabled()
+{
+    return settings().debugInfoDMode() != DebugInfoDDisabled;
+}
+
+/*!
+    \internal
+
+    Sets up the debuginfod servers of a debugger process \a environment as the
+    settings ask for, and bounds how long the debugger waits for one, so that
+    an unreachable server fails instead of stalling the session.
+*/
+void setupDebugInfoDEnvironment(Environment &environment)
+{
+    const DebuggerSettings &s = settings();
+    const int mode = s.debugInfoDMode();
+
+    if (mode == DebugInfoDDisabled) {
+        environment.unset("DEBUGINFOD_URLS");
+        return;
+    }
+
+    if (mode == DebugInfoDCustom) {
+        const QString urls = s.debugInfoDUrls().trimmed();
+        if (urls.isEmpty())
+            environment.unset("DEBUGINFOD_URLS");
+        else
+            environment.set("DEBUGINFOD_URLS", urls);
+    }
+
+    const qint64 timeout = s.debugInfoDTimeout();
+    if (timeout > 0 && !environment.hasKey("DEBUGINFOD_TIMEOUT"))
+        environment.set("DEBUGINFOD_TIMEOUT", QString::number(timeout));
 }
 
 DebuggerSettings::DebuggerSettings() :
@@ -61,7 +98,9 @@ DebuggerSettings::DebuggerSettings() :
     intelFlavor{gdbSettings().intelFlavor},
     usePseudoTracepoints{gdbSettings().usePseudoTracepoints},
     useIndexCache{gdbSettings().useIndexCache},
-    useDebugInfoD{gdbSettings().useDebugInfoD},
+    debugInfoDMode{gdbSettings().debugInfoDMode},
+    debugInfoDUrls{gdbSettings().debugInfoDUrls},
+    debugInfoDTimeout{gdbSettings().debugInfoDTimeout},
     gdbStartupCommands{gdbSettings().gdbStartupCommands},
     gdbPostAttachCommands{gdbSettings().gdbPostAttachCommands},
     targetAsync{gdbSettings().targetAsync},

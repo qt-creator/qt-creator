@@ -111,6 +111,7 @@ static ProcessRunData lldbImplDebuggerRunData(const DebuggerRunParameters &rp)
 static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
 {
     ProcessRunData debuggerRunData = lldbImplDebuggerRunData(rp);
+    setupDebugInfoDEnvironment(debuggerRunData.environment);
     if (!rp.runAsUser().isEmpty())
         ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
     FilePath dumperScriptsDir = ICore::resourcePath("debugger");
@@ -169,7 +170,7 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
         .debugInfoLocation = rp.debugInfoLocation(),
         // Not settings().useIndexCache(): that one is gdb's, and with a warm
         // index cache Apple's lldb (lldb-2103) crashes before main() is reached.
-        .useDebugInfoD = settings().useDebugInfoD(),
+        .useDebugInfoD = isDebugInfoDEnabled() ? TriState::Enabled : TriState::Disabled,
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),
         .extraDumperFile = settings().extraDumperFile(),

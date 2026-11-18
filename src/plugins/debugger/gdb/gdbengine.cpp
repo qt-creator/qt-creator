@@ -1755,11 +1755,10 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
         //runCommand("set build-id-verbose 2", ConsoleCommand);
 
         if (m_gdbVersion >= 100100) {
-            const TriState useDebugInfoD = settings().useDebugInfoD();
-            if (useDebugInfoD == TriState::Enabled) {
+            if (isDebugInfoDEnabled()) {
                 runCommand({"set debuginfod verbose 1"});
                 runCommand({"set debuginfod enabled on"});
-            } else if (useDebugInfoD == TriState::Disabled) {
+            } else {
                 runCommand({"set debuginfod enabled off"});
             }
         }
@@ -4052,6 +4051,7 @@ void GdbEngine::setupEngine()
     // This is filled in DebuggerKitAspect::runnable
     Environment gdbEnv = rp.debugger().environment;
     gdbEnv.setupEnglishOutput();
+    setupDebugInfoDEnvironment(gdbEnv);
     if (!rp.runAsUser().isEmpty())
         RunControl::provideAskPassEntry(gdbEnv);
     m_gdbProc.setRunAsUser(rp.runAsUser());
@@ -4264,6 +4264,8 @@ void GdbEngine::setEnvironmentVariables()
     // target.  Use an empty base so we only send "set environment" for variables the
     // run configuration explicitly configures, leaving everything else inherited.
     Environment baseEnv = isRemoteEngine() ? Environment{} : runParameters().debugger().environment;
+    if (!isRemoteEngine())
+        setupDebugInfoDEnvironment(baseEnv);
     Environment runEnv = runParameters().inferior().environment;
     const EnvironmentItems items = baseEnv.diff(runEnv);
     for (const EnvironmentItem &item : items) {
@@ -5492,6 +5494,7 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
 {
     const bool windowsMain = rp.toolChainAbi().os() == Abi::WindowsOS && !rp.useTerminal();
     ProcessRunData debuggerRunData = rp.debugger();
+    setupDebugInfoDEnvironment(debuggerRunData.environment);
     if (!rp.runAsUser().isEmpty())
         RunControl::provideAskPassEntry(debuggerRunData.environment);
     return {
@@ -5500,7 +5503,7 @@ static GdbImplStartData gdbImplStartData(const DebuggerRunParameters &rp)
         .dumperScriptsDir = ICore::resourcePath("debugger"),
         .mainFunctionName = QLatin1String(windowsMain ? "qMain" : "main"),
         .flags = gdbImplFlags(rp),
-        .useDebugInfoD = settings().useDebugInfoD(),
+        .useDebugInfoD = isDebugInfoDEnabled() ? TriState::Enabled : TriState::Disabled,
         .enableHeapDebugging = gdbHeapDebugging(rp),
         .qtVersion = rp.qtVersion(),
         .qtNamespace = rp.configuredQtNamespace(),

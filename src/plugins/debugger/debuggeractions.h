@@ -7,7 +7,16 @@
 
 #include <QMap>
 
+namespace Utils { class Environment; }
+
 namespace Debugger::Internal {
+
+// Stored as the index of DebuggerSettings::debugInfoDMode.
+enum DebugInfoDMode {
+    DebugInfoDDisabled = 0,
+    DebugInfoDFromEnvironment,
+    DebugInfoDCustom
+};
 
 class DebuggerSettings
 {
@@ -54,7 +63,9 @@ public:
     Utils::BoolAspect &intelFlavor;
     Utils::BoolAspect &usePseudoTracepoints;
     Utils::BoolAspect &useIndexCache;
-    Utils::TriStateAspect &useDebugInfoD;
+    Utils::SelectionAspect &debugInfoDMode;
+    Utils::StringAspect &debugInfoDUrls;
+    Utils::IntegerAspect &debugInfoDTimeout;
     Utils::StringAspect &gdbStartupCommands;
     Utils::StringAspect &gdbPostAttachCommands;
 
@@ -141,6 +152,9 @@ private:
 };
 
 DebuggerSettings &settings();
+
+bool isDebugInfoDEnabled();
+void setupDebugInfoDEnvironment(Utils::Environment &environment);
 
 QString msgSetBreakpointAtFunction(const char *function);
 QString msgSetBreakpointAtFunctionToolTip(const char *function, const QString &hint = {});

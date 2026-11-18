@@ -125,6 +125,11 @@ private:
         if (rp.isLocalAttachEngine())
             cmd.addArgs({"-p", QString::number(rp.attachPid().pid())});
 
+        // gdb's default "ask" counts as "no" when stdin is not a terminal, and
+        // the setting has to be there before an attach loads the symbols.
+        cmd.addArgs({"-iex", QLatin1String(isDebugInfoDEnabled() ? "set debuginfod enabled on"
+                                                                  : "set debuginfod enabled off")});
+
         const QVersionNumber oldestVersion(14, 0, 50);
         if (QVersionNumber::fromString(rp.version()) < oldestVersion) {
             notifyEngineSetupFailed();
@@ -134,7 +139,9 @@ private:
             return;
         }
 
-        m_dapClient = new DapEngineClient(new ProcessDataProvider(rp.debugger(), cmd, this),
+        ProcessRunData debugger = rp.debugger();
+        setupDebugInfoDEnvironment(debugger.environment);
+        m_dapClient = new DapEngineClient(new ProcessDataProvider(debugger, cmd, this),
                                           gdbLogCategory(), {}, this);
         connectDataGeneratorSignals();
         m_dapClient->dataProvider()->start();
@@ -188,7 +195,9 @@ private:
         const DebuggerRunParameters &rp = runParameters();
         const CommandLine cmd{rp.debugger().command.executable()};
 
-        m_dapClient = new DapEngineClient(new ProcessDataProvider(rp.debugger(), cmd, this),
+        ProcessRunData debugger = rp.debugger();
+        setupDebugInfoDEnvironment(debugger.environment);
+        m_dapClient = new DapEngineClient(new ProcessDataProvider(debugger, cmd, this),
                                           lldbLogCategory(), {}, this);
         connectDataGeneratorSignals();
         m_dapClient->dataProvider()->start();

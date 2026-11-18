@@ -91,6 +91,7 @@ public:
             m_proc.setWorkingDirectory(m_runParameters.debugger().workingDirectory);
         Environment gdbEnv = m_runParameters.debugger().environment;
         gdbEnv.setupEnglishOutput();
+        setupDebugInfoDEnvironment(gdbEnv);
         m_proc.setEnvironment(gdbEnv);
         m_proc.setCommand(m_cmd);
         m_proc.start();
@@ -207,6 +208,7 @@ static QJsonArray inferiorEnvironment(const DebuggerRunParameters &rp)
     // leaks it.)
     Environment gdbEnv = rp.debugger().environment;
     gdbEnv.setupEnglishOutput();
+    setupDebugInfoDEnvironment(gdbEnv);
     const EnvironmentItems diff = gdbEnv.diff(rp.inferior().environment);
     for (const EnvironmentItem &item : diff) {
         // gdb on Windows spells the path variable in all uppercase.
@@ -1328,10 +1330,6 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             extraDumperFiles.append(settings().extraDumperFile());
         const QStringList extraDumperCommands
             = commandLines(settings().extraDumperCommands());
-        const TriState debugInfoD = settings().useDebugInfoD();
-        const std::optional<bool> useDebugInfoD
-            = debugInfoD == TriState::Default ? std::optional<bool>()
-                                              : std::optional<bool>(debugInfoD == TriState::Enabled);
         const DebuggerUserCommands userCommands{
             .startScript = rp.overrideStartScript(),
             .atStartup = commandLines(settings().gdbStartupCommands() + '\n'
@@ -1340,6 +1338,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .afterConnect = rp.commandsAfterConnect(),
             .forReset = rp.commandsForReset()};
         ProcessRunData debuggerRunData = rp.debugger();
+        setupDebugInfoDEnvironment(debuggerRunData.environment);
         if (!rp.runAsUser().isEmpty())
             ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
         return new GenericDebuggerEngine("Bridge (BridgeImpl)", new BridgeImpl({
@@ -1356,7 +1355,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
             .sourceDirectories = sourceDirectories,
             .debugInfoLocation = rp.debugInfoLocation(),
             .solibSearchPath = rp.solibSearchPath(),
-            .useDebugInfoD = useDebugInfoD,
+            .useDebugInfoD = isDebugInfoDEnabled(),
             .enableHeapDebugging = bridgeHeapDebugging(rp),
             .breakOnMain = rp.breakOnMain(),
             .mainFunctionName = QLatin1String(

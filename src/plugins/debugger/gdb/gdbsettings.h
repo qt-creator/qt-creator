@@ -5,6 +5,8 @@
 
 #include <utils/aspects.h>
 
+#include <QVariant>
+
 namespace Debugger::Internal {
 
 class GdbSettings : public Utils::AspectContainer
@@ -22,7 +24,9 @@ public:
     Utils::BoolAspect intelFlavor{this};
     Utils::BoolAspect usePseudoTracepoints{this};
     Utils::BoolAspect useIndexCache{this};
-    Utils::TriStateAspect useDebugInfoD{this};
+    Utils::SelectionAspect debugInfoDMode{this};
+    Utils::StringAspect debugInfoDUrls{this};
+    Utils::IntegerAspect debugInfoDTimeout{this};
     Utils::StringAspect gdbStartupCommands{this};
     Utils::StringAspect gdbPostAttachCommands{this};
 
@@ -39,5 +43,7 @@ public:
 };
 
 GdbSettings &gdbSettings();
+
+int debugInfoDModeFromOldSetting(const QVariant &oldValue);
 
 } // Debugger::Internal

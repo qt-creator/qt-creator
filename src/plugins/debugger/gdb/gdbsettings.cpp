@@ -10,7 +10,9 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggertr.h>
 
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcsettings.h>
 
 #include <QLabel>
 
@@ -18,6 +20,15 @@ using namespace Core;
 using namespace Utils;
 
 namespace Debugger::Internal {
+
+// The tri-state "UseDebugInfoD" the mode replaces stored 0 for "enabled" and 1 for
+// "disabled". Its default "use system settings" was never written, so an absent
+// key ends up as Disabled, the default of the mode.
+int debugInfoDModeFromOldSetting(const QVariant &oldValue)
+{
+    return oldValue.isValid() && oldValue.toInt() == 0 ? DebugInfoDFromEnvironment
+                                                         : DebugInfoDDisabled;
+}
 
 GdbSettings &gdbSettings()
 {
@@ -175,11 +186,39 @@ GdbSettings::GdbSettings()
         "binary in the future."));
     useIndexCache.setDefaultValue(true);
 
-    useDebugInfoD.setSettingsKey("UseDebugInfoD");
-    useDebugInfoD.setLabelText(Tr::tr("Use debug info daemon"));
-    useDebugInfoD.setOptionText(TriState::DefaultValue, Tr::tr("Use system settings"));
-    useDebugInfoD.setToolTip(Tr::tr("Lets GDB attempt to automatically retrieve "
-                                    "debug information for system packages."));
+    const QString envUrls = Environment::systemEnvironment().value("DEBUGINFOD_URLS");
+    debugInfoDMode.setSettingsKey("DebugInfoDMode");
+    debugInfoDMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    debugInfoDMode.setLabelText(Tr::tr("Download debug info (debuginfod):"));
+    debugInfoDMode.addOption(Tr::tr("Disabled"));
+    debugInfoDMode.addOption(Tr::tr("From environment"));
+    debugInfoDMode.addOption(Tr::tr("Use custom URLs"));
+    debugInfoDMode.setDefaultValue(DebugInfoDDisabled);
+    debugInfoDMode.setToolTip(Tr::tr("Lets the debugger download missing debug information "
+        "for system packages on demand from a debuginfod server.<ul>"
+        "<li><b>Disabled</b>: do not use debuginfod. This unsets DEBUGINFOD_URLS "
+        "and tells GDB to turn debuginfod off, overriding a setting in your gdbinit.</li>"
+        "<li><b>From environment</b>: use the DEBUGINFOD_URLS environment variable "
+        "(currently: %1).</li>"
+        "<li><b>Use custom URLs</b>: use the URLs configured below.</li></ul>"
+        "An unreachable server can stall startup, so a timeout is applied.")
+        .arg(envUrls.isEmpty() ? Tr::tr("not set") : envUrls));
+
+    debugInfoDUrls.setSettingsKey("DebugInfoDUrls");
+    debugInfoDUrls.setDisplayStyle(StringAspect::LineEditDisplay);
+    debugInfoDUrls.setLabelText(Tr::tr("Custom debuginfod URLs:"));
+    debugInfoDUrls.setPlaceHolderText("https://debuginfod.elfutils.org/");
+    debugInfoDUrls.setToolTip(Tr::tr("Space-separated list of debuginfod server URLs, used "
+        "when \"Use custom URLs\" is selected."));
+
+    debugInfoDTimeout.setSettingsKey("DebugInfoDTimeout");
+    debugInfoDTimeout.setLabelText(Tr::tr("debuginfod connection timeout:"));
+    debugInfoDTimeout.setSuffix(Tr::tr("sec"));
+    debugInfoDTimeout.setRange(0, 3600);
+    debugInfoDTimeout.setDefaultValue(10);
+    debugInfoDTimeout.setToolTip(Tr::tr("Maximum time to wait when connecting to a debuginfod "
+        "server, so an unreachable server fails fast instead of stalling startup. "
+        "Set to 0 to impose no timeout."));
 
     skipKnownFrames.setSettingsKey(debugModeGroup, "SkipKnownFrames");
     skipKnownFrames.setDisplayName(Tr::tr("Skip Known Frames"));
@@ -237,7 +276,9 @@ GdbSettings::GdbSettings()
                 intelFlavor,
                 usePseudoTracepoints,
                 useIndexCache,
-                Row { useDebugInfoD, st },
+                Row { debugInfoDMode, st },
+                Row { debugInfoDUrls },
+                Row { debugInfoDTimeout, st },
                 st
             }
         };
@@ -271,7 +312,24 @@ GdbSettings::GdbSettings()
         return Grid { general, extended, br, startup, attach };
     });
 
+    const auto updateDebugInfoDEnabled = [this] {
+        const int mode = debugInfoDMode.volatileValue();
+        debugInfoDUrls.setEnabled(mode == DebugInfoDCustom);
+        debugInfoDTimeout.setEnabled(mode != DebugInfoDDisabled);
+    };
+    connect(&debugInfoDMode, &BaseAspect::volatileValueChanged,
+            this, updateDebugInfoDEnabled);
+
     readSettings();
+    updateDebugInfoDEnabled();
+
+    const Key oldDebugInfoDKey("UseDebugInfoD");
+    if (Utils::userSettings().contains(oldDebugInfoDKey)) {
+        debugInfoDMode.setValue(
+            debugInfoDModeFromOldSetting(Utils::userSettings().value(oldDebugInfoDKey)));
+        debugInfoDMode.writeSettings();
+        Utils::userSettings().remove(oldDebugInfoDKey);
+    }
 }
 
 // GdbSettingsPage
