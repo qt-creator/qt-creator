@@ -10,6 +10,7 @@
 #include "deployconfiguration.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
+#include "devicesupport/idevicefactory.h"
 #include "editorconfiguration.h"
 #include "environmentaspect.h"
 #include "kit.h"
@@ -458,10 +459,31 @@ Target *Project::addTargetForDefaultKit()
     return addTargetForKit(KitManager::defaultKit());
 }
 
+static Id missingDeviceType(const Kit *kit)
+{
+    for (const Id deviceType : {BuildDeviceTypeKitAspect::deviceTypeId(kit),
+                                RunDeviceTypeKitAspect::deviceTypeId(kit)}) {
+        if (deviceType.isValid() && !IDeviceFactory::find(deviceType))
+            return deviceType;
+    }
+    return {};
+}
+
 Target *Project::addTargetForKit(Kit *kit)
 {
     if (!kit || target(kit))
         return nullptr;
+
+    // A vanished target of this kit comes back rather than getting a second one next to it.
+    const QList<Store> vanishedTargets = d->m_vanishedTargets;
+    for (const Store &store : vanishedTargets) {
+        if (idFromMap(store) != kit->id())
+            continue;
+        if (missingDeviceType(kit).isValid() || !copySteps(store, kit))
+            return nullptr;
+        removeVanishedTarget(store);
+        return target(kit);
+    }
 
     auto t = Target::create(this, kit);
     Target *pointer = t.get();
@@ -1127,6 +1149,20 @@ void Project::createTargetFromMap(const Store &map, int index)
                 "kit \"%2\" with id %3, which does not exist anymore. You can create a new kit "
                 "or copy the steps of the vanished kit to another kit in %4 mode.")
                 .arg(displayName(), formerKitName, id.toString(), Tr::tr("Projects")));
+        return;
+    }
+
+    // Without the device factory the target cannot be restored. Keep its data for a later run.
+    if (const Id deviceType = missingDeviceType(k); deviceType.isValid()) {
+        d->m_vanishedTargets.append(targetMap);
+        TaskHub::addTask<BuildSystemTask>(
+            Task::Warning,
+            ::PE::Tr::tr(
+                "Project \"%1\" was configured for kit \"%2\", which uses the device type "
+                "%3. No enabled plugin provides it. The settings for this kit are kept "
+                "and can be copied to another kit in %4 mode.")
+                .arg(displayName(), k->displayName(), deviceType.toString(),
+                     Tr::tr("Projects")));
         return;
     }
 
@@ -2719,6 +2755,73 @@ private slots:
         addTargetWhileCreatingConfigWidget([](Project *project) {
             emit project->activeTargetChanged(project->activeTarget());
         });
+    }
+
+    void testTargetWithoutDeviceFactoryVanishes()
+    {
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, "ProjectTest.NoSuchDeviceType");
+        });
+        QVERIFY(kit);
+        const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+        Store targetMap;
+        targetMap.insert(Constants::CONFIGURATION_ID_KEY, kit->id().toSetting());
+        Store map;
+        map.insert("ProjectExplorer.Project.TargetCount", 1);
+        map.insert("ProjectExplorer.Project.Target.0", variantFromStore(targetMap));
+
+        struct RestorableProject : TargetlessTestProject
+        {
+            using Project::fromMap;
+        } project;
+        QString error;
+        project.fromMap(map, &error);
+        QVERIFY(project.targets().isEmpty());
+        QCOMPARE(project.vanishedTargets().size(), 1);
+
+        Store saved;
+        project.toMap(saved);
+        QCOMPARE(saved.value("ProjectExplorer.Project.TargetCount").toInt(), 1);
+        QVERIFY(saved.contains("ProjectExplorer.Project.Target.0"));
+    }
+
+    void testAddingKitRestoresVanishedTarget()
+    {
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, "ProjectTest.NoSuchDeviceType");
+        });
+        QVERIFY(kit);
+        const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+        struct RestorableProject : TargetlessTestProject
+        {
+            using Project::fromMap;
+        };
+        Store map;
+        {
+            RestorableProject project;
+            Target * const t = project.addTargetForKit(kit);
+            QVERIFY(t);
+            t->activeBuildConfiguration()->setDisplayName("ProjectTest.Restored");
+            project.toMap(map);
+        }
+
+        RestorableProject project;
+        QString error;
+        project.fromMap(map, &error);
+        QVERIFY(project.targets().isEmpty());
+        QCOMPARE(project.vanishedTargets().size(), 1);
+
+        QVERIFY(!project.addTargetForKit(kit));
+        QVERIFY(project.targets().isEmpty());
+        QCOMPARE(project.vanishedTargets().size(), 1);
+
+        RunDeviceTypeKitAspect::setDeviceTypeId(kit, Constants::DESKTOP_DEVICE_TYPE);
+        Target * const t = project.addTargetForKit(kit);
+        QVERIFY(t);
+        QCOMPARE(t->activeBuildConfiguration()->displayName(), "ProjectTest.Restored");
+        QVERIFY(project.vanishedTargets().isEmpty());
     }
 
 private:
