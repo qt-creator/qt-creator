@@ -60,7 +60,7 @@ using namespace QtTaskTree;
 
 namespace QmlJSEditor {
 
-Q_LOGGING_CATEGORY(qmllsDownloadLog, "qtc.qmlls.download", QtWarningMsg)
+static Q_LOGGING_CATEGORY(qmllsDownloadLog, "qtc.qmlls.download", QtWarningMsg)
 
 constexpr char useLatestQmllsKey[] = "useLatestQmlls";
 constexpr char executableSelectionKey[] = "executableSelection";
