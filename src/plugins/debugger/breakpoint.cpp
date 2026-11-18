@@ -5,6 +5,7 @@
 
 #include "debuggerprotocol.h"
 #include "debuggerengine.h"
+#include "debuggertr.h"
 
 
 #include <projectexplorer/abi.h>
@@ -128,6 +129,8 @@ BreakpointParts BreakpointParameters::differencesTo
         parts |= OneShotPart;
     if (access != rhs.access)
         parts |= AccessPart;
+    if (hardware != rhs.hardware)
+        parts |= HardwarePart;
     return parts;
 }
 
@@ -257,6 +260,19 @@ QString gdbWatchCommand(WatchpointAccess access)
     return QString("watch");
 }
 
+// Explains gdb's "Cannot insert breakpoint" output when resuming fails.
+QString breakpointInsertionHint(const QString &gdbOutput)
+{
+    if (gdbOutput.contains("Cannot insert hardware breakpoint")
+        || gdbOutput.contains("too many hardware breakpoints")) {
+        return Tr::tr("The target has fewer hardware breakpoint units than requested. "
+                      "Disable some of the hardware breakpoints, or turn them into "
+                      "software breakpoints.");
+    }
+    return Tr::tr("Software breakpoints are written into the code. If the code is in "
+                  "read-only memory, such as flash, use hardware breakpoints instead.");
+}
+
 QString BreakpointParameters::toString() const
 {
     QString result;
@@ -298,6 +314,8 @@ QString BreakpointParameters::toString() const
         ts << " IgnoreCount: " << ignoreCount;
     if (tracepoint)
         ts << " [tracepoint]";
+    if (hardware)
+        ts << " [hardware]";
     if (!module.isEmpty())
         ts << " Module: " << module;
     if (!command.isEmpty())
@@ -427,6 +445,7 @@ void BreakpointParameters::updateFromGdbOutput(const GdbMi &bkpt, const Debugger
             // "breakpoint", "hw breakpoint", "tracepoint", "hw watchpoint"
             // {bkpt={number="2",type="hw watchpoint",disp="keep",enabled="y",
             //  what="*0xbfffed48",times="0",original-location="*0xbfffed48"}}
+            hardware = child.data() == "hw breakpoint";
             if (child.data().contains("tracepoint")) {
                 tracepoint = true;
             } else if (child.data().endsWith("watchpoint")) {

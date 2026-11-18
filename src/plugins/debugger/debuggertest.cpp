@@ -304,6 +304,7 @@ private slots:
     void testClaimedQmlBreakpointsGetNoQmlHint();
     void testUnhandledQmlBreakpointsGetAHint();
     void testReadWatchpointsNeedAccessCapability();
+    void testHardwareBreakpointsNeedHardwareCapability();
     void testGdbEngineReportsRefusedWatchpoints();
     void testKitWithCompiledQmlDisablesQmlDebugging();
     void testAnEmptyDisassemblyLeavesTheViewAlone();
@@ -6870,6 +6871,33 @@ void DebuggerUnitTests::testReadWatchpointsNeedAccessCapability()
     const Result<> res = checkBreakpoints({engine});
     QVERIFY2(!res, "the read watchpoint was not reported as unhandled");
     QVERIFY2(res.error().contains("only stop where data is written"), qPrintable(res.error()));
+    QVERIFY(!engine->breakHandler()->tryClaimBreakpoint(gbp));
+}
+
+// An engine that cannot set hardware breakpoints would write a trap into the
+// code, which fails where the code is in flash.
+void DebuggerUnitTests::testHardwareBreakpointsNeedHardwareCapability()
+{
+    BreakpointParameters params(BreakpointByFunction);
+    params.functionName = "main";
+    params.hardware = true;
+    const GlobalBreakpoint gbp = BreakpointManager::createBreakpoint(params);
+    const QScopeGuard remove([gbp] {
+        if (gbp)
+            gbp->deleteBreakpoint();
+    });
+    QVERIFY(gbp);
+
+    GdbEngine gdbEngine;
+    gdbEngine.setRunParameters({});
+    QVERIFY2(checkBreakpoints({&gdbEngine}), "gdb did not take the hardware breakpoint");
+
+    auto engine = new GenericDebuggerEngine("test", new RecordingBackend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+    const Result<> res = checkBreakpoints({engine});
+    QVERIFY2(!res, "the hardware breakpoint was not reported as unhandled");
+    QVERIFY2(res.error().contains("cannot set hardware breakpoints"), qPrintable(res.error()));
     QVERIFY(!engine->breakHandler()->tryClaimBreakpoint(gbp));
 }
 

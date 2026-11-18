@@ -145,6 +145,7 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | RunToLineCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability
                       | WatchpointAccessCapability
+                      | HardwareBreakpointCapability
                       | ResetInferiorCapability
                       | ReturnFromFunctionCapability | ReverseSteppingCapability
                       | SnapshotCapability
@@ -740,6 +741,7 @@ void BridgeImpl::postBreakpointRequest(const QString &request,
                                       ? m_startData.mainFunctionName : params.functionName},
                      {"module", params.module},
                      {"oneshot", params.oneShot},
+                     {"hardware", params.hardware},
                      {"enabled", params.enabled},
                      {"line", params.textPosition.line},
                      {"address", qint64(params.address)},
@@ -1766,9 +1768,12 @@ void BridgeImpl::handleStopped(const QJsonObject &event)
     } else if (reason == u"recording-failed") {
         emit recordingFailed();
     } else if (reason == u"resume-aborted") {
-        const QString description = body.value("description").toString();
-        emit message(description.isEmpty() ? Tr::tr("gdb aborted the resume.") : description,
-                     StatusBar);
+        QString description = body.value("description").toString();
+        if (description.isEmpty())
+            description = Tr::tr("gdb aborted the resume.");
+        else if (description.contains("Cannot insert "))
+            description += '\n' + breakpointInsertionHint(description);
+        emit message(description, StatusBar);
     }
 
     // Which breakpoint a stop belongs to is in this event only, and a stop the

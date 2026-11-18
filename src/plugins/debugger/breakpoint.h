@@ -122,6 +122,7 @@ enum BreakpointPart
     MessagePart     = (1 << 13),
     OneShotPart     = (1 << 14),
     AccessPart      = (1 << 15),
+    HardwarePart    = (1 << 16),
 
     AllConditionParts = ConditionPart|IgnoreCountPart|ThreadSpecPart
                |OneShotPart,
@@ -130,7 +131,7 @@ enum BreakpointPart
                |ExpressionPart|AddressPart|ConditionPart
                |IgnoreCountPart|ThreadSpecPart|ModulePart|TracePointPart
                |EnabledPart|TypePart|PathUsagePart|CommandPart|MessagePart
-               |OneShotPart|AccessPart
+               |OneShotPart|AccessPart|HardwarePart
 };
 Q_DECLARE_FLAGS(BreakpointParts, BreakpointPart)
 Q_DECLARE_OPERATORS_FOR_FLAGS(BreakpointParts)
@@ -179,6 +180,7 @@ public:
     QString message;         //!< message
     bool tracepoint;
     bool oneShot;            //!< Should this breakpoint trigger only once?
+    bool hardware = false;   //!< Use a hardware breakpoint unit, not a written trap?
 
     bool pending = true;     //!< Breakpoint not fully resolved.
     std::optional<int> hitCount; //!< Number of times this has been hit.
@@ -212,6 +214,7 @@ DEBUGGER_EXPORT bool isVirtualMachineBreakpoint(const BreakpointParameters &para
                                                 bool javaDebugging);
 
 QString gdbWatchCommand(WatchpointAccess access);
+QString breakpointInsertionHint(const QString &gdbOutput);
 
 QList<TracepointCapture> parseTracepointCaptures(const QString &message);
 QString formatTracepointMessage(const QString &message,

@@ -347,6 +347,8 @@ private:
     QCheckBox *m_checkBoxTracepoint;
     QLabel *m_labelOneShot;
     QCheckBox *m_checkBoxOneShot;
+    QLabel *m_labelHardware;
+    QCheckBox *m_checkBoxHardware;
     QLabel *m_labelUseFullPath;
     QLabel *m_labelModule;
     QLineEdit *m_lineEditModule;
@@ -439,6 +441,16 @@ BreakpointDialog::BreakpointDialog(BreakpointParts enabledParts, QWidget *parent
     m_labelOneShot = new QLabel(Tr::tr("&One shot only:"), groupBoxAdvanced);
     m_labelOneShot->setBuddy(m_checkBoxOneShot);
 
+    const QString hardwareToolTip =
+        "<p>" + Tr::tr("Uses a breakpoint unit of the processor instead of writing a trap "
+                       "instruction into the code. This works for code in read-only memory, "
+                       "such as flash, but the target has only a few such units.") + "</p>";
+    m_checkBoxHardware = new QCheckBox(groupBoxBasic);
+    m_checkBoxHardware->setToolTip(hardwareToolTip);
+    m_labelHardware = new QLabel(Tr::tr("Hard&ware breakpoint:"), groupBoxBasic);
+    m_labelHardware->setBuddy(m_checkBoxHardware);
+    m_labelHardware->setToolTip(hardwareToolTip);
+
     const QString pathToolTip =
         Tr::tr("<p>Determines how the path is specified "
                     "when setting breakpoints:</p><ul>"
@@ -516,6 +528,7 @@ BreakpointDialog::BreakpointDialog(BreakpointParts enabledParts, QWidget *parent
     basicLayout->addRow(m_labelAccess, m_comboBoxAccess);
     basicLayout->addRow(m_labelFunction, m_lineEditFunction);
     basicLayout->addRow(m_labelOneShot, m_checkBoxOneShot);
+    basicLayout->addRow(m_labelHardware, m_checkBoxHardware);
 
     auto advancedLeftLayout = new QFormLayout();
     advancedLeftLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -547,6 +560,12 @@ BreakpointDialog::BreakpointDialog(BreakpointParts enabledParts, QWidget *parent
     verticalLayout->setStretchFactor(groupBoxAdvanced, 10);
 
     connect(m_comboBoxType, &QComboBox::activated, this, &BreakpointDialog::typeChanged);
+    connect(m_checkBoxTracepoint, &QCheckBox::toggled, this, [this](bool checked) {
+        // Tracepoints are always set as software breakpoints.
+        if (checked)
+            m_checkBoxHardware->setChecked(false);
+        m_checkBoxHardware->setEnabled(!checked && m_labelHardware->isEnabled());
+    });
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
@@ -596,6 +615,8 @@ void BreakpointDialog::setPartsEnabled(BreakpointParts parts)
 
     m_labelOneShot->setEnabled(parts & OneShotPart);
     m_checkBoxOneShot->setEnabled(parts & OneShotPart);
+    m_labelHardware->setEnabled(parts & HardwarePart);
+    m_checkBoxHardware->setEnabled((parts & HardwarePart) && !m_checkBoxTracepoint->isChecked());
 
     m_labelAddress->setEnabled(parts & AddressPart);
     m_lineEditAddress->setEnabled(parts & AddressPart);
@@ -642,6 +663,8 @@ void BreakpointDialog::clearOtherParts(BreakpointParts parts)
         m_lineEditExpression->clear();
     if (invertedParts & AccessPart)
         m_comboBoxAccess->setCurrentIndex(WatchpointWrite);
+    if (invertedParts & HardwarePart)
+        m_checkBoxHardware->setChecked(false);
 
     if (invertedParts & ConditionPart)
         m_lineEditCondition->clear();
@@ -693,6 +716,8 @@ void BreakpointDialog::getParts(BreakpointParts parts, BreakpointParameters *dat
 
     if (parts & OneShotPart)
         data->oneShot = m_checkBoxOneShot->isChecked();
+    if (parts & HardwarePart)
+        data->hardware = m_checkBoxHardware->isChecked() && !m_checkBoxTracepoint->isChecked();
     if (parts & CommandPart)
         data->command = m_textEditCommands->toPlainText().trimmed();
     if (parts & TracePointPart) {
@@ -744,6 +769,8 @@ void BreakpointDialog::setParts(BreakpointParts mask, const BreakpointParameters
 
     if (mask & OneShotPart)
         m_checkBoxOneShot->setChecked(data.oneShot);
+    if (mask & HardwarePart)
+        m_checkBoxHardware->setChecked(data.hardware);
     if (mask & TracePointPart)
         m_checkBoxTracepoint->setChecked(data.tracepoint);
     if (mask & CommandPart)
@@ -761,10 +788,12 @@ void BreakpointDialog::typeChanged(int)
     case LastBreakpointType:
         break;
     case BreakpointByFileAndLine:
-        getParts(FileAndLinePart|ModulePart|AllConditionParts|TracePointPart|CommandPart, &m_savedParameters);
+        getParts(FileAndLinePart|ModulePart|AllConditionParts|TracePointPart|CommandPart
+                     |HardwarePart, &m_savedParameters);
         break;
     case BreakpointByFunction:
-        getParts(FunctionPart|ModulePart|AllConditionParts|TracePointPart|CommandPart, &m_savedParameters);
+        getParts(FunctionPart|ModulePart|AllConditionParts|TracePointPart|CommandPart
+                     |HardwarePart, &m_savedParameters);
         break;
     case BreakpointAtThrow:
     case BreakpointAtCatch:
@@ -776,7 +805,8 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointAtJavaScriptThrow:
         break;
     case BreakpointByAddress:
-        getParts(AddressPart|AllConditionParts|TracePointPart|CommandPart, &m_savedParameters);
+        getParts(AddressPart|AllConditionParts|TracePointPart|CommandPart|HardwarePart,
+                 &m_savedParameters);
         break;
     case WatchpointAtAddress:
         getParts(AddressPart|AccessPart|AllConditionParts|TracePointPart|CommandPart,
@@ -795,16 +825,22 @@ void BreakpointDialog::typeChanged(int)
     case UnknownBreakpointType:
     case LastBreakpointType:
         break;
-    case BreakpointByFileAndLine:
-        setParts(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart|CommandPart, m_savedParameters);
-        setPartsEnabled(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart|CommandPart);
-        clearOtherParts(FileAndLinePart|AllConditionParts|ModulePart|TracePointPart|CommandPart);
+    case BreakpointByFileAndLine: {
+        const BreakpointParts parts = FileAndLinePart|AllConditionParts|ModulePart
+                                      |TracePointPart|CommandPart|HardwarePart;
+        setParts(parts, m_savedParameters);
+        setPartsEnabled(parts);
+        clearOtherParts(parts);
         break;
-    case BreakpointByFunction:
-        setParts(FunctionPart|AllConditionParts|ModulePart|TracePointPart|CommandPart, m_savedParameters);
-        setPartsEnabled(FunctionPart|AllConditionParts|ModulePart|TracePointPart|CommandPart);
-        clearOtherParts(FunctionPart|AllConditionParts|ModulePart|TracePointPart|CommandPart);
+    }
+    case BreakpointByFunction: {
+        const BreakpointParts parts = FunctionPart|AllConditionParts|ModulePart
+                                      |TracePointPart|CommandPart|HardwarePart;
+        setParts(parts, m_savedParameters);
+        setPartsEnabled(parts);
+        clearOtherParts(parts);
         break;
+    }
     case BreakpointAtThrow:
     case BreakpointAtCatch:
     case BreakpointAtFork:
@@ -823,11 +859,14 @@ void BreakpointDialog::typeChanged(int)
         clearOtherParts(NoParts);
         setPartsEnabled(NoParts);
         break;
-    case BreakpointByAddress:
-        setParts(AddressPart|AllConditionParts|TracePointPart|CommandPart, m_savedParameters);
-        setPartsEnabled(AddressPart|AllConditionParts|TracePointPart|CommandPart);
-        clearOtherParts(AddressPart|AllConditionParts|TracePointPart|CommandPart);
+    case BreakpointByAddress: {
+        const BreakpointParts parts = AddressPart|AllConditionParts|TracePointPart|CommandPart
+                                      |HardwarePart;
+        setParts(parts, m_savedParameters);
+        setPartsEnabled(parts);
+        clearOtherParts(parts);
         break;
+    }
     case WatchpointAtAddress: {
         const BreakpointParts parts = AddressPart|AccessPart|AllConditionParts|TracePointPart
                                       |CommandPart;
@@ -1187,6 +1226,7 @@ void BreakpointItem::addToCommand(
     cmd->arg("command", toHex(requested.command));
     cmd->arg("function", requested.functionName);
     cmd->arg("oneshot", requested.oneShot);
+    cmd->arg("hardware", requested.hardware);
     cmd->arg("enabled", requested.enabled);
     cmd->arg("line", requested.textPosition.line);
     cmd->arg("address", requested.address);
@@ -1881,6 +1921,8 @@ static BreakpointParts engineBreakpointCapabilities(DebuggerEngine *engine)
         enabledParts.setFlag(TracePointPart, false);
     if (!engine->hasCapability(WatchpointAccessCapability))
         enabledParts.setFlag(AccessPart, false);
+    if (!engine->hasCapability(HardwareBreakpointCapability))
+        enabledParts.setFlag(HardwarePart, false);
     return enabledParts;
 }
 
@@ -1891,9 +1933,11 @@ void BreakHandler::editBreakpoint(const Breakpoint &bp, QWidget *parent)
     BreakpointParts parts = NoParts;
 
     BreakpointParts enabledParts = engineBreakpointCapabilities(m_engine);
-    // The engines cannot turn an inserted watchpoint into one of another kind.
-    if (bp->m_state != BreakpointNew)
+    // The engines cannot turn an inserted breakpoint into one of another kind.
+    if (bp->m_state != BreakpointNew) {
         enabledParts.setFlag(AccessPart, false);
+        enabledParts.setFlag(HardwarePart, false);
+    }
     BreakpointDialog dialog(enabledParts, parent);
     if (!dialog.showDialog(&params, &parts))
         return;
@@ -2980,6 +3024,8 @@ void BreakpointManager::saveSessionData()
             map.insert("disabled", "1");
         if (params.oneShot)
             map.insert("oneshot", "1");
+        if (params.hardware)
+            map.insert("hardware", "1");
         if (params.pathUsage != BreakpointPathUsageEngineDefault)
             map.insert("usefullpath", QString::number(params.pathUsage));
         if (params.tracepoint)
@@ -3035,6 +3081,9 @@ void BreakpointManager::loadSessionData()
         v = map.value("oneshot");
         if (v.isValid())
             params.oneShot = v.toInt();
+        v = map.value("hardware");
+        if (v.isValid())
+            params.hardware = v.toInt();
         v = map.value("usefullpath");
         if (v.isValid())
             params.pathUsage = static_cast<BreakpointPathUsage>(v.toInt());

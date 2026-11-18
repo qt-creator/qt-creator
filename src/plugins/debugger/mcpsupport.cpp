@@ -1103,6 +1103,8 @@ static QJsonArray getBreakpoints()
             obj["ignore_count"] = p.ignoreCount;
         if (p.oneShot)
             obj["one_shot"] = true;
+        if (p.hardware)
+            obj["hardware"] = true;
         if (!p.message.isEmpty())
             obj["message"] = p.message;
         result.append(obj);
@@ -1119,7 +1121,8 @@ static QJsonObject addBreakpoint(
     const QString &condition,
     int ignoreCount,
     bool enabled,
-    bool oneShot)
+    bool oneShot,
+    bool hardware)
 {
     BreakpointType bpType = BreakpointByFileAndLine;
     if (type == "function")
@@ -1140,6 +1143,9 @@ static QJsonObject addBreakpoint(
     BreakpointParameters params(bpType);
     params.enabled = enabled;
     params.oneShot = oneShot;
+    params.hardware = hardware
+                      && (bpType == BreakpointByFileAndLine || bpType == BreakpointByFunction
+                          || bpType == BreakpointByAddress);
     if (!file.isEmpty())
         params.fileName = Utils::FilePath::fromUserInput(file);
     if (line > 0)
@@ -1835,6 +1841,14 @@ void registerMcpTools()
                             {"type", "boolean"},
                             {"description",
                              "If true, the breakpoint is removed after the first hit."},
+                            {"default", false}})
+                    .addProperty(
+                        "hardware",
+                        QJsonObject{
+                            {"type", "boolean"},
+                            {"description",
+                             "If true, a hardware breakpoint is requested (for fileAndLine, "
+                             "function or address type)."},
                             {"default", false}}))
             .outputSchema(
                 Tool::OutputSchema{}
@@ -1855,7 +1869,8 @@ void registerMcpTools()
                 p.value("condition").toString(),
                 p.value("ignore_count").toInt(0),
                 p.value("enabled").toBool(true),
-                p.value("one_shot").toBool(false));
+                p.value("one_shot").toBool(false),
+                p.value("hardware").toBool(false));
         }));
 
     // Debugger stepping tools

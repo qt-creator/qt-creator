@@ -94,7 +94,8 @@ static DebuggerEngineSetupData gdbImplSetupData()
                       | WatchWidgetsCapability
                       | WatchpointByAddressCapability
                       | WatchpointByExpressionCapability
-                      | WatchpointAccessCapability;
+                      | WatchpointAccessCapability
+                      | HardwareBreakpointCapability;
     data.extraCapabilities = DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::LibraryEvent
                            | DebuggerExtraCapability::RunCommandDeferral
@@ -1404,6 +1405,8 @@ void GdbImpl::insertBreakpointCommand(const BreakpointChangeRequest &request)
     function += "-f ";
     if (params.isTracepoint())
         function += "-a ";
+    else if (params.hardware)
+        function += "-h ";
     if (params.oneShot)
         function += "-t ";
     if (!params.enabled)
@@ -2691,7 +2694,9 @@ void GdbImpl::handleAbortedRun(const DebuggerResponse &response)
     const QList<DebuggerCommand> commands = std::exchange(m_onStopCommands, {});
     emit inferiorEvent(wasInterruptRequested ? InferiorEvent::StopOk
                                              : InferiorEvent::SpontaneousStop);
-    const QString reason = response.logStreamOutput.trimmed();
+    QString reason = response.logStreamOutput.trimmed();
+    if (reason.contains("Cannot insert "))
+        reason += '\n' + breakpointInsertionHint(reason);
     if (!reason.isEmpty())
         emit message(reason, StatusBar);
     for (const DebuggerCommand &queuedCommand : commands)

@@ -1020,6 +1020,13 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
                 handleRecordingFailed();
             } else if (isGdbConnectionError(msg)) {
                 notifyInferiorExited();
+            } else if (msg.contains("Command aborted.")
+                       && response->logStreamOutput.contains("Cannot insert ")) {
+                notifyInferiorSpontaneousStop();
+                const QString text = response->logStreamOutput.trimmed() + "\n\n"
+                                     + breakpointInsertionHint(response->logStreamOutput);
+                AsynchronousMessageBox::critical(Tr::tr("Setting Breakpoints Failed"), text);
+                showStatusMessage(Tr::tr("Setting breakpoints failed."));
             } else {
                 // Windows: Some DLL or some function not found. Report
                 // the exception now in a box.
@@ -2060,6 +2067,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | WatchpointByAddressCapability
                   | WatchpointByExpressionCapability
                   | WatchpointAccessCapability
+                  | HardwareBreakpointCapability
                   | AddWatcherWhileRunningCapability
                   | WatchWidgetsCapability
                   | RunToLineCapability
@@ -2550,6 +2558,10 @@ void GdbEngine::handleBreakInsert1(const DebuggerResponse &response, const Break
         const int lineNumber = bp->textPosition().line;
         runCommand({"trace " + GdbMi::quoteCString(fileName) + ":" + QString::number(lineNumber),
                     NeedsTemporaryStop});
+    } else if (bp->requestedParameters().hardware) {
+        // A software retry would write the trap the user asked to avoid.
+        showMessage(response.data["msg"].data(), LogError);
+        notifyBreakpointInsertFailed(bp);
     } else {
         // Some versions of gdb like "GNU gdb (GDB) SUSE (6.8.91.20090930-2.4)"
         // know how to do pending breakpoints using CLI but not MI. So try
@@ -2872,6 +2884,9 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
 
            if (requested.oneShot)
                cmd.function += "-t ";
+
+           if (requested.hardware)
+               cmd.function += "-h ";
 
            if (!requested.enabled)
                cmd.function += "-d ";

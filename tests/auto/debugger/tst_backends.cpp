@@ -2102,6 +2102,10 @@ private slots:
     void stepsByInstructionWhereALineHasNoBounds();
     void stopsWhereAResumeCannotInsertItsBreakpoints_data() { addBackendRows(); }
     void stopsWhereAResumeCannotInsertItsBreakpoints();
+    void stopsAtAHardwareBreakpoint_data();
+    void stopsAtAHardwareBreakpoint();
+    void explainsRunningOutOfHardwareBreakpoints_data() { stopsAtAHardwareBreakpoint_data(); }
+    void explainsRunningOutOfHardwareBreakpoints();
     void reportsARecordingThatCannotGoOn_data() { addBackendRows(); }
     void reportsARecordingThatCannotGoOn();
     void skipsKnownFramesWhenStepping_data() { addBackendRows(); }
@@ -10501,6 +10505,126 @@ void tst_backends::stopsWhereAResumeCannotInsertItsBreakpoints()
                               "a resume gdb aborted was left running", s_timeout);
     QVERIFY2(statusMessages.join('\n').contains("Cannot insert breakpoint"),
              "the stop did not say why the resume failed");
+}
+
+static bool isHardwareBreakpointResponse(const GdbMi &data)
+{
+    if (data["type"].data() == "hw breakpoint")
+        return true;
+    for (const GdbMi &bkpt : data) {
+        if (bkpt["type"].data() == "hw breakpoint")
+            return true;
+    }
+    return false;
+}
+
+void tst_backends::stopsAtAHardwareBreakpoint_data()
+{
+    addBackendRows();
+    if (m_backendData.contains(Backend::Bridge))
+        QTest::newRow(qPrintable(backendName(Backend::Bridge))) << Backend::Bridge;
+}
+
+// Code in flash cannot take a software breakpoint, as the trap instruction
+// cannot be written there. A native process stands in for the target, which
+// takes hardware breakpoints only once it runs.
+void tst_backends::stopsAtAHardwareBreakpoint()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkCapability(backend, Debugger::HardwareBreakpointCapability); !result)
+        QSKIP(qPrintable(result.error()));
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> results;
+    bool isHardware = false;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results, &isHardware](quint64 requestId, BreakpointOp op, bool ok,
+                                    const GdbMi &data) {
+        if (op != BreakpointOp::Insert)
+            return;
+        results[requestId] = ok;
+        if (requestId == 481)
+            isHardware = isHardwareBreakpointResponse(data);
+    });
+
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 481;
+    request.params.type = BreakpointByFileAndLine;
+    request.params.fileName = inferiorTestData(backend).source;
+    request.params.textPosition.line = inferiorTestData(backend).secondBreakpointLine;
+    request.params.enabled = true;
+    request.params.hardware = true;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(results.contains(481), s_timeout);
+    QVERIFY2(results.value(481), "hardware breakpoint insert failed");
+    QVERIFY2(isHardware, "the breakpoint was set as a software breakpoint");
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), inferiorTestData(backend).secondBreakpointLine);
+}
+
+// gdb accepts any number of hardware breakpoints and finds out that the target
+// has too few units only when the resume inserts them.
+void tst_backends::explainsRunningOutOfHardwareBreakpoints()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Gdb && backend != Backend::Bridge)
+        QSKIP("only gdb takes back a resume it already reported as running");
+    if (auto result = checkCapability(backend, Debugger::HardwareBreakpointCapability); !result)
+        QSKIP(qPrintable(result.error()));
+    const QString arch = QSysInfo::currentCpuArchitecture();
+    if (arch != "x86_64" && arch != "i386")
+        QSKIP("the number of hardware breakpoint units is known for x86 only");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> results;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&results](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            results[requestId] = ok;
+    });
+    QStringList statusMessages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&statusMessages](const QString &text, int channel, int) {
+        if (channel == Debugger::StatusBar)
+            statusMessages.append(text);
+    });
+
+    // x86 has four debug registers.
+    const QStringList functions = {"knownFrameTarget", "stepIntoKnownFrame", "spin",
+                                   "vforkChild", "throwAndCatch"};
+    for (int i = 0; i < functions.size(); ++i) {
+        BreakpointChangeRequest request;
+        request.op = BreakpointOp::Insert;
+        request.requestId = 490 + i;
+        request.params.type = BreakpointByFunction;
+        request.params.functionName = functions.at(i);
+        request.params.enabled = true;
+        request.params.hardware = true;
+        engine->changeBreakpoint(request);
+        QTRY_VERIFY_WITH_TIMEOUT(results.contains(490 + i), s_timeout);
+        QVERIFY2(results.value(490 + i), qPrintable("hardware breakpoint insert failed for "
+                                                     + functions.at(i)));
+    }
+
+    debuggerBackend->clearEvents();
+    debuggerBackend->execute({ExecutionCommand::Continue});
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "a resume gdb aborted was left running", s_timeout);
+    const QString status = statusMessages.join('\n');
+    QVERIFY2(status.contains("hardware breakpoint"), qPrintable(status));
+    QVERIFY2(status.contains("fewer hardware breakpoint units"), qPrintable(status));
 }
 
 void tst_backends::reportsARecordingThatCannotGoOn()

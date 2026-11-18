@@ -3030,6 +3030,8 @@ bool DebuggerEngine::canTakeBreakpoint(const BreakpointParameters &bp) const
             && !hasCapability(WatchpointAccessCapability)) {
         return false;
     }
+    if (bp.hardware && !hasCapability(HardwareBreakpointCapability))
+        return false;
     return acceptsBreakpoint(bp);
 }
 

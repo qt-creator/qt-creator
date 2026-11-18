@@ -1455,9 +1455,11 @@ class DapServer():
                                 temporary=temporary)
         elif bptype == self.BP_BY_FUNCTION:
             bp = gdb.Breakpoint(function=args.get('function', ''),
+                                type=self._codeBreakpointType(args),
                                 temporary=temporary)
         elif bptype == self.BP_BY_ADDRESS:
-            bp = gdb.Breakpoint('*0x%x' % args.get('address', 0), gdb.BP_BREAKPOINT,
+            bp = gdb.Breakpoint('*0x%x' % args.get('address', 0),
+                                self._codeBreakpointType(args),
                                 temporary=temporary)
         elif bptype in (self.BP_WATCH_ADDRESS, self.BP_WATCH_EXPRESSION):
             expr = args.get('expression') or ('*0x%x' % args.get('address', 0))
@@ -1469,10 +1471,26 @@ class DapServer():
             # Keyword form, so a source path containing spaces still resolves.
             bp = gdb.Breakpoint(source=args.get('file', ''),
                                 line=int(args.get('line', 0)),
+                                type=self._codeBreakpointType(args),
                                 temporary=temporary)
 
         self._applyBreakpointArgsToAll(bp, args)
         return bp
+
+    @staticmethod
+    def _codeBreakpointType(args):
+        if not args.get('hardware'):
+            return gdb.BP_BREAKPOINT
+        hardware = getattr(gdb, 'BP_HARDWARE_BREAKPOINT', None)
+        if hardware is None:
+            raise gdb.error('This gdb cannot set hardware breakpoints from Python '
+                            '(gdb 13 or later is needed).')
+        return hardware
+
+    @staticmethod
+    def _isHardwareBreakpoint(bp):
+        hardware = getattr(gdb, 'BP_HARDWARE_BREAKPOINT', None)
+        return hardware is not None and bp.type == hardware
 
     def _fillLocationDict(self, target, location):
         if location.address is not None:
@@ -1498,8 +1516,13 @@ class DapServer():
         # which a command run from Python does not get to see. The ones it
         # cannot write are the ones whose memory is not there to read.
         lines = []
+        hardwareNumbers = []
         for bp in gdb.breakpoints():
             if not bp.enabled:
+                continue
+            if self._isHardwareBreakpoint(bp):
+                # Nothing is written for these, the target runs out of units.
+                hardwareNumbers.append(bp.number)
                 continue
             for location in getattr(bp, 'locations', []):
                 if not location.enabled or location.address is None:
@@ -1510,6 +1533,10 @@ class DapServer():
                     lines.append('Cannot insert breakpoint %d. '
                                  'Cannot access memory at address 0x%x'
                                  % (bp.number, location.address))
+        if not lines and hardwareNumbers:
+            lines.append('Cannot insert hardware breakpoints %s. You may have requested '
+                         'too many hardware breakpoints.'
+                         % ', '.join(str(n) for n in hardwareNumbers))
         return '\n'.join(lines)
 
     def _dropDeadBreakpoints(self):
@@ -1767,7 +1794,12 @@ class DapServer():
 
         # A tracepoint of gdb's own is what gdb calls itself, and it is what
         # tells the two kinds of tracepoint apart.
-        result['type'] = 'tracepoint' if isinstance(bp, GdbOwnTracepoint) else 'breakpoint'
+        if isinstance(bp, GdbOwnTracepoint):
+            result['type'] = 'tracepoint'
+        elif self._isHardwareBreakpoint(bp):
+            result['type'] = 'hw breakpoint'
+        else:
+            result['type'] = 'breakpoint'
         locations = self._locationsOf(bp)
         if len(locations) == 1:
             self._fillLocationDict(result, locations[0])

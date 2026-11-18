@@ -704,6 +704,7 @@ Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engin
     QStringList unhandledIds;
     bool hasQmlBreakpoints = false;
     bool hasReadWatchpoints = false;
+    bool hasHardwareBreakpoints = false;
     for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {
         if (gbp->isEnabled()) {
             const BreakpointParameters &bp = gbp->requestedParameters();
@@ -715,6 +716,11 @@ Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engin
                 hasQmlBreakpoints = hasQmlBreakpoints || bp.isQmlFileAndLineBreakpoint();
                 hasReadWatchpoints = hasReadWatchpoints
                     || (bp.isWatchpoint() && bp.access != WatchpointWrite
+                        && Utils::anyOf(engines, [bp](const DebuggerEngine *engine) {
+                               return engine->acceptsBreakpoint(bp);
+                           }));
+                hasHardwareBreakpoints = hasHardwareBreakpoints
+                    || (bp.hardware
                         && Utils::anyOf(engines, [bp](const DebuggerEngine *engine) {
                                return engine->acceptsBreakpoint(bp);
                            }));
@@ -747,6 +753,10 @@ Result<> Internal::checkBreakpoints(const QList<QPointer<DebuggerEngine>> &engin
     if (hasReadWatchpoints) {
         warningMessage += "<p>"
                           + Debugger::Tr::tr("This debugger can only stop where data is written.");
+    }
+    if (hasHardwareBreakpoints) {
+        warningMessage += "<p>"
+                          + Debugger::Tr::tr("This debugger cannot set hardware breakpoints.");
     }
     return ResultError(warningMessage);
 }
