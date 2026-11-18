@@ -3423,7 +3423,7 @@ void GitClient::endStashScope(const FilePath &workingDirectory)
 }
 
 // Do not show "0000" or "^32ae4"
-bool GitClient::isValidRevision(const QString &revision) const
+bool GitClient::isValidRevision(const QString &revision)
 {
     if (revision.isEmpty() || revision.startsWith('^'))
         return false;
@@ -4226,6 +4226,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         VcsOutputWindow::appendMessage(repositoryDirectory, msgCommitted(amendHash, commitCount));
         updateCurrentBranch();
+        VcsManager::emitRepositoryChanged(repositoryDirectory);
         return true;
     }
     VcsOutputWindow::appendError(repositoryDirectory,

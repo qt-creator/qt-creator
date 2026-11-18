@@ -782,6 +782,42 @@ GitPluginPrivate::GitPluginPrivate()
                      "Git.Blame", context, true, std::bind(&GitPluginPrivate::blameFile, this),
                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+B") : Tr::tr("Alt+G,Alt+B")));
 
+    QAction *blameGutterAction = createFileAction(
+        currentFileMenu, Tr::tr("Toggle Blame Gutter"), Tr::tr("Toggle Blame Gutter for \"%1\""),
+        "Git.BlameGutter", context, true,
+        [this] {
+            toggleBlameGutter(TextEditorWidget::currentTextEditorWidget(),
+                              currentState().currentFileTopLevel());
+        },
+        QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+Shift+B")
+                                     : Tr::tr("Alt+G,Alt+Shift+B")));
+    blameGutterAction->setIcon(Utils::Icons::CLOCK_TOOLBAR.icon());
+    blameGutterAction->setCheckable(true);
+    const auto updateBlameGutterButton = [
+        blameGutterAction, toolbar = std::make_shared<QPointer<QToolBar>>()] {
+        auto *widget = TextEditorWidget::currentTextEditorWidget();
+        QToolBar *next = widget && !qobject_cast<VcsBaseEditorWidget *>(widget)
+                                 && blameGutterAction->isEnabled() ? widget->toolBar() : nullptr;
+        blameGutterAction->setChecked(next && widget->hasAnnotationGutter());
+        if (*toolbar == next)
+            return;
+        if (*toolbar)
+            (*toolbar)->removeAction(blameGutterAction);
+        *toolbar = next;
+        if (next)
+            next->addAction(blameGutterAction);
+    };
+    connect(blameGutterAction, &QAction::changed, this, updateBlameGutterButton);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this,
+            [this, updateBlameGutterButton, connection = QMetaObject::Connection()]() mutable {
+        disconnect(connection);
+        if (auto *widget = TextEditorWidget::currentTextEditorWidget()) {
+            connection = connect(widget, &TextEditorWidget::annotationGutterVisibilityChanged,
+                                 this, updateBlameGutterButton);
+        }
+        updateBlameGutterButton();
+    });
+
     createFileAction(currentFileMenu,
                     //: Avoid translating "Blame"
                      Tr::tr("Instant Blame Current Line"),

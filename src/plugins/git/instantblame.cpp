@@ -19,7 +19,10 @@
 #include <diffeditor/inlinediff.h>
 
 #ifdef WITH_TESTS
-#include "extensionsystem/iplugin.h"
+#include "commitdata.h"
+
+#include <extensionsystem/iplugin.h>
+#include <vcsbase/submitfilemodel.h>
 #endif
 
 #include <texteditor/textdocument.h>
@@ -32,6 +35,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/theme/theme.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -43,12 +47,15 @@
 #include <QLabel>
 #include <QLayout>
 #include <QLoggingCategory>
+#include <QMenu>
 #include <QMessageBox>
 #include <QPromise>
+#include <QScopeGuard>
 #include <QTimer>
 
 #include <memory>
 #include <optional>
+#include <utility>
 
 #ifdef WITH_TESTS
 #include <QApplication>
@@ -105,7 +112,6 @@ class BlameMark : public TextEditor::TextMark
 public:
     BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info);
     bool addToolTipContent(QLayout *target) const final;
-    QString toolTipText(const CommitInfo &info) const;
     void addOldLine(const QString &oldLine);
     void addNewLine(const QString &newLine);
     void setPreviousCommit(const CommitInfo &info);
@@ -238,6 +244,8 @@ private:
     quint64 m_requestGeneration = 0;
 };
 
+static QString blameToolTipText(const CommitInfo &info);
+
 BlameMark::BlameMark(TextEditor::TextDocument *document, int lineNumber, const CommitInfo &info)
     : TextEditor::TextMark(document,
                            lineNumber,
@@ -253,7 +261,7 @@ BlameMark::BlameMark(TextEditor::TextDocument *document, int lineNumber, const C
         text += " • " + info.subject;
 
     setPriority(TextEditor::TextMark::LowPriority);
-    setToolTipProvider([this] { return toolTipText(m_info); });
+    setToolTipProvider([this] { return blameToolTipText(m_info); });
     setLineAnnotation(text);
     setSettingsPage(VcsBase::Constants::VCS_ID_GIT);
     setActionsProvider([info = m_info] {
@@ -269,13 +277,13 @@ BlameMark::BlameMark(TextEditor::TextDocument *document, int lineNumber, const C
     });
 }
 
-bool BlameMark::addToolTipContent(QLayout *target) const
+static void addBlameToolTipContent(QLayout *layout, const CommitInfo &info)
 {
     auto textLabel = new QLabel;
-    textLabel->setText(toolTip());
-    target->addWidget(textLabel);
+    textLabel->setText(blameToolTipText(info));
+    layout->addWidget(textLabel);
     QObject::connect(
-        textLabel, &QLabel::linkActivated, textLabel, [info = m_info](QString link) {
+        textLabel, &QLabel::linkActivated, textLabel, [info](QString link) {
             qCInfo(log) << "Link activated with target:" << link;
             Utils::ToolTip::hideImmediately();
             constexpr QLatin1StringView previousPrefix("previous");
@@ -366,11 +374,15 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                 gitClient().show(target.filePath, hash);
             }
         });
+}
 
+bool BlameMark::addToolTipContent(QLayout *target) const
+{
+    addBlameToolTipContent(target, m_info);
     return true;
 }
 
-QString BlameMark::toolTipText(const CommitInfo &info) const
+static QString blameToolTipText(const CommitInfo &info)
 {
     const ColorNames colors = GitClient::colorNames();
 
@@ -390,10 +402,11 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                       "  <td><a href=\"revert\">%4</a></td>"
                       "  <td><a href=\"logLine\">%5</a></td>"
                       "  <td><a href=\"diffParent\">%6</a></td>"
+                      "  <td><a href=\"copyHash\">%7</a></td>"
                       "</tr></table>"
                       "<p></p>")
                       .arg(blameRevision, blameParent, showFile, revert, logForLine,
-                           diffParent);
+                           diffParent, Tr::tr("Copy Hash"));
     } else {
         // uncommitted lines (changed or staged) can still be diffed against
         // the last committed state
@@ -684,7 +697,7 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const FilePath &fil
     if (result.hash.isEmpty() || result.originalLine <= 0 || result.originalFileName.isEmpty())
         return {};
 
-    result.modified = !gitClient().isValidRevision(result.hash);
+    result.modified = !GitClient::isValidRevision(result.hash);
     if (result.modified) {
         result.author = Tr::tr("Not Committed Yet");
         result.subject = Tr::tr("Modified line in %1").arg(filePath.fileName());
@@ -695,6 +708,543 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const FilePath &fil
         result.shortAuthor = result.author;
     result.authorDate = QDateTime::fromSecsSinceEpoch(authorTime);
     return result;
+}
+
+struct BlameGutterData : TextEditorWidget::AnnotationGutter
+{
+    QList<CommitInfo> commits;
+    QList<int> baseLines;
+    QList<int> originalLines;
+    QHash<int, int> localItems;
+
+    int localItem(int previous)
+    {
+        const auto found = localItems.constFind(previous);
+        if (found != localItems.cend())
+            return found.value();
+
+        TextEditorWidget::AnnotationGutterItem item;
+        CommitInfo info;
+        if (previous >= 0) {
+            item = items.at(previous);
+            item.toolTip.prepend(Tr::tr("Last committed version") + '\n');
+            info = commits.at(previous);
+        } else {
+            item.toolTip = Tr::tr("This line has uncommitted changes.");
+        }
+        item.text = Tr::tr("Local changes");
+        item.displayGroup = "Git.BlameGutter.LocalChanges";
+        info.modified = true;
+        const int index = items.size();
+        items.append(std::move(item));
+        commits.append(std::move(info));
+        localItems.insert(previous, index);
+        return index;
+    }
+};
+
+static BlameGutterData parseBlameGutter(const QByteArray &output,
+                                        const FilePath &filePath,
+                                        int lineCount)
+{
+    BlameGutterData gutter;
+    if (output.isEmpty())
+        return gutter;
+    gutter.lineItems.fill(-1, lineCount);
+    gutter.originalLines.fill(-1, lineCount);
+    const QStringList lines = QString::fromUtf8(output).split('\n');
+    QHash<QString, int> itemByHash;
+    for (qsizetype i = 0; i < lines.size();) {
+        const qsizetype header = i++;
+        const QStringList fields = lines.at(header).split(' ', Qt::SkipEmptyParts);
+        if (fields.size() < 3)
+            return gutter;
+        const QString &hash = fields.first();
+        const int line = fields.at(2).toInt();
+        while (i < lines.size() && !lines.at(i).startsWith('\t'))
+            ++i;
+        if (i == lines.size())
+            break;
+        const qsizetype metadataEnd = i++;
+        if (line < 1 || line > lineCount)
+            continue;
+
+        auto it = itemByHash.constFind(hash);
+        int itemIndex = -1;
+        if (it != itemByHash.cend()) {
+            itemIndex = it.value();
+        } else {
+            const CommitInfo info = parseBlameOutput(
+                lines.sliced(header, metadataEnd - header), filePath, line, {});
+            if (info.hash.isEmpty())
+                continue;
+            TextEditorWidget::AnnotationGutterItem item;
+            if (info.modified) {
+                item.text = Tr::tr("Local changes");
+                item.displayGroup = "Git.BlameGutter.LocalChanges";
+                item.toolTip = Tr::tr("This line has uncommitted changes.");
+            } else {
+                item.text = info.hash.left(8) + "  " + info.author;
+                item.toolTip = QString("%1\n%2\n%3\n%4")
+                                   .arg(info.hash, info.author,
+                                        info.authorDate.toString("yyyy-MM-dd hh:mm"), info.subject);
+                item.id = info.hash;
+            }
+            itemIndex = gutter.items.size();
+            itemByHash.insert(hash, itemIndex);
+            gutter.items.append(std::move(item));
+            gutter.commits.append(info);
+        }
+        gutter.lineItems[line - 1] = itemIndex;
+        gutter.originalLines[line - 1] = fields.at(1).toInt();
+    }
+    return gutter;
+}
+
+struct BlameGutterSnapshot
+{
+    QString text;
+    QStringList lines;
+    BlameGutterData data;
+};
+
+static BlameGutterSnapshot blameGutterSnapshot(const QByteArray &output,
+                                              const FilePath &path,
+                                              const TextEncoding &encoding)
+{
+    // Porcelain carries the original file bytes after each tab, independently of
+    // the encoding used for commit metadata.
+    QByteArray contents;
+    int lineCount = 0;
+    for (qsizetype start = 0; start < output.size();) {
+        const qsizetype newline = output.indexOf('\n', start);
+        const qsizetype end = newline < 0 ? output.size() : newline + 1;
+        if (output.at(start) == '\t') {
+            contents.append(QByteArrayView(output).sliced(start + 1, end - start - 1));
+            ++lineCount;
+        }
+        start = end;
+    }
+    QString text = encoding.isValid() ? encoding.decode(contents) : QString::fromUtf8(contents);
+    text.replace("\r\n", "\n");
+    if (text.startsWith(QChar::ByteOrderMark))
+        text.remove(0, 1);
+    return {text, text.split('\n'), parseBlameGutter(output, path, lineCount)};
+}
+
+static void mapBlameGutter(QPromise<BlameGutterData> &promise,
+                         const BlameGutterSnapshot &snapshot,
+                         const QString &text,
+                         int lineCount)
+{
+    BlameGutterData data = snapshot.data;
+    data.baseLines.fill(-1, lineCount);
+    if (snapshot.text == text) {
+        for (int line = 0; line < qMin(lineCount, data.lineItems.size()); ++line)
+            data.baseLines[line] = line;
+        data.lineItems.resize(lineCount, -1);
+        promise.addResult(std::move(data));
+        return;
+    }
+    data.lineItems.fill(-1, lineCount);
+
+    const auto chunk = diffChunkAgainstEditorText(snapshot.text, text,
+                                                 QFuture<void>(promise.future()));
+    if (promise.isCanceled())
+        return;
+    int oldLine = 0;
+    int newLine = 0;
+    QList<int> removed;
+    QList<int> added;
+    const auto applyChanges = [&] {
+        for (int i = 0; i < added.size(); ++i) {
+            const int baseLine = removed.size() == added.size() ? removed.at(i) : -1;
+            const int line = added.at(i);
+            data.baseLines[line] = baseLine;
+            data.lineItems[line] = data.localItem(snapshot.data.lineItems.value(baseLine, -1));
+        }
+        removed.clear();
+        added.clear();
+    };
+    for (const auto &row : chunk.rows) {
+        const bool oldText = row.line[DiffEditor::LeftSide].textLineType
+                             == DiffEditor::TextLineData::TextLine;
+        const bool newText = row.line[DiffEditor::RightSide].textLineType
+                             == DiffEditor::TextLineData::TextLine;
+        const int baseLine = oldText ? oldLine++ : -1;
+        if (row.equal) {
+            applyChanges();
+            if (newText && newLine < lineCount) {
+                data.baseLines[newLine] = baseLine;
+                data.lineItems[newLine] = snapshot.data.lineItems.value(baseLine, -1);
+            }
+        } else {
+            if (oldText)
+                removed.append(baseLine);
+            if (newText && newLine < lineCount)
+                added.append(newLine);
+        }
+        if (newText)
+            ++newLine;
+    }
+    applyChanges();
+    promise.addResult(std::move(data));
+}
+
+class BlameGutter final : public QObject
+{
+    Q_OBJECT
+
+public:
+    BlameGutter(TextEditorWidget *widget, const FilePath &topLevel)
+        : QObject(widget)
+        , m_widget(widget)
+        , m_document(widget->textDocument())
+        , m_topLevel(topLevel)
+        , m_filePath(m_document->filePath())
+    {
+        m_timer.setSingleShot(true);
+        connect(&m_timer, &QTimer::timeout, this, &BlameGutter::refresh);
+        m_mappingTimer.setSingleShot(true);
+        m_mappingTimer.setInterval(80);
+        connect(&m_mappingTimer, &QTimer::timeout, this, &BlameGutter::updateMapping);
+        m_blockCount = m_document->document()->blockCount();
+        connect(m_document->document(), &QTextDocument::contentsChange,
+                this, &BlameGutter::contentsChanged);
+        connect(m_document, &IDocument::filePathChanged, this, &BlameGutter::detach);
+        connect(widget, &TextEditorWidget::textDocumentChanged, this, &BlameGutter::detach);
+        connect(VcsManager::instance(), &VcsManager::repositoryChanged, this,
+                [this](const FilePath &repository) {
+            if (repository == m_topLevel)
+                schedule(100);
+        });
+        connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed, this,
+                [this] { schedule(0); });
+        connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this,
+                [this] { schedule(0); });
+        connect(&settings().blameGutterFields, &BaseAspect::changed, this, &BlameGutter::present);
+        connect(&settings().blameGutterHeatmap, &BaseAspect::changed, this, &BlameGutter::present);
+        connect(&settings().blameGutterHeatmapOnly, &BaseAspect::changed, this,
+                &BlameGutter::present);
+        present();
+        schedule(0);
+    }
+
+    bool isAttached() const { return !m_document.isNull(); }
+
+    void detach()
+    {
+        m_timer.stop();
+        m_mappingTimer.stop();
+        m_runner.reset();
+        m_mappingRunner.reset();
+        m_document.clear();
+        m_widget->setAnnotationGutter(std::nullopt);
+        deleteLater();
+    }
+
+private:
+#ifdef WITH_TESTS
+    friend class InstantBlameTest;
+#endif
+
+    void schedule(int delay)
+    {
+        if (!m_document)
+            return;
+        m_runner.reset();
+        m_mappingTimer.stop();
+        m_mappingRunner.reset();
+        m_snapshot = {};
+        m_data.lineItems.clear();
+        m_data.baseLines.clear();
+        m_presented.lineItems.clear();
+        m_widget->setAnnotationGutter(m_presented);
+        m_timer.start(delay);
+    }
+
+    void contentsChanged(int position, int removed, int added)
+    {
+        if (!m_document || (!removed && !added))
+            return;
+
+        const QTextDocument *document = m_document->document();
+        const int blockCount = document->blockCount();
+        const int oldBlockCount = std::exchange(m_blockCount, blockCount);
+        if (m_blameSkippedForSize && document->characterCount() <= MaxMappedCharacters) {
+            m_blameSkippedForSize = false;
+            schedule(80);
+            return;
+        }
+        const QTextBlock firstBlock = document->findBlock(position);
+        const int first = firstBlock.blockNumber();
+        const int last = document->findBlock(position + added).blockNumber();
+        if (first >= 0 && first == last && oldBlockCount == blockCount
+            && !m_mappingTimer.isActive() && !m_mappingRunner.isRunning()
+            && m_data.baseLines.size() == blockCount) {
+            // Preserve the original row even when several committed lines have identical text.
+            const int baseLine = m_data.baseLines.at(first);
+            const int previous = m_snapshot.data.lineItems.value(baseLine, -1);
+            const int itemCount = m_data.items.size();
+            const int item = baseLine >= 0 && firstBlock.text() == m_snapshot.lines.value(baseLine)
+                                 ? previous : m_data.localItem(previous);
+            if (m_data.lineItems.at(first) != item) {
+                m_data.lineItems[first] = item;
+                if (m_data.items.size() != itemCount) {
+                    present();
+                } else {
+                    m_presented.lineItems = m_data.lineItems;
+                    m_widget->setAnnotationGutter(m_presented);
+                }
+            }
+            return;
+        }
+        if (m_data.baseLines.size() == oldBlockCount) {
+            const int newCount = last - first + 1;
+            const int oldCount = newCount + oldBlockCount - blockCount;
+            if (first >= 0 && last >= first && oldCount > 0 && first + oldCount <= oldBlockCount) {
+                // Keep unaffected labels aligned while the background mapping resolves this edit.
+                m_data.lineItems.remove(first, oldCount);
+                m_data.lineItems.insert(first, newCount, -1);
+                m_data.baseLines.remove(first, oldCount);
+                m_data.baseLines.insert(first, newCount, -1);
+                m_presented.lineItems = m_data.lineItems;
+                m_widget->setAnnotationGutter(m_presented);
+            }
+        }
+        m_mappingRunner.reset();
+        if (!m_snapshot.data.items.isEmpty())
+            m_mappingTimer.start();
+    }
+
+    void updateMapping()
+    {
+        m_mappingRunner.reset();
+        if (!m_document || m_snapshot.data.items.isEmpty())
+            return;
+        if (m_document->document()->characterCount() > MaxMappedCharacters) {
+            showStatus(Tr::tr("File too large"));
+            return;
+        }
+        const QString text = m_document->plainText();
+        const int lineCount = m_document->document()->blockCount();
+        m_mappingRunner.start({AsyncTask<BlameGutterData>(
+            [this, text, lineCount](Async<BlameGutterData> &task) {
+                task.setConcurrentCallData(mapBlameGutter, m_snapshot, text, lineCount);
+            },
+            [this](const Async<BlameGutterData> &task) {
+                m_data = task.result();
+                present();
+            }, CallDoneFlag::OnSuccess)});
+    }
+
+    void refresh()
+    {
+        m_runner.reset();
+        if (!m_document)
+            return;
+
+        m_blameSkippedForSize = m_document->document()->characterCount() > MaxMappedCharacters;
+        if (m_blameSkippedForSize) {
+            showStatus(Tr::tr("File too large"));
+            return;
+        }
+
+        QStringList args = {"blame", "--porcelain", "--encoding=UTF-8"};
+        if (settings().instantBlameIgnoreSpaceChanges())
+            args.append("-w");
+        if (settings().instantBlameIgnoreLineMoves())
+            args.append("-M");
+        args.append({"HEAD", "--", m_filePath.relativeChildPath(m_topLevel).path()});
+        const Storage<QByteArray> output;
+        const Storage<QString> error;
+        const auto onSetup = [output, path = m_filePath, encoding = m_document->encoding()](
+                                 Async<BlameGutterSnapshot> &task) {
+            task.setConcurrentCallData(blameGutterSnapshot, *output, path, encoding);
+        };
+        const auto onDone = [this, error](const Async<BlameGutterSnapshot> &task) {
+            m_snapshot = task.result();
+            if (m_snapshot.data.items.isEmpty()) {
+                m_mappingRunner.reset();
+                const QString reason = error->section('\n', 0, 0).left(200);
+                showStatus(Tr::tr("No blame available"), reason);
+                return;
+            }
+            updateMapping();
+        };
+        m_runner.start({
+            output,
+            error,
+            Group {
+                finishAllAndSuccess,
+                gitClient().commandTask({
+                    .workingDirectory = m_topLevel,
+                    .arguments = args,
+                    .flags = RunFlag::NoOutput,
+                    .commandHandler = [output, error](const CommandResult &result) {
+                        if (result.result() == ProcessResult::FinishedWithSuccess)
+                            *output = result.rawStdOut();
+                        else
+                            *error = result.cleanedStdErr().trimmed();
+                    }})
+            },
+            AsyncTask<BlameGutterSnapshot>(onSetup, onDone, CallDoneFlag::OnSuccess)
+        });
+    }
+
+    bool addLineToolTip(int line, QLayout *layout) const
+    {
+        const int index = m_data.lineItems.value(line, -1);
+        if (!m_document || index < 0 || index >= m_data.commits.size())
+            return false;
+
+        const int baseLine = m_data.baseLines.value(line, -1);
+        const int previousIndex = m_snapshot.data.lineItems.value(baseLine, -1);
+        CommitInfo info = m_data.commits.at(index);
+        info.topLevel = m_topLevel;
+        info.filePath = m_filePath;
+        info.line = line + 1;
+        info.originalLine = m_snapshot.data.originalLines.value(baseLine, -1);
+        if (info.modified) {
+            info.newLine = m_document->document()->findBlockByNumber(line).text();
+            info.previousCommit = std::make_shared<PreviousCommitLookup>();
+            info.previousCommit->state = PreviousCommitLookup::State::NoPreviousLine;
+            if (previousIndex >= 0) {
+                info.oldLines = {m_snapshot.lines.value(baseLine)};
+                auto &previous = info.previousCommit->info;
+                previous = m_snapshot.data.commits.at(previousIndex);
+                previous.topLevel = m_topLevel;
+                previous.line = baseLine + 1;
+                previous.originalLine = info.originalLine;
+                info.previousCommit->state = PreviousCommitLookup::State::Found;
+            }
+        }
+        addBlameToolTipContent(layout, info);
+        return true;
+    }
+
+    static constexpr int MaxMappedCharacters = 2 * 1024 * 1024;
+
+    void present()
+    {
+        if (!m_document)
+            return;
+        TextEditorWidget::AnnotationGutter gutter = m_data;
+        const bool heatmapOnly = settings().blameGutterHeatmapOnly();
+        gutter.colorOnly = heatmapOnly && !m_data.commits.isEmpty();
+        gutter.populateToolTip = [this](int line, QLayout *layout) {
+            return addLineToolTip(line, layout);
+        };
+        gutter.populateContextMenu = [this](QMenu &menu) {
+            const int fields = settings().blameGutterFields();
+            const auto addField = [this, &menu, fields](BlameGutterField field, const QString &title) {
+                QAction *action = menu.addAction(title, this, [field](bool checked) {
+                    const int current = settings().blameGutterFields();
+                    settings().blameGutterFields.setValue(checked ? current | field
+                                                                  : current & ~field);
+                    settings().writeSettings();
+                });
+                action->setCheckable(true);
+                action->setChecked(fields & field);
+                action->setEnabled(!settings().blameGutterHeatmapOnly() && fields != field);
+            };
+            addField(BlameHash, Tr::tr("Hash"));
+            addField(BlameDate, Tr::tr("Date"));
+            addField(BlameAuthor, Tr::tr("Author"));
+            addField(BlameSubject, Tr::tr("Subject"));
+            menu.addSeparator();
+            QAction *heatmap = menu.addAction(Tr::tr("Show Age Heatmap"), this, [](bool checked) {
+                settings().blameGutterHeatmap.setValue(checked);
+                settings().writeSettings();
+            });
+            heatmap->setCheckable(true);
+            heatmap->setChecked(settings().blameGutterHeatmap());
+            heatmap->setEnabled(!settings().blameGutterHeatmapOnly());
+            QAction *ageOnly = menu.addAction(Tr::tr("Heatmap Only"), this, [](bool checked) {
+                settings().blameGutterHeatmapOnly.setValue(checked);
+                settings().writeSettings();
+            });
+            ageOnly->setCheckable(true);
+            ageOnly->setChecked(settings().blameGutterHeatmapOnly());
+            menu.addAction(Tr::tr("Hide Blame Gutter"), this, &BlameGutter::detach);
+        };
+        gutter.activate = [path = m_filePath](const QString &hash) { gitClient().show(path, hash); };
+
+        QDateTime oldest;
+        QDateTime newest;
+        for (const CommitInfo &info : std::as_const(m_data.commits)) {
+            if (info.modified || !info.authorDate.isValid())
+                continue;
+            if (!oldest.isValid() || info.authorDate < oldest)
+                oldest = info.authorDate;
+            if (!newest.isValid() || info.authorDate > newest)
+                newest = info.authorDate;
+        }
+        const QColor blue = Utils::creatorColor(Utils::Theme::IconsInfoColor);
+        const QColor red = Utils::creatorColor(Utils::Theme::TextColorError);
+        const qint64 duration = oldest.secsTo(newest);
+        for (int i = 0; i < m_data.commits.size(); ++i) {
+            const CommitInfo &info = m_data.commits.at(i);
+            if (info.modified)
+                continue;
+            auto &item = gutter.items[i];
+            const int fields = settings().blameGutterFields();
+            QStringList text;
+            if (fields & BlameHash)
+                text.append(info.hash.left(8));
+            if (fields & BlameDate)
+                text.append(info.authorDate.toString("yyyy-MM-dd"));
+            if (fields & BlameAuthor)
+                text.append(info.author);
+            if (fields & BlameSubject)
+                text.append(info.subject);
+            item.text = text.join("  ");
+            if ((heatmapOnly || settings().blameGutterHeatmap()) && info.authorDate.isValid()) {
+                const qreal t = duration ? qreal(oldest.secsTo(info.authorDate)) / duration : 0.5;
+                item.foreground = QColor(qRound(blue.red() + t * (red.red() - blue.red())),
+                                         qRound(blue.green() + t * (red.green() - blue.green())),
+                                         qRound(blue.blue() + t * (red.blue() - blue.blue())));
+            }
+        }
+        m_presented = std::move(gutter);
+        m_widget->setAnnotationGutter(m_presented);
+    }
+
+    void showStatus(const QString &text, const QString &details = {})
+    {
+        m_data = {};
+        m_data.lineItems.append(0);
+        m_data.items.append({text, details.isEmpty() ? text : details, {}, {}});
+        present();
+    }
+
+    BlameGutterData m_data;
+    TextEditorWidget::AnnotationGutter m_presented;
+    BlameGutterSnapshot m_snapshot;
+    int m_blockCount = 0;
+    bool m_blameSkippedForSize = false;
+    TextEditorWidget *const m_widget;
+    QPointer<TextDocument> m_document;
+    const FilePath m_topLevel;
+    const FilePath m_filePath;
+    QTimer m_timer;
+    QTimer m_mappingTimer;
+    QSingleTaskTreeRunner m_runner;
+    QSingleTaskTreeRunner m_mappingRunner;
+};
+
+void toggleBlameGutter(TextEditorWidget *widget, const FilePath &topLevel)
+{
+    if (!widget || qobject_cast<VcsBaseEditorWidget *>(widget))
+        return;
+    for (BlameGutter *gutter : widget->findChildren<BlameGutter *>(Qt::FindDirectChildrenOnly)) {
+        if (gutter->isAttached()) {
+            gutter->detach();
+            return;
+        }
+    }
+    if (!topLevel.isEmpty() && widget->textDocument()->filePath().isChildOf(topLevel))
+        new BlameGutter(widget, topLevel);
 }
 
 static QStringList blameCommandArguments(const QString &filePath,
@@ -1164,6 +1714,8 @@ private slots:
     void testBlameCommandArguments();
     void testBlameOutputParsing();
     void testBlameDocumentContents();
+    void testBlameGutter();
+    void testBlameGutterEditor();
 };
 
 void InstantBlameTest::testBlameCommandArguments()
@@ -1250,6 +1802,217 @@ void InstantBlameTest::testBlameOutputParsing()
     }, filePath, 5, {});
     QVERIFY(incompleteInfo.hash.isEmpty());
     QCOMPARE(incompleteInfo.line, -1);
+}
+
+void InstantBlameTest::testBlameGutter()
+{
+    const QString hash(40, 'a');
+    const QString local(40, '0');
+    const QString output = hash + " 1 1 2\n"
+        "author Alex Example\n"
+        "author-time 1613752276\n"
+        "summary Initial commit\n"
+        "filename sample.cpp\n"
+        "\tfirst\n"
+        + hash + " 2 2\n\tsecond\n"
+        + local + " 3 3 1\n"
+        "author Not Committed Yet\n"
+        "filename sample.cpp\n"
+        "\tthird\n";
+    const auto gutter = parseBlameGutter(output.toUtf8(), FilePath::fromString("sample.cpp"), 4);
+    QCOMPARE(gutter.lineItems, QList<int>({0, 0, 1, -1}));
+    QCOMPARE(gutter.items.size(), 2);
+    QCOMPARE(gutter.items.first().text, QString("aaaaaaaa  Alex Example"));
+    QCOMPARE(gutter.items.first().id, hash);
+    QVERIFY(gutter.items.first().toolTip.contains("Initial commit"));
+    QCOMPARE(gutter.items.last().text, Tr::tr("Local changes"));
+    QVERIFY(gutter.items.last().id.isEmpty());
+}
+
+void InstantBlameTest::testBlameGutterEditor()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repo = FilePath::fromString(directory.path()).canonicalPath();
+    const auto git = [repo](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repo, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(git({"init", "-b", "main", "."}));
+    QVERIFY(git({"config", "user.name", "Gutter Tester"}));
+    QVERIFY(git({"config", "user.email", "gutter@test"}));
+    const FilePath file = repo / "sample.txt";
+    QVERIFY(file.writeFileContents("first\nsecond\nthird\n"));
+    QVERIFY(git({"add", "sample.txt"}));
+    QVERIFY(git({"-c", "commit.gpgsign=false", "commit", "-m", "Initial contents"}));
+
+    IEditor *editor = EditorManager::openEditor(file);
+    QVERIFY(editor);
+    const auto cleanup = qScopeGuard([guard = QPointer<IEditor>(editor)] {
+        if (guard)
+            EditorManager::closeEditors({guard}, false);
+    });
+    auto *textEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(textEditor);
+    auto *widget = textEditor->editorWidget();
+    toggleBlameGutter(widget, repo);
+    QVERIFY(widget->hasAnnotationGutter());
+    QPointer<BlameGutter> gutter = widget->findChild<BlameGutter *>();
+    QVERIFY(gutter);
+    QTRY_COMPARE(gutter->m_data.lineItems.value(2, -1), 0);
+    {
+        QWidget toolTip;
+        auto *layout = new QVBoxLayout(&toolTip);
+        QVERIFY(gutter->addLineToolTip(2, layout));
+        const auto label = toolTip.findChild<QLabel *>();
+        QVERIFY(label);
+        QVERIFY(label->text().contains("Log for line 3"));
+        QVERIFY(label->text().contains("href=\"diffParent\""));
+        QVERIFY(label->text().contains("href=\"copyHash\""));
+    }
+    {
+        const bool oldMode = settings().blameGutterHeatmapOnly();
+        const auto resetMode = qScopeGuard([oldMode] {
+            settings().blameGutterHeatmapOnly.setValue(oldMode);
+        });
+        settings().blameGutterHeatmapOnly.setValue(false);
+        const int textWidth = widget->extraAreaWidth();
+        settings().blameGutterHeatmapOnly.setValue(true);
+        QVERIFY(gutter->m_presented.colorOnly);
+        QVERIFY(gutter->m_presented.items.first().foreground.isValid());
+        QVERIFY(widget->extraAreaWidth() < textWidth);
+    }
+
+    QTextCursor cursor(widget->document());
+    cursor.insertText("inserted\n");
+    QTRY_COMPARE(gutter->m_data.lineItems.value(3, -1), 0);
+    QVERIFY(!gutter->m_timer.isActive());
+    QTRY_VERIFY(gutter->m_data.lineItems.value(0, -1) >= 0);
+    QVERIFY(gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).modified);
+
+    cursor.movePosition(QTextCursor::NextBlock);
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    cursor.insertText(" changed");
+    QVERIFY(!gutter->m_mappingTimer.isActive());
+    QVERIFY(!gutter->m_mappingRunner.isRunning());
+    QVERIFY(gutter->m_data.lineItems.value(2, -1) > 0);
+    QVERIFY(gutter->m_data.items.at(gutter->m_data.lineItems.at(2))
+                .toolTip.contains("Initial contents"));
+
+    {
+        QWidget toolTip;
+        auto *layout = new QVBoxLayout(&toolTip);
+        QVERIFY(gutter->addLineToolTip(2, layout));
+        const auto label = toolTip.findChild<QLabel *>();
+        QVERIFY(label);
+        QVERIFY(label->text().contains("second changed"));
+        QVERIFY(label->text().contains("href=\"previousDiffParent\""));
+    }
+
+    // A gutter opened on a dirty buffer also compares against the committed version.
+    toggleBlameGutter(widget, repo);
+    QTRY_VERIFY(gutter.isNull());
+    toggleBlameGutter(widget, repo);
+    gutter = widget->findChild<BlameGutter *>();
+    QVERIFY(gutter);
+    QTRY_VERIFY(gutter->m_data.lineItems.value(2, -1) > 0);
+    QVERIFY(gutter->m_data.items.at(gutter->m_data.lineItems.at(2))
+                .toolTip.contains("Initial contents"));
+    widget->document()->undo();
+    QTRY_COMPARE(gutter->m_data.lineItems.value(2, -1), 0);
+
+    cursor = QTextCursor(widget->document());
+    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    QTRY_COMPARE(gutter->m_data.lineItems.value(0, -1), 0);
+    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+    cursor.removeSelectedText();
+    QTRY_COMPARE(gutter->m_data.lineItems.value(0, -1), 0);
+    QCOMPARE(gutter->m_data.lineItems.size(), 3);
+    QCOMPARE(gutter->m_data.lineItems.value(1, -1), 0);
+    QVERIFY(!gutter->m_timer.isActive());
+
+    const QString initialHash = gutter->m_data.commits.first().hash;
+    QVERIFY(git({"branch", "initial"}));
+    QVERIFY(git({"config", "commit.gpgsign", "false"}));
+    QVERIFY(file.writeFileContents("second committed\nthird\n"));
+    widget->document()->setPlainText("second committed\nthird\n");
+    QTRY_VERIFY(gutter->m_data.lineItems.value(0, -1) > 0);
+    QVERIFY(gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).modified);
+
+    SubmitFileModel model;
+    model.addFile("sample.txt", "Modified", Checked, int(ModifiedFile));
+    const FilePath message = repo / "message.txt";
+    QVERIFY(message.writeFileContents("Updated contents\n"));
+    gutter->refresh();
+    QVERIFY(gitClient().addAndCommit(repo, {}, SimpleCommit, {}, message, &model));
+    QTRY_VERIFY(gutter->m_data.lineItems.value(0, -1) >= 0
+                && !gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).modified);
+    const QString updatedHash
+        = gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).hash;
+    QVERIFY(updatedHash != initialHash);
+
+    QVERIFY(git({"checkout", "-b", "onto", "initial"}));
+    QVERIFY((repo / "unrelated.txt").writeFileContents("unrelated\n"));
+    QVERIFY(git({"add", "unrelated.txt"}));
+    QVERIFY(git({"-c", "commit.gpgsign=false", "commit", "-m", "Unrelated contents"}));
+    QVERIFY(git({"checkout", "main"}));
+    QVERIFY(git({"-c", "commit.gpgsign=false", "rebase", "onto"}));
+    emit VcsManager::instance()->repositoryChanged(repo);
+    QTRY_VERIFY(gutter->m_data.lineItems.value(0, -1) >= 0);
+    const QString rebasedHash = gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).hash;
+    QVERIFY(rebasedHash != updatedHash);
+    QVERIFY(rebasedHash != initialHash);
+
+    QVERIFY(git({"checkout", "initial"}));
+    widget->document()->setPlainText("first\nsecond\nthird\n");
+    emit VcsManager::instance()->repositoryChanged(repo);
+    QTRY_VERIFY(gutter->m_data.lineItems.value(0, -1) >= 0);
+    QCOMPARE(gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).hash, initialHash);
+
+    cursor = QTextCursor(widget->document());
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(QString("local line\n").repeated(10000));
+    cursor.insertText("last local line");
+    QVERIFY(gutter->m_mappingTimer.isActive());
+    QVERIFY(!gutter->m_mappingRunner.isRunning());
+    QTRY_VERIFY(gutter->m_data.lineItems.last() >= 0);
+    QCOMPARE(gutter->m_data.lineItems.size(), widget->document()->blockCount());
+    // A new line and a changed committed line share a display group, but have distinct tooltips.
+    auto data = gutter->m_data;
+    const int newItem = data.localItem(-1);
+    const int changedItem = data.localItem(0);
+    QVERIFY(newItem != changedItem);
+    QVERIFY(data.items.at(newItem).displayGroup.isValid());
+    QCOMPARE(data.items.at(newItem).displayGroup, data.items.at(changedItem).displayGroup);
+    QVERIFY(data.items.at(newItem).id.isEmpty());
+    QVERIFY(!data.items.at(changedItem).id.isEmpty());
+
+    const int lastItem = gutter->m_data.lineItems.last();
+    QVERIFY(gutter->m_data.commits.at(lastItem).modified);
+    QVERIFY(!gutter->m_runner.isRunning());
+
+    gutter->refresh();
+    toggleBlameGutter(widget, repo);
+    QVERIFY(!widget->hasAnnotationGutter());
+    QTRY_VERIFY(gutter.isNull());
+
+    const QString longLine = QString(1023, u'x') + u'\n';
+    widget->document()->setPlainText(longLine.repeated(BlameGutter::MaxMappedCharacters / 1024 + 1));
+    toggleBlameGutter(widget, repo);
+    gutter = widget->findChild<BlameGutter *>();
+    QVERIFY(gutter);
+    gutter->refresh();
+    QVERIFY(!gutter->m_runner.isRunning());
+    QCOMPARE(gutter->m_data.items.first().text, Tr::tr("File too large"));
+
+    widget->document()->setPlainText("first\nsecond\nthird\n");
+    QTRY_VERIFY(!gutter->m_data.commits.isEmpty());
+    QCOMPARE(gutter->m_data.commits.at(gutter->m_data.lineItems.at(0)).hash, initialHash);
+
+    gutter->refresh();
+    QVERIFY(EditorManager::closeEditors({editor}, false));
+    QTRY_VERIFY(gutter.isNull());
 }
 
 void InstantBlameTest::testBlameDocumentContents()

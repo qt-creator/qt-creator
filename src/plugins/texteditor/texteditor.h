@@ -30,6 +30,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;
@@ -319,6 +320,28 @@ public:
 
     static QString msgTextTooLarge(quint64 size);
 
+    struct AnnotationGutterItem
+    {
+        QString text;
+        QString toolTip;
+        QString id;
+        QColor foreground;
+        Utils::Id displayGroup;
+    };
+
+    struct AnnotationGutter
+    {
+        QList<int> lineItems;
+        QList<AnnotationGutterItem> items;
+        std::function<void(const QString &)> activate;
+        std::function<void(QMenu &)> populateContextMenu;
+        std::function<bool(int, QLayout *)> populateToolTip;
+        bool colorOnly = false;
+    };
+
+    void setAnnotationGutter(std::optional<AnnotationGutter> gutter);
+    bool hasAnnotationGutter() const;
+
     QWidget *extraArea() const;
     virtual int extraAreaWidth(int *markWidthPtr = nullptr) const;
     int leadingTextColumnWidth() const;
@@ -598,6 +621,7 @@ signals:
     void assistFinished(); // Used in tests.
 
     void textDocumentChanged();
+    void annotationGutterVisibilityChanged();
 
     void requestBlockUpdate(const QTextBlock &);
 

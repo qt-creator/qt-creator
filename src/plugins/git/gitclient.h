@@ -417,7 +417,7 @@ public:
     bool beginStashScope(const Utils::FilePath &workingDirectory, const QString &command,
                          StashFlag flag = Default, PushAction pushAction = NoPush);
     void endStashScope(const Utils::FilePath &workingDirectory);
-    bool isValidRevision(const QString &revision) const;
+    static bool isValidRevision(const QString &revision);
     void handleMergeConflicts(const Utils::FilePath &workingDir, const QString &commit,
                               const QStringList &files, const QString &abortCommand);
 

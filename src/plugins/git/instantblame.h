@@ -26,6 +26,8 @@ namespace Git::Internal {
 
 class BlameController;
 
+void toggleBlameGutter(TextEditor::TextEditorWidget *widget, const Utils::FilePath &topLevel);
+
 QStringList instantBlameArguments(const QString &filePath, const QString &ref, int line);
 DiffEditor::LineAnnotation instantBlameAnnotation(const QString &output,
                                                   const Utils::FilePath &topLevel,

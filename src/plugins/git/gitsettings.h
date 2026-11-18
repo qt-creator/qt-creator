@@ -14,6 +14,8 @@ enum CommitType
     FixupCommit
 };
 
+enum BlameGutterField { BlameHash = 1, BlameAuthor = 2, BlameDate = 4, BlameSubject = 8 };
+
 // Todo: Add user name and password?
 class GitSettings final : public VcsBase::VcsBaseSettings
 {
@@ -42,6 +44,9 @@ public:
     Utils::BoolAspect followRenames{this};
     Utils::IntegerAspect lastResetIndex{this};
     Utils::BoolAspect refLogShowDate{this};
+    Utils::IntegerAspect blameGutterFields{this};
+    Utils::BoolAspect blameGutterHeatmap{this};
+    Utils::BoolAspect blameGutterHeatmapOnly{this};
     Utils::BoolAspect instantBlame{this};
     Utils::BoolAspect instantBlameIgnoreSpaceChanges{this};
     Utils::BoolAspect instantBlameIgnoreLineMoves{this};

@@ -881,6 +881,13 @@ public:
     void cleanupAnnotationCache();
 
     // extra area paint methods
+    int annotationGutterWidth(const QFontMetrics &metrics) const;
+    bool isInAnnotationGutter(int x) const;
+    const TextEditorWidget::AnnotationGutterItem *annotationGutterItem(int blockNumber) const;
+    void paintAnnotationGutter(QPainter &painter, const ExtraAreaPaintEventData &data,
+                               const QRectF &blockBoundingRect) const;
+    std::optional<TextEditorWidget::AnnotationGutter> m_annotationGutter;
+    QString m_annotationGutterWidthSample;
     void paintLineNumbers(QPainter &painter, const ExtraAreaPaintEventData &data,
                           const QRectF &blockBoundingRect) const;
     int leadingTextWidth() const;
@@ -8039,6 +8046,77 @@ int TextEditorWidget::leadingTextColumnWidth() const
     return width ? width + d->m_extraArea->fontMetrics().horizontalAdvance(QLatin1Char(' ')) : 0;
 }
 
+void TextEditorWidget::setAnnotationGutter(std::optional<AnnotationGutter> gutter)
+{
+    const bool wasVisible = hasAnnotationGutter();
+    const QFontMetrics metrics = d->m_extraArea->fontMetrics();
+    const int previousWidth = d->annotationGutterWidth(metrics);
+    if (!gutter) {
+        d->m_annotationGutterWidthSample.clear();
+    } else if (!gutter->items.isEmpty()
+               && (!d->m_annotationGutter
+                   || !gutter->items.isSharedWith(d->m_annotationGutter->items))) {
+        int widest = -1;
+        const int widthLimit = 40 * metrics.horizontalAdvance('0');
+        for (const auto &item : std::as_const(gutter->items)) {
+            const int width = metrics.horizontalAdvance(item.text);
+            if (width > widest) {
+                widest = width;
+                d->m_annotationGutterWidthSample = item.text;
+                if (widest >= widthLimit)
+                    break;
+            }
+        }
+    }
+    d->m_annotationGutter = std::move(gutter);
+    if (previousWidth != d->annotationGutterWidth(metrics))
+        d->slotUpdateExtraAreaWidth();
+    d->m_extraArea->update();
+    if (wasVisible != hasAnnotationGutter())
+        emit annotationGutterVisibilityChanged();
+}
+
+bool TextEditorWidget::hasAnnotationGutter() const
+{
+    return d->m_annotationGutter.has_value();
+}
+
+int TextEditorWidgetPrivate::annotationGutterWidth(const QFontMetrics &metrics) const
+{
+    using namespace StyleHelper::SpacingTokens;
+    if (!m_annotationGutter)
+        return 0;
+    if (m_annotationGutter->colorOnly)
+        return PaddingHS;
+    const int digitWidth = metrics.horizontalAdvance('0');
+    const int textWidth = m_annotationGutterWidthSample.isEmpty()
+                              ? 10 * digitWidth
+                              : metrics.horizontalAdvance(m_annotationGutterWidthSample);
+    return qBound(digitWidth, textWidth, 40 * digitWidth) + PaddingHS + PaddingHXs;
+}
+
+bool TextEditorWidgetPrivate::isInAnnotationGutter(int x) const
+{
+    const QFontMetrics fm = m_extraArea->fontMetrics();
+    const int foldingWidth = m_codeFoldingVisible
+                                 ? (globalFontSettings().lineSpacing() == 100
+                                        ? foldBoxWidth(fm) : foldBoxWidth())
+                                 : 0;
+    const int right = m_extraArea->width() - foldingWidth - diffChangeSignWidth(fm);
+    return x >= right - annotationGutterWidth(fm) && x < right;
+}
+
+const TextEditorWidget::AnnotationGutterItem *TextEditorWidgetPrivate::annotationGutterItem(
+    int blockNumber) const
+{
+    if (!m_annotationGutter || blockNumber < 0 || blockNumber >= m_annotationGutter->lineItems.size())
+        return nullptr;
+    const int index = m_annotationGutter->lineItems.at(blockNumber);
+    if (index < 0 || index >= m_annotationGutter->items.size())
+        return nullptr;
+    return &m_annotationGutter->items.at(index);
+}
+
 int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 {
     auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
@@ -8049,6 +8127,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
         d->m_marksVisible = true;
 
     if (!d->m_marksVisible && !d->m_lineNumbersVisible && !d->m_codeFoldingVisible
+        && !d->m_annotationGutter
         && !(d->m_displaySettings.m_markDiffChangeSigns && d->hasDiffChangeSigns())) {
         return 0;
     }
@@ -8089,7 +8168,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 
     space += 4;
 
-    space += d->diffChangeSignWidth(fm);
+    space += d->diffChangeSignWidth(fm) + d->annotationGutterWidth(fm);
 
     if (d->m_codeFoldingVisible) {
         if (globalFontSettings().lineSpacing() == 100)
@@ -8180,7 +8259,11 @@ struct Internal::ExtraAreaPaintEventData
         , markWidth(d->m_marksVisible ? lineSpacing : 0)
         , leadingTextWidth(d->leadingTextWidth())
         , signWidth(d->diffChangeSignWidth(fontMetrics))
-        , collapseColumnWidth(d->m_codeFoldingVisible ? foldBoxWidth(fontMetrics) : 0)
+        , annotationGutterWidth(d->annotationGutterWidth(fontMetrics))
+        , collapseColumnWidth(d->m_codeFoldingVisible
+                                  ? (globalFontSettings().lineSpacing() == 100
+                                         ? foldBoxWidth(fontMetrics) : foldBoxWidth())
+                                  : 0)
         , extraAreaWidth(d->m_extraArea->width() - collapseColumnWidth)
         , currentLineNumberFormat(
               editor->textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER))
@@ -8188,12 +8271,12 @@ struct Internal::ExtraAreaPaintEventData
     {
         if (globalFontSettings().lineSpacing() != 100) {
             lineSpacing = globalFontSettings().data().lineSpacing();
-            collapseColumnWidth = d->m_codeFoldingVisible ? foldBoxWidth() : 0;
             markWidth = d->m_marksVisible ? lineSpacing : 0;
         }
         palette.setCurrentColorGroup(QPalette::Active);
     }
     QTextBlock block;
+    int previousBlockNumber = -2;
     const QTextDocument *doc;
     const TextDocumentLayout *documentLayout;
     const int selectionStart;
@@ -8203,6 +8286,7 @@ struct Internal::ExtraAreaPaintEventData
     int markWidth;
     const int leadingTextWidth;
     int signWidth;
+    const int annotationGutterWidth;
     int collapseColumnWidth;
     const int extraAreaWidth;
     const QTextCharFormat currentLineNumberFormat;
@@ -8240,11 +8324,61 @@ void TextEditorWidgetPrivate::paintLineNumbers(QPainter &painter,
     rect.setX(data.markWidth);
     rect.setY(blockBoundingRect.top() + q->editorLayout()->mainLayoutOffset(data.block));
     // leave room on the right for the +/- diff sign column, when present
-    rect.setWidth(data.extraAreaWidth - data.markWidth - data.signWidth - 4);
+    rect.setWidth(data.extraAreaWidth - data.markWidth - data.signWidth
+                  - data.annotationGutterWidth - 4);
     rect.setHeight(blockBoundingRect.height());
     painter.drawText(rect, Qt::AlignRight, number);
     if (selected)
         painter.restore();
+}
+
+void TextEditorWidgetPrivate::paintAnnotationGutter(QPainter &painter,
+                                                   const ExtraAreaPaintEventData &data,
+                                                   const QRectF &blockBoundingRect) const
+{
+    if (!data.annotationGutterWidth)
+        return;
+    using namespace StyleHelper::SpacingTokens;
+    const int x = data.extraAreaWidth - data.signWidth - data.annotationGutterWidth;
+    painter.save();
+    painter.setPen(data.palette.color(QPalette::Mid));
+    painter.drawLine(QPointF(x, blockBoundingRect.top()), QPointF(x, blockBoundingRect.bottom()));
+    const auto *item = annotationGutterItem(data.block.blockNumber());
+    if (!item) {
+        painter.restore();
+        return;
+    }
+    const QColor color = item->foreground.isValid()
+                             ? StyleHelper::ensureReadableOn(data.palette.color(QPalette::Window),
+                                                            item->foreground)
+                             : data.palette.color(QPalette::WindowText);
+    const int line = data.block.blockNumber();
+    const auto sharesGroup = [this, item](int otherLine) {
+        const auto *other = annotationGutterItem(otherLine);
+        return other == item || (other && item->displayGroup.isValid()
+                                 && other->displayGroup == item->displayGroup);
+    };
+    const bool continuation = data.previousBlockNumber == line - 1 && sharesGroup(line - 1);
+    QRectF stripe(x + 2, blockBoundingRect.top(), PaddingHS - 3, blockBoundingRect.height());
+    if (!continuation)
+        stripe.adjust(0, 1, 0, 0);
+    painter.fillRect(stripe, item->foreground.isValid() ? color : data.palette.color(QPalette::Mid));
+
+    if (!m_annotationGutter->colorOnly && !continuation) {
+        painter.setPen(color);
+        const qreal textTop = blockBoundingRect.top() + q->editorLayout()->mainLayoutOffset(data.block);
+        qreal y = qMax(qreal(0), textTop);
+        if (textTop < 0 && (!sharesGroup(line + 1)
+                            || nextVisibleBlock(data.block).blockNumber() != line + 1)) {
+            // Let the next annotation push this one offscreen at the end of its group.
+            y = qMin(y, blockBoundingRect.bottom() - data.fontMetrics.height());
+        }
+        const int width = qMax(0, data.annotationGutterWidth - PaddingHS - PaddingHXs);
+        painter.drawText(QRectF(x + PaddingHS, y, width, blockBoundingRect.height()),
+                         Qt::AlignLeft | Qt::AlignTop,
+                         data.fontMetrics.elidedText(item->text, Qt::ElideRight, width));
+    }
+    painter.restore();
 }
 
 // At most a third of the editor, so that a long text cannot push the code out
@@ -8561,6 +8695,7 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 
             d->paintLineNumbers(painter, data, boundingRect);
             d->paintLeadingTexts(painter, data, boundingRect);
+            d->paintAnnotationGutter(painter, data, boundingRect);
 
             if (d->m_codeFoldingVisible || d->m_marksVisible) {
                 painter.save();
@@ -8577,6 +8712,7 @@ void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
         }
 
         offset.ry() += boundingRect.height();
+        data.previousBlockNumber = data.block.blockNumber();
         data.block = d->nextVisibleBlock(data.block);
         boundingRect = blockBoundingRect(data.block).translated(offset);
     }
@@ -9447,6 +9583,13 @@ static bool xIsInsideFoldingRegion(int x, int extraAreaWidth, const QFontMetrics
 
 void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
 {
+    if (d->isInAnnotationGutter(e->pos().x()) && d->m_annotationGutter->populateContextMenu) {
+        QMenu menu;
+        d->m_annotationGutter->populateContextMenu(menu);
+        menu.exec(e->globalPos());
+        e->accept();
+        return;
+    }
     if (d->m_codeFoldingVisible
         && xIsInsideFoldingRegion(e->pos().x(), extraArea()->width(), fontMetrics())) {
         const QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
@@ -9512,6 +9655,21 @@ void TextEditorWidget::extraAreaToolTipEvent(QHelpEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
 
+    if (d->isInAnnotationGutter(e->pos().x())) {
+        const auto *item = d->annotationGutterItem(cursor.blockNumber());
+        if (item && d->m_annotationGutter->populateToolTip) {
+            auto layout = std::make_unique<QVBoxLayout>();
+            if (d->m_annotationGutter->populateToolTip(cursor.blockNumber(), layout.get())) {
+                layout->addWidget(createAnnotationSettingsLink(), 0, Qt::AlignRight);
+                ToolTip::show(e->globalPos(), layout.release(), this);
+                return;
+            }
+        }
+        if (item && !item->toolTip.isEmpty())
+            ToolTip::show(e->globalPos(), item->toolTip, Qt::PlainText, this);
+        return;
+    }
+
     int markWidth = 0;
     extraAreaWidth(&markWidth);
     const bool inMarkArea = e->pos().x() <= markWidth && e->pos().x() >= 0;
@@ -9530,6 +9688,23 @@ void TextEditorWidget::extraAreaToolTipEvent(QHelpEvent *e)
 void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
+
+    if (d->isInAnnotationGutter(e->pos().x()) && !d->m_markDragging) {
+        const auto *item = d->annotationGutterItem(cursor.blockNumber());
+        const bool clickable = item && !item->id.isEmpty() && d->m_annotationGutter->activate;
+        if (e->type() == QEvent::MouseMove && e->buttons() == Qt::NoButton) {
+            d->m_extraArea->setCursor(clickable ? Qt::PointingHandCursor : Qt::ArrowCursor);
+            return;
+        }
+        if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
+            if (clickable && e->type() == QEvent::MouseButtonPress && e->button() == Qt::LeftButton) {
+                const auto activate = d->m_annotationGutter->activate;
+                const QString id = item->id;
+                activate(id);
+            }
+            return;
+        }
+    }
 
     int markWidth = 0;
     extraAreaWidth(&markWidth);

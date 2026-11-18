@@ -109,6 +109,12 @@ GitSettings::GitSettings()
     repositoryBrowserCmd.setDisplayName(Tr::tr("Git Repository Browser Command"));
     repositoryBrowserCmd.setLabelText(Tr::tr("Command:"));
 
+    blameGutterFields.setSettingsKey("BlameGutterFields");
+    blameGutterFields.setDefaultValue(BlameHash | BlameAuthor);
+    blameGutterHeatmap.setSettingsKey("BlameGutterHeatmap");
+    blameGutterHeatmap.setDefaultValue(true);
+    blameGutterHeatmapOnly.setSettingsKey("BlameGutterHeatmapOnly");
+
     instantBlame.setSettingsKey("Git Instant");
     instantBlame.setDefaultValue(true);
     instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
