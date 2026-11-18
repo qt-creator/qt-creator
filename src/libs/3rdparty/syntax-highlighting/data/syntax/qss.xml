@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language
+[
+  <!ENTITY ident     "-?[_a-zA-Z][-_a-zA-Z0-9]*">
+  <!ENTITY qproperty "qproperty-[_a-zA-Z][_a-zA-Z0-9]*">
+]>
+<!-- Author: David Schulz <david.schulz@qt.io> -->
+<!--
+  Qt Style Sheets, see https://doc.qt.io/qt-6/stylesheet-reference.html
+
+  A style sheet set on a single widget may consist of declarations only,
+  without a selector and without braces ("color: red; border: none;").
+  A line in the selector context that has the shape of a declaration and
+  ends with a semicolon is read as such.
+-->
+<language name="Qt Style Sheet" version="1" kateversion="5.79" section="Markup"
+          extensions="*.qss" indenter="cstyle"
+          author="David Schulz (david.schulz@qt.io)"
+          license="MIT">
+  <highlighting>
+    <list name="properties">
+      <item>accent-color</item>
+      <item>alternate-background-color</item>
+      <item>background</item>
+      <item>background-attachment</item>
+      <item>background-clip</item>
+      <item>background-color</item>
+      <item>background-image</item>
+      <item>background-origin</item>
+      <item>background-position</item>
+      <item>background-repeat</item>
+      <item>border</item>
+      <item>border-bottom</item>
+      <item>border-bottom-color</item>
+      <item>border-bottom-left-radius</item>
+      <item>border-bottom-right-radius</item>
+      <item>border-bottom-style</item>
+      <item>border-bottom-width</item>
+      <item>border-color</item>
+      <item>border-image</item>
+      <item>border-left</item>
+      <item>border-left-color</item>
+      <item>border-left-style</item>
+      <item>border-left-width</item>
+      <item>border-radius</item>
+      <item>border-right</item>
+      <item>border-right-color</item>
+      <item>border-right-style</item>
+      <item>border-right-width</item>
+      <item>border-style</item>
+      <item>border-top</item>
+      <item>border-top-color</item>
+      <item>border-top-left-radius</item>
+      <item>border-top-right-radius</item>
+      <item>border-top-style</item>
+      <item>border-top-width</item>
+      <item>border-width</item>
+      <item>bottom</item>
+      <item>button-layout</item>
+      <item>color</item>
+      <item>dialogbuttonbox-buttons-have-icons</item>
+      <item>etch-disabled-text</item>
+      <item>font</item>
+      <item>font-family</item>
+      <item>font-size</item>
+      <item>font-style</item>
+      <item>font-weight</item>
+      <item>gridline-color</item>
+      <item>height</item>
+      <item>icon</item>
+      <item>icon-size</item>
+      <item>image</item>
+      <item>image-position</item>
+      <item>left</item>
+      <item>letter-spacing</item>
+      <item>lineedit-password-character</item>
+      <item>lineedit-password-mask-delay</item>
+      <item>margin</item>
+      <item>margin-bottom</item>
+      <item>margin-left</item>
+      <item>margin-right</item>
+      <item>margin-top</item>
+      <item>max-height</item>
+      <item>max-width</item>
+      <item>messagebox-text-interaction-flags</item>
+      <item>min-height</item>
+      <item>min-width</item>
+      <item>opacity</item>
+      <item>outline</item>
+      <item>outline-bottom-left-radius</item>
+      <item>outline-bottom-right-radius</item>
+      <item>outline-color</item>
+      <item>outline-offset</item>
+      <item>outline-radius</item>
+      <item>outline-style</item>
+      <item>outline-top-left-radius</item>
+      <item>outline-top-right-radius</item>
+      <item>padding</item>
+      <item>padding-bottom</item>
+      <item>padding-left</item>
+      <item>padding-right</item>
+      <item>padding-top</item>
+      <item>paint-alternating-row-colors-for-empty-area</item>
+      <item>placeholder-text-color</item>
+      <item>position</item>
+      <item>right</item>
+      <item>selection-background-color</item>
+      <item>selection-color</item>
+      <item>show-decoration-selected</item>
+      <item>spacing</item>
+      <item>subcontrol-origin</item>
+      <item>subcontrol-position</item>
+      <item>text-align</item>
+      <item>text-decoration</item>
+      <item>titlebar-show-tooltips-on-buttons</item>
+      <item>top</item>
+      <item>widget-animation-duration</item>
+      <item>width</item>
+      <item>word-spacing</item>
+      <item>-qt-background-role</item>
+      <item>-qt-style-features</item>
+      <!-- Icons -->
+      <item>backward-icon</item>
+      <item>cd-icon</item>
+      <item>computer-icon</item>
+      <item>desktop-icon</item>
+      <item>dialog-apply-icon</item>
+      <item>dialog-cancel-icon</item>
+      <item>dialog-close-icon</item>
+      <item>dialog-discard-icon</item>
+      <item>dialog-help-icon</item>
+      <item>dialog-no-icon</item>
+      <item>dialog-ok-icon</item>
+      <item>dialog-open-icon</item>
+      <item>dialog-reset-icon</item>
+      <item>dialog-save-icon</item>
+      <item>dialog-yes-icon</item>
+      <item>directory-closed-icon</item>
+      <item>directory-icon</item>
+      <item>directory-link-icon</item>
+      <item>directory-open-icon</item>
+      <item>dockwidget-close-icon</item>
+      <item>downarrow-icon</item>
+      <item>dvd-icon</item>
+      <item>file-icon</item>
+      <item>file-link-icon</item>
+      <item>filedialog-contentsview-icon</item>
+      <item>filedialog-detailedview-icon</item>
+      <item>filedialog-end-icon</item>
+      <item>filedialog-infoview-icon</item>
+      <item>filedialog-listview-icon</item>
+      <item>filedialog-new-directory-icon</item>
+      <item>filedialog-parent-directory-icon</item>
+      <item>filedialog-start-icon</item>
+      <item>floppy-icon</item>
+      <item>forward-icon</item>
+      <item>harddisk-icon</item>
+      <item>home-icon</item>
+      <item>leftarrow-icon</item>
+      <item>lineedit-clear-button-icon</item>
+      <item>messagebox-critical-icon</item>
+      <item>messagebox-information-icon</item>
+      <item>messagebox-question-icon</item>
+      <item>messagebox-warning-icon</item>
+      <item>network-icon</item>
+      <item>rightarrow-icon</item>
+      <item>titlebar-contexthelp-icon</item>
+      <item>titlebar-maximize-icon</item>
+      <item>titlebar-menu-icon</item>
+      <item>titlebar-minimize-icon</item>
+      <item>titlebar-normal-icon</item>
+      <item>titlebar-shade-icon</item>
+      <item>titlebar-unshade-icon</item>
+      <item>trash-icon</item>
+      <item>uparrow-icon</item>
+    </list>
+
+    <list name="pseudo-states">
+      <item>active</item>
+      <item>adjoins-item</item>
+      <item>alternate</item>
+      <item>bottom</item>
+      <item>checked</item>
+      <item>closable</item>
+      <item>closed</item>
+      <item>default</item>
+      <item>disabled</item>
+      <item>editable</item>
+      <item>enabled</item>
+      <item>exclusive</item>
+      <item>first</item>
+      <item>flat</item>
+      <item>floatable</item>
+      <item>focus</item>
+      <item>has-children</item>
+      <item>has-siblings</item>
+      <item>horizontal</item>
+      <item>hover</item>
+      <item>indeterminate</item>
+      <item>last</item>
+      <item>left</item>
+      <item>maximized</item>
+      <item>middle</item>
+      <item>minimized</item>
+      <item>movable</item>
+      <item>next-selected</item>
+      <item>no-frame</item>
+      <item>non-exclusive</item>
+      <item>off</item>
+      <item>on</item>
+      <item>only-one</item>
+      <item>open</item>
+      <item>pressed</item>
+      <item>previous-selected</item>
+      <item>read-only</item>
+      <item>right</item>
+      <item>selected</item>
+      <item>top</item>
+      <item>unchecked</item>
+      <item>vertical</item>
+      <item>window</item>
+    </list>
+
+    <list name="sub-controls">
+      <item>add-line</item>
+      <item>add-page</item>
+      <item>branch</item>
+      <item>chunk</item>
+      <item>close-button</item>
+      <item>corner</item>
+      <item>down-arrow</item>
+      <item>down-button</item>
+      <item>drop-down</item>
+      <item>float-button</item>
+      <item>groove</item>
+      <item>handle</item>
+      <item>icon</item>
+      <item>indicator</item>
+      <item>item</item>
+      <item>left-arrow</item>
+      <item>left-corner</item>
+      <item>menu-arrow</item>
+      <item>menu-button</item>
+      <item>menu-indicator</item>
+      <item>pane</item>
+      <item>right-arrow</item>
+      <item>right-corner</item>
+      <item>scroller</item>
+      <item>section</item>
+      <item>separator</item>
+      <item>sub-line</item>
+      <item>sub-page</item>
+      <item>tab</item>
+      <item>tab-bar</item>
+      <item>tear</item>
+      <item>tearoff</item>
+      <item>text</item>
+      <item>title</item>
+      <item>up-arrow</item>
+      <item>up-button</item>
+    </list>
+
+    <list name="value keywords">
+      <!-- Alignment -->
+      <item>top</item>
+      <item>bottom</item>
+      <item>left</item>
+      <item>right</item>
+      <item>center</item>
+      <!-- Attachment -->
+      <item>scroll</item>
+      <item>fixed</item>
+      <!-- Border Image -->
+      <item>none</item>
+      <item>stretch</item>
+      <item>repeat</item>
+      <!-- Border Style -->
+      <item>dashed</item>
+      <item>dot-dash</item>
+      <item>dot-dot-dash</item>
+      <item>dotted</item>
+      <item>double</item>
+      <item>groove</item>
+      <item>inset</item>
+      <item>outset</item>
+      <item>ridge</item>
+      <item>solid</item>
+      <!-- Font -->
+      <item>normal</item>
+      <item>italic</item>
+      <item>oblique</item>
+      <item>bold</item>
+      <item>small</item>
+      <item>medium</item>
+      <item>large</item>
+      <item>x-large</item>
+      <item>xx-large</item>
+      <!-- Origin -->
+      <item>margin</item>
+      <item>border</item>
+      <item>padding</item>
+      <item>content</item>
+      <!-- Repeat -->
+      <item>repeat-x</item>
+      <item>repeat-y</item>
+      <item>repeat-xy</item>
+      <item>no-repeat</item>
+      <!-- Position -->
+      <item>relative</item>
+      <item>absolute</item>
+      <!-- Text Decoration -->
+      <item>underline</item>
+      <item>overline</item>
+      <item>line-through</item>
+      <!-- Icon mode and state -->
+      <item>active</item>
+      <item>disabled</item>
+      <item>selected</item>
+      <item>on</item>
+      <item>off</item>
+      <!-- Boolean -->
+      <item>true</item>
+      <item>false</item>
+    </list>
+
+    <list name="palette roles">
+      <item>accent</item>
+      <item>alternate-base</item>
+      <item>base</item>
+      <item>bright-text</item>
+      <item>button</item>
+      <item>button-text</item>
+      <item>dark</item>
+      <item>highlight</item>
+      <item>highlighted-text</item>
+      <item>light</item>
+      <item>link</item>
+      <item>link-visited</item>
+      <item>mid</item>
+      <item>midlight</item>
+      <item>placeholder-text</item>
+      <item>shadow</item>
+      <item>text</item>
+      <item>tooltip-base</item>
+      <item>tooltip-text</item>
+      <item>window</item>
+      <item>window-text</item>
+    </list>
+
+    <list name="gradient parameters">
+      <item>x1</item>
+      <item>y1</item>
+      <item>x2</item>
+      <item>y2</item>
+      <item>cx</item>
+      <item>cy</item>
+      <item>fx</item>
+      <item>fy</item>
+      <item>angle</item>
+      <item>radius</item>
+      <item>spread</item>
+      <item>stop</item>
+    </list>
+
+    <list name="gradient spreads">
+      <item>pad</item>
+      <item>reflect</item>
+      <item>repeat</item>
+    </list>
+
+    <!-- The SVG color names that QColor understands -->
+    <list name="colors">
+      <item>transparent</item>
+      <item>aliceblue</item>
+      <item>antiquewhite</item>
+      <item>aqua</item>
+      <item>aquamarine</item>
+      <item>azure</item>
+      <item>beige</item>
+      <item>bisque</item>
+      <item>black</item>
+      <item>blanchedalmond</item>
+      <item>blue</item>
+      <item>blueviolet</item>
+      <item>brown</item>
+      <item>burlywood</item>
+      <item>cadetblue</item>
+      <item>chartreuse</item>
+      <item>chocolate</item>
+      <item>coral</item>
+      <item>cornflowerblue</item>
+      <item>cornsilk</item>
+      <item>crimson</item>
+      <item>cyan</item>
+      <item>darkblue</item>
+      <item>darkcyan</item>
+      <item>darkgoldenrod</item>
+      <item>darkgray</item>
+      <item>darkgreen</item>
+      <item>darkgrey</item>
+      <item>darkkhaki</item>
+      <item>darkmagenta</item>
+      <item>darkolivegreen</item>
+      <item>darkorange</item>
+      <item>darkorchid</item>
+      <item>darkred</item>
+      <item>darksalmon</item>
+      <item>darkseagreen</item>
+      <item>darkslateblue</item>
+      <item>darkslategray</item>
+      <item>darkslategrey</item>
+      <item>darkturquoise</item>
+      <item>darkviolet</item>
+      <item>deeppink</item>
+      <item>deepskyblue</item>
+      <item>dimgray</item>
+      <item>dimgrey</item>
+      <item>dodgerblue</item>
+      <item>firebrick</item>
+      <item>floralwhite</item>
+      <item>forestgreen</item>
+      <item>fuchsia</item>
+      <item>gainsboro</item>
+      <item>ghostwhite</item>
+      <item>gold</item>
+      <item>goldenrod</item>
+      <item>gray</item>
+      <item>green</item>
+      <item>greenyellow</item>
+      <item>grey</item>
+      <item>honeydew</item>
+      <item>hotpink</item>
+      <item>indianred</item>
+      <item>indigo</item>
+      <item>ivory</item>
+      <item>khaki</item>
+      <item>lavender</item>
+      <item>lavenderblush</item>
+      <item>lawngreen</item>
+      <item>lemonchiffon</item>
+      <item>lightblue</item>
+      <item>lightcoral</item>
+      <item>lightcyan</item>
+      <item>lightgoldenrodyellow</item>
+      <item>lightgray</item>
+      <item>lightgreen</item>
+      <item>lightgrey</item>
+      <item>lightpink</item>
+      <item>lightsalmon</item>
+      <item>lightseagreen</item>
+      <item>lightskyblue</item>
+      <item>lightslategray</item>
+      <item>lightslategrey</item>
+      <item>lightsteelblue</item>
+      <item>lightyellow</item>
+      <item>lime</item>
+      <item>limegreen</item>
+      <item>linen</item>
+      <item>magenta</item>
+      <item>maroon</item>
+      <item>mediumaquamarine</item>
+      <item>mediumblue</item>
+      <item>mediumorchid</item>
+      <item>mediumpurple</item>
+      <item>mediumseagreen</item>
+      <item>mediumslateblue</item>
+      <item>mediumspringgreen</item>
+      <item>mediumturquoise</item>
+      <item>mediumvioletred</item>
+      <item>midnightblue</item>
+      <item>mintcream</item>
+      <item>mistyrose</item>
+      <item>moccasin</item>
+      <item>navajowhite</item>
+      <item>navy</item>
+      <item>oldlace</item>
+      <item>olive</item>
+      <item>olivedrab</item>
+      <item>orange</item>
+      <item>orangered</item>
+      <item>orchid</item>
+      <item>palegoldenrod</item>
+      <item>palegreen</item>
+      <item>paleturquoise</item>
+      <item>palevioletred</item>
+      <item>papayawhip</item>
+      <item>peachpuff</item>
+      <item>peru</item>
+      <item>pink</item>
+      <item>plum</item>
+      <item>powderblue</item>
+      <item>purple</item>
+      <item>red</item>
+      <item>rosybrown</item>
+      <item>royalblue</item>
+      <item>saddlebrown</item>
+      <item>salmon</item>
+      <item>sandybrown</item>
+      <item>seagreen</item>
+      <item>seashell</item>
+      <item>sienna</item>
+      <item>silver</item>
+      <item>skyblue</item>
+      <item>slateblue</item>
+      <item>slategray</item>
+      <item>slategrey</item>
+      <item>snow</item>
+      <item>springgreen</item>
+      <item>steelblue</item>
+      <item>tan</item>
+      <item>teal</item>
+      <item>thistle</item>
+      <item>tomato</item>
+      <item>turquoise</item>
+      <item>violet</item>
+      <item>wheat</item>
+      <item>white</item>
+      <item>whitesmoke</item>
+      <item>yellow</item>
+      <item>yellowgreen</item>
+    </list>
+
+    <contexts>
+      <!-- Selectors -->
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <IncludeRules context="FindComments"/>
+        <RegExpr lookAhead="true" String="(&qproperty;|-?[a-z][-a-z0-9]*)\s*:(?!:)[^{}]*;" context="Declarations"/>
+        <DetectChar char="{" attribute="Block Symbol" context="RuleSet" beginRegion="ruleset"/>
+        <DetectChar char="}" attribute="Error"/>
+        <Detect2Chars char=":" char1=":" attribute="Sub-Control" context="SubControl"/>
+        <DetectChar char=":" attribute="Pseudo-State" context="PseudoState"/>
+        <DetectChar char="[" attribute="Selector Symbol" context="PropertySelector"/>
+        <RegExpr String="#[-_a-zA-Z0-9]+" attribute="Selector Id"/>
+        <RegExpr String="\.&ident;" attribute="Selector Class"/>
+        <AnyChar String="*&gt;+~," attribute="Selector Symbol"/>
+        <RegExpr String="&ident;" attribute="Selector Type"/>
+      </context>
+
+      <context name="SubControl" attribute="Unknown Sub-Control" lineEndContext="#pop" fallthroughContext="#pop">
+        <keyword String="sub-controls" attribute="Sub-Control" context="#pop"/>
+        <RegExpr String="&ident;" attribute="Unknown Sub-Control" context="#pop"/>
+      </context>
+
+      <context name="PseudoState" attribute="Unknown Pseudo-State" lineEndContext="#pop" fallthroughContext="#pop">
+        <DetectChar char="!" attribute="Selector Symbol"/>
+        <keyword String="pseudo-states" attribute="Pseudo-State" context="#pop"/>
+        <RegExpr String="&ident;" attribute="Unknown Pseudo-State" context="#pop"/>
+      </context>
+
+      <context name="PropertySelector" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <DetectChar char="]" attribute="Selector Symbol" context="#pop"/>
+        <Detect2Chars char="~" char1="=" attribute="Selector Symbol"/>
+        <Detect2Chars char="|" char1="=" attribute="Selector Symbol"/>
+        <DetectChar char="=" attribute="Selector Symbol"/>
+        <DetectChar char="&quot;" attribute="String" context="StringDQ"/>
+        <DetectChar char="'" attribute="String" context="StringSQ"/>
+        <RegExpr String="[_a-zA-Z][_a-zA-Z0-9]*" attribute="Selector Property"/>
+        <AnyChar String="{}" lookAhead="true" context="#pop"/>
+      </context>
+
+      <!-- Declarations -->
+      <context name="RuleSet" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar char="}" attribute="Block Symbol" context="#pop" endRegion="ruleset"/>
+        <IncludeRules context="FindDeclarations"/>
+      </context>
+
+      <context name="Declarations" attribute="Normal Text" lineEndContext="#pop">
+        <IncludeRules context="FindDeclarations"/>
+      </context>
+
+      <context name="FindDeclarations" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <IncludeRules context="FindComments"/>
+        <DetectChar char=";" attribute="Separator Symbol"/>
+        <RegExpr String="&qproperty;" attribute="Qt Property" context="PropertySeparator"/>
+        <keyword String="properties" attribute="Property" context="PropertySeparator"/>
+        <RegExpr String="&ident;" attribute="Unknown Property" context="PropertySeparator"/>
+        <DetectChar char="{" attribute="Error"/>
+      </context>
+
+      <context name="PropertySeparator" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char=":" attribute="Property Separator" context="#pop!Value"/>
+      </context>
+
+      <!-- Values -->
+      <context name="Value" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar char=";" attribute="Separator Symbol" context="#pop"/>
+        <DetectChar char="}" lookAhead="true" context="#pop"/>
+        <IncludeRules context="FindValues"/>
+      </context>
+
+      <context name="FindValues" attribute="Normal Text" lineEndContext="#stay">
+        <DetectSpaces/>
+        <IncludeRules context="FindComments"/>
+        <DetectChar char="&quot;" attribute="String" context="StringDQ"/>
+        <DetectChar char="'" attribute="String" context="StringSQ"/>
+        <RegExpr String="#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![-_a-zA-Z0-9])" attribute="Color"/>
+        <RegExpr String="#[-_a-zA-Z0-9]*" attribute="Error"/>
+        <RegExpr String="q(linear|radial|conical)gradient(?=\s*\()" insensitive="true" attribute="Function" context="GradientOpen"/>
+        <RegExpr String="url(?=\s*\()" insensitive="true" attribute="Function" context="UrlOpen"/>
+        <RegExpr String="(rgba?|hsva?|hsla?|palette)(?=\s*\()" insensitive="true" attribute="Function" context="ArgumentsOpen"/>
+        <RegExpr String="&ident;(?=\s*\()" attribute="Unknown Function" context="ArgumentsOpen"/>
+        <RegExpr String="[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)" attribute="Number" context="Unit"/>
+        <keyword String="value keywords" attribute="Value Keyword"/>
+        <keyword String="colors" attribute="Named Color"/>
+        <keyword String="palette roles" attribute="Value Keyword"/>
+        <RegExpr String="&ident;" attribute="Normal Text"/>
+        <AnyChar String=",/" attribute="Operator"/>
+      </context>
+
+      <context name="Unit" attribute="Normal Text" lineEndContext="#pop" fallthroughContext="#pop">
+        <RegExpr String="(px|pt|em|ex)(?![-_a-zA-Z0-9])" insensitive="true" attribute="Unit" context="#pop"/>
+        <DetectChar char="%" attribute="Unit" context="#pop"/>
+      </context>
+
+      <context name="GradientOpen" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char="(" attribute="Operator" context="#pop!GradientArguments"/>
+      </context>
+
+      <context name="GradientArguments" attribute="Normal Text" lineEndContext="#stay">
+        <keyword String="gradient parameters" attribute="Function Parameter"/>
+        <keyword String="gradient spreads" attribute="Value Keyword"/>
+        <DetectChar char=":" attribute="Operator"/>
+        <IncludeRules context="Arguments"/>
+      </context>
+
+      <context name="ArgumentsOpen" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char="(" attribute="Operator" context="#pop!Arguments"/>
+      </context>
+
+      <context name="Arguments" attribute="Normal Text" lineEndContext="#stay">
+        <DetectChar char=")" attribute="Operator" context="#pop"/>
+        <AnyChar String=";}" lookAhead="true" context="#pop"/>
+        <IncludeRules context="FindValues"/>
+      </context>
+
+      <context name="UrlOpen" attribute="Normal Text" lineEndContext="#stay" fallthroughContext="#pop">
+        <DetectSpaces/>
+        <DetectChar char="(" attribute="Operator" context="#pop!Url"/>
+      </context>
+
+      <context name="Url" attribute="Url" lineEndContext="#pop">
+        <DetectSpaces attribute="Normal Text"/>
+        <DetectChar char=")" attribute="Operator" context="#pop"/>
+        <DetectChar char="&quot;" attribute="String" context="StringDQ"/>
+        <DetectChar char="'" attribute="String" context="StringSQ"/>
+        <AnyChar String=";}" lookAhead="true" context="#pop"/>
+        <RegExpr String="[^\s)&quot;';}]+" attribute="Url"/>
+      </context>
+
+      <!-- Strings and comments -->
+      <context name="StringDQ" attribute="String" lineEndContext="#pop">
+        <RegExpr String="\\." attribute="SpecialChar"/>
+        <DetectChar char="&quot;" attribute="String" context="#pop"/>
+      </context>
+
+      <context name="StringSQ" attribute="String" lineEndContext="#pop">
+        <RegExpr String="\\." attribute="SpecialChar"/>
+        <DetectChar char="'" attribute="String" context="#pop"/>
+      </context>
+
+      <context name="FindComments" attribute="Normal Text" lineEndContext="#stay">
+        <Detect2Chars char="/" char1="*" attribute="Comment" context="Comment" beginRegion="comment"/>
+      </context>
+
+      <context name="Comment" attribute="Comment" lineEndContext="#stay">
+        <DetectSpaces/>
+        <Detect2Chars char="*" char1="/" attribute="Comment" context="#pop" endRegion="comment"/>
+        <IncludeRules context="##Comments"/>
+        <DetectIdentifier/>
+      </context>
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Comment" defStyleNum="dsComment"/>
+      <itemData name="Block Symbol" defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Selector Type" defStyleNum="dsDataType" spellChecking="false"/>
+      <itemData name="Selector Class" defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Selector Id" defStyleNum="dsPreprocessor" bold="1" spellChecking="false"/>
+      <itemData name="Selector Property" defStyleNum="dsExtension" spellChecking="false"/>
+      <itemData name="Selector Symbol" defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Pseudo-State" defStyleNum="dsInformation" italic="1" spellChecking="false"/>
+      <itemData name="Unknown Pseudo-State" defStyleNum="dsNormal" italic="1" spellChecking="false"/>
+      <itemData name="Sub-Control" defStyleNum="dsAttribute" spellChecking="false"/>
+      <itemData name="Unknown Sub-Control" defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Property" defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Qt Property" defStyleNum="dsKeyword" italic="1" spellChecking="false"/>
+      <itemData name="Unknown Property" defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Property Separator" defStyleNum="dsChar" spellChecking="false"/>
+      <itemData name="Separator Symbol" defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Operator" defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Value Keyword" defStyleNum="dsBuiltIn" spellChecking="false"/>
+      <itemData name="Named Color" defStyleNum="dsConstant" spellChecking="false"/>
+      <itemData name="Color" defStyleNum="dsConstant" spellChecking="false"/>
+      <itemData name="Number" defStyleNum="dsDecVal" spellChecking="false"/>
+      <itemData name="Unit" defStyleNum="dsDataType" spellChecking="false"/>
+      <itemData name="Function" defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Unknown Function" defStyleNum="dsNormal" spellChecking="false"/>
+      <itemData name="Function Parameter" defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="String" defStyleNum="dsString"/>
+      <itemData name="SpecialChar" defStyleNum="dsSpecialChar" spellChecking="false"/>
+      <itemData name="Url" defStyleNum="dsSpecialString" spellChecking="false"/>
+      <itemData name="Error" defStyleNum="dsError" spellChecking="false"/>
+    </itemDatas>
+  </highlighting>
+
+  <general>
+    <keywords casesensitive="0" weakDeliminator="-"/>
+    <comments>
+      <comment name="multiLine" start="/*" end="*/" region="comment"/>
+    </comments>
+  </general>
+</language>
+<!-- kate: replace-tabs on; tab-width 2; indent-width 2; -->
