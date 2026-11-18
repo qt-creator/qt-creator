@@ -15,9 +15,12 @@ qtc_add_resources(Learning "testcases"
   FILES testdata/courses.json
 )
 
-file(GLOB images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} overview/*.webp overview/*.json)
+file(GLOB images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} overview/*.webp)
 qtc_add_resources(Learning "overview"
   PREFIX "/learning"
   FILES
     ${images}
+    overview/recommendations.json
+    overview/recommendations.schema.json
+    overview/tips.json
 )

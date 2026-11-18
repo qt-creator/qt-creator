@@ -15,6 +15,9 @@ class LearningTest final : public QObject {
 private slots:
     void testFlagsMatching();
     void testFlagsMatching_data();
+    void testTipOfTheDayContent();
+    void testTipOfTheDayUnavailable();
+    void testTipOfTheDayReferences();
 };
 #endif // WITH_TESTS
 

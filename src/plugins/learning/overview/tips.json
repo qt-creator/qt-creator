@@ -1,0 +1,87 @@
+[
+    {
+        "title": "Edit several places at once",
+        "text": "Hold Alt and click in the editor to add cursors. Edits are applied at every cursor.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-insert-multiple-cursors.html"
+    },
+    {
+        "title": "Add cursors to selected lines",
+        "text": "Select several lines and press Alt+Shift+I to place a cursor at the end of each line.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-insert-multiple-cursors.html"
+    },
+    {
+        "title": "Bookmark a line",
+        "text": "Press Ctrl+M to toggle a bookmark on the current line. Use Ctrl+, and Ctrl+. to move between bookmarks.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-use-bookmarks.html"
+    },
+    {
+        "title": "Find a bookmark with the Locator",
+        "text": "Open the Locator with Ctrl+K, enter b and a space, then type a line number or text to filter bookmarks.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-use-bookmarks.html"
+    },
+    {
+        "title": "Customize keyboard shortcuts",
+        "text": "Search for a command in Preferences > Environment > Keyboard to find or change its shortcut.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-assign-keyboard-shortcuts.html",
+        "settingsPageId": "C.Keyboard"
+    },
+    {
+        "title": "Follow a symbol into another split",
+        "text": "Press Ctrl+E, then F2 to open the symbol definition in the next editor split.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-coding-navigating.html"
+    },
+    {
+        "title": "Compare files side by side",
+        "text": "Press Ctrl+E, then 3 to split the editor side by side. Press Ctrl+E, then O to move between splits.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-split-editor-views.html"
+    },
+    {
+        "title": "Open a C++ header or source file",
+        "text": "With a C++ file open, press F4 to switch between its header and source file.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-coding-navigating.html"
+    },
+    {
+        "title": "Stage only part of a change",
+        "text": "In the Git Diff view, stage individual chunks or lines instead of the whole file.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-git-stage-changes.html"
+    },
+    {
+        "title": "Review the history of a selection",
+        "text": "Use Git > Current File > Log of File Selection to see commits that changed the selected text.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-git-log.html"
+    },
+    {
+        "title": "See who last changed a line",
+        "text": "Move the cursor through a file and hover over the instant blame annotation to see commit details. Enable it in Preferences > Version Control > Git if needed.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-git-blame.html",
+        "settingsPageId": "G.Git"
+    },
+    {
+        "title": "Set aside unstaged Git changes",
+        "text": "Use Git > Local Repository > Stash > Stash Unstaged Files to save unstaged work while keeping staged changes.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-git-stash.html"
+    },
+    {
+        "title": "Create a C++ class from a template",
+        "text": "Choose File > New File > C/C++ > C++ Class to create a header and source file together.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-create-cpp-classes.html"
+    },
+    {
+        "title": "Look up any command shortcut",
+        "text": "The Keyboard preferences list shortcuts for menu commands and buttons. Filter by the command name to find one quickly.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-how-to-find-keyboard-shortcuts.html",
+        "settingsPageId": "C.Keyboard"
+    },
+    {
+        "title": "Choose tabs or spaces for indentation",
+        "text": "Set the tab size and whether Tab inserts spaces or tabs in Preferences > Text Editor > Behavior.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-preferences-text-editor-behavior.html",
+        "settingsPageId": "B.BehaviourSettings"
+    },
+    {
+        "title": "Show line numbers and whitespace",
+        "text": "In Preferences > Text Editor > Display, enable line numbers and whitespace visualization to inspect indentation.",
+        "helpUrl": "qthelp://org.qt-project.qtcreator/doc/creator-preferences-text-editor-display.html",
+        "settingsPageId": "D.DisplaySettings"
+    }
+]

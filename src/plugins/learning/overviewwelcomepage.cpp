@@ -16,7 +16,10 @@
 #include <utils/utilsicons.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
 #include <coreplugin/welcomepagehelper.h>
 
@@ -28,21 +31,27 @@
 #include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <QDate>
 #include <QDesktopServices>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
 #include <QLayout>
 #include <QLoggingCategory>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmapCache>
+#include <QPushButton>
 #include <QRadioButton>
 #include <QRandomGenerator>
+#include <QSet>
+#include <QUrl>
 #include <QVariantAnimation>
 #include <QXmlStreamReader>
 
 #ifdef WITH_TESTS
+#include <QTemporaryDir>
 #include <QTest>
 #endif // WITH_TESTS
 
@@ -468,6 +477,163 @@ private:
     QtcPageIndicator *m_pageIndicator;
 };
 
+struct TipOfTheDay
+{
+    QString title;
+    QString text;
+    QUrl helpUrl;
+    Utils::Id settingsPageId;
+};
+
+static bool isTipReference(const QUrl &url)
+{
+    if (!url.isValid() || url.host().isEmpty() || !url.userInfo().isEmpty())
+        return false;
+    if (url.scheme() == "https")
+        return true;
+    return url.scheme() == "qthelp" && url.authority() == "org.qt-project.qtcreator"
+           && url.path().startsWith("/doc/") && url.path().endsWith(".html");
+}
+
+static QList<TipOfTheDay> tipOfTheDayEntries(const FilePath &tipsFile)
+{
+    const Result<QByteArray> contents = tipsFile.fileContents();
+    if (!contents) {
+        qCWarning(qtWelcomeOverviewLog).noquote() << contents.error() << tipsFile;
+        return {};
+    }
+
+    QJsonParseError error;
+    const QJsonDocument document = QJsonDocument::fromJson(*contents, &error);
+    if (error.error != QJsonParseError::NoError || !document.isArray()) {
+        qCWarning(qtWelcomeOverviewLog).noquote()
+            << "Cannot parse" << tipsFile << error.errorString();
+        return {};
+    }
+
+    QList<TipOfTheDay> entries;
+    for (const QJsonValue &value : document.array()) {
+        if (!value.isObject())
+            continue;
+        const QJsonObject object = value.toObject();
+        TipOfTheDay entry{object.value("title").toString().trimmed(),
+                          object.value("text").toString().trimmed(),
+                          QUrl(object.value("helpUrl").toString().trimmed(), QUrl::StrictMode),
+                          Utils::Id::fromString(
+                              object.value("settingsPageId").toString().trimmed())};
+        if (entry.title.isEmpty() || entry.text.isEmpty()
+            || !isTipReference(entry.helpUrl)) {
+            qCWarning(qtWelcomeOverviewLog).noquote()
+                << "Skipping invalid tip in" << tipsFile;
+            continue;
+        }
+        entries.append(entry);
+    }
+    return entries;
+}
+
+static QList<TipOfTheDay> tipOfTheDayEntries()
+{
+    return tipOfTheDayEntries(FilePath::fromString(":/learning/overview/tips.json"));
+}
+
+class TipOfTheDayWidget final : public QWidget
+{
+public:
+    explicit TipOfTheDayWidget(const QList<TipOfTheDay> &entries)
+        : m_entries(entries)
+    {
+        if (m_entries.isEmpty()) {
+            hide();
+            return;
+        }
+
+        using namespace Layouting;
+        m_tipTitle = new QLabel;
+        m_tipTitle->setTextFormat(Qt::PlainText);
+        applyTf(m_tipTitle, {.themeColor = Theme::Token_Text_Default,
+                             .uiElement = StyleHelper::UiElementH4});
+        m_tipText = new QLabel;
+        m_tipText->setWordWrap(true);
+        m_tipText->setTextFormat(Qt::PlainText);
+
+        auto readMoreButton = new QtcButton(Tr::tr("Read More"), QtcButton::MediumGhost);
+        m_openSettingsButton = new QtcButton(Tr::tr("Open Settings"), QtcButton::MediumGhost);
+        m_openSettingsButton->hide();
+        auto nextTipButton = new QtcButton(Tr::tr("Next Tip"), QtcButton::MediumGhost);
+        nextTipButton->setEnabled(m_entries.size() > 1);
+        connect(readMoreButton, &QtcButton::clicked, this, [this] {
+            const QUrl &url = m_entries.at(m_currentIndex).helpUrl;
+            if (url.scheme() == "qthelp")
+                HelpManager::showHelpUrl(url);
+            else
+                QDesktopServices::openUrl(url);
+        });
+        connect(m_openSettingsButton, &QtcButton::clicked, this, [this] {
+            ICore::showSettings(m_entries.at(m_currentIndex).settingsPageId);
+        });
+        connect(nextTipButton, &QtcButton::clicked, this, [this] {
+            if (m_entries.size() > 1)
+                showTip((m_currentIndex + 1) % m_entries.size());
+        });
+
+        QWidget *panel = QtDesignWidgets::Rectangle {
+            radius(SpacingTokens::RadiusS), fillBrush(rectFill()), strokePen(rectStroke()),
+            customMargins(SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl,
+                          SpacingTokens::PaddingHXl, SpacingTokens::PaddingVXl),
+            Column {
+                tfLabel(Tr::tr("Tip of the Day"), titleTf),
+                m_tipTitle,
+                m_tipText,
+                Row {
+                    readMoreButton, m_openSettingsButton, nextTipButton,
+                    noMargin, alignment(Qt::AlignRight),
+                },
+                noMargin, spacing(SpacingTokens::GapVM),
+            },
+        }.emerge();
+        Column { panel, noMargin }.attachTo(this);
+
+        const qsizetype dayIndex = QDate::currentDate().toJulianDay() % m_entries.size();
+        showTip(dayIndex);
+    }
+
+private:
+    void showTip(qsizetype index)
+    {
+        m_currentIndex = index;
+        const TipOfTheDay &tip = m_entries.at(index);
+        m_tipTitle->setText(tip.title);
+        m_tipText->setText(tip.text);
+        const bool settingsPageExists = Utils::contains(IOptionsPage::allOptionsPages(),
+                                                         [&tip](const IOptionsPage *page) {
+            return page->id() == tip.settingsPageId;
+        });
+        m_openSettingsButton->setVisible(settingsPageExists);
+    }
+
+    QList<TipOfTheDay> m_entries;
+    qsizetype m_currentIndex = 0;
+    QLabel *m_tipTitle = nullptr;
+    QLabel *m_tipText = nullptr;
+    QtcButton *m_openSettingsButton = nullptr;
+
+    static QBrush rectFill()
+    {
+        return creatorColor(Core::WelcomePageHelpers::cardDefaultBackground);
+    }
+
+    static QPen rectStroke()
+    {
+        return creatorColor(Core::WelcomePageHelpers::cardDefaultStroke);
+    }
+
+    static constexpr TextFormat titleTf {
+        .themeColor = Theme::Token_Text_Muted,
+        .uiElement = StyleHelper::UiElementH5,
+    };
+};
+
 class OverviewItemDelegate : public ListItemDelegate
 {
 protected:
@@ -743,7 +909,7 @@ private:
     }
 
     QList<RecentProjectItem *> m_items;
-    static const int m_maxProjects = 4;
+    static const int m_maxProjects = 8;
 };
 
 class OverviewWelcomePageWidget final : public QWidget
@@ -827,7 +993,12 @@ private:
         auto projectsAndBlogPosts = Widget {
             Row {
                 recentProjectsPanel(),
-                blogPostsPanel(),
+                Column {
+                    blogPostsPanel(),
+                    new TipOfTheDayWidget(tipOfTheDayEntries()),
+                    noMargin,
+                    spacing(SpacingTokens::PaddingVXxl),
+                },
                 spacing(SpacingTokens::PaddingHXxl),
                 customMargins(0, 0, SpacingTokens::PaddingHXxl, 0),
             },
@@ -939,6 +1110,63 @@ void LearningTest::testFlagsMatching_data()
     QTest::newRow("user_undefined_item_ios") << QStringList({expBasic})
                                              << QStringList({targetiOS})
                                              << false;
+}
+
+void LearningTest::testTipOfTheDayContent()
+{
+    const QList<TipOfTheDay> entries = tipOfTheDayEntries();
+    QVERIFY(entries.size() >= 10);
+
+    QSet<QString> titles;
+    for (const TipOfTheDay &entry : entries) {
+        QVERIFY(!entry.title.isEmpty());
+        QVERIFY(!entry.text.isEmpty());
+        QVERIFY(isTipReference(entry.helpUrl));
+        QVERIFY(!titles.contains(entry.title));
+        titles.insert(entry.title);
+    }
+}
+
+void LearningTest::testTipOfTheDayUnavailable()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath path = FilePath::fromString(directory.filePath("tips.json"));
+    const auto verifyHidden = [&](const QList<TipOfTheDay> &entries) {
+        QVERIFY(entries.isEmpty());
+        QWidget parent;
+        TipOfTheDayWidget widget(entries);
+        widget.setParent(&parent);
+        parent.show();
+        QVERIFY(widget.isHidden());
+    };
+
+    verifyHidden(tipOfTheDayEntries(path));
+    QVERIFY(path.writeFileContents("{invalid"));
+    verifyHidden(tipOfTheDayEntries(path));
+    const QByteArray unsupported = R"([{"title":"Bad","text":"Bad","helpUrl":"file:///tmp/tip"}])";
+    QVERIFY(path.writeFileContents(unsupported));
+    verifyHidden(tipOfTheDayEntries(path));
+}
+
+void LearningTest::testTipOfTheDayReferences()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath path = FilePath::fromString(directory.filePath("tips.json"));
+    const QByteArray catalog = R"([
+        {"title":"Manual","text":"Tip","helpUrl":"qthelp://org.qt-project.qtcreator/doc/a.html#one"},
+        {"title":"Online","text":"Tip","helpUrl":"https://doc.qt.io/qtcreator/a.html"},
+        {"title":"Local file","text":"Tip","helpUrl":"file:///tmp/tip"},
+        {"title":"Credentials","text":"Tip","helpUrl":"https://user@doc.qt.io/a.html"},
+        {"title":"Missing host","text":"Tip","helpUrl":"https:///a.html"},
+        {"title":"Other help","text":"Tip","helpUrl":"qthelp://other/doc/a.html"}
+    ])";
+    QVERIFY(path.writeFileContents(catalog));
+    const auto entries = tipOfTheDayEntries(path);
+    QCOMPARE(entries.size(), 2);
+    QCOMPARE(entries.at(0).helpUrl.fragment(), "one");
+    QCOMPARE(entries.at(1).helpUrl, QUrl("https://doc.qt.io/qtcreator/a.html"));
 }
 #endif // WITH_TESTS
 

@@ -33,7 +33,9 @@ QtcPlugin {
         prefix: "overview/"
         files: [
             "*.webp",
-            "*.json",
+            "recommendations.json",
+            "recommendations.schema.json",
+            "tips.json",
         ]
         fileTags: "qt.core.resource_data"
         Qt.core.resourcePrefix: "learning"
