@@ -3241,7 +3241,7 @@ void dumpEditValue(const SymbolGroupNode *n, const SymbolGroupValueContext &,
     if (separatorPos == std::string::npos)
         return;
 
-    if (desiredFormat.substr(separatorPos) != "separate")
+    if (desiredFormat.substr(separatorPos + 1) != "separate")
         return;
 
     if (const MemoryHandle *mh = n->memory())
