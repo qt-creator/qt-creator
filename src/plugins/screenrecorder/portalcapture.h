@@ -51,6 +51,7 @@ private:
     Utils::FilePath m_fifo;
     Utils::FilePath m_gstLaunch;
     QSize m_streamSize;
+    int m_fifoReader = -1;
     int m_frameRate = 0;
     Utils::Process *m_pipeline = nullptr;
 };

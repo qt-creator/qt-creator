@@ -16,7 +16,11 @@
 #include <QDBusMessage>
 #include <QDBusObjectPath>
 #include <QDBusPendingCallWatcher>
+#include <QRegularExpression>
+#include <QTimer>
 #include <QUuid>
+
+#include <chrono>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -47,6 +51,9 @@ static const char kResponseSignal[] = "Response";
 static const char kCloseMethod[] = "Close";
 
 static const char kFifoName[] = "portalcapture.fifo";
+
+// How long GStreamer may take to negotiate the frame format after the source selection.
+static constexpr std::chrono::seconds kNegotiationTimeout{10};
 
 enum PortalCursorMode { CursorHidden = 1, CursorEmbedded = 2 };
 // Only monitors: a window source can change its size during the recording, but the raw
@@ -166,23 +173,21 @@ void PortalCapture::startStream()
                                            ? QString("target-object=" + QString::number(nodeSerial))
                                            : QString("path=" + QString::number(nodeId));
 
-        QSize size;
-        const QDBusArgument sizeArgument = properties.value("size").value<QDBusArgument>();
-        sizeArgument.beginStructure();
-        sizeArgument >> size.rwidth() >> size.rheight();
-        sizeArgument.endStructure();
-        if (size.isEmpty()) {
-            emit failed(Tr::tr("The screen cast portal did not report the stream size."));
-            return;
-        }
-
         m_fifo.removeFile();
-        if (::mkfifo(m_fifo.toFSPathString().toLocal8Bit().constData(), S_IRUSR | S_IWUSR) != 0) {
+        const QByteArray fifoPath = m_fifo.toFSPathString().toLocal8Bit();
+        if (::mkfifo(fifoPath.constData(), S_IRUSR | S_IWUSR) != 0) {
             emit failed(Tr::tr("Cannot create the pipe %1.").arg(m_fifo.toUserOutput()));
             return;
         }
-        m_streamSize = size;
-        emit prepared();
+        // GStreamer opens the pipe for writing, which blocks until there is a reader, and only
+        // then negotiates the frame size that FFmpeg needs. Be that reader until FFmpeg runs.
+        // Keep it open until stop(): closed earlier, GStreamer could write to a pipe without a
+        // reader. Nothing reads from it, so all frames go to FFmpeg.
+        m_fifoReader = ::open(fifoPath.constData(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+        if (m_fifoReader < 0) {
+            emit failed(Tr::tr("Cannot open the pipe %1.").arg(m_fifo.toUserOutput()));
+            return;
+        }
         startPipeline(pipeWireSource);
     });
 }
@@ -190,7 +195,7 @@ void PortalCapture::startStream()
 void PortalCapture::startPipeline(const QString &pipeWireSource)
 {
     const QStringList arguments{
-        "-q",
+        "-v", // Prints the negotiated caps
         "pipewiresrc", pipeWireSource,
         "do-timestamp=true",
         // PipeWire delivers frames only when the screen changes. Repeat the last frame in
@@ -198,18 +203,32 @@ void PortalCapture::startPipeline(const QString &pipeWireSource)
         QString("keepalive-time=%1").arg(1000 / qMax(1, m_frameRate)),
         "!", "videoconvert",
         // The portal reports the size in compositor coordinates. On scaled screens, the frames
-        // are larger. Scale them to the size that FFmpeg reads.
-        "!", "videoscale",
-        "!", QString("video/x-raw,format=BGRx,width=%1,height=%2")
-                 .arg(m_streamSize.width()).arg(m_streamSize.height()),
+        // are larger. Keep their size, so that the recording has all pixels.
+        "!", "video/x-raw,format=BGRx",
         "!", "filesink", "location=" + m_fifo.toFSPathString(), "sync=false",
     };
     m_pipeline = new Utils::Process(this);
+    Utils::Process *pipeline = m_pipeline;
     m_pipeline->setCommand({m_gstLaunch, arguments});
+    m_pipeline->setStdOutLineCallback([this, pipeline](const QString &line) {
+        if (m_pipeline != pipeline || !m_streamSize.isEmpty())
+            return;
+        static const QRegularExpression sinkCaps(
+            R"(GstFileSink:.*caps = .*width=\(int\)(\d+), height=\(int\)(\d+))");
+        const QRegularExpressionMatch match = sinkCaps.match(line);
+        if (!match.hasMatch())
+            return;
+        m_streamSize = {match.captured(1).toInt(), match.captured(2).toInt()};
+        emit prepared();
+    });
     connect(m_pipeline, &Utils::Process::done, this, [this] {
         emit failed(Tr::tr("GStreamer stopped unexpectedly:\n%1")
                         .arg(m_pipeline->exitMessage(
                             Utils::Process::FailureMessageFormat::WithStdErr)));
+    });
+    QTimer::singleShot(kNegotiationTimeout, pipeline, [this, pipeline] {
+        if (m_pipeline == pipeline && m_streamSize.isEmpty())
+            emit failed(Tr::tr("GStreamer did not report the frame size."));
     });
     m_pipeline->start();
 }
@@ -254,14 +273,19 @@ void PortalCapture::stop()
         m_sessionHandle.clear();
     }
     if (!m_fifo.isEmpty()) {
-        // FFmpeg waits in open() until a writer opens the pipe. If GStreamer never opened it,
-        // open it once, so that FFmpeg reads the end of the pipe.
+        // FFmpeg waits in open() until a writer opens the pipe. If GStreamer closed it before
+        // FFmpeg started, open it once, so that FFmpeg reads the end of the pipe.
         const int fd = ::open(m_fifo.toFSPathString().toLocal8Bit().constData(),
                               O_WRONLY | O_NONBLOCK);
         if (fd >= 0)
             ::close(fd);
         m_fifo.removeFile();
     }
+    if (m_fifoReader >= 0) {
+        ::close(m_fifoReader);
+        m_fifoReader = -1;
+    }
+    m_streamSize = {};
 }
 
 #else // QTC_SCREENRECORDER_WITH_PORTAL
