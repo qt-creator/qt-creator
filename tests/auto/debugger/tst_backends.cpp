@@ -2522,6 +2522,8 @@ private slots:
     void launchesThroughTheRemoteLinuxPlatform();
     void explainsWhyLldbDidNotStart_data() { addBackendRows(); }
     void explainsWhyLldbDidNotStart();
+    void relaunchesAQmlRuntimeThatCannotListen_data() { addBackendRows(); }
+    void relaunchesAQmlRuntimeThatCannotListen();
     void reportsAFailedLldbDetach_data() { addBackendRows(); }
     void reportsAFailedLldbDetach();
     void launchesWithTheSymbolFile_data() { addBackendRows(); }
@@ -18605,6 +18607,39 @@ void tst_backends::explainsWhyLldbDidNotStart()
     QCOMPARE(explanations.size(), 1);
     QVERIFY2(explanations.constFirst().contains(missingLldb.toUserOutput()),
              qPrintable(explanations.constFirst()));
+}
+
+void tst_backends::relaunchesAQmlRuntimeThatCannotListen()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend starts a runtime that listens on a port.");
+    if (!HostOsInfo::isLinuxHost())
+        QSKIP("The stand-in runtime is a shell script.");
+
+    // A runtime whose port was taken before it got to it: it says so and keeps
+    // running without a debug server.
+    TemporaryDirectory scratch("qml-port-taken-XXXXXX");
+    const FilePath launches = scratch.filePath("launches");
+    const QString script = QString("echo x >> '%1'; "
+                                   "echo 'QML Debugger: Unable to listen to port 1.' >&2; "
+                                   "exec sleep 600").arg(launches.path());
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = ProcessRunData{{"/bin/sh", {"-c", script}}, {},
+                                                Environment::systemEnvironment()}}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    // Well within the minute a runtime that never listens is waited for.
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QCOMPARE(launches.fileContents().value_or(QByteArray()).count('x'), 4);
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
 }
 
 void tst_backends::reportsAFailedLldbDetach()

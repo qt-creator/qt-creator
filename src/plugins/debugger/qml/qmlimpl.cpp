@@ -118,7 +118,26 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
         emit message(m_inferiorProcess.readAllStandardOutput(), AppOutput);
     });
     connect(&m_inferiorProcess, &Process::readyReadStandardError, this, [this] {
-        emit message(m_inferiorProcess.readAllStandardError(), AppError);
+        const QString output = m_inferiorProcess.readAllStandardError();
+        emit message(output, AppError);
+        // The port was free when it was picked, but something else can take it
+        // before the runtime gets to listen on it. The runtime then keeps running
+        // without a debug server, so it is replaced by one on a new port.
+        if (m_isPortRelaunch || m_connection.isConnected()
+            || !output.contains("QML Debugger: Unable to listen to port")) {
+            return;
+        }
+        m_connection.close();
+        m_reconnectTimer.stop();
+        if (m_listenRetriesLeft-- > 0) {
+            m_isPortRelaunch = true;
+        } else {
+            emit message(QString("The Qml runtime could not listen on port %1.").arg(m_port),
+                         LogError);
+            m_shuttingDown = true;
+            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        }
+        m_inferiorProcess.kill();
     });
     connect(&m_inferiorProcess, &Process::done, this, [this] {
         if (m_inferiorProcess.error() == ProcessError::FailedToStart) {
@@ -128,6 +147,13 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
         }
         if (m_aborting) {
             emit engineProcessFinished(m_inferiorProcess.resultData());
+            return;
+        }
+        if (std::exchange(m_isPortRelaunch, false) && !m_shuttingDown) {
+            QMetaObject::invokeMethod(this, [this] {
+                if (!m_shuttingDown)
+                    launchInferior();
+            }, Qt::QueuedConnection);
             return;
         }
         if (m_isResetRestart) {
@@ -151,7 +177,13 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
         emit inferiorPidKnown(ProcessHandle(m_inferiorProcess.processId()));
     });
 
+    m_reconnectTimer.setSingleShot(true);
+    m_reconnectTimer.setInterval(100);
+    connect(&m_reconnectTimer, &QTimer::timeout, this, &QmlImpl::beginConnection);
+
     connect(&m_connection, &QmlDebug::QmlDebugConnection::connectionFailed, this, [this] {
+        if (m_isPortRelaunch || m_shuttingDown)
+            return;
         // A runtime started here waits for this end ("block") however long it
         // takes to come up, so it gets a generous deadline instead of a count.
         // One that never listens on the port (taken, or no QML debugging) still
@@ -161,7 +193,7 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
                   && !m_connectDeadline.hasExpired()
             : m_connectRetriesLeft-- > 0;
         if (retry) {
-            QTimer::singleShot(100, this, [this] { beginConnection(); });
+            m_reconnectTimer.start();
             return;
         }
         const QString server = m_port != 0
@@ -223,6 +255,8 @@ void QmlImpl::launchInferior()
 
 void QmlImpl::beginConnection()
 {
+    if (m_isPortRelaunch)
+        return;
     if (m_port != 0) {
         m_connection.connectToHost("127.0.0.1", m_port);
         return;
@@ -241,6 +275,7 @@ void QmlImpl::resetTransientState()
     m_disconnected = false;
     m_currentFrameIndex = 0;
     m_connectRetriesLeft = 50;
+    m_listenRetriesLeft = 3;
     m_engineQueryRetriesLeft = 50;
     m_callbackForToken.clear();
     m_pendingCommands.clear();

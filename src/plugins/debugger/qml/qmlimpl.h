@@ -177,6 +177,8 @@ private:
     V8Client *m_v8Client = nullptr;
     QmlDebug::QmlEngineDebugClient *m_engineClient = nullptr;
     int m_connectRetriesLeft = 50;
+    int m_listenRetriesLeft = 3;
+    bool m_isPortRelaunch = false;
     QDeadlineTimer m_connectDeadline;
     QString m_lastConnectionError;
 
@@ -190,6 +192,7 @@ private:
     };
     QHash<int, PendingCommand> m_pendingCommands;
     QTimer m_watchdog;
+    QTimer m_reconnectTimer;
 
     QHash<QString, BreakpointChangeRequest> m_activeBreakpointsByResponseId;
     QHash<QString, QString> m_serviceNumberByResponseId;
