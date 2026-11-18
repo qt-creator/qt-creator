@@ -2293,6 +2293,47 @@ void ClangdTestExternalChanges::test()
 }
 
 
+class ClangdTestBuildConfigurationSwitch final : public ClangdTest
+{
+    Q_OBJECT
+
+public:
+    ClangdTestBuildConfigurationSwitch()
+    {
+        setProjectFileName("tooltips.pro");
+        setSourceFileNames({"main.cpp"});
+    }
+
+private slots:
+    void testPreviousClientShutsDown();
+};
+
+void ClangdTestBuildConfigurationSwitch::testPreviousClientShutsDown()
+{
+    const QPointer<ClangdClient> oldClient = client();
+    QVERIFY(oldClient);
+    Target * const target = project()->activeTarget();
+    QVERIFY(target);
+    BuildConfiguration * const oldBc = oldClient->buildConfiguration();
+    QCOMPARE(oldBc, target->activeBuildConfiguration());
+    BuildConfiguration * const newBc = Utils::findOrDefault(
+        target->buildConfigurations(), [oldBc](BuildConfiguration *bc) { return bc != oldBc; });
+    if (!newBc)
+        QSKIP("The project has only one build configuration.");
+
+    target->setActiveBuildConfiguration(newBc, SetActive::Cascade);
+    waitForNewClient(false);
+    QVERIFY(client());
+    QVERIFY(client() != oldClient);
+    QCOMPARE(client()->buildConfiguration(), newBc);
+
+    // The new client starts only after the old ones were told to shut down
+    QVERIFY2(!oldClient || oldClient->state() == LanguageClient::Client::ShutdownRequested
+                 || oldClient->state() == LanguageClient::Client::Shutdown,
+             "The client of the previously active build configuration keeps running.");
+}
+
+
 class ClangdTestIndirectChanges final : public ClangdTest
 {
     Q_OBJECT
@@ -2855,6 +2896,11 @@ void ClangdTestMcpTools::testSymbols()
     result = runMcpTool(&LanguageClient::lspSymbols, {{"file", filePath("main.cpp").toFSPathString()}});
     QVERIFY(!result);
     QVERIFY2(result.error().contains("query"), qPrintable(result.error()));
+}
+
+QObject *createClangdTestBuildConfigurationSwitch()
+{
+    return new ClangdTestBuildConfigurationSwitch;
 }
 
 QObject *createClangdTestCompletion()

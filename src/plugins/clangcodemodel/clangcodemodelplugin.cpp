@@ -82,6 +82,7 @@ void ClangCodeModelPlugin::initialize()
 
 #ifdef WITH_TESTS
     addTestCreator(createActivationSequenceProcessorTest);
+    addTestCreator(createClangdTestBuildConfigurationSwitch);
     addTestCreator(createClangdTestCompletion);
     addTestCreator(createClangdTestExternalChanges);
     addTestCreator(createClangdTestFindReferences);
