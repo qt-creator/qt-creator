@@ -254,6 +254,7 @@ void DebuggerModel::autoDetectCdbDebuggers(const IDeviceConstPtr &device,
         }
     }
 
+    const int oldCount = itemCount();
     for (const FilePath &cdb : std::as_const(cdbs)) {
         if (DebuggerItemManager::findByCommand(cdb))
             continue;
@@ -267,6 +268,8 @@ void DebuggerModel::autoDetectCdbDebuggers(const IDeviceConstPtr &device,
         if (logger)
             logger.logItem(Tr::tr("Found: \"%1\".").arg(cdb.toUserOutput()));
     }
+    if (logger && itemCount() == oldCount)
+        logger.logItem(Tr::tr("No new CDB found."));
 }
 
 static Utils::FilePaths searchGdbPathsFromRegistry()
@@ -372,6 +375,7 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
 
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for GDB and LLDB..."));
+    const int oldCount = itemCount();
     for (const FilePath &command : std::as_const(suspects)) {
         int existingRow = -1;
         for (int i = 0; i < itemCount(); ++i) {
@@ -460,6 +464,8 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
             }
         }
     }
+    if (logger && itemCount() == oldCount)
+        logger.logItem(Tr::tr("No new GDB or LLDB found."));
 }
 
 void DebuggerModel::autoDetectUvscDebuggers(const ToolDetectionLogger &logger)
@@ -476,6 +482,7 @@ void DebuggerModel::autoDetectUvscDebuggers(const ToolDetectionLogger &logger)
 
     QSettings registry(QLatin1String(kRegistryToken), QSettings::NativeFormat);
     const auto productGroups = registry.childGroups();
+    const int oldCount = itemCount();
     for (const QString &productKey : productGroups) {
         if (!productKey.startsWith("App"))
             continue;
@@ -503,6 +510,8 @@ void DebuggerModel::autoDetectUvscDebuggers(const ToolDetectionLogger &logger)
         if (logger)
             logger.logItem(Tr::tr("Found: \"%1\".").arg(uVision.toUserOutput()));
     }
+    if (logger && itemCount() == oldCount)
+        logger.logItem(Tr::tr("No new uVision found."));
 }
 
 QString DebuggerModel::uniqueDisplayName(const QString &base)
