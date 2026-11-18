@@ -8,6 +8,8 @@
 
 namespace Debugger::Internal {
 
+enum class StopReason : quint8 { None, Breakpoint, Watchpoint, Signal, Exception, Other };
+
 // ThreadData
 
 /*! A structure containing information about a single thread. */
@@ -47,6 +49,11 @@ struct ThreadData
     QString details;
     QString state;
     QString name;
+    // Why the thread stopped, the response id of the breakpoint or watchpoint
+    // it stopped at, and the signal it stopped by.
+    StopReason stopReason = StopReason::None;
+    QString stopBreakpoint;
+    QString stopSignal;
 };
 
 using Threads = QList<ThreadData>;

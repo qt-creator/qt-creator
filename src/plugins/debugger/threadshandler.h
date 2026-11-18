@@ -33,6 +33,8 @@ public:
 
     QString threadToolTip() const;
     QVariant threadPart(int column) const;
+    QString stateText() const;
+    bool isAtBreakpoint() const;
 
     void notifyRunning();
     void notifyStopped();

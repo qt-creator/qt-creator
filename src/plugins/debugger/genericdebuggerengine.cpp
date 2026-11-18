@@ -347,6 +347,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         }
         case RefreshKind::Threads:
             threadsHandler()->setThreads(data);
+            if (std::exchange(m_stopThreadsPending, false) && !m_breakpointStopMessage.isEmpty())
+                showBreakpointStopMessage();
             break;
         case RefreshKind::DebuggingHelpers:
             watchHandler()->addDumpers(data["dumpers"]);
@@ -386,8 +388,11 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     });
     connect(m_backend.get(), &DebuggerEngineInterface::breakpointTriggered, this,
             [this](const QString &responseId, const QString &threadId) {
-        if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(responseId))
-            showStatusMessage(bp->msgBreakpointTriggered(threadId));
+        if (const Breakpoint bp = breakHandler()->findBreakpointByResponseId(responseId)) {
+            m_breakpointStopMessage = bp->msgBreakpointTriggered(threadId);
+            m_breakpointStopThreadId = threadId;
+            showBreakpointStopMessage();
+        }
     });
     connect(m_backend.get(), &DebuggerEngineInterface::watchPointResolved, this,
             [this](quint64, quint64 address, const QString &expr) {
@@ -411,6 +416,9 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         switch (event) {
         case InferiorEvent::RunOk:
             m_attachStopUnread = false;
+            m_breakpointStopMessage.clear();
+            m_breakpointStopThreadId.clear();
+            m_stopThreadsPending = true;
             notifyInferiorRunOk();
             break;
         case InferiorEvent::RunFailed:
@@ -425,12 +433,14 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case InferiorEvent::RunRequested: notifyInferiorRunRequested(); break;
         case InferiorEvent::StopOk:
             notifyInferiorStopOk();
+            m_stopThreadsPending = true;
             reloadStack(settings().maximalStackDepth());
             reloadThreads();
             break;
         case InferiorEvent::StopFailed: notifyInferiorStopFailed(); break;
         case InferiorEvent::SpontaneousStop:
             notifyInferiorSpontaneousStop();
+            m_stopThreadsPending = true;
             reloadStack(settings().maximalStackDepth());
             reloadThreads();
             break;
@@ -449,6 +459,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case InferiorEvent::EngineSpontaneousShutdown: notifyEngineSpontaneousShutdown(); break;
         case InferiorEvent::RunAndInferiorStopOk:
             notifyEngineRunAndInferiorStopOk();
+            m_stopThreadsPending = true;
             reloadStack(settings().maximalStackDepth());
             reloadThreads();
             break;
@@ -1012,6 +1023,29 @@ void GenericDebuggerEngine::reportMissingQtSymbols(const QString &module)
                "Maintenance Tool for this Qt installation to get all relevant "
                "symbols for the debugger.").arg(qtName),
         Key("CdbQtSdkPdbHint"));
+}
+
+// Several threads can stop at a breakpoint at once, and the stop is shown in
+// one of them. The threads of the stop and the breakpoint it is shown at are
+// reported in either order, and the threads only count once they are the
+// ones of this stop. Later reports of the threads during the same stop leave
+// the status alone.
+void GenericDebuggerEngine::showBreakpointStopMessage()
+{
+    int others = 0;
+    if (!m_stopThreadsPending) {
+        threadsHandler()->forItemsAtLevel<1>([this, &others](ThreadItem *thread) {
+            if (thread->id() != m_breakpointStopThreadId && thread->isAtBreakpoint())
+                ++others;
+        });
+    }
+    if (others == 0) {
+        showStatusMessage(m_breakpointStopMessage);
+        return;
+    }
+    showStatusMessage(m_breakpointStopMessage + ' '
+                      + Tr::tr("%n other threads stopped at a breakpoint as well.", nullptr,
+                               others));
 }
 
 void GenericDebuggerEngine::handleStopReasonReported(const QString &reason)

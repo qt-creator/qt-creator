@@ -21,9 +21,11 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
+#include "debuggericons.h"
 #include "debuggerinternalconstants.h"
 #include "debuggeritem.h"
 #include "debuggerkitaspect.h"
+#include "debuggertr.h"
 #include "debuggerrunconfigurationaspect.h"
 #include "debuggerruncontrol.h"
 #include "debuggersourcepathmappingwidget.h"
@@ -44,6 +46,7 @@
 #include "stackframe.h"
 #include "commonoptionspage.h"
 #include "stackhandler.h"
+#include "threadshandler.h"
 #include "watchhandler.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -83,6 +86,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/basetreeview.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -249,6 +253,10 @@ private slots:
     void testStepsIntoACalledFunction();
     void testStepsOverACallWithoutEnteringIt();
     void testStepsOutOfACalledFunction();
+    void testStepsInTheSelectedThreadWhileAnotherSitsAtABreakpoint();
+    void testShowsAThreadThatSitsAtABreakpoint();
+    void testCountsTheOtherThreadsStoppedAtABreakpoint();
+    void testNamesTheSignalAThreadStoppedBy();
     void testMcpStepWaitsForTheNewStop_data();
     void testMcpStepWaitsForTheNewStop();
     void testMcpOperationIsNotCompleteBeforeTheStop_data();
@@ -5710,6 +5718,307 @@ static void addBackendRowsWithGdbDap()
     QTest::newRow("engine") << false << false;
     QTest::newRow("generic") << true << false;
     QTest::newRow("gdb-dap") << false << true;
+}
+
+// One thread stops at a breakpoint while another, created after it, runs on
+// in code of its own. Neither waits in a library, so both have a source line,
+// which is also why the flags are not atomics: their loads are calls at -O0.
+static const char s_hitterAndStepperSource[] = R"CPP(
+#include <thread>
+
+volatile bool stepperStarted = false;
+volatile bool done = false;
+volatile int spins = 0;
+
+void hitter()
+{
+    while (!stepperStarted) {
+    }
+    spins = 0; // MARKER: hit
+    while (!done) {
+    }
+}
+
+void stepper()
+{
+    stepperStarted = true;
+    while (!done) {
+        spins = spins + 1;
+        spins = spins - 1;
+    }
+}
+
+int main()
+{
+    std::thread first(hitter);
+    std::thread second(stepper);
+    first.join();
+    second.join();
+}
+)CPP";
+
+// Only LLDB reports why each thread stopped, and a thread keeps that reason
+// for as long as it does not run.
+static QString reasonTheThreadStopReasonsAreNotUnderTest()
+{
+    if (const QString reason = reasonTheGenericBackendsAreNotUnderTest(); !reason.isEmpty())
+        return reason;
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        return reason;
+    if (DebuggerKitAspect::engineType(kit) != LldbEngineType)
+        return "Only LLDB reports why each thread stopped.";
+    return {};
+}
+
+static ThreadItem *threadIn(DebuggerEngine *engine, const QString &function)
+{
+    return engine->threadsHandler()->findItemAtLevel<1>([&function](ThreadItem *thread) {
+        return thread->threadData.function.startsWith(function);
+    });
+}
+
+// Selects the thread the way a click in the Threads view does, and waits for
+// the stack to show it.
+static QString selectThreadIn(DebuggerEngine *engine, const QString &function)
+{
+    ThreadItem *thread = nullptr;
+    const bool listed = QTest::qWaitFor([engine, &function, &thread] {
+        thread = threadIn(engine, function);
+        return thread != nullptr;
+    }, 30000);
+    if (!listed) {
+        QStringList listedThreads;
+        engine->threadsHandler()->forItemsAtLevel<1>([&listedThreads](ThreadItem *thread) {
+            listedThreads.append(thread->id() + ':' + thread->threadData.function);
+        });
+        return "no thread in " + function + " was listed, only " + listedThreads.join(", ");
+    }
+    QAbstractItemModel *model = engine->threadsHandler()->model();
+    model->setData(engine->threadsHandler()->indexForItem(thread), {},
+                   BaseTreeView::ItemActivatedRole);
+    const bool shown = QTest::qWaitFor([engine, &function] {
+        return engine->stackHandler()->currentFrame().function.startsWith(function);
+    }, 30000);
+    if (!shown) {
+        return "the stack never showed the thread in " + function + ", but "
+               + engine->stackHandler()->currentFrame().function;
+    }
+    return {};
+}
+
+void DebuggerUnitTests::testStepsInTheSelectedThreadWhileAnotherSitsAtABreakpoint()
+{
+    if (const QString reason = reasonTheThreadStopReasonsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    const BackendUnderTest backend(true);
+    SteppingSession session(s_hitterAndStepperSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: hit");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    QVERIFY(session.engine()->stackHandler()->currentFrame().function.startsWith("hitter"));
+
+    const QString selected = selectThreadIn(session.engine(), "stepper");
+    QVERIFY2(selected.isEmpty(), qPrintable(selected));
+
+    // Stepping a line runs the stepping thread alone, so the hitter still
+    // answers with the breakpoint it stopped at, and it has the lower number.
+    QString complaint;
+    const StackFrame frame = stepAndSettle(session.engine(),
+                                           &DebuggerEngine::handleExecStepOver, &complaint);
+    QVERIFY2(complaint.isEmpty(), qPrintable(complaint));
+    QVERIFY2(frame.function.startsWith("stepper"),
+             qPrintable(QString("stepping in stepper() showed the stop in %1:%2")
+                            .arg(frame.function).arg(frame.line)));
+}
+
+void DebuggerUnitTests::testShowsAThreadThatSitsAtABreakpoint()
+{
+    if (const QString reason = reasonTheThreadStopReasonsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    const BackendUnderTest backend(true);
+    SteppingSession session(s_hitterAndStepperSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: hit");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+
+    // The current thread is marked as that, so the mark of a breakpoint only
+    // shows on another one.
+    const QString selected = selectThreadIn(session.engine(), "stepper");
+    QVERIFY2(selected.isEmpty(), qPrintable(selected));
+
+    ThreadsHandler *handler = session.engine()->threadsHandler();
+    ThreadItem *hitter = threadIn(session.engine(), "hitter");
+    ThreadItem *stepper = threadIn(session.engine(), "stepper");
+    QVERIFY(hitter && stepper);
+    QCOMPARE(hitter->threadData.stopReason, StopReason::Breakpoint);
+
+    const Breakpoint bp = session.engine()->breakHandler()->findBreakpointByResponseId(
+        hitter->threadData.stopBreakpoint);
+    QVERIFY2(bp, qPrintable("the hitter stopped at an unknown breakpoint \""
+                            + hitter->threadData.stopBreakpoint + '"'));
+    QCOMPARE(bp->textPosition().line, session.markerLine("MARKER: hit"));
+
+    const QModelIndex hitterIndex = handler->indexForItem(hitter);
+    QCOMPARE(hitterIndex.siblingAtColumn(ThreadData::StateColumn).data().toString(),
+             Tr::tr("Stopped at breakpoint %1").arg(hitter->threadData.stopBreakpoint));
+    const QImage shown = hitterIndex.data(Qt::DecorationRole).value<QIcon>().pixmap(16).toImage();
+    QVERIFY2(shown == Icons::BREAKPOINT.icon().pixmap(16).toImage(),
+             "the thread at the breakpoint carries no breakpoint mark");
+
+    const QModelIndex stepperIndex = handler->indexForItem(stepper);
+    QVERIFY(stepperIndex.data(Qt::DecorationRole).value<QIcon>().pixmap(16).toImage()
+            != Icons::BREAKPOINT.icon().pixmap(16).toImage());
+
+    // A console command reloads the threads, now with another one current.
+    // The thread the stop is shown in is the only one at a breakpoint.
+    QSignalSpy reported(handler, &ThreadsHandler::threadsReported);
+    session.engine()->executeDebuggerCommand("version");
+    QVERIFY2(reported.wait(30000), "the threads were not reported after a console command");
+    // The log is written in batches, and in order: a message would have come
+    // before the marker.
+    const QString marker = "-- the threads of the console command are in --";
+    session.engine()->showMessage(marker, LogMisc);
+    QString log;
+    const bool marked = QTest::qWaitFor([&session, &log, &marker] {
+        log = session.engine()->logWindow()->combinedContents();
+        return log.contains(marker);
+    }, 30000);
+    QVERIFY2(marked, "the marker never reached the log");
+    QVERIFY2(!log.contains("stopped at a breakpoint as well"),
+             qPrintable("the log counts other threads at the breakpoint:\n" + log.right(2000)));
+}
+
+// Threads that run into the same breakpoint over and over, all at once.
+static const char s_crowdedBreakpointSource[] = R"CPP(
+#include <atomic>
+#include <thread>
+#include <vector>
+
+std::atomic<bool> go{false};
+volatile long sink = 0;
+
+void work(int value)
+{
+    sink += value; // MARKER: hit
+}
+
+int main()
+{
+    std::vector<std::thread> threads;
+    for (int t = 0; t < 8; ++t) {
+        threads.emplace_back([t] {
+            while (!go) {
+            }
+            for (int k = 0; k < 100000; ++k)
+                work(t);
+        });
+    }
+    go = true;
+    for (std::thread &thread : threads)
+        thread.join();
+}
+)CPP";
+
+void DebuggerUnitTests::testCountsTheOtherThreadsStoppedAtABreakpoint()
+{
+    if (const QString reason = reasonTheThreadStopReasonsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    const BackendUnderTest backend(true);
+    SteppingSession session(s_crowdedBreakpointSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: hit");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    DebuggerEngine *engine = session.engine();
+
+    int reports = 0;
+    QObject::connect(engine->threadsHandler(), &ThreadsHandler::threadsReported,
+                     engine, [&reports] { ++reports; });
+
+    // Which threads arrive at the breakpoint together is up to the scheduler,
+    // so the stops are taken until one has several.
+    const auto threadsAtBreakpoint = [engine] {
+        int count = 0;
+        engine->threadsHandler()->forItemsAtLevel<1>([&count](ThreadItem *thread) {
+            if (thread->isAtBreakpoint())
+                ++count;
+        });
+        return count;
+    };
+    int atBreakpoint = 0;
+    for (int stop = 0; stop < 50 && atBreakpoint < 2; ++stop) {
+        const int before = reports;
+        engine->handleExecContinue();
+        const bool stopped = QTest::qWaitFor([engine, &reports, before] {
+            return engine->state() == InferiorStopOk && reports > before;
+        }, 30000);
+        QVERIFY2(stopped, qPrintable(QString("stop %1 never arrived").arg(stop)));
+        atBreakpoint = threadsAtBreakpoint();
+    }
+    if (atBreakpoint < 2)
+        QSKIP("No two threads arrived at the breakpoint together in 50 stops.");
+
+    const QString expected = Tr::tr("%n other threads stopped at a breakpoint as well.",
+                                    nullptr, atBreakpoint - 1);
+    const bool shown = QTest::qWaitFor([engine, &expected] {
+        return engine->logWindow()->combinedContents().contains(expected);
+    }, 30000);
+    QVERIFY2(shown, qPrintable("\"" + expected + "\" never appeared. The end of the log:\n"
+                               + engine->logWindow()->combinedContents().right(2000)));
+}
+
+// A thread that aborts, while the others wait for it.
+static const char s_abortingThreadSource[] = R"CPP(
+#include <cstdlib>
+#include <thread>
+
+void aborter()
+{
+    std::abort();
+}
+
+int main()
+{
+    int started = 1; // MARKER: start
+    std::thread thread(aborter);
+    thread.join();
+    return started;
+}
+)CPP";
+
+void DebuggerUnitTests::testNamesTheSignalAThreadStoppedBy()
+{
+    if (const QString reason = reasonTheThreadStopReasonsAreNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    // The box would wait for a click nobody makes.
+    const bool boxWasOn = settings().useMessageBoxForSignals();
+    settings().useMessageBoxForSignals.setValue(false);
+    const QScopeGuard restoreBox([boxWasOn] {
+        settings().useMessageBoxForSignals.setValue(boxWasOn);
+    });
+
+    const BackendUnderTest backend(true);
+    SteppingSession session(s_abortingThreadSource, {"-std=c++17", "-pthread"});
+    const QString problem = session.start("MARKER: start");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    DebuggerEngine *engine = session.engine();
+
+    engine->handleExecContinue();
+    ThreadItem *signalled = nullptr;
+    const bool stopped = QTest::qWaitFor([engine, &signalled] {
+        if (engine->state() != InferiorStopOk)
+            return false;
+        signalled = engine->threadsHandler()->findItemAtLevel<1>([](ThreadItem *thread) {
+            return thread->threadData.stopReason == StopReason::Signal;
+        });
+        return signalled != nullptr;
+    }, 30000);
+    QVERIFY2(stopped, "no thread was reported as stopped by a signal");
+
+    const QModelIndex index = engine->threadsHandler()->indexForItem(signalled);
+    QCOMPARE(index.siblingAtColumn(ThreadData::StateColumn).data().toString(),
+             Tr::tr("Stopped by signal %1").arg("SIGABRT"));
 }
 
 void DebuggerUnitTests::testMcpStepWaitsForTheNewStop_data()

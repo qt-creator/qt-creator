@@ -1640,17 +1640,33 @@ class Dumper(DumperBase):
         value = frame.EvaluateExpression(expression)
         return value.GetValue() if value.IsValid() else None
 
+    @staticmethod
+    def isReportableStopReason(reason):
+        return reason in (lldb.eStopReasonBreakpoint, lldb.eStopReasonException,
+                          lldb.eStopReasonPlanComplete, lldb.eStopReasonSignal,
+                          lldb.eStopReasonWatchpoint)
+
     def firstStoppedThread(self):
         for i in range(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
-            reason = thread.GetStopReason()
-            if (reason == lldb.eStopReasonBreakpoint or
-                    reason == lldb.eStopReasonException or
-                    reason == lldb.eStopReasonPlanComplete or
-                    reason == lldb.eStopReasonSignal or
-                    reason == lldb.eStopReasonWatchpoint):
+            if self.isReportableStopReason(thread.GetStopReason()):
                 return thread
         return None
+
+    # Several threads can stop at once, and a thread that did not run since
+    # the previous stop still answers with the reason it stopped for then:
+    # stepping a line resumes the stepping thread alone. The selected thread
+    # is the one that was stepped or continued, so a reason of its own belongs
+    # to this stop, and a finished step is the next best guess.
+    def threadToReport(self):
+        selected = self.process.GetSelectedThread()
+        if selected.IsValid() and self.isReportableStopReason(selected.GetStopReason()):
+            return selected
+        for i in range(0, self.process.GetNumThreads()):
+            thread = self.process.GetThreadAtIndex(i)
+            if thread.GetStopReason() == lldb.eStopReasonPlanComplete:
+                return thread
+        return self.firstStoppedThread()
 
     def reportStopReason(self, thread):
         # A stop nothing else reports is a bare "Stopped" to the engine: the
@@ -1661,6 +1677,12 @@ class Dumper(DumperBase):
                       lldb.eStopReasonSignal, lldb.eStopReasonException):
             return
         self.report('stopreason="%s"' % self.stopReason(reason))
+
+    def signalName(self, signo):
+        try:
+            return self.process.GetUnixSignals().GetSignalAsCString(signo) or ''
+        except Exception:
+            return ''
 
     def reportSignalStop(self, thread):
         # A spontaneous stop caused by a signal or exception (e.g. SIGSEGV on a
@@ -1674,10 +1696,7 @@ class Dumper(DumperBase):
         signo = None
         if reason == lldb.eStopReasonSignal and thread.GetStopReasonDataCount() > 0:
             signo = thread.GetStopReasonDataAtIndex(0)
-            try:
-                name = self.process.GetUnixSignals().GetSignalAsCString(signo) or ''
-            except Exception:
-                name = ''
+            name = self.signalName(signo)
         # Debugger-control signals used to interrupt/step the inferior are
         # expected and must not be reported as a crash.
         if name in ('SIGINT', 'SIGSTOP', 'SIGCONT', 'SIGTRAP'):
@@ -1712,7 +1731,17 @@ class Dumper(DumperBase):
             result += ',target-id="Thread 0x%x"' % thread.GetThreadID()
             result += ',index="%s"' % i
             result += ',details="%s"' % toCString(thread.GetQueueName() or '')
-            result += ',stop-reason="%s"' % self.stopReason(thread.GetStopReason())
+            result += ',stop-reason="%s"' % self.stopReason(reason)
+            # Named the way breakpointhit and watchpointhit name it.
+            if reason == lldb.eStopReasonBreakpoint and thread.GetStopReasonDataCount() > 0:
+                result += ',stop-breakpoint="%d"' % thread.GetStopReasonDataAtIndex(0)
+            elif reason == lldb.eStopReasonWatchpoint and thread.GetStopReasonDataCount() > 0:
+                result += ',stop-breakpoint="%d"' % (qqWatchpointOffset
+                                                     + thread.GetStopReasonDataAtIndex(0))
+            elif reason == lldb.eStopReasonSignal and thread.GetStopReasonDataCount() > 0:
+                name = self.signalName(thread.GetStopReasonDataAtIndex(0))
+                if name:
+                    result += ',stop-signal="%s"' % name
             result += ',state="%s"' % state
             result += ',name="%s"' % toCString(thread.GetName())
             result += ',frame={'
@@ -2470,7 +2499,7 @@ class Dumper(DumperBase):
                 return
             self.eventState = state
             if state == lldb.eStateStopped:
-                stoppedThread = self.firstStoppedThread()
+                stoppedThread = self.threadToReport()
                 if stoppedThread:
                     frame = stoppedThread.GetFrameAtIndex(0)
                     if self.wantAutoContinue(frame):
@@ -2493,7 +2522,7 @@ class Dumper(DumperBase):
                         # asked for, and the statement it would stop at is
                         # the one after the call just stepped into.
                         self.takeBackInterpreterStep()
-                        stoppedThread = self.firstStoppedThread()
+                        stoppedThread = self.threadToReport()
                     elif self.atQmlStepEscape(stoppedThread):
                         self.report("QML STEP LEFT THE INTERPRETER")
                         self.takeBackInterpreterStep()
@@ -2577,7 +2606,7 @@ class Dumper(DumperBase):
         if eventType == lldb.SBProcess.eBroadcastBitStateChanged:  # 1
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                stoppedThread = self.firstStoppedThread()
+                stoppedThread = self.threadToReport()
                 if stoppedThread:
                     self.process.SetSelectedThread(stoppedThread)
         elif eventType == lldb.SBProcess.eBroadcastBitInterrupt:  # 2

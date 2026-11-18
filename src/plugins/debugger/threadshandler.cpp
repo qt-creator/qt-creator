@@ -67,9 +67,9 @@ QString ThreadItem::threadToolTip() const
     if (!threadData.name.isEmpty())
         str << start << Tr::tr("Name:")
             << sep << threadData.name << end;
-    if (!threadData.state.isEmpty())
+    if (const QString state = stateText(); !state.isEmpty())
         str << start << Tr::tr("State:")
-            << sep << threadData.state << end;
+            << sep << state << end;
     if (!threadData.core.isEmpty())
         str << start << Tr::tr("Core:")
             << sep << threadData.core << end;
@@ -104,7 +104,7 @@ QVariant ThreadItem::threadPart(int column) const
     case ThreadData::CoreColumn:
         return threadData.core;
     case ThreadData::StateColumn:
-        return threadData.state;
+        return stateText();
     case ThreadData::TargetIdColumn:
         if (threadData.targetId.startsWith("Thread "))
             return threadData.targetId.mid(7);
@@ -119,6 +119,35 @@ QVariant ThreadItem::threadPart(int column) const
     return QVariant();
 }
 
+QString ThreadItem::stateText() const
+{
+    const QString &id = threadData.stopBreakpoint;
+    switch (threadData.stopReason) {
+    case StopReason::Breakpoint:
+        return id.isEmpty() ? Tr::tr("Stopped at a breakpoint")
+                            : Tr::tr("Stopped at breakpoint %1").arg(id);
+    case StopReason::Watchpoint:
+        return id.isEmpty() ? Tr::tr("Stopped at a data breakpoint")
+                            : Tr::tr("Stopped at data breakpoint %1").arg(id);
+    case StopReason::Signal:
+        return threadData.stopSignal.isEmpty()
+                   ? Tr::tr("Stopped by a signal")
+                   : Tr::tr("Stopped by signal %1").arg(threadData.stopSignal);
+    case StopReason::Exception:
+        return Tr::tr("Stopped by an exception");
+    case StopReason::None:
+    case StopReason::Other:
+        return threadData.state;
+    }
+    return threadData.state;
+}
+
+bool ThreadItem::isAtBreakpoint() const
+{
+    return threadData.stopReason == StopReason::Breakpoint
+           || threadData.stopReason == StopReason::Watchpoint;
+}
+
 void ThreadItem::notifyRunning() // Clear state information.
 {
     threadData.address = 0;
@@ -126,6 +155,9 @@ void ThreadItem::notifyRunning() // Clear state information.
     threadData.fileName.clear();
     threadData.frameLevel = -1;
     threadData.state.clear();
+    threadData.stopReason = StopReason::None;
+    threadData.stopBreakpoint.clear();
+    threadData.stopSignal.clear();
     threadData.lineNumber = -1;
     threadData.stopped = false;
     update();
@@ -159,6 +191,11 @@ void ThreadItem::mergeThreadData(const ThreadData &other)
         threadData.details = other.details;
     if (!other.state.isEmpty())
         threadData.state = other.state;
+    if (other.stopReason != StopReason::None) {
+        threadData.stopReason = other.stopReason;
+        threadData.stopBreakpoint = other.stopBreakpoint;
+        threadData.stopSignal = other.stopSignal;
+    }
     if (other.lineNumber != -1)
         threadData.lineNumber = other.lineNumber;
     update();
@@ -199,10 +236,16 @@ ThreadsHandler::~ThreadsHandler()
 QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DecorationRole && index.column() == 0) {
-        // Return icon that indicates whether this is the active thread.
-        TreeItem *item = itemForIndex(index);
+        // Return icon that indicates whether this is the active thread, or
+        // one that stopped at a breakpoint.
+        ThreadItem *item = itemForIndexAtLevel<1>(index);
         if (item && item == m_currentThread)
             return Icons::LOCATION.icon();
+        if (item && item->isAtBreakpoint()) {
+            return item->threadData.stopReason == StopReason::Watchpoint
+                       ? Icons::WATCHPOINT.icon()
+                       : Icons::BREAKPOINT.icon();
+        }
         return Icons::EMPTY.icon();
     }
 
@@ -353,6 +396,22 @@ void ThreadsHandler::notifyThreadsReported()
     emit threadsReported();
 }
 
+// The words are the ones lldbbridge.py's stopReason() uses.
+static StopReason stopReasonFromBackend(const QString &reason)
+{
+    if (reason.isEmpty() || reason == "none" || reason == "invalid")
+        return StopReason::None;
+    if (reason == "breakpoint")
+        return StopReason::Breakpoint;
+    if (reason == "watchpoint")
+        return StopReason::Watchpoint;
+    if (reason == "signal")
+        return StopReason::Signal;
+    if (reason == "exception")
+        return StopReason::Exception;
+    return StopReason::Other;
+}
+
 void ThreadsHandler::setThreads(const GdbMi &data)
 {
     // The items, and with them m_currentThread, go away right below.
@@ -379,6 +438,9 @@ void ThreadsHandler::setThreads(const GdbMi &data)
         thread.lineNumber = frame["line"].toInt();
         thread.module = frame["from"].data();
         thread.name = item["name"].data();
+        thread.stopReason = stopReasonFromBackend(item["stop-reason"].data());
+        thread.stopBreakpoint = item["stop-breakpoint"].data();
+        thread.stopSignal = item["stop-signal"].data();
         thread.stopped = thread.state != "running";
         updateThread(thread);
     }

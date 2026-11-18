@@ -99,6 +99,7 @@ private:
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
     void handleStopReasonReported(const QString &reason);
+    void showBreakpointStopMessage();
     void askAboutQtSymbols(const Utils::FilePath &module);
     void reportMissingQtSymbols(const QString &module);
     void handleNotResponding(std::chrono::seconds waited, const QStringList &pendingCommands,
@@ -152,6 +153,9 @@ private:
     QHash<quint64, QPointer<DisassemblerAgent>> m_pendingDisassemblyRequests;
     bool m_notRespondingPending = false;
     bool m_attachStopUnread = false;
+    QString m_breakpointStopMessage;
+    QString m_breakpointStopThreadId;
+    bool m_stopThreadsPending = true;
 
     friend class DebuggerUnitTests;
 };
