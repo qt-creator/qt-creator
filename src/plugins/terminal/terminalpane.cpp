@@ -256,7 +256,6 @@ QWidget *TerminalPane::outputWidget(QWidget *parent)
     if (!m_widgetInitialized) {
         m_widgetInitialized = true;
         m_tabWidget.setTabBarAutoHide(false);
-        m_tabWidget.setDocumentMode(true);
         m_tabWidget.setTabsClosable(true);
         m_tabWidget.setMovable(true);
 

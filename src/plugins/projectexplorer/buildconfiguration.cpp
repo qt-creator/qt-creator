@@ -41,7 +41,6 @@
 #include <utils/variablechooser.h>
 
 #include <QCheckBox>
-#include <QDebug>
 #include <QFormLayout>
 #include <QLoggingCategory>
 #include <QVBoxLayout>
@@ -657,9 +656,8 @@ void BuildConfiguration::updateDefaultDeployConfigurations()
 {
     const QList<DeployConfigurationFactory *> dcFactories = DeployConfigurationFactory::find(
         target());
-    QTC_ASSERT(!dcFactories.isEmpty(),
-               qDebug() << "No deploy configuration factories found for target:" << target()->id();
-               return);
+    if (dcFactories.isEmpty()) // E.g. the kit has errors for this project.
+        return;
 
     QList<Utils::Id> dcIds;
     for (const DeployConfigurationFactory *dcFactory : dcFactories)

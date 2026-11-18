@@ -269,6 +269,12 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     }
 }
 
+DocumentTabBar::DocumentTabBar(QWidget *parent)
+    : QTabBar(parent)
+{
+    setDocumentMode(true);
+}
+
 void DocumentTabBar::mousePressEvent(QMouseEvent *event)
 {
     if (tabsClosable() && event->button() == Qt::MiddleButton)

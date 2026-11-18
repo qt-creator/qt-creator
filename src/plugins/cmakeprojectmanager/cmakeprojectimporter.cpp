@@ -4,6 +4,7 @@
 #include "cmakeprojectimporter.h"
 
 #include "cmakebuildconfiguration.h"
+#include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
 #include "cmakeproject.h"
@@ -23,6 +24,7 @@
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildpropertiessettings.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -32,6 +34,7 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -2266,6 +2269,7 @@ void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 #include <utils/detailswidget.h>
 
 #include <QCheckBox>
+#include <QPointer>
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
@@ -2288,6 +2292,7 @@ private slots:
     void testPresetKitsOfOtherProjectsAreFiltered();
     void testPresetProbeIsReusedUntilThePresetChanges();
     void testPresetProbeIsRedoneWhenTheEnvironmentChanges();
+    void testBuildStepWidgetOutlivesItsStep();
     void testBrokenPresetKeepsTheKitsOfTheOthers();
     void testSetupPageSelectsTheKitsOfTheVendorKey();
     void testSetupPageSelectsTheKitsOfReloadedPresets_data();
@@ -2682,6 +2687,62 @@ void CMakeProjectImporterTest::testPresetProbeIsRedoneWhenTheEnvironmentChanges(
         !marker.exists(), "A changed environment probes into a directory of its own.", 30000);
 
     deregisterPresetKits(project);
+}
+
+void CMakeProjectImporterTest::testBuildStepWidgetOutlivesItsStep()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("build-step-widget");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "preset",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++",
+                    "CMAKE_BUILD_TYPE": "Debug"
+                }
+            }
+        ]
+    })"));
+
+    CMakeProject project(projectDir / Constants::CMAKE_LISTS_TXT);
+    const auto deregisterKits = qScopeGuard([&project] { deregisterPresetKits(project); });
+    const QList<Id> presetKitIds = project.presetKitIds();
+    QCOMPARE(presetKitIds.size(), 1);
+    Kit * const kit = KitManager::kit(presetKitIds.first());
+    QVERIFY(kit);
+
+    Target * const target = project.addTargetForKit(kit);
+    QVERIFY(target);
+    BuildConfiguration * const bc = target->activeBuildConfiguration();
+    QVERIFY(bc);
+    QVERIFY(bc->buildSteps()->count() > 0);
+    const QPointer<BuildStep> step = bc->buildSteps()->at(0);
+
+    // The Projects mode keeps the widgets of a removed target until it rebuilds its pages
+    const std::unique_ptr<QWidget> widget(step->doCreateConfigWidget());
+    project.removeTarget(target);
+    QVERIFY(!step);
+
+    // Reuse the memory of the deleted step, so that using it crashes
+    std::vector<std::unique_ptr<char[]>> reused;
+    for (int i = 0; i < 4000; ++i) {
+        reused.emplace_back(new char[sizeof(CMakeBuildStep)]);
+        std::memset(reused.back().get(), 0xcd, sizeof(CMakeBuildStep));
+    }
+
+    // What removing the next target of a project does, e.g. on reloading the presets
+    emit ProjectManager::instance()->activeBuildConfigurationChanged(nullptr);
 }
 
 // QTCREATORBUG-34838

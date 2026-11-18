@@ -7,6 +7,7 @@
 
 namespace ClangCodeModel::Internal {
 
+QObject *createClangdTestBuildConfigurationSwitch();
 QObject *createClangdTestCompletion();
 QObject *createClangdTestExternalChanges();
 QObject *createClangdTestFindReferences();

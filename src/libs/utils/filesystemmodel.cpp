@@ -437,18 +437,26 @@ void FileSystemModelPrivate::applyChildrenDiff(
         if (!newPathIndex.contains(node->m_children[i]->m_path))
             toRemove.append(i);
     }
-    for (int i = toRemove.size() - 1; i >= 0; --i) {
-        const int row = toRemove[i];
-        m_q->beginRemoveRows(parentIndex, row, row);
-        FileSystemNode *child = node->m_children.takeAt(row);
-        removeNodeFromIndex(child);
-        delete child;
+    for (int i = toRemove.size() - 1; i >= 0;) {
+        // Collect block of contiguous rows and remove them within one removeRows block.
+        int blockStart = i;
+        while (blockStart > 0 && toRemove[blockStart - 1] == toRemove[blockStart] - 1)
+            --blockStart;
+        const int first = toRemove[blockStart];
+        const int last = toRemove[i];
+        i = blockStart - 1;
+
+        m_q->beginRemoveRows(parentIndex, first, last);
+        for (int row = last; row >= first; --row) {
+            FileSystemNode *child = node->m_children.takeAt(row);
+            removeNodeFromIndex(child);
+            delete child;
+        }
+        // Correct rows before endRemoveRows(), since that can trigger code that relies on them.
+        for (int row = first; row < node->m_children.size(); ++row)
+            node->m_children[row]->m_row = row;
         m_q->endRemoveRows();
     }
-
-    // Re-number after removals
-    for (int i = 0; i < node->m_children.size(); ++i)
-        node->m_children[i]->m_row = i;
 
     // Update info for surviving children; collect changed rows for dataChanged
     int minChanged = INT_MAX, maxChanged = INT_MIN;
