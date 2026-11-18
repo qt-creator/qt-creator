@@ -6,6 +6,8 @@
 #include <QFontMetrics>
 #include <QPainter>
 #include <QStyle>
+#include <QTextDocument>
+#include <QTextDocumentFragment>
 
 /*!
     \class Utils::ElidingLabel
@@ -13,9 +15,21 @@
 
     \brief The ElidingLabel class is a label suitable for displaying elided
     text.
+
+    Rich text is elided as the plain text it shows. A link spanning the whole
+    text stays clickable while elided.
 */
 
 namespace Utils {
+
+static QString shownText(const QLabel *label)
+{
+    const QString text = label->text();
+    const Qt::TextFormat format = label->textFormat();
+    if (format == Qt::RichText || (format == Qt::AutoText && Qt::mightBeRichText(text)))
+        return QTextDocumentFragment::fromHtml(text).toPlainText();
+    return text;
+}
 
 ElidingLabel::ElidingLabel(QWidget *parent)
     : ElidingLabel({}, parent)
@@ -67,7 +81,7 @@ void ElidingLabel::paintEvent(QPaintEvent *)
     const int m = margin();
     const QRect contents = contentsRect().adjusted(m, m, -m, -m);
     const QFontMetrics fm = fontMetrics();
-    const QString txt = text();
+    const QString txt = shownText(this);
     const bool elide = txt.size() > 4 && fm.horizontalAdvance(txt) > contents.width();
 
     // QLabelPrivate::layoutRect() clamps the vertical offset at 0, so a label

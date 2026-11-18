@@ -618,6 +618,7 @@ private slots:
     void testChatPanelElicitationWizardStepLabelScale();
     void testChatPanelElicitationDecline();
     void testChatPanelElicitationUnsupportedRequired();
+    void testMessageViewElicitationLongUrl();
     void testChatPanelElicitationNumberPrecision();
     void testChatPanelClearAnswersPendingRequests();
     void testChatPanelActivity();
@@ -3307,6 +3308,41 @@ void AcpClientTest::testChatPanelElicitationUnsupportedRequired()
     Utils::QtcButton *decline = findButton(panel.messageView(), "Decline");
     QVERIFY(decline);
     QVERIFY(decline->isEnabled());
+}
+
+// A URL longer than the chat is wide is shortened to fit, rather than widening
+// the chat beyond its view.
+void AcpClientTest::testMessageViewElicitationLongUrl()
+{
+    AcpMessageView view;
+    view.resize(400, 800);
+    view.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&view));
+
+    const QString url = "https://example.com/authorize?code_challenge=" + QString(300, 'x');
+    ElicitationRequest request;
+    request.message = "Authenticate";
+    request.mode = ElicitationRequest::Mode::Url;
+    request.url = url;
+    view.addElicitationRequest(QJsonValue(10), request);
+
+    QLabel *link = nullptr;
+    QTRY_VERIFY((link = Utils::findOrDefault(view.findChildren<QLabel *>(), [&](QLabel *l) {
+                     return l->text().contains(QString("href=\"%1\"").arg(url))
+                            && l->isVisible();
+                 })));
+    // The card is laid out, and the container resized to it, on posted layout
+    // requests.
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::LayoutRequest);
+    const auto rightEdge = [&] {
+        return link->mapTo(view.viewport(), QPoint(link->width(), 0)).x();
+    };
+    QVERIFY2(rightEdge() <= view.viewport()->width(),
+             qPrintable(QString("link ends at %1, viewport %2")
+                            .arg(rightEdge())
+                            .arg(view.viewport()->width())));
+    // The full URL is offered as tool tip once it is shown elided.
+    QTRY_COMPARE(link->toolTip(), url);
 }
 
 // A "number" property is a plain double: the entered and reported value keeps

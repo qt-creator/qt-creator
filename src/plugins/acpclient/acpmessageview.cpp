@@ -1632,11 +1632,15 @@ private:
 
     void buildUrl(const QString &url)
     {
-        auto *link = new QLabel(this);
+        auto *link = new Utils::ElidingLabel(this);
+        link->setElideMode(Qt::ElideMiddle);
         link->setTextFormat(Qt::RichText);
         link->setOpenExternalLinks(true);
         link->setTextInteractionFlags(Qt::TextBrowserInteraction);
         const QColor linkColor = Utils::creatorColor(Utils::Theme::TextColorLink);
+        QPalette pal = link->palette();
+        pal.setColor(QPalette::WindowText, linkColor);
+        link->setPalette(pal);
         link->setText(QStringLiteral("<a href=\"%1\" style=\"color:%2;\">%1</a>")
                           .arg(url.toHtmlEscaped(), linkColor.name()));
         m_bodyLayout->addWidget(link);
