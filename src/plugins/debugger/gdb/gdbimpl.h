@@ -268,6 +268,8 @@ private:
     // The companion a fork catchpoint needs for vfork, by its own number.
     QHash<QString, QString> m_catchpointCompanions;
 };
+GdbMi withThreadStops(const GdbMi &threadInfo, const GdbMi &stops);
+
 } // namespace Debugger::Internal
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Debugger::Internal::GdbImplFlags)

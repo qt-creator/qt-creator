@@ -1285,7 +1285,7 @@ void GdbEngine::updateAll()
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     runCommand(cmd);
     stackHandler()->setCurrentIndex(0);
-    runCommand({"-thread-info", CB(handleThreadInfo)});
+    reloadThreadInfo(0);
     reloadRegisters();
     reloadPeripheralRegisters();
     updateLocals();
@@ -1615,6 +1615,8 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
     const QString reason = data["reason"].data();
     const DebuggerRunParameters &rp = runParameters();
+    m_breakpointStopMessage.clear();
+    m_breakpointStopThreadId.clear();
 
     bool isStopperThread = false;
 
@@ -1680,6 +1682,8 @@ void GdbEngine::handleStop2(const GdbMi &data)
                 notifyInferiorRunOk();
                 return;
             }
+            m_breakpointStopMessage = bp->msgBreakpointTriggered(threadId);
+            m_breakpointStopThreadId = threadId;
         }
     } else {
         QString reasontr = msgStopped(reason);
@@ -1726,7 +1730,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
 void GdbEngine::handleStop3()
 {
     if (!usesTerminal() || state() != InferiorRunOk)
-        runCommand({"-thread-info", Discardable, CB(handleThreadInfo)});
+        reloadThreadInfo(Discardable);
 }
 
 void GdbEngine::handleShowVersion(const DebuggerResponse &response)
@@ -3457,12 +3461,32 @@ void GdbEngine::activateFrame(int frameIndex)
     reloadPeripheralRegisters();
 }
 
-void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
+// The breakpoint hits gdb holds back are asked for first, so that the threads
+// are reported as early as without them. gdb answers in order, unless the
+// dumpers hold the question back.
+void GdbEngine::reloadThreadInfo(int flags)
+{
+    const auto stops = std::make_shared<GdbMi>();
+    runCommand({"fetchThreadStops", flags, [stops](const DebuggerResponse &response) {
+                    *stops = response.data["threads"];
+                }});
+    runCommand({"-thread-info", flags, [this, stops](const DebuggerResponse &response) {
+                    handleThreadInfo(response, *stops);
+                }});
+}
+
+void GdbEngine::handleThreadInfo(const DebuggerResponse &response, const GdbMi &stops)
 {
     if (response.resultClass == ResultDone) {
         ThreadsHandler *handler = threadsHandler();
-        handler->setThreads(response.data);
+        handler->setThreads(withThreadStops(response.data, stops));
         updateState(); // Adjust Threads combobox.
+        // The stop is shown before its threads are known.
+        const QString message = std::exchange(m_breakpointStopMessage, {});
+        const QString note = handler->otherThreadsAtBreakpointNote(
+            std::exchange(m_breakpointStopThreadId, {}));
+        if (!message.isEmpty() && !note.isEmpty())
+            showStatusMessage(message + ' ' + note);
         if (settings().showThreadNames()) {
             runCommand({QString("threadnames %1").arg(settings().maximalStackDepth()),
                 Discardable, CB(handleThreadNames)});
@@ -3505,7 +3529,6 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
         updateState();
     }
 }
-
 
 //////////////////////////////////////////////////////////////////////
 //

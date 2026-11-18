@@ -939,6 +939,41 @@ static QString reverseBacktrace(const QString &trace)
     return result;
 }
 
+// Adds the fields fetchThreadStops reports for a thread to what -thread-info
+// says about it.
+GdbMi withThreadStops(const GdbMi &threadInfo, const GdbMi &stops)
+{
+    if (stops.childCount() == 0)
+        return threadInfo;
+    QHash<QString, GdbMi> stopById;
+    for (const GdbMi &stop : stops)
+        stopById.insert(stop["id"].data(), stop);
+    GdbMi result;
+    result.m_type = threadInfo.type();
+    result.m_name = threadInfo.name();
+    for (const GdbMi &child : threadInfo) {
+        if (child.name() != "threads") {
+            result.addChild(child);
+            continue;
+        }
+        GdbMi threads;
+        threads.m_type = child.type();
+        threads.m_name = child.name();
+        for (const GdbMi &thread : child) {
+            GdbMi merged = thread;
+            if (const auto it = stopById.constFind(thread["id"].data()); it != stopById.cend()) {
+                for (const GdbMi &field : *it) {
+                    if (field.name() != "id")
+                        merged.addChild(field);
+                }
+            }
+            threads.addChild(merged);
+        }
+        result.addChild(threads);
+    }
+    return result;
+}
+
 void GdbImpl::refresh(const RefreshRequest &request)
 {
     const quint64 requestId = request.requestId;
@@ -1002,8 +1037,19 @@ void GdbImpl::refresh(const RefreshRequest &request)
         return;
     }
     case RefreshKind::Threads: {
-        runCommand({"-thread-info", [this, requestId](const DebuggerResponse &response) {
-            emit refreshDataReceived(requestId, RefreshKind::Threads, response.data);
+        // Asked first, so that the threads are reported as early as without it.
+        // gdb answers in order, unless the dumpers hold the question back.
+        const auto stops = std::make_shared<GdbMi>();
+        DebuggerCommand cmd("fetchThreadStops");
+        cmd.callback = [stops](const DebuggerResponse &response) {
+            *stops = response.data["threads"];
+        };
+        runCommand(cmd);
+        runCommand({"-thread-info", [this, requestId, stops](const DebuggerResponse &response) {
+            emit refreshDataReceived(requestId, RefreshKind::Threads,
+                                     response.resultClass == ResultDone
+                                         ? withThreadStops(response.data, *stops)
+                                         : response.data);
         }});
         return;
     }

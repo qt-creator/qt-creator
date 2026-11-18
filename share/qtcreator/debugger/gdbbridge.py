@@ -200,6 +200,9 @@ class Dumper(DumperBase):
         self.nativeCallHookChecked = False
         self.nativeCallHookSymbol = None
         self.qmlToCppStepInBreakpoint = None
+        # The pc of every breakpoint hit gdb reported, by thread, for as long
+        # as the thread stays there.
+        self.reportedBreakpointHits = {}
 
     def warn(self, message):
         print('bridgemessage={msg="%s"},' % message.replace('"', '$').encode('latin1'))
@@ -1436,6 +1439,74 @@ class Dumper(DumperBase):
     #                pass
     #    return out
 
+    def rememberReportedBreakpointHit(self, event):
+        if not isinstance(event, gdb.BreakpointEvent):
+            return
+        thread = gdb.selected_thread()
+        if thread is not None:
+            self.reportedBreakpointHits[thread.global_num] = int(gdb.newest_frame().pc())
+
+    @staticmethod
+    def isBreakpointTrap(siginfo):
+        # SIGTRAP from an int3 (SI_KERNEL), or a software or hardware
+        # breakpoint (TRAP_BRKPT, TRAP_HWBKPT).
+        return int(siginfo['si_signo']) == 5 and int(siginfo['si_code']) in (0x80, 1, 4)
+
+    # gdb reports the breakpoint hits of several threads one stop at a time,
+    # and holds the others back for the stops that follow. A thread with a hit
+    # held back sits at the breakpoint with a breakpoint trap as the signal it
+    # stopped for. So does a thread whose hit was reported and that did not run
+    # since, which is why the reported ones are remembered. A thread that runs
+    # into the same breakpoint again unseen is taken for a reported one.
+    def fetchThreadStops(self, args):
+        addresses = {}
+        for bp in gdb.breakpoints():
+            if not bp.enabled or bp.type != gdb.BP_BREAKPOINT:
+                continue
+            # gdb decides about these only when it gets to the hit, and
+            # resumes the thread silently if it does not count.
+            if bp.condition or bp.ignore_count > 0 or bp.thread is not None:
+                continue
+            for location in getattr(bp, 'locations', []):
+                if location.enabled and location.address is not None:
+                    addresses[int(location.address)] = bp.number
+        result = 'threads=['
+        selectedThread = gdb.selected_thread()
+        try:
+            selectedFrame = gdb.selected_frame()
+        except gdb.error:
+            selectedFrame = None
+        try:
+            for thread in self.selectedInferior().threads():
+                if not thread.is_stopped():
+                    continue
+                thread.switch()
+                pc = int(gdb.newest_frame().pc())
+                number = thread.global_num
+                reportedAt = self.reportedBreakpointHits.get(number)
+                if reportedAt is not None and reportedAt != pc:
+                    del self.reportedBreakpointHits[number]
+                    reportedAt = None
+                if pc not in addresses:
+                    continue
+                try:
+                    trapped = self.isBreakpointTrap(gdb.parse_and_eval('$_siginfo'))
+                except gdb.error:
+                    trapped = False
+                if not trapped:
+                    self.reportedBreakpointHits.pop(number, None)
+                    continue
+                if reportedAt is not None:
+                    continue
+                result += '{id="%d",stop-reason="breakpoint",stop-breakpoint="%d",' \
+                          'stop-pending="1"},' % (number, addresses[pc])
+        finally:
+            if selectedThread is not None and selectedThread.is_valid():
+                selectedThread.switch()
+                if selectedFrame is not None and selectedFrame.is_valid():
+                    selectedFrame.select()
+        self.reportResult(result + ']', args)
+
     def threadnames(self, maximalStackDepth):
         # FIXME: This needs a proper implementation for MinGW, and only there.
         # Linux, Mac and QNX mirror the objectName() to the underlying threads,
@@ -2525,3 +2596,4 @@ def interpreterStopHandler(event):
 
 
 gdb.events.stop.connect(interpreterStopHandler)
+gdb.events.stop.connect(theDumper.rememberReportedBreakpointHit)

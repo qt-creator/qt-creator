@@ -1304,20 +1304,12 @@ void GenericDebuggerEngine::reportMissingQtSymbols(const QString &module)
 // the status alone.
 void GenericDebuggerEngine::showBreakpointStopMessage()
 {
-    int others = 0;
-    if (!m_stopThreadsPending) {
-        threadsHandler()->forItemsAtLevel<1>([this, &others](ThreadItem *thread) {
-            if (thread->id() != m_breakpointStopThreadId && thread->isAtBreakpoint())
-                ++others;
-        });
-    }
-    if (others == 0) {
-        showStatusMessage(m_breakpointStopMessage);
-        return;
-    }
-    showStatusMessage(m_breakpointStopMessage + ' '
-                      + Tr::tr("%n other threads stopped at a breakpoint as well.", nullptr,
-                               others));
+    const QString note = m_stopThreadsPending
+                             ? QString()
+                             : threadsHandler()->otherThreadsAtBreakpointNote(
+                                   m_breakpointStopThreadId);
+    showStatusMessage(note.isEmpty() ? m_breakpointStopMessage
+                                     : m_breakpointStopMessage + ' ' + note);
 }
 
 void GenericDebuggerEngine::handleStopReasonReported(const QString &reason)

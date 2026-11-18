@@ -124,6 +124,10 @@ QString ThreadItem::stateText() const
     const QString &id = threadData.stopBreakpoint;
     switch (threadData.stopReason) {
     case StopReason::Breakpoint:
+        if (threadData.stopPending) {
+            return id.isEmpty() ? Tr::tr("Hit a breakpoint, shown on continuing")
+                                : Tr::tr("Hit breakpoint %1, shown on continuing").arg(id);
+        }
         return id.isEmpty() ? Tr::tr("Stopped at a breakpoint")
                             : Tr::tr("Stopped at breakpoint %1").arg(id);
     case StopReason::Watchpoint:
@@ -158,6 +162,7 @@ void ThreadItem::notifyRunning() // Clear state information.
     threadData.stopReason = StopReason::None;
     threadData.stopBreakpoint.clear();
     threadData.stopSignal.clear();
+    threadData.stopPending = false;
     threadData.lineNumber = -1;
     threadData.stopped = false;
     update();
@@ -195,6 +200,7 @@ void ThreadItem::mergeThreadData(const ThreadData &other)
         threadData.stopReason = other.stopReason;
         threadData.stopBreakpoint = other.stopBreakpoint;
         threadData.stopSignal = other.stopSignal;
+        threadData.stopPending = other.stopPending;
     }
     if (other.lineNumber != -1)
         threadData.lineNumber = other.lineNumber;
@@ -390,6 +396,31 @@ QPointer<QComboBox> ThreadsHandler::threadSwitcher()
     return m_comboBox;
 }
 
+// Several threads can stop at a breakpoint at once, and the stop is shown in
+// one of them, the one with stopThreadId. Says what became of the others, or
+// nothing if there are none.
+QString ThreadsHandler::otherThreadsAtBreakpointNote(const QString &stopThreadId) const
+{
+    int stopped = 0;
+    int pending = 0;
+    forItemsAtLevel<1>([&stopThreadId, &stopped, &pending](ThreadItem *thread) {
+        if (thread->id() == stopThreadId || !thread->isAtBreakpoint())
+            return;
+        if (thread->threadData.stopPending)
+            ++pending;
+        else
+            ++stopped;
+    });
+    QStringList notes;
+    if (stopped > 0)
+        notes.append(Tr::tr("%n other threads stopped at a breakpoint as well.", nullptr, stopped));
+    if (pending > 0) {
+        notes.append(Tr::tr("%n other threads hit a breakpoint, which continuing shows.", nullptr,
+                            pending));
+    }
+    return notes.join(' ');
+}
+
 // For engines that report the threads one by one: the report of a stop is complete.
 void ThreadsHandler::notifyThreadsReported()
 {
@@ -441,6 +472,7 @@ void ThreadsHandler::setThreads(const GdbMi &data)
         thread.stopReason = stopReasonFromBackend(item["stop-reason"].data());
         thread.stopBreakpoint = item["stop-breakpoint"].data();
         thread.stopSignal = item["stop-signal"].data();
+        thread.stopPending = item["stop-pending"].data() == "1";
         thread.stopped = thread.state != "running";
         updateThread(thread);
     }

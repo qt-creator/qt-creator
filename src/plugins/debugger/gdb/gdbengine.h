@@ -286,7 +286,8 @@ private: ////////// General Interface //////////
     void updateAll() final;
     void handleStackListFrames(const DebuggerResponse &response, bool isFull);
     void handleThreadListIds(const DebuggerResponse &response);
-    void handleThreadInfo(const DebuggerResponse &response);
+    void reloadThreadInfo(int flags);
+    void handleThreadInfo(const DebuggerResponse &response, const GdbMi &stops);
     void handleThreadNames(const DebuggerResponse &response);
     DebuggerCommand stackCommand(int depth);
     void reloadStack();
@@ -335,6 +336,8 @@ private: ////////// General Interface //////////
     bool m_inNativeMixedStep = false;
 
     QString m_lastWinException;
+    QString m_breakpointStopMessage;
+    QString m_breakpointStopThreadId;
     bool m_expectTerminalTrap = false;
     bool usesExecInterrupt() const;
     bool usesTargetAsync() const;

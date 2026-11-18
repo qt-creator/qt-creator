@@ -50,10 +50,12 @@ struct ThreadData
     QString state;
     QString name;
     // Why the thread stopped, the response id of the breakpoint or watchpoint
-    // it stopped at, and the signal it stopped by.
+    // it stopped at, and the signal it stopped by. A pending stop is one the
+    // debugger holds back for a later stop.
     StopReason stopReason = StopReason::None;
     QString stopBreakpoint;
     QString stopSignal;
+    bool stopPending = false;
 };
 
 using Threads = QList<ThreadData>;

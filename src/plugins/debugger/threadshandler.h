@@ -64,6 +64,7 @@ public:
     void updateThread(const ThreadData &threadData);
     void setThreads(const GdbMi &data);
     void notifyThreadsReported();
+    QString otherThreadsAtBreakpointNote(const QString &stopThreadId) const;
 
     void removeThread(const QString &id);
     void removeAll();

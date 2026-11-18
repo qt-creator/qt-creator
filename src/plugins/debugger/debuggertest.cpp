@@ -283,6 +283,8 @@ private slots:
     void testShowsAThreadThatSitsAtABreakpoint();
     void testCountsTheOtherThreadsStoppedAtABreakpoint();
     void testNamesTheSignalAThreadStoppedBy();
+    void testMarksTheBreakpointHitsGdbHoldsBack_data();
+    void testMarksTheBreakpointHitsGdbHoldsBack();
     void testMcpStepWaitsForTheNewStop_data();
     void testMcpStepWaitsForTheNewStop();
     void testMcpOperationIsNotCompleteBeforeTheStop_data();
@@ -6277,6 +6279,7 @@ public:
         params.fileName = m_source;
         params.textPosition = {m_line, -1};
         params.enabled = true;
+        params.condition = m_breakpointCondition;
         m_breakpoint = BreakpointManager::createBreakpoint(params);
 
         QString channel;
@@ -6354,6 +6357,8 @@ public:
         m_startServer = startServer;
     }
     bool hasEnded() const { return m_stopped; }
+    // Puts the breakpoint start() runs to under a condition.
+    void setBreakpointCondition(const QString &condition) { m_breakpointCondition = condition; }
     // Why start() did not get to a session that it could test.
     QString skipReason() const { return m_skipReason; }
 
@@ -6383,6 +6388,7 @@ private:
     bool m_warnedAboutBreakpoints = false;
     bool m_gdbDap = false;
     std::function<Result<QString>(const FilePath &)> m_startServer;
+    QString m_breakpointCondition;
     QString m_skipReason;
     int m_line = 0;
 };
@@ -7392,6 +7398,166 @@ void DebuggerUnitTests::testNamesTheSignalAThreadStoppedBy()
     const QModelIndex index = engine->threadsHandler()->indexForItem(signalled);
     QCOMPARE(index.siblingAtColumn(ThreadData::StateColumn).data().toString(),
              Tr::tr("Stopped by signal %1").arg("SIGABRT"));
+}
+
+// Threads that each run into the breakpoint once, at about the same time, and
+// then wait without coming back to it.
+static const char s_onceEachSource[] = R"CPP(
+#include <thread>
+#include <vector>
+
+volatile bool go = false;
+volatile bool done = false;
+volatile int sink = 0;
+
+void hit(int value)
+{
+    sink = value; // MARKER: hit
+}
+
+int main()
+{
+    std::vector<std::thread> threads;
+    for (int t = 0; t < 8; ++t) {
+        threads.emplace_back([t] {
+            while (!go) {
+            }
+            hit(t);
+            while (!done) {
+            }
+        });
+    }
+    go = true;
+    for (std::thread &thread : threads)
+        thread.join();
+}
+)CPP";
+
+void DebuggerUnitTests::testMarksTheBreakpointHitsGdbHoldsBack_data()
+{
+    QTest::addColumn<bool>("generic");
+    QTest::addColumn<QString>("condition");
+    QTest::newRow("engine") << false << QString();
+    QTest::newRow("generic") << true << QString();
+    QTest::newRow("engine-conditional") << false << QString("value == 0");
+    QTest::newRow("generic-conditional") << true << QString("value == 0");
+}
+
+void DebuggerUnitTests::testMarksTheBreakpointHitsGdbHoldsBack()
+{
+    QFETCH(bool, generic);
+    QFETCH(QString, condition);
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("Only gdb holds breakpoint hits back for later stops.");
+    const BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    SteppingSession session(s_onceEachSource, {"-std=c++17", "-pthread"});
+    session.setBreakpointCondition(condition);
+    const QString problem = session.start("MARKER: hit");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    DebuggerEngine *engine = session.engine();
+    ThreadsHandler *handler = engine->threadsHandler();
+    const int hitLine = session.markerLine("MARKER: hit");
+
+    int reports = 0;
+    QObject::connect(handler, &ThreadsHandler::threadsReported, engine, [&reports] { ++reports; });
+    const auto atHit = [hitLine](ThreadItem *thread) {
+        return thread->threadData.function.startsWith("hit")
+               && thread->threadData.lineNumber == hitLine;
+    };
+    QVERIFY2(QTest::qWaitFor([handler, &atHit] {
+                 return handler->currentThread() && atHit(handler->currentThread());
+             }, 30000),
+             "the threads of the first stop never arrived");
+
+    if (!condition.isEmpty()) {
+        // gdb drops a held-back hit whose condition is false when it gets to
+        // it, so it is no hit to show. The threads asked for again are
+        // reported after those of the stop and the note that comes with them.
+        const int before = reports;
+        engine->updateAll();
+        QVERIFY2(QTest::qWaitFor([&reports, before] { return reports > before; }, 30000),
+                 "the threads were never reported again");
+        const Thread current = handler->currentThread();
+        QVERIFY(current);
+        int atBreakpoint = 0;
+        QStringList marked;
+        handler->forItemsAtLevel<1>([&](ThreadItem *thread) {
+            if (thread == current)
+                return;
+            if (atHit(thread))
+                ++atBreakpoint;
+            if (thread->threadData.stopPending)
+                marked.append(thread->id());
+        });
+        QVERIFY2(marked.isEmpty(),
+                 qPrintable("marked as holding a hit back: " + marked.join(',')));
+        QVERIFY2(!engine->logWindow()->combinedContents().contains("which continuing shows"),
+                 "the stop says that continuing shows other hits");
+        if (atBreakpoint == 0)
+            QSKIP("No other thread arrived at the breakpoint together.");
+        return;
+    }
+
+    // Every thread hits once, so one that sits at the breakpoint without
+    // having been shown there has a hit held back, and one that was shown
+    // there has none left.
+    QSet<QString> shown;
+    bool sawHeldBack = false;
+    for (int stop = 0; stop < 8; ++stop) {
+        const Thread current = handler->currentThread();
+        QVERIFY(current);
+        QVERIFY2(!current->threadData.stopPending, "the thread shown has its hit held back");
+        QVERIFY2(!shown.contains(current->id()),
+                 qPrintable("thread " + current->id() + " was shown at the breakpoint twice"));
+        shown.insert(current->id());
+
+        int heldBack = 0;
+        QStringList wrong;
+        handler->forItemsAtLevel<1>([&](ThreadItem *thread) {
+            if (thread == current)
+                return;
+            const bool expected = atHit(thread) && !shown.contains(thread->id());
+            if (expected)
+                ++heldBack;
+            if (thread->threadData.stopPending != expected) {
+                wrong.append(QString("%1 (%2:%3, %4)")
+                                 .arg(thread->id(), thread->threadData.function)
+                                 .arg(thread->threadData.lineNumber)
+                                 .arg(QLatin1String(thread->threadData.stopPending ? "marked"
+                                                                                    : "unmarked")));
+            }
+        });
+        QVERIFY2(wrong.isEmpty(), qPrintable(QString("at stop %1, shown so far %2: %3")
+                                                 .arg(stop)
+                                                 .arg(QStringList(shown.values()).join(','))
+                                                 .arg(wrong.join("; "))));
+        if (heldBack > 0 && !sawHeldBack) {
+            sawHeldBack = true;
+            const QString note = Tr::tr("%n other threads hit a breakpoint, which continuing "
+                                        "shows.", nullptr, heldBack);
+            QVERIFY2(QTest::qWaitFor([engine, &note] {
+                         return engine->logWindow()->combinedContents().contains(note);
+                     }, 30000),
+                     qPrintable("\"" + note + "\" never appeared"));
+        }
+        if (shown.size() == 8)
+            break;
+
+        const int before = reports;
+        engine->handleExecContinue();
+        QVERIFY2(QTest::qWaitFor([engine, &reports, before] {
+                     return engine->state() == InferiorStopOk && reports > before;
+                 }, 30000),
+                 qPrintable(QString("stop %1 never arrived").arg(stop + 1)));
+    }
+    if (!sawHeldBack)
+        QSKIP("No two threads arrived at the breakpoint together.");
 }
 
 void DebuggerUnitTests::testMcpStepWaitsForTheNewStop_data()
