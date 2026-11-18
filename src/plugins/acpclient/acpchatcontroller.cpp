@@ -563,7 +563,7 @@ void AcpChatController::connectAdapter()
     connect(m_adapter, &AcpProtocolAdapter::authenticationFailed,
             this, &AcpChatController::authenticationFailed);
     connect(m_adapter, &AcpProtocolAdapter::authenticated,
-            this, [this] { createNewSession(); });
+            this, [this] { createNewSession(m_workingDirectory); });
     connect(m_adapter, &AcpProtocolAdapter::promptFinished,
             this, &AcpChatController::promptFinished);
     connect(m_adapter, &AcpProtocolAdapter::errorOccurred,

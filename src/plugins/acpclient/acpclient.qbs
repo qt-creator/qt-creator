@@ -63,6 +63,8 @@ Project {
             "acptransport.h",
             "agentoverview.cpp",
             "agentoverview.h",
+            "agentprojectwizard.cpp",
+            "agentprojectwizard.h",
             "chatfontscale.cpp",
             "chatfontscale.h",
             "chatinputcompletion.cpp",
@@ -101,6 +103,8 @@ Project {
             files: [
                 "sparklebubble.png",
                 "sparklebubble@2x.png",
+                "wizardicon-agentproject.png",
+                "wizardicon-agentproject@2x.png",
             ]
             fileTags: "qt.core.resource_data"
         }

@@ -17,11 +17,13 @@
 #include "acptermswidget.h"
 #include "acptransport.h"
 #include "agentoverview.h"
+#include "agentprojectwizard.h"
 #include "chatfontscale.h"
 #include "chatinputedit.h"
 #include "chatpanel.h"
 #include "collapsibleframe.h"
 #include "configselectpopup.h"
+#include "sessionpickerwidget.h"
 #include "toolcalldetailwidget.h"
 
 #include <acp/acp.h>
@@ -36,10 +38,14 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iwizardfactory.h>
 #include <coreplugin/rightpane.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -51,6 +57,7 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/markdownbrowser.h>
+#include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
@@ -78,6 +85,7 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QStackedWidget>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QTextBrowser>
 #include <QToolButton>
@@ -664,6 +672,13 @@ private slots:
     void testTermsWidget();
     void testChatWidgetTermsGate();
     void testChatWidgetTermsAccepted();
+    void testChatWidgetStartChat();
+    void testChatWidgetStartChatAfterTerms();
+    void testChatWidgetStartChatDeclinedTerms();
+    void testChatWidgetStartChatKeepsPrompt();
+    void testAgentProjectPrompt();
+    void testAgentProjectToOpen();
+    void testAgentProjectWizardRegistered();
     void testSessionSwitcherButton();
     void testChatWidgetOverview();
     void testChatWidgetSessionTitle();
@@ -1966,7 +1981,10 @@ void AcpClientTest::testControllerAuthentication()
     CONNECT_CONTROLLER(fixture, {"--require-auth"});
 
     // Creating a session triggers the authentication workflow.
-    fixture.controller.createNewSession();
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath workingDirectory = FilePath::fromUserInput(tempDir.path());
+    fixture.controller.createNewSession(workingDirectory);
     QTRY_COMPARE(fixture.authMethods.size(), 1);
     const auto *agentMethod = std::get_if<V2::AuthMethodAgent>(&fixture.authMethods.first());
     QVERIFY(agentMethod);
@@ -1978,9 +1996,10 @@ void AcpClientTest::testControllerAuthentication()
     fixture.controller.authenticate("bogus");
     QTRY_COMPARE(fixture.authErrors.size(), 1);
 
-    // A successful authentication creates the session.
+    // A successful authentication creates the session in the same directory.
     fixture.controller.authenticate("test-login");
     QTRY_COMPARE(fixture.createdSessions.size(), 1);
+    QCOMPARE(fixture.controller.workingDirectory(), workingDirectory);
 }
 
 // supportsSessionList/Delete/Close reflect the capabilities advertised by the
@@ -5524,6 +5543,242 @@ void AcpClientTest::testChatWidgetTermsAccepted()
     QAbstractButton *addButton = widget.findChild<QAbstractButton *>("newChatButton");
     QVERIFY(addButton);
     QVERIFY(addButton->isEnabled());
+}
+
+// A chat started for a directory takes the unused chat, creates its session there
+// without asking, and sends the prompt.
+void AcpClientTest::testChatWidgetStartChat()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo({});
+    if (QTest::currentTestFailed())
+        return;
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath workingDirectory = FilePath::fromUserInput(tempDir.path());
+
+    AcpChatWidget widget;
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 1);
+
+    AcpChatTab *started = nullptr;
+    widget.startChat(info, workingDirectory, "hello", [&started](AcpChatTab *tab) {
+        started = tab;
+    });
+    QVERIFY(started);
+    QSignalSpy finished(started, &AcpChatTab::autoStartedTurnFinished);
+
+    QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 15000);
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs, QList<AcpChatTab *>{started});
+    QCOMPARE(tabs.first()->workingDirectory(), workingDirectory);
+    QVERIFY(tabs.first()->findChildren<SessionPickerWidget *>().isEmpty());
+
+    // Later turns in the session are reported, too.
+    auto *panel = tabs.first()->findChild<ChatPanel *>();
+    QVERIFY(panel);
+    emit panel->sendRequested("again");
+    QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 2, 15000);
+}
+
+// Text typed while the session of a started chat is still being created is sent
+// after the prompt of the chat instead of replacing it.
+void AcpClientTest::testChatWidgetStartChatKeepsPrompt()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    const AcpSettings::ServerInfo info
+        = ControllerFixture::serverInfo({"--protocol-version", "2", "--require-auth"});
+    if (QTest::currentTestFailed())
+        return;
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath workingDirectory = FilePath::fromUserInput(tempDir.path());
+
+    AcpChatWidget widget;
+    widget.startChat(info, workingDirectory, "generated prompt");
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs.size(), 1);
+    QSignalSpy finished(tabs.first(), &AcpChatTab::autoStartedTurnFinished);
+    auto *controller = tabs.first()->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    auto *panel = tabs.first()->findChild<ChatPanel *>();
+    QVERIFY(panel);
+    QSignalSpy authenticationRequired(controller, &AcpChatController::authenticationRequired);
+    QString updates;
+    connect(controller, &AcpChatController::sessionUpdate, this,
+            [&updates](const QString &, const V2::SessionUpdate &update) {
+                updates += QString::fromUtf8(QJsonDocument(V2::toJson(update)).toJson());
+            });
+
+    QTRY_COMPARE_WITH_TIMEOUT(authenticationRequired.count(), 1, 15000);
+    emit panel->sendRequested("typed text");
+    controller->authenticate("test-login");
+
+    QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 15000);
+    QVERIFY2(updates.contains("generated prompt"), qPrintable(updates));
+    QVERIFY2(updates.contains("typed text"), qPrintable(updates));
+}
+
+// A chat requested before the terms are accepted starts once they are.
+void AcpClientTest::testChatWidgetStartChatAfterTerms()
+{
+    if (!licenseCheckerEnabled())
+        QSKIP("The terms only apply with the licensechecker plugin installed and enabled.");
+
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(false);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo({});
+    if (QTest::currentTestFailed())
+        return;
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath workingDirectory = FilePath::fromUserInput(tempDir.path());
+
+    AcpChatWidget widget;
+    AcpChatTab *started = nullptr;
+    widget.startChat(info, workingDirectory, "hello", [&started](AcpChatTab *tab) {
+        started = tab;
+    });
+    QVERIFY(!started);
+    QCOMPARE(widget.findChildren<AcpChatTab *>().size(), 0);
+
+    AcpTermsWidget *termsWidget = widget.findChild<AcpTermsWidget *>();
+    QVERIFY(termsWidget);
+    auto *confirmation = termsWidget->findChild<QCheckBox *>("acpConfirmTermsCheckBox");
+    QVERIFY(confirmation);
+    confirmation->setChecked(true);
+    QAbstractButton *acceptButton = buttonWithText(termsWidget, Tr::tr("Accept"));
+    QVERIFY(acceptButton);
+    acceptButton->click();
+
+    QCOMPARE(widget.findChildren<AcpChatTab *>(), QList<AcpChatTab *>{started});
+    QSignalSpy finished(started, &AcpChatTab::autoStartedTurnFinished);
+    QTRY_COMPARE_WITH_TIMEOUT(finished.count(), 1, 15000);
+    QCOMPARE(started->workingDirectory(), workingDirectory);
+}
+
+// A chat requested before the terms are declined does not start when they are
+// accepted later.
+void AcpClientTest::testChatWidgetStartChatDeclinedTerms()
+{
+    if (!licenseCheckerEnabled())
+        QSKIP("The terms only apply with the licensechecker plugin installed and enabled.");
+
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(false);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo({});
+    if (QTest::currentTestFailed())
+        return;
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath workingDirectory = FilePath::fromUserInput(tempDir.path());
+
+    AcpChatWidget widget;
+    bool started = false;
+    widget.startChat(info, workingDirectory, "hello", [&started](AcpChatTab *) {
+        started = true;
+    });
+
+    AcpTermsWidget *termsWidget = widget.findChild<AcpTermsWidget *>();
+    QVERIFY(termsWidget);
+    QAbstractButton *declineButton = buttonWithText(termsWidget, Tr::tr("Decline"));
+    QVERIFY(declineButton);
+    declineButton->click();
+
+    auto *confirmation = termsWidget->findChild<QCheckBox *>("acpConfirmTermsCheckBox");
+    QVERIFY(confirmation);
+    confirmation->setChecked(true);
+    QAbstractButton *acceptButton = buttonWithText(termsWidget, Tr::tr("Accept"));
+    QVERIFY(acceptButton);
+    acceptButton->click();
+
+    QVERIFY(!started);
+    for (const AcpChatTab *tab : widget.findChildren<AcpChatTab *>())
+        QVERIFY(tab->workingDirectory() != workingDirectory);
+}
+
+// The wizard opens the directory for an agent without the MCP server only once
+// the agent has written a project file into it.
+void AcpClientTest::testAgentProjectToOpen()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath directory = FilePath::fromUserInput(tempDir.path());
+    QCOMPARE(projectToOpen(directory), FilePath());
+
+    QVERIFY(directory.pathAppended("main.cpp").writeFileContents("int main() {}\n"));
+    QCOMPARE(projectToOpen(directory), FilePath());
+
+    // A pattern with a wildcard, such as *.pro, gives the file that matches it.
+    const QString pattern
+        = Utils::findOrDefault(ProjectExplorer::ProjectExplorerPlugin::projectFilePatterns(),
+                               [](const QString &pattern) {
+                                   return pattern.contains('*') && !pattern.contains('/');
+                               });
+    if (!pattern.isEmpty()) {
+        const FilePath subDirectory = directory.pathAppended("sub");
+        QVERIFY(subDirectory.createDir());
+        QCOMPARE(projectToOpen(subDirectory), FilePath());
+        QString fileName = pattern;
+        fileName.replace('*', "calc");
+        const FilePath projectFile = subDirectory.pathAppended(fileName);
+        QVERIFY(projectFile.writeFileContents({}));
+        QCOMPARE(projectToOpen(subDirectory), projectFile);
+    }
+
+    const FilePath workspaceConfig = directory.pathAppended(".qtcreator/project.json");
+    QVERIFY(workspaceConfig.parentDir().createDir());
+    QVERIFY(workspaceConfig.writeFileContents("{}\n"));
+    QCOMPARE(projectToOpen(directory), directory);
+}
+
+// The editable instructions of the project wizard name the directory and list the
+// project formats that open directly, leaving out the folder types that are their
+// fallback. The prompt adds the description to them.
+void AcpClientTest::testAgentProjectPrompt()
+{
+    const FilePath directory = FilePath::fromUserInput(QDir::tempPath()).pathAppended("calc");
+    const QString instructions = agentProjectInstructions("calc", directory);
+    QVERIFY(instructions.contains("\"calc\""));
+    QVERIFY(instructions.contains(directory.toUserOutput()));
+    QVERIFY(instructions.contains("project_open"));
+
+    // Which project types there are depends on the plugins loaded for the test.
+    const QString formats = projectFormatsDescription();
+    QVERIFY2(!formats.contains("project.json"), qPrintable(formats));
+    for (const QString &name : ProjectExplorer::ProjectExplorerPlugin::projectMimeTypes()) {
+        const MimeType mimeType = Utils::mimeTypeForName(name);
+        if (name == "text/x-workspace-project" || mimeType.globPatterns().isEmpty())
+            continue;
+        QVERIFY2(formats.contains(mimeType.comment() + ": " + mimeType.globPatterns().first()),
+                 qPrintable(name));
+    }
+    QVERIFY(instructions.contains(formats));
+
+    const QString prompt = agentProjectPrompt(instructions, "  A calculator.  ");
+    QVERIFY(prompt.startsWith(instructions.trimmed()));
+    QVERIFY(prompt.endsWith("\nA calculator."));
+}
+
+// The wizard is offered in File > New Project, in a category of its own.
+void AcpClientTest::testAgentProjectWizardRegistered()
+{
+    const Core::IWizardFactory *factory = Utils::findOrDefault(
+        Core::IWizardFactory::allWizardFactories(),
+        Utils::equal(&Core::IWizardFactory::id, Utils::Id("Z.AcpAgentProject")));
+    QVERIFY(factory);
+    QCOMPARE(factory->kind(), Core::IWizardFactory::ProjectWizard);
+    QCOMPARE(factory->category(), QString(Constants::AGENT_PROJECT_WIZARD_CATEGORY));
+    QVERIFY(factory->isAvailable({}));
 }
 
 // --- Tier 6 ------------------------------------------------------------------

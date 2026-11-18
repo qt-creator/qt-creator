@@ -3,7 +3,14 @@
 
 #pragma once
 
+#include "acpsettings.h"
+
+#include <utils/filepath.h>
+
 #include <QWidget>
+
+#include <functional>
+#include <optional>
 
 class QStackedWidget;
 class QToolButton;
@@ -31,6 +38,10 @@ public:
     void setFocus();
 
     void addTab(AcpChatTab *tab);
+
+    void startChat(const AcpSettings::ServerInfo &serverInfo,
+                   const Utils::FilePath &workingDirectory, const QString &prompt,
+                   const std::function<void(AcpChatTab *)> &onStarted = {});
 
 signals:
     void navigateStateUpdate();
@@ -76,6 +87,16 @@ private:
 
     AcpInspector *m_inspector = nullptr;
     bool m_blockIndexChanges = false;
+
+    struct StartRequest
+    {
+        AcpSettings::ServerInfo serverInfo;
+        Utils::FilePath workingDirectory;
+        QString prompt;
+        std::function<void(AcpChatTab *)> onStarted;
+    };
+    // A chat requested while the terms were pending, started once they are accepted.
+    std::optional<StartRequest> m_pendingStart;
 };
 
 } // namespace AcpClient::Internal

@@ -124,6 +124,7 @@ public:
                            Project *project = nullptr);
 #endif
 
+    static QStringList projectMimeTypes();
     static QStringList projectFilePatterns();
     static bool isProjectFile(const Utils::FilePath &filePath);
     static RecentProjectsEntries recentProjects();

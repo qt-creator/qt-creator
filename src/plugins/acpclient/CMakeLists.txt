@@ -36,6 +36,7 @@ add_qtc_plugin(AcpClient
     acpterminalhandler.cpp acpterminalhandler.h
     acptransport.cpp acptransport.h
     agentoverview.cpp agentoverview.h
+    agentprojectwizard.cpp agentprojectwizard.h
     chatfontscale.cpp chatfontscale.h
     chatinputcompletion.cpp chatinputcompletion.h
     chatinputedit.cpp chatinputedit.h
@@ -51,6 +52,8 @@ qtc_add_resources(AcpClient "images"
   FILES
     images/sparklebubble.png
     images/sparklebubble@2x.png
+    images/wizardicon-agentproject.png
+    images/wizardicon-agentproject@2x.png
 )
 
 qtc_add_resources(AcpClient "terms"

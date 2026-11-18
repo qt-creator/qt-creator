@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include "acpsettings.h"
 #include "agentoverview.h"
+
+#include <utils/filepath.h>
 
 #include <QWidget>
 
@@ -15,7 +18,6 @@ class QStackedWidget;
 class QVBoxLayout;
 
 namespace Utils {
-class FilePath;
 class InfoLabel;
 class ProgressIndicator;
 class QtcButton;
@@ -40,6 +42,9 @@ public:
 
     void setInspector(AcpInspector *inspector);
 
+    void startSession(const AcpSettings::ServerInfo &serverInfo,
+                      const Utils::FilePath &workingDirectory, const QString &prompt);
+
     bool hasFocus() const;
     void setFocus();
 
@@ -47,6 +52,8 @@ public:
     QString agentName() const;
     QString sessionTitle() const { return m_sessionTitle; }
     QString toolTip() const;
+    Utils::FilePath workingDirectory() const;
+    bool isUnused() const;
     QWidget *toolBarWidget() const;
     SessionActivity activity() const { return m_activity; }
     QIcon serverIcon() const { return m_serverIcon; }
@@ -55,6 +62,7 @@ signals:
     void titleChanged();
     void activityChanged();
     void serverIconChanged();
+    void autoStartedTurnFinished();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -64,6 +72,8 @@ private:
     enum class RegistryFailure { Blocked, DownloadFailed };
 
     void populateServerButtons();
+    void connectToServer(const AcpSettings::ServerInfo &serverInfo);
+    void sendPendingPrompt();
     void abandonStartup();
     void showRegistryPage();
     void clearRegistryButtons();
@@ -105,6 +115,10 @@ private:
     bool m_startupFailed = false;
     QString m_pendingPrompt;
     QString m_sessionTitle;
+    // Set by startSession(): where to create the session instead of asking.
+    Utils::FilePath m_autoStartDirectory;
+    bool m_autoStartedPromptPending = false;
+    bool m_autoStartedSession = false;
     SessionActivity m_activity = SessionActivity::None;
     QIcon m_serverIcon;
 };

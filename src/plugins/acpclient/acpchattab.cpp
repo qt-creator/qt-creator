@@ -24,6 +24,7 @@
 #include <utils/utilsicons.h>
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
+#include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
 
 #include <QComboBox>
@@ -396,8 +397,12 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         if (m_sessionPending) {
             // A session is already being created/loaded (e.g. the user picked a
             // session in the picker). Remember the prompt; it is sent once the
-            // session is ready. Do not start a second session.
-            m_pendingPrompt = text;
+            // session is ready. Do not start a second session. A prompt from
+            // startSession() is kept and the text is sent after it.
+            if (m_autoStartedPromptPending)
+                m_pendingPrompt += "\n\n" + text;
+            else
+                m_pendingPrompt = text;
             return;
         }
         if (m_activePicker) {
@@ -444,6 +449,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_serverConsole->setInputEnabled(false);
             m_sessionPending = false;
             m_pendingPrompt.clear();
+            m_autoStartDirectory.clear();
+            m_autoStartedPromptPending = false;
+            m_autoStartedSession = false;
             if (!m_startupFailed)
                 m_stack->setCurrentIndex(0);
             m_chatPanel->clear();
@@ -514,14 +522,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                 "Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
             m_chatPanel->finishAgentMessage();
         } else  {
-            const QString text = m_pendingPrompt;
-            m_pendingPrompt.clear();
-            m_chatPanel->addUserMessage(text);
-            m_chatPanel->setPrompting(true);
-            m_controller->sendPrompt(
-                text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
-                m_chatPanel->textContexts(), m_chatPanel->imageContexts());
-            m_chatPanel->clearImageContexts();
+            sendPendingPrompt();
         }
     });
     connect(m_controller, &AcpChatController::configOptionsReceived,
@@ -662,7 +663,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->setCanCloseSession(false);
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
-        showSessionPicker();
+        m_autoStartedSession = false;
+        if (m_autoStartDirectory.isEmpty()) {
+            showSessionPicker();
+        } else {
+            m_sessionPending = true;
+            m_controller->createNewSession(std::exchange(m_autoStartDirectory, {}));
+        }
         setSessionTitle({});
         emit titleChanged();
     });
@@ -673,16 +680,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->setSendEnabled(true);
         m_chatPanel->setCanCloseSession(m_controller->supportsSessionClose());
         m_chatPanel->messageView()->placeUnreferencedTerminals();
-        if (!m_pendingPrompt.isEmpty()) {
-            const QString text = m_pendingPrompt;
-            m_pendingPrompt.clear();
-            m_chatPanel->addUserMessage(text);
-            m_chatPanel->setPrompting(true);
-            m_controller->sendPrompt(
-                text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
-                m_chatPanel->textContexts(), m_chatPanel->imageContexts());
-            m_chatPanel->clearImageContexts();
-        }
+        if (!m_pendingPrompt.isEmpty())
+            sendPendingPrompt();
     });
 
     connect(m_controller, &AcpChatController::promptFinished,
@@ -691,6 +690,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->finishAgentMessage();
         if (stopReason)
             m_chatPanel->addStopReason(*stopReason);
+        if (m_autoStartedSession)
+            emit autoStartedTurnFinished();
     });
 
     connect(m_chatPanel, &ChatPanel::activityChanged, this, &AcpChatTab::updateActivity);
@@ -711,6 +712,8 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     connect(m_controller, &AcpChatController::errorOccurred, this, [this](const QString &msg) {
         m_sessionPending = false;
         m_pendingPrompt.clear();
+        m_autoStartDirectory.clear();
+        m_autoStartedPromptPending = false;
         if (m_stack->currentIndex() == 3) {
             // Stay put: the console holds the output that explains the failure.
             m_startupFailed = true;
@@ -783,6 +786,17 @@ QString AcpChatTab::agentName() const
 QString AcpChatTab::toolTip() const
 {
     return m_controller->workingDirectory().toUserOutput();
+}
+
+FilePath AcpChatTab::workingDirectory() const
+{
+    return m_controller->workingDirectory();
+}
+
+// Still on the page that lists the agents to connect to.
+bool AcpChatTab::isUnused() const
+{
+    return m_stack->currentIndex() == 0;
 }
 
 QWidget *AcpChatTab::toolBarWidget() const
@@ -906,22 +920,7 @@ void AcpChatTab::populateServerButtons()
     for (const AcpSettings::ServerInfo &info : servers) {
         auto *button = new QtcButton(info.name, QtcButton::MediumTertiary);
         button->setToolTip(info.name);
-        const QString serverId = info.id;
-        const QString serverName = info.name;
-        connect(button, &QAbstractButton::clicked, this, [this, serverId, serverName] {
-            m_connectionErrorLabel->hide();
-            m_startupFailed = false;
-            m_initErrorLabel->hide();
-            m_initSpinner->show();
-            m_initCancelButton->setText(Tr::tr("Cancel"));
-            m_serverConsole->reset();
-            m_serverConsoleFrame->setCollapsed(false);
-            m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverName));
-            m_stack->setCurrentIndex(3);
-            m_chatPanel->setAgentId(serverId);
-            m_controller->connectToServer(serverId);
-            emit titleChanged();
-        });
+        connect(button, &QAbstractButton::clicked, this, [this, info] { connectToServer(info); });
         Utils::onResultReady(
             AcpSettings::iconForUrl(info.iconUrl), button, [button](const QIcon &icon) {
                 const int size = button->fontMetrics().height();
@@ -935,6 +934,56 @@ void AcpChatTab::populateServerButtons()
         m_configStack->setCurrentIndex(
             servers.isEmpty() ? ConfigPage::NoServers : ConfigPage::Connect);
     }
+}
+
+void AcpChatTab::connectToServer(const AcpSettings::ServerInfo &serverInfo)
+{
+    m_connectionErrorLabel->hide();
+    m_startupFailed = false;
+    m_initErrorLabel->hide();
+    m_initSpinner->show();
+    m_initCancelButton->setText(Tr::tr("Cancel"));
+    m_serverConsole->reset();
+    m_serverConsoleFrame->setCollapsed(false);
+    m_initializingLabel->setText(Tr::tr("Connecting to %1").arg(serverInfo.name));
+    m_stack->setCurrentIndex(3);
+    m_chatPanel->setAgentId(serverInfo.id);
+    m_controller->connectToServer(serverInfo);
+    emit titleChanged();
+}
+
+/*!
+    Connects to the agent \a serverInfo, creates a new session in \a workingDirectory
+    without asking the user for one, and sends \a prompt to it.
+
+    The prompt does not get the current editor as context, because it usually
+    belongs to something else. Emits autoStartedTurnFinished() whenever the agent
+    has finished a turn in that session.
+*/
+void AcpChatTab::startSession(const AcpSettings::ServerInfo &serverInfo,
+                              const FilePath &workingDirectory, const QString &prompt)
+{
+    QTC_ASSERT(!workingDirectory.isEmpty(), return);
+    m_autoStartDirectory = workingDirectory;
+    m_pendingPrompt = prompt;
+    m_autoStartedPromptPending = true;
+    connectToServer(serverInfo);
+}
+
+void AcpChatTab::sendPendingPrompt()
+{
+    const QString text = m_pendingPrompt;
+    m_pendingPrompt.clear();
+    const bool autoStarted = std::exchange(m_autoStartedPromptPending, false);
+    if (autoStarted)
+        m_autoStartedSession = true;
+    m_chatPanel->addUserMessage(text);
+    m_chatPanel->setPrompting(true);
+    m_controller->sendPrompt(
+        text, m_chatPanel->manualContextFiles(),
+        !autoStarted && m_chatPanel->includeCurrentEditorContext(),
+        m_chatPanel->textContexts(), m_chatPanel->imageContexts());
+    m_chatPanel->clearImageContexts();
 }
 
 void AcpChatTab::showRegistryPage()

@@ -4556,6 +4556,15 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
     }
 }
 
+/*!
+    Returns the MIME types of all project types that can be opened, including
+    those of plugins that are only loaded when such a project is opened.
+*/
+QStringList ProjectExplorerPlugin::projectMimeTypes()
+{
+    return dd->projectMimeTypes();
+}
+
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;

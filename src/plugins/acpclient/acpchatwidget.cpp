@@ -119,15 +119,48 @@ void AcpChatWidget::updateTermsState()
     updateContentVisibility();
     m_addButton->setEnabled(!gated);
     m_moveToEditorButton->setEnabled(!gated);
-    if (!gated && m_stack->count() == 0)
+    if (gated)
+        return;
+    if (m_pendingStart) {
+        const StartRequest request = *std::exchange(m_pendingStart, std::nullopt);
+        startChat(request.serverInfo, request.workingDirectory, request.prompt,
+                  request.onStarted);
+    } else if (m_stack->count() == 0) {
         addNewTab();
+    }
+}
+
+/*!
+    Opens a chat with the agent \a serverInfo in a new session in \a workingDirectory
+    and sends \a prompt to it. An unused current chat is taken instead of a new one.
+    If \a onStarted is set, it is called with the chat.
+
+    While the terms are not accepted, the chat is only started once they are.
+*/
+void AcpChatWidget::startChat(const AcpSettings::ServerInfo &serverInfo,
+                              const Utils::FilePath &workingDirectory, const QString &prompt,
+                              const std::function<void(AcpChatTab *)> &onStarted)
+{
+    if (acpTermsPending()) {
+        m_pendingStart = StartRequest{serverInfo, workingDirectory, prompt, onStarted};
+        return;
+    }
+    auto *tab = qobject_cast<AcpChatTab *>(m_stack->currentWidget());
+    if (!tab || !tab->isUnused())
+        tab = addNewTab();
+    setOverviewShown(false);
+    tab->startSession(serverInfo, workingDirectory, prompt);
+    if (onStarted)
+        onStarted(tab);
+    tab->setFocus();
 }
 
 void AcpChatWidget::createTermsWidget()
 {
     m_termsWidget = new AcpTermsWidget(this);
     connect(m_termsWidget, &AcpTermsWidget::accepted, this, &AcpChatWidget::updateTermsState);
-    connect(m_termsWidget, &AcpTermsWidget::declined, this, [] {
+    connect(m_termsWidget, &AcpTermsWidget::declined, this, [this] {
+        m_pendingStart.reset();
         Core::RightPaneWidget::instance()->setShown(false);
     });
     m_layout->addWidget(m_termsWidget);

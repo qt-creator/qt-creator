@@ -8,6 +8,7 @@
 #include "acpclienttr.h"
 #include "acpinspector.h"
 #include "acpsettings.h"
+#include "agentprojectwizard.h"
 #include "chatfontscale.h"
 
 #ifdef WITH_TESTS
@@ -111,17 +112,15 @@ public:
         connect(showSidePanelAction, &QAction::triggered, this, [this] {
             createRightPaneChatWidget();
             ModeManager::activateMode(Core::Constants::MODE_EDIT);
-            if (RightPaneWidget::instance()->widget() == m_rightPaneChatWidget) {
-                bool show = !RightPaneWidget::instance()->isShown();
-                RightPaneWidget::instance()->setShown(show);
-                if (show)
-                    m_rightPaneChatWidget->setFocus();
-            } else {
-                RightPaneWidget::instance()->setWidget(m_rightPaneChatWidget);
-                RightPaneWidget::instance()->setShown(true);
-                m_rightPaneChatWidget->setFocus();
+            if (RightPaneWidget::instance()->widget() == m_rightPaneChatWidget
+                && RightPaneWidget::instance()->isShown()) {
+                RightPaneWidget::instance()->setShown(false);
+                return;
             }
+            showRightPaneChatWidget()->setFocus();
         });
+
+        setupAgentProjectWizard([this] { return showRightPaneChatWidget(); });
 
         // Inspect action, placed under Tools > Debug Qt Creator
         auto inspectAction = new QAction(Tr::tr("Inspect ACP Client..."), this);
@@ -154,6 +153,15 @@ private:
             return;
         m_rightPaneChatWidget = new AcpChatWidget;
         m_rightPaneChatWidget->setInspector(m_inspector);
+    }
+
+    AcpChatWidget *showRightPaneChatWidget()
+    {
+        createRightPaneChatWidget();
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        RightPaneWidget::instance()->setWidget(m_rightPaneChatWidget);
+        RightPaneWidget::instance()->setShown(true);
+        return m_rightPaneChatWidget;
     }
 
     static QIcon sidePanelIcon()
