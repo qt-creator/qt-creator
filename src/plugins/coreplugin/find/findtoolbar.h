@@ -38,8 +38,7 @@ public:
         UpdateFindScope = 0x02,
         UpdateFindText = 0x04,
         UpdateHighlight = 0x08,
-        UpdateAll = 0x0F,
-        DefineFindScope = 0x10
+        UpdateAll = 0x0F
     };
     Q_DECLARE_FLAGS(OpenFlags, OpenFlag)
 
@@ -138,7 +137,6 @@ private:
     QCompleter *m_replaceCompleter = nullptr;
     QAction *m_goToCurrentFindAction = nullptr;
     QAction *m_findInDocumentAction = nullptr;
-    QAction *m_findInSelectionAction = nullptr;
     QAction *m_findNextSelectedAction = nullptr;
     QAction *m_findPreviousSelectedAction = nullptr;
     QAction *m_selectAllAction = nullptr;
