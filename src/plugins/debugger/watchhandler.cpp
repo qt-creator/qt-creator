@@ -1914,11 +1914,8 @@ bool WatchModel::contextMenuEvent(const ItemViewEvent &ev)
     });
 
     addAction(this, menu, Tr::tr("Collapse All Children"), item, [this, name = item ? item->iname : QString()] {
-        if (auto item = findItem(name)) {
-            item->forFirstLevelChildren(
-                [this](WatchItem *child) { m_expandedINames.remove(child->iname); });
-            m_engine->updateLocals();
-        }
+        if (findItem(name))
+            m_handler->collapseAllChildren(name);
     });
 
     addAction(this, menu, Tr::tr("Close Editor Tooltips"),
@@ -3147,10 +3144,10 @@ void WatchHandler::collapseAllChildren(const QString &iname)
 {
     WatchItem *item = m_model->findItem(iname);
     QTC_ASSERT(item, return);
-    // Every descendant, not just the first level: the point is that expanding
-    // the item again shows its subtree collapsed at all levels.
-    item->forAllChildren(
-        [this](WatchItem *child) { m_model->m_expandedINames.remove(child->iname); });
+    // By prefix, as the set also holds inames of descendants no longer in the model.
+    const QString prefix = iname + '.';
+    m_model->m_expandedINames.removeIf(
+        [&prefix](const QString &name) { return name.startsWith(prefix); });
     m_model->m_engine->updateLocals();
 }
 
