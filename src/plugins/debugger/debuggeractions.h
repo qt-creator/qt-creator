@@ -102,7 +102,6 @@ public:
     Utils::StringListAspect cdbBreakEvents;
     Utils::BoolAspect cdbBreakOnCrtDbgReport;
     Utils::BoolAspect useCdbConsole;
-    Utils::BoolAspect cdbBreakPointCorrection;
     Utils::BoolAspect cdbUsePythonDumper;
     Utils::BoolAspect cdbJustMyCode;
     Utils::BoolAspect firstChanceExceptionTaskEntry;

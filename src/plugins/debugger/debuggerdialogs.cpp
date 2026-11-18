@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitmanager.h>
@@ -596,8 +597,8 @@ static QString cdbRemoteHelp()
             "ssl:proto=Protocol,{certuser=Cert|machuser=Cert},server=Server,port=Socket[,password=Password]\n"
             "ssl:proto=Protocol,{certuser=Cert|machuser=Cert},clicon=Server,port=Socket[,password=Password]";
 
-    const QString ext32 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(false));
-    const QString ext64 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(true));
+    const QString ext32 = QDir::toNativeSeparators(cdbExtensionLibraryName(false));
+    const QString ext64 = QDir::toNativeSeparators(cdbExtensionLibraryName(true));
     return Tr::
         tr("<html><body><p>The remote CDB needs to load the matching %1 CDB extension "
            "(<code>%2</code> or <code>%3</code>, respectively).</p><p>Copy it onto the remote "

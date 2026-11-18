@@ -36,18 +36,8 @@ enum { cdbBreakPointStartId = 100000,
 enum { cdbRunToLineStartId = 90000,
        cdbRunToLineIdCount = 100};
 
-QString breakPointCdbId(const Breakpoint &bp);
-
-// Convert breakpoint in CDB syntax (applying source path mappings using native paths).
-QString cdbAddBreakpointCommand(const BreakpointParameters &d,
-                                const QList<QPair<QString, QString> > &sourcePathMapping,
-                                const QString &responseId = QString());
-QString cdbClearBreakpointCommand(const Breakpoint &bp);
-
 // Write memory (f ...).
 QString cdbWriteMemoryCommand(quint64 addr, const QByteArray &data);
-
-QString debugByteArray(const QByteArray &a);
 
 QString cdbPythonString(const QString &text);
 

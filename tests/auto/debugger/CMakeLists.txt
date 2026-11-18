@@ -124,7 +124,7 @@ set(BACKENDS_TEST_DEFINES DUMPERDIR="${PROJECT_SOURCE_DIR}/share/qtcreator/debug
 list(APPEND BACKENDS_TEST_DEFINES
   "BACKENDS_TEST_SOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"")
 
-# The generator-resolved path, because CdbEngine::extensionLibraryName() derives
+# The generator-resolved path, because cdbExtensionLibraryName() derives
 # it from QCoreApplication::applicationDirPath(), which does not resolve from a
 # standalone test binary.
 if (TARGET qtcreatorcdbext)

@@ -587,8 +587,8 @@ class Dumper(DumperBase):
     def createResolvePendingBreakpointsHookBreakpoint(self, args):
         # No-op for cdb. The gdb/lldb bridges set a Python-side breakpoint on
         # qt_qmlDebugConnectorOpen here to resolve pending QML breakpoints;
-        # CdbEngine instead sets that internal breakpoint itself (runEngine)
-        # and resolves the pending breakpoints from handleQmlDebugConnectorOpen.
+        # The engine instead sets that internal breakpoint itself and resolves
+        # the pending breakpoints when it is hit.
         # Overriding keeps the base insertInterpreterBreakpoint from calling the
         # gdb/lldb-only helper and raising AttributeError before it reports the
         # breakpoint pending.

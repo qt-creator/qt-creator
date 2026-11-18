@@ -176,6 +176,7 @@ public:
     QString crtDebugReportModule;
     bool reportFirstChanceExceptions = false;
     bool reportSecondChanceExceptions = false;
+    bool usePythonDumper = true;
     int inferiorWordWidth = 64;
     bool nativeMixed = false;
     int qtVersion = 0;

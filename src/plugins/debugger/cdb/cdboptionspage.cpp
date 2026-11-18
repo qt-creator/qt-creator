@@ -187,7 +187,6 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
                 Column {
                     s.ignoreFirstChanceAccessViolation,
                     s.cdbBreakOnCrtDbgReport,
-                    s.cdbBreakPointCorrection,
                     s.cdbUsePythonDumper,
                     s.cdbJustMyCode,
                     s.enableHeapDebugging

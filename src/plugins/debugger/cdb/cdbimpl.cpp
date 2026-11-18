@@ -30,7 +30,7 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
-// Above DebuggerCommand's own flags, as CdbEngine::CommandFlags is.
+// Above DebuggerCommand's own flags.
 enum CommandFlags {
     NoFlags = 0,
     BuiltinCommand = DebuggerCommand::Silent << 1,
@@ -96,9 +96,8 @@ QString registerTypeName(const QString &reportedType)
 }
 
 // The group cdb's register width stands for, in the vocabulary the Registers
-// view sorts by. It is where CdbEngine's IntegerRegister/FloatRegister/
-// VectorRegister kind went: the pointer-wide integers the view reinterprets are
-// the general ones, and the wider float and vector registers stay out of them.
+// view sorts by. The pointer-wide integers the view reinterprets are the
+// general ones, and the wider float and vector registers stay out of them.
 static QString registerGroupName(const QString &reportedType)
 {
     if (reportedType.startsWith('F'))
@@ -1318,7 +1317,7 @@ void CdbImpl::insertBreakpoint(quint64 requestId, const QString &id, int modelId
     if (!params.condition.isEmpty())
         m_conditionForBreakpointId.insert(id, params.condition);
     m_insertedBreakpoints.insert(id, params);
-    // cdb reports a C++ throw as an event of its own, which is what CdbEngine
+    // cdb reports a C++ throw as an event of its own, which is what the engine
     // breaks on. The runtime helper behind it is a symbol in whichever module
     // the inferior took its runtime from - resolvable here, but against a
     // dynamically linked runtime it matches an import thunk as well.
@@ -2160,7 +2159,7 @@ static QString stoppedFunction(const GdbMi &stopData)
 }
 
 // The bridge decodes the pending QML debug event and says whether it is a real
-// stop; anything else is machinery to continue past. Mirrors CdbEngine.
+// stop. Anything else is machinery to continue past.
 void CdbImpl::handleInterpreterMessage(const GdbMi &stopData)
 {
     runCommand({"theDumper.reportInterpreterMessage()", ScriptCommand,
@@ -2587,6 +2586,11 @@ Result<QStringList> CdbImpl::pipeDumperModules(DumperPipe mode)
 
 void CdbImpl::setupScripting()
 {
+    if (!m_startData.usePythonDumper) {
+        emit message("CdbImpl: the Python dumper is turned off, so no dumper bridge.", LogMisc);
+        flushPendingBridgeWork();
+        return;
+    }
     runCommand({"print(sys.version)", ScriptCommand, [this](const DebuggerResponse &response) {
         const GdbMi data = response.data["msg"];
         if (response.resultClass != ResultDone || data.childCount() == 0) {
@@ -2775,8 +2779,8 @@ void CdbImpl::settleStackBitness(Wow64State state)
 }
 
 // The header of "k" names the frame pointer of the mode cdb is in: "ChildEBP" for
-// the 32-bit stack, "Child-SP" for the 64-bit one. CdbEngine reads the reply of
-// the switch instead, which no longer says what it expects.
+// the 32-bit stack, "Child-SP" for the 64-bit one. The reply of the switch no
+// longer says which mode it is in.
 void CdbImpl::checkStackBitness(bool maySwitch)
 {
     runCommand({"k", BuiltinCommand, [this, maySwitch](const DebuggerResponse &response) {
@@ -3988,7 +3992,7 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
         }
         // An inferior call of ours makes dbgeng re-announce the stop it was made
         // from, without a reason or a breakpoint id to route by. Recognizing it
-        // by location, as CdbEngine does, needs private symbols, which a release
+        // by location needs private symbols, which a release
         // Qt does not ship; that the engine itself is driving the inferior is
         // known either way.
         const QString stopFunction = stoppedFunction(stopData);
@@ -4183,7 +4187,7 @@ bool stoppedByBreakIn(const GdbMi &stopData)
 }
 
 // Stepping into a call can land on the jump the linker put in front of the
-// function, which has no source of its own. CdbEngine steps once more from
+// function, which has no source of its own. The engine steps once more from
 // there, so that what gets reported is the function itself.
 // Where a step into ended up. cdb stops on the linker thunk before it reaches
 // the function, and a function whose sources are not on this machine is nothing
@@ -4728,7 +4732,7 @@ void CdbImpl::runCommand(const DebuggerCommand &dbgCmd)
     }
     // A command written into a running session is executed by cdb at the next
     // stop, ahead of the engine's own handling of it. Interrupt and re-issue it
-    // once the inferior is back, as CdbEngine does for a non-accessible session.
+    // once the inferior is back.
     if (m_inferiorRunning && dbgCmd.flags != NoFlags) {
         m_deferredCommands.append(dbgCmd);
         if (!m_callbackStop) {

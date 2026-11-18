@@ -205,6 +205,7 @@ private slots:
     void testCdbImplExtensionLocals();
     void testCdbImplStatusReports();
     void testCdbImplInterpreterBreakpointWithoutPython();
+    void testCdbImplPythonDumperOff();
     void testCdbImplExceptionAfterInternalStop();
     void testCdbImplAttach_data();
     void testCdbImplAttach();
@@ -230,8 +231,6 @@ private slots:
     void testHiddenLogHeadEndingAtTheLimit();
     void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
-    void testCdbSourcePathMappingToHost();
-    void testCdbSourceFileNameOnDevice();
     void testCdbBreakpointFileName();
     void testCdbEnvironmentScript();
     void testCdbEnvironmentScriptOnDevice();
@@ -1566,13 +1565,6 @@ void DebuggerUnitTests::testCdbImplCommandLine()
         }
         QVERIFY(!stagedByImpl[0].exists());
         QVERIFY(!stagedByImpl[1].exists());
-        const FilePath stagedByEngine = inferiorDir / "qtc-cdb-engine.cmd";
-        QVERIFY(stagedByEngine.writeFileContents("@echo off\r\n"));
-        {
-            CdbEngine engine;
-            engine.m_environmentScriptFile = stagedByEngine;
-        }
-        QVERIFY(!stagedByEngine.exists());
     }
 
     // Attaching to a remote server: "-remote" has to come first, the session loads
@@ -2699,6 +2691,39 @@ void DebuggerUnitTests::testCdbImplInterpreterBreakpointWithoutPython()
     QVERIFY(cdb.m_cdbProc.waitForFinished());
 }
 
+void DebuggerUnitTests::testCdbImplPythonDumperOff()
+{
+    CdbImplStartData startData;
+    startData.nativeMixed = true;
+    startData.usePythonDumper = false;
+    CdbImpl cdb(startData);
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+    QList<bool> inserted;
+    QObject::connect(&cdb, &CdbImpl::breakpointEvent, &cdb,
+                     [&inserted](quint64, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            inserted.append(ok);
+    });
+
+    BreakpointChangeRequest request;
+    request.requestId = 1;
+    request.params = BreakpointParameters(BreakpointByFileAndLine);
+    request.params.fileName = FilePath::fromString("/src/main.qml");
+    request.params.textPosition.line = 3;
+    cdb.changeBreakpoint(request);
+    QVERIFY(inserted.isEmpty());
+
+    // No probe for Python goes out, and what waited for it is answered at once.
+    cdb.setupScripting();
+    QCOMPARE(inserted, QList<bool>{false});
+    QVERIFY(!written.join('\n').contains("sys.version"));
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
 void DebuggerUnitTests::testCdbImplExceptionAfterInternalStop()
 {
     CdbImpl cdb({});
@@ -3651,48 +3676,6 @@ void DebuggerUnitTests::testCdbSourcePathMapping()
              QString("C:/src/foo.cpp"));
 }
 
-// A remote cdb names the files of its device. A mapped name the host has stays
-// on the host, one it misses is looked up on the device and stays local when
-// the device lacks it, too. The mapped name keeps cdb's separators after the
-// mapped part, which only a Windows host would accept as they are.
-void DebuggerUnitTests::testCdbSourcePathMappingToHost()
-{
-    QTemporaryDir hostDir;
-    QVERIFY(hostDir.isValid());
-    const FilePath hostFile = FilePath::fromString(hostDir.path()) / "main.cpp";
-    QVERIFY(hostFile.writeFileContents("int main() {}\n"));
-
-    CdbEngine engine;
-    DebuggerRunParameters rp;
-    ProcessRunData cdb;
-    cdb.command = CommandLine(FilePath::fromString("ssh://windows/C:/Debuggers/x64/cdb.exe"));
-    rp.setDebugger(cdb);
-    engine.setRunParameters(rp);
-    engine.m_sourcePathMappings.push_back({"C:/build/src", hostDir.path()});
-
-    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
-    const QScopeGuard restore(
-        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
-    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
-
-    const auto mapped = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\src\\main.cpp");
-    QVERIFY(mapped.fileName.isLocal());
-    QVERIFY(mapped.fileName.isSameFile(hostFile));
-    QVERIFY(mapped.exists);
-
-    const auto missing = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\src\\gone.cpp");
-    QVERIFY(missing.fileName.isLocal());
-    QCOMPARE(missing.fileName.fileName(), QString("gone.cpp"));
-    QVERIFY(!missing.exists);
-
-    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(false);
-
-    const auto unmapped = engine.sourceMapNormalizeFileNameFromDebugger("c:\\other\\x\\..\\a.cpp");
-    QVERIFY(unmapped.fileName.isLocal());
-    QCOMPARE(unmapped.fileName.path(), QString("C:/other/a.cpp"));
-    QVERIFY(!unmapped.exists);
-}
-
 static const char noWindowsTestDevice[]
     = "Set QTC_SSH_TEST_WIN_HOST (and _USER/_PORT/_KEYFILE) to a Windows-over-SSH host, "
       "and load the Remote plugin.";
@@ -3727,47 +3710,6 @@ static bool connectToDevice(const IDevicePtr &device)
     return loop.exec() == 0;
 }
 
-// A file that only the device of a remote cdb has is found there.
-void DebuggerUnitTests::testCdbSourceFileNameOnDevice()
-{
-    const IDevicePtr device = addWindowsTestDevice();
-    if (!device)
-        QSKIP(noWindowsTestDevice);
-    const QScopeGuard cleanup([id = device->id()] { DeviceManager::removeDevice(id); });
-    QVERIFY2(connectToDevice(device), "Cannot connect to the device.");
-
-    const bool wasOn = commonSettings().lookUpSourcesOnDebuggerDevice();
-    commonSettings().lookUpSourcesOnDebuggerDevice.setValue(true);
-    const QScopeGuard restore(
-        [wasOn] { commonSettings().lookUpSourcesOnDebuggerDevice.setValue(wasOn); });
-
-    CdbEngine engine;
-    DebuggerRunParameters rp;
-    ProcessRunData cdb;
-    cdb.command = CommandLine(device->rootPath().withNewPath("C:/Debuggers/x64/cdb.exe"));
-    rp.setDebugger(cdb);
-    engine.setRunParameters(rp);
-
-    const auto onDevice
-        = engine.sourceMapNormalizeFileNameFromDebugger("c:\\windows\\system32\\..\\win.ini");
-    QCOMPARE(onDevice.fileName, device->rootPath().withNewPath("C:/windows/win.ini"));
-    QVERIFY(onDevice.exists);
-
-    // A mapping may point to the device, too.
-    const Result<FilePath> tmp = device->rootPath().tmpDir();
-    if (!tmp)
-        QFAIL(qPrintable(tmp.error()));
-    const Result<FilePath> dir = tmp->pathAppended("debuggertest-XXXXXX").createTempDir();
-    if (!dir)
-        QFAIL(qPrintable(dir.error()));
-    const QScopeGuard removeDir([dir] { dir->removeRecursively(); });
-    QVERIFY(dir->pathAppended("main.cpp").writeFileContents("int main() {}\n"));
-    engine.m_sourcePathMappings.push_back({"C:/build", dir->path()});
-    const auto mapped = engine.sourceMapNormalizeFileNameFromDebugger("C:\\build\\main.cpp");
-    QCOMPARE(mapped.fileName, dir->pathAppended("main.cpp"));
-    QVERIFY(mapped.exists);
-}
-
 void DebuggerUnitTests::testCdbBreakpointFileName()
 {
     BreakpointParameters params(BreakpointByFileAndLine);
@@ -3777,19 +3719,19 @@ void DebuggerUnitTests::testCdbBreakpointFileName()
     const QList<QPair<QString, QString>> mapping{{"X:/buildsrv", "C:/src"}};
     const QString mapped = HostOsInfo::isWindowsHost() ? QString("X:\\buildsrv\\foo.cpp")
                                                        : QString("X:/buildsrv/foo.cpp");
-    QCOMPARE(cdbAddBreakpointCommand(params, mapping, "100000"),
+    QCOMPARE(breakpointInsertCommand(params, "100000", mapping),
              QString("bu100000 `%1:42`").arg(mapped));
 
     // What reaches cdb is spelled the way the file's own device spells it,
     // which is not necessarily the way the host does.
     const QString unmapped = HostOsInfo::isWindowsHost() ? QString("C:\\src\\foo.cpp")
                                                          : QString("C:/src/foo.cpp");
-    QCOMPARE(cdbAddBreakpointCommand(params, {}, "100000"),
+    QCOMPARE(breakpointInsertCommand(params, "100000", {}),
              QString("bu100000 `%1:42`").arg(unmapped));
 
     // A short path takes part in no mapping at all.
     params.pathUsage = BreakpointUseShortPath;
-    QCOMPARE(cdbAddBreakpointCommand(params, mapping, "100000"),
+    QCOMPARE(breakpointInsertCommand(params, "100000", mapping),
              QString("bu100000 `foo.cpp:42`"));
 }
 
@@ -5253,9 +5195,9 @@ public:
     explicit BackendUnderTest(bool generic)
         : m_wasOn(commonSettings().useGenericDebugger())
     {
-        if (kitDebuggerIsLldb()) {
+        if (kitDebuggerHasOnlyItsImpl()) {
             if (!generic)
-                m_reason = "LLDB always runs LldbImpl.";
+                m_reason = "LLDB and CDB always run their Impl.";
         } else if (isUseGenericDebuggerOverride() && useGenericDebuggerEnabled() != generic) {
             m_reason = "QTC_USE_GENERIC_DEBUGGER decides which backends run.";
         }
@@ -5266,11 +5208,13 @@ public:
     QString reasonItIsNotUnderTest() const { return m_reason; }
 
 private:
-    static bool kitDebuggerIsLldb()
+    static bool kitDebuggerHasOnlyItsImpl()
     {
         Kit *kit = nullptr;
-        return preCheckStepTests(&kit).isEmpty()
-               && DebuggerKitAspect::engineType(kit) == LldbEngineType;
+        if (!preCheckStepTests(&kit).isEmpty())
+            return false;
+        const DebuggerEngineType type = DebuggerKitAspect::engineType(kit);
+        return type == LldbEngineType || type == CdbEngineType;
     }
 
     bool m_wasOn = false;

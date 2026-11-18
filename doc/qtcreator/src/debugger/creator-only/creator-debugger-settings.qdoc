@@ -36,8 +36,7 @@
     was generated. In such situations, the breakpoint is shifted to the next
     source code line for which the code was actually generated. To reflect
     such temporary changes by moving the breakpoint markers in the source code
-    editor, select \uicontrol GDB > \uicontrol {Adjust breakpoint locations}
-    or \uicontrol CDB > \uicontrol {Correct breakpoint location}.
+    editor, select \uicontrol GDB > \uicontrol {Adjust breakpoint locations}.
 
     When using GDB as backend, you can extend the ordinary GDB
     breakpoint class by using Python. Select \uicontrol GDB >
@@ -259,14 +258,6 @@
         \li \uicontrol {Stop when CrtDbgReport() is called}
         \li Automatically adds a breakpoint on the \c CrtDbgReport() function to
             catch runtime error messages caused by \c assert(), for example.
-    \row
-        \li \uicontrol {Correct breakpoint location}
-        \li CDB enables setting breakpoints in comments or on source lines for
-            which no code was generated. In such situations, the breakpoint is
-            shifted to the next source code line for which the code was actually
-            generated. To reflect such temporary changes by moving the breakpoint
-            markers in the source code editor, select this checkbox. For more
-            information, see \l{Setting breakpoints}.
     \row
         \li \uicontrol {Use Python dumper}
         \li Uses the abstraction layer of Python Dumper classes to create a
