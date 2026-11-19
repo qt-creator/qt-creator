@@ -348,6 +348,7 @@ CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizard
     }
 
     rc->setParameters(p);
+    rc->setSourceFilePath(FilePath::fromString(p->directory).pathAppended(configFileC));
     return rc;
 }
 

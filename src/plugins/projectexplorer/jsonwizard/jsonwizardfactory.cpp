@@ -521,6 +521,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                 continue;
             }
 
+            (*factory)->setSourceFilePath(currentFile);
             result << *factory;
         }
     }

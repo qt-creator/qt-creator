@@ -8,6 +8,7 @@
 #include "documentmanager.h"
 #include "icore.h"
 #include "featureprovider.h"
+#include "messagemanager.h"
 
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
@@ -178,6 +179,12 @@ static Id actionId(const IWizardFactory *factory)
     return factory->id().withPrefix("Wizard.Impl.");
 }
 
+static QString sourceDescription(const IWizardFactory *factory)
+{
+    const FilePath source = factory->sourceFilePath();
+    return source.isEmpty() ? Tr::tr("built-in") : source.toUserOutput();
+}
+
 QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 {
     if (!s_areFactoriesLoaded) {
@@ -194,10 +201,12 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 
                 QTC_ASSERT(existingFactory != newFactory, continue);
                 if (existingFactory) {
-                    qWarning("%s",
-                             qPrintable(
-                                 Tr::tr("Factory with id=\"%1\" already registered. Deleting.")
-                                     .arg(existingFactory->id().toString())));
+                    MessageManager::writeDisrupting(
+                        Tr::tr("Ignoring wizard with ID \"%1\" from \"%2\", because a wizard "
+                               "with the same ID was already loaded from \"%3\".")
+                            .arg(newFactory->id().toString(),
+                                 sourceDescription(newFactory),
+                                 sourceDescription(existingFactory)));
                     delete newFactory;
                     continue;
                 }

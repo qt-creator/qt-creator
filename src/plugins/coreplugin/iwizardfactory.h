@@ -6,6 +6,8 @@
 #include "core_global.h"
 #include "featureprovider.h"
 
+#include <utils/filepath.h>
+
 #include <QIcon>
 #include <QObject>
 #include <QString>
@@ -16,7 +18,6 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 
 namespace Utils {
-class FilePath;
 class Wizard;
 } // Utils
 
@@ -48,6 +49,7 @@ public:
     QString descriptionImage() const { return m_descriptionImage; }
     QSet<Utils::Id> requiredFeatures() const { return m_requiredFeatures; }
     WizardFlags flags() const { return m_flags; }
+    Utils::FilePath sourceFilePath() const { return m_sourceFilePath; }
 
     QSet<Utils::Id> supportedProjectTypes() const { return m_supportedProjectTypes; }
 
@@ -62,6 +64,7 @@ public:
     void setRequiredFeatures(const QSet<Utils::Id> &featureSet) { m_requiredFeatures = featureSet; }
     void addRequiredFeature(const Utils::Id &feature) { m_requiredFeatures |= feature; }
     void setFlags(WizardFlags flags) { m_flags = flags; }
+    void setSourceFilePath(const Utils::FilePath &filePath) { m_sourceFilePath = filePath; }
 
     Utils::FilePath runPath(const Utils::FilePath &defaultPath) const;
 
@@ -120,6 +123,7 @@ private:
     QSet<Utils::Id> m_supportedProjectTypes;
     WizardFlags m_flags;
     Utils::Id m_id;
+    Utils::FilePath m_sourceFilePath;
 
     friend class Internal::CorePlugin;
 };
