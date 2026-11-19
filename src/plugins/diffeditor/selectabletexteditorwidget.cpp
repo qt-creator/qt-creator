@@ -58,6 +58,18 @@ void SelectableTextEditorWidget::setSelections(const DiffSelections &selections)
     m_diffSelections = selections;
 }
 
+void SelectableTextEditorWidget::setFormatReplacements(const FormatReplacements &replacements)
+{
+    m_formatReplacements = replacements;
+    viewport()->update();
+}
+
+const QTextCharFormat *SelectableTextEditorWidget::displayedFormat(
+    const DiffSelection &selection) const
+{
+    return m_formatReplacements.value(selection.format, selection.format);
+}
+
 void SelectableTextEditorWidget::setDisplaySettings(const DisplaySettingsData &displaySettings)
 {
     DisplaySettingsData settings = displaySettings;
@@ -142,7 +154,7 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
 
     QList<QTextLayout::FormatRange> newSelections;
     for (const DiffSelection &diffSelection : diffs) {
-        if (diffSelection.format) {
+        if (const QTextCharFormat *format = displayedFormat(diffSelection)) {
             QTextLayout::FormatRange formatRange;
             formatRange.start = qMax(0, diffSelection.start);
             const int end = diffSelection.end < 0
@@ -150,7 +162,7 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
                     : qMin(block.text().size(), diffSelection.end);
 
             formatRange.length = end - formatRange.start;
-            formatRange.format = *diffSelection.format;
+            formatRange.format = *format;
             if (diffSelection.end < 0)
                 formatRange.format.setProperty(QTextFormat::FullWidthSelection, true);
             newSelections.append(formatRange);

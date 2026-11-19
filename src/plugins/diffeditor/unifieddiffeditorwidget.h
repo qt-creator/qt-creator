@@ -84,7 +84,7 @@ public:
     void setDiff(const QList<FileData> &diffFileList);
     void setHighlightChangedCharacters(bool on)
     {
-        m_controller.m_highlightChangedCharacters = on;
+        setFormatReplacements(m_controller.charFormatReplacements(on));
     }
     void setCurrentDiffFileIndex(int diffFileIndex);
 

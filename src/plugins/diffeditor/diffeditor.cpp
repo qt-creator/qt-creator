@@ -813,10 +813,6 @@ void DiffEditor::highlightChangedCharactersHasChanged()
     saveSetting(highlightChangedCharactersKeyC, on);
     for (IDiffView *view : std::as_const(m_views))
         view->setHighlightChangedCharacters(on);
-    if (m_document->state() != DiffEditorDocument::LoadOK)
-        return;
-    prepareForReload();
-    documentHasChanged();
 }
 
 void DiffEditor::diffAlgorithmHasChanged()

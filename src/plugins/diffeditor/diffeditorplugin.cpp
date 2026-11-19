@@ -674,6 +674,7 @@ private slots:
     void testChangeSignsToggle();
     void testOptionsMenu();
     void testHighlightChangedCharacters();
+    void testHighlightChangedCharactersKeepsPosition();
     void testDuplicateKeepsHighlightChangedCharacters();
     void testOpenPatch_data();
     void testOpenPatch();
@@ -1256,32 +1257,58 @@ void DiffEditor::Internal::DiffEditorPlugin::testOptionsMenu()
 
 void DiffEditor::Internal::DiffEditorPlugin::testHighlightChangedCharacters()
 {
-    RowData row{TextLineData("old line"), TextLineData("new line")};
-    row.line[LeftSide].changedPositions.insert(0, 3);
-    row.line[RightSide].changedPositions.insert(0, 3);
-    ChunkData chunk;
-    chunk.rows = {row};
-
     DiffEditorWidgetController controller(nullptr);
-    const auto usesCharFormat = [&controller, &chunk] {
-        const DiffEditorInput input(&controller);
-        UnifiedDiffData data;
-        DiffSelections selections;
-        int blockNumber = 0;
-        data.setChunk(input, chunk, false, &blockNumber, &selections);
-        for (const QList<DiffSelection> &line : std::as_const(selections)) {
-            for (const DiffSelection &selection : line) {
-                if (selection.format == &controller.m_charFormat[LeftSide]
-                    || selection.format == &controller.m_charFormat[RightSide]) {
-                    return true;
-                }
-            }
+    SelectableTextEditorWidget widget("DiffEditor.Test");
+    for (DiffSide side : {LeftSide, RightSide}) {
+        const DiffSelection charSelection{&controller.m_charFormat[side], 0, 3};
+        const DiffSelection lineSelection{&controller.m_lineFormat[side]};
+        widget.setFormatReplacements(controller.charFormatReplacements(true));
+        QCOMPARE(widget.displayedFormat(charSelection), &controller.m_charFormat[side]);
+        widget.setFormatReplacements(controller.charFormatReplacements(false));
+        QCOMPARE(widget.displayedFormat(charSelection), &controller.m_lineFormat[side]);
+        QCOMPARE(widget.displayedFormat(lineSelection), &controller.m_lineFormat[side]);
+    }
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testHighlightChangedCharactersKeepsPosition()
+{
+    QByteArray patch = "--- a/a.txt\n+++ b/a.txt\n@@ -1,40 +1,40 @@\n";
+    for (int i = 0; i < 40; ++i)
+        patch += "-old" + QByteArray::number(i) + '\n';
+    for (int i = 0; i < 40; ++i)
+        patch += "+new" + QByteArray::number(i) + '\n';
+    TemporaryDirectory tempDir("qtc-diffeditor-XXXXXX");
+    QVERIFY(tempDir.isValid());
+    const FilePath filePath = tempDir.filePath("test.patch");
+    QVERIFY(filePath.writeFileContents(patch));
+    IEditor *editor = EditorManager::openEditor(filePath, Constants::DIFF_EDITOR_ID);
+    QVERIFY(editor);
+    const QScopeGuard close([editor] { EditorManager::closeEditors({editor}, false); });
+    QAction *action = editor->toolBar()->findChild<QAction *>(
+        "DiffEditorCharacterChangesAction");
+    QVERIFY(action);
+    const bool previous = action->isChecked();
+    const QScopeGuard restore([action, previous] { action->setChecked(previous); });
+    const auto renderedWidget = [editor]() -> SelectableTextEditorWidget * {
+        const QList<SelectableTextEditorWidget *> widgets
+            = editor->widget()->findChildren<SelectableTextEditorWidget *>();
+        for (SelectableTextEditorWidget *widget : widgets) {
+            if (widget->toPlainText().contains("new39"))
+                return widget;
         }
-        return false;
+        return nullptr;
     };
-    QVERIFY(usesCharFormat());
-    controller.m_highlightChangedCharacters = false;
-    QVERIFY(!usesCharFormat());
+    QTRY_VERIFY(renderedWidget());
+    SelectableTextEditorWidget *widget = renderedWidget();
+    widget->moveCursor(QTextCursor::End);
+    const int blockNumber = widget->textCursor().blockNumber();
+    QVERIFY(blockNumber > 0);
+    const QTextDocument *document = widget->document();
+    for (int i = 0; i < 2; ++i) {
+        action->toggle();
+        QCOMPARE(widget->document(), document);
+        QCOMPARE(widget->textCursor().blockNumber(), blockNumber);
+    }
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testDuplicateKeepsHighlightChangedCharacters()

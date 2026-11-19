@@ -19,6 +19,7 @@ public:
 // DiffSelection.start - can be -1 (continues from the previous line)
 // DiffSelection.end - can be -1 (spans to the end of line, even after the last character in line)
 using DiffSelections = QMap<int, QList<DiffSelection>>;
+using FormatReplacements = QHash<const QTextCharFormat *, const QTextCharFormat *>;
 
 class SelectableTextEditorWidget : public TextEditor::TextEditorWidget
 {
@@ -27,6 +28,8 @@ public:
     SelectableTextEditorWidget(Utils::Id id, QWidget *parent = nullptr);
     ~SelectableTextEditorWidget() override;
     void setSelections(const DiffSelections &selections);
+    void setFormatReplacements(const FormatReplacements &replacements);
+    const QTextCharFormat *displayedFormat(const DiffSelection &selection) const;
 
     void setDisplaySettings(const TextEditor::DisplaySettingsData &displaySettings) override;
 
@@ -44,6 +47,7 @@ private:
                     const QRect &clipRect) const override;
 
     DiffSelections m_diffSelections;
+    FormatReplacements m_formatReplacements;
     QMetaObject::Connection m_tabSettingsConnection;
 };
 

@@ -265,6 +265,16 @@ ChunkData DiffEditorWidgetController::chunkData(int fileIndex, int chunkIndex) c
     return fileData.chunks.at(chunkIndex);
 }
 
+QHash<const QTextCharFormat *, const QTextCharFormat *>
+DiffEditorWidgetController::charFormatReplacements(bool highlightChangedCharacters) const
+{
+    if (highlightChangedCharacters)
+        return {};
+    // Without the highlighting, changed characters look like the rest of their line.
+    return {{&m_charFormat[LeftSide], &m_lineFormat[LeftSide]},
+            {&m_charFormat[RightSide], &m_lineFormat[RightSide]}};
+}
+
 bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
 {
     const FileData fileData = m_contextFileData.at(fileIndex);
@@ -397,11 +407,7 @@ DiffEditorInput::DiffEditorInput(DiffEditorWidgetController *controller)
     , m_chunkLineFormat(&controller->m_chunkLineFormat)
     , m_spanLineFormat(&controller->m_spanLineFormat)
     , m_lineFormat{&controller->m_lineFormat[LeftSide], &controller->m_lineFormat[RightSide]}
-{
-    // Without the highlighting, changed characters look like the rest of their line.
-    auto &charFormats = controller->m_highlightChangedCharacters ? controller->m_charFormat
-                                                                 : controller->m_lineFormat;
-    m_charFormat = {&charFormats[LeftSide], &charFormats[RightSide]};
-}
+    , m_charFormat{&controller->m_charFormat[LeftSide], &controller->m_charFormat[RightSide]}
+{ }
 
 } // namespace DiffEditor::Internal

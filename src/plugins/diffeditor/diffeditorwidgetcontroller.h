@@ -8,6 +8,7 @@
 #include <coreplugin/patchtool.h>
 #include <utils/guard.h>
 
+#include <QHash>
 #include <QObject>
 #include <QTextCharFormat>
 #include <QTimer>
@@ -61,6 +62,8 @@ public:
     int currentDiffFileIndex() const { return m_currentDiffFileIndex; }
 
     ChunkData chunkData(int fileIndex, int chunkIndex) const;
+    QHash<const QTextCharFormat *, const QTextCharFormat *> charFormatReplacements(
+        bool highlightChangedCharacters) const;
 
     Utils::Guard m_ignoreChanges;
     QList<FileData> m_contextFileData; // ultimate data to be shown
@@ -70,7 +73,6 @@ public:
     QTextCharFormat m_spanLineFormat;
     std::array<QTextCharFormat, SideCount> m_lineFormat{};
     std::array<QTextCharFormat, SideCount> m_charFormat{};
-    bool m_highlightChangedCharacters = true;
 
 private:
     bool isInProgress() const;

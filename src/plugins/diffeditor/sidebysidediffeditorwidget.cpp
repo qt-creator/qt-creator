@@ -874,6 +874,13 @@ void SideBySideDiffEditorWidget::setHorizontalSync(bool sync)
     horizontalSliderChanged(RightSide);
 }
 
+void SideBySideDiffEditorWidget::setHighlightChangedCharacters(bool on)
+{
+    const FormatReplacements replacements = m_controller.charFormatReplacements(on);
+    for (SideDiffEditorWidget *editor : m_editor)
+        editor->setFormatReplacements(replacements);
+}
+
 void SideBySideDiffEditorWidget::saveState()
 {
     for (SideDiffEditorWidget *editor : m_editor)
