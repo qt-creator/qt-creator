@@ -100,7 +100,7 @@ Semantic::ExprResult Semantic::functionIdentifier(FunctionIdentifierAST *ast)
                     result.type = s->type();
                 else
                     reportError(ast, QString::fromLatin1("`%1' cannot be used as a function").arg(*ast->name));
-            } else {
+            } else if (!_engine->isMacro(*ast->name)) {
                 reportError(ast, QString::fromLatin1("`%1' was not declared in this scope").arg(*ast->name));
             }
         } else if (ast->type) {
@@ -160,7 +160,7 @@ bool Semantic::visit(IdentifierExpressionAST *ast)
     if (ast->name) {
         if (Symbol *s = _scope->lookup(*ast->name))
             _expr.type = s->type();
-        else
+        else if (!_engine->isMacro(*ast->name))
             reportError(ast, QString::fromLatin1("`%1' was not declared in this scope").arg(*ast->name));
     }
     return false;
@@ -194,7 +194,7 @@ bool Semantic::visit(BinaryExpressionAST *ast)
     _expr.isConstant = left.isConstant && right.isConstant;
     switch (ast->kind) {
     case AST::Kind_ArrayAccess:
-        if (left.type) {
+        if (left.isValid()) {
             if (const IndexType *idxType = left.type->asIndexType())
                 _expr = idxType->indexElementType();
             else
@@ -262,7 +262,7 @@ bool Semantic::visit(AssignmentExpressionAST *ast)
 bool Semantic::visit(MemberAccessExpressionAST *ast)
 {
     ExprResult expr = expression(ast->expr);
-    if (expr.type && ast->field) {
+    if (expr.isValid() && ast->field) {
         if (const VectorType *vecTy = expr.type->asVectorType()) {
             if (Symbol *s = vecTy->find(*ast->field))
                 _expr.type = s->type();
@@ -819,7 +819,8 @@ bool Semantic::visit(NamedTypeAST *ast)
                 return false;
             }
         }
-        reportError(ast, QString::fromLatin1("Undefined type `%1'").arg(*ast->name));
+        if (!_engine->isMacro(*ast->name))
+            reportError(ast, QString::fromLatin1("Undefined type `%1'").arg(*ast->name));
     }
 
     return false;

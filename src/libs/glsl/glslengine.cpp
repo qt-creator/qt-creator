@@ -84,6 +84,16 @@ const QString *Engine::identifier(const char *s, int n)
     return &(*_identifiers.insert(QString::fromLatin1(s, n)).first);
 }
 
+void Engine::addMacro(const QString &name)
+{
+    _macros.insert(name);
+}
+
+bool Engine::isMacro(const QString &name) const
+{
+    return _macros.contains(name);
+}
+
 std::unordered_set<QString> Engine::identifiers() const
 {
     return _identifiers;

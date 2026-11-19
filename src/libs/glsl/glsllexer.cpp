@@ -29,6 +29,22 @@ Lexer::~Lexer()
 {
 }
 
+// Returns NAME for a "define NAME ..." directive line, empty otherwise.
+static QByteArrayView definedMacroName(QByteArrayView line)
+{
+    line = line.trimmed();
+    if (!line.startsWith("define"))
+        return {};
+    line = line.sliced(6);
+    if (line.isEmpty() || !std::isspace(uchar(line.front())))
+        return {};
+    line = line.trimmed();
+    qsizetype n = 0;
+    while (n < line.size() && (std::isalnum(uchar(line.at(n))) || line.at(n) == '_'))
+        ++n;
+    return line.first(n);
+}
+
 void Lexer::yyinp()
 {
     _yychar = (unsigned char) *_it++;
@@ -87,12 +103,17 @@ int Lexer::yylex_helper(const char **position, int *line)
     yyinp();
 
     switch (ch) {
-    case '#':
+    case '#': {
+        const char *directive = _it - 1;
         for (; _yychar; yyinp()) {
             if (_yychar == '\n')
                 break;
         }
+        const QByteArrayView name = definedMacroName(QByteArrayView(directive, _it - 1));
+        if (_engine && !name.isEmpty())
+            _engine->addMacro(QString::fromLatin1(name));
         goto again;
+    }
 
         // one of `!', `!='
     case '!':

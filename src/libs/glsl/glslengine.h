@@ -98,6 +98,9 @@ public:
     const QString *number(const char *s, int n);
     std::unordered_set<QString> numbers() const;
 
+    void addMacro(const QString &name);
+    bool isMacro(const QString &name) const;
+
     // types
     const UndefinedType *undefinedType();
     const VoidType *voidType();
@@ -134,6 +137,7 @@ public:
 private:
     std::unordered_set<QString> _identifiers;
     std::unordered_set<QString> _numbers;
+    std::unordered_set<QString> _macros;
     TypeTable<VectorType> _vectorTypes;
     TypeTable<MatrixType> _matrixTypes;
     TypeTable<ArrayType> _arrayTypes;
