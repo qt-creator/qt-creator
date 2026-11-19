@@ -4,10 +4,10 @@
         "ProjectExplorer.WorkspaceProject"
     ],
     "id": "R.QtCreatorLuaPlugin",
-    "category": "G.Library",
+    "category": "G.QtCreator",
     "trDescription": "Creates a custom Qt Creator Lua plugin.",
     "trDisplayName": "Qt Creator Lua Plugin",
-    "trDisplayCategory": "Library",
+    "trDisplayCategory": "Qt Creator",
     "icon": "icon.png",
     "iconKind": "Themed",
     "featuresRequired": [],
