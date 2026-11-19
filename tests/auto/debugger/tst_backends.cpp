@@ -8022,10 +8022,13 @@ std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend
     engine->start();
 
     [backendPtr = debuggerBackend.get(), backend] {
-        QTRY_VERIFY_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::SpontaneousStop)
-                                 || backendPtr->contains(InferiorEvent::EngineSetupFailed)
-                                 || backendPtr->contains(InferiorEvent::EngineRunFailed),
-                                 startupTimeout(backend));
+        QTRY_VERIFY2_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::SpontaneousStop)
+                                  || backendPtr->contains(InferiorEvent::EngineSetupFailed)
+                                  || backendPtr->contains(InferiorEvent::EngineRunFailed),
+                                  qPrintable(backendPtr->lastMessages()),
+                                  startupTimeout(backend));
+        QVERIFY2(backendPtr->contains(InferiorEvent::SpontaneousStop),
+                 qPrintable(backendPtr->lastMessages()));
     }();
 
     if (QTest::currentTestFailed() || !debuggerBackend->contains(InferiorEvent::SpontaneousStop))
@@ -15098,6 +15101,7 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
                               qPrintable("the resolved QML breakpoint never signaled a stop"
                                          " - last wire traffic:\n  " + wireTail(wire)),
                               s_timeout);
+    const QString wireUpToStop = wireTail(wire);
 
     // Getting there takes internal stops - the hook that resolves a pending
     // breakpoint, and the events the interpreter does not stop for. Each is
@@ -15132,8 +15136,10 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
                                               [markerLine](const GdbMi &frame) {
         return frame["language"].data() == "js" && frame["line"].toInt() == markerLine;
     });
-    QVERIFY2(stoppedAtMarker, qPrintable(QString("no js frame at line %1 - stack: %2")
-                                             .arg(markerLine).arg(stack.toString())));
+    QVERIFY2(stoppedAtMarker, qPrintable(QString("no js frame at line %1 - stack: %2"
+                                                 " - wire traffic up to the stop:\n  %3")
+                                             .arg(markerLine)
+                                             .arg(stack.toString(), wireUpToStop)));
 
     // The same stop as a plain stack refresh, where the QML frames are spliced
     // in rather than prepended. The stop lands in the service's notification

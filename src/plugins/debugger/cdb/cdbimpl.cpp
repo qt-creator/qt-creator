@@ -865,6 +865,7 @@ void CdbImpl::execute(const ExecutionRequest &request)
             emit inferiorEvent(InferiorEvent::RunOk);
             m_interpreterStepArmed = true;
             if (request.currentFrameIsQml) {
+                setNativeCallHookEnabled(true);
                 runInterpreterCommand("executeStep", "g");
             } else {
                 // Crossing from C++ into QML: the interpreter is armed to pause at the
@@ -2111,6 +2112,7 @@ bool CdbImpl::handleNativeCallStop(const GdbMi &stopData, const QString &stopFun
     }
     if (stopFunction.endsWith("qt_v4AboutToCallNativeMethodHook")
             || m_nativeCallHookIds.contains(breakpointId)) {
+        setNativeCallHookEnabled(false);
         m_nativeCallStepsTaken = 0;
         stepIntoNativeCallHookBody(stopData);
         return true;
@@ -2246,6 +2248,7 @@ void CdbImpl::armInterpreterHooks()
         m_nativeCallHookIds.insert(hookId);
         runCommand({"bu" + hookId + ' ' + module + "!qt_v4AboutToCallNativeMethodHook",
                     NoFlags});
+        runCommand({"bd" + hookId, NoFlags});
     }
     // A release Qt inlines qt_qmlDebugConnectorOpen() into its only caller,
     // QQmlNativeDebugConnector::open(), which leaves the exported symbol the
@@ -2265,6 +2268,19 @@ void CdbImpl::armInterpreterHooks()
         m_interpreterResolverIds.insert(hookId);
         runCommand({QString("ba%1 w1 %2!qtHookData+@$ptrsize*5").arg(hookId, qtCore), NoFlags});
     }});
+}
+
+// The hook has an empty body, which a linker can fold with the other empty
+// functions of the library, so that its breakpoint fires wherever Qt calls one of
+// those. Qt calls the hook itself only during a step from a QML frame, as only
+// then the bridge sets the flag that Qt checks before the call.
+void CdbImpl::setNativeCallHookEnabled(bool enabled)
+{
+    if (m_nativeCallHookEnabled == enabled)
+        return;
+    m_nativeCallHookEnabled = enabled;
+    for (const QString &id : std::as_const(m_nativeCallHookIds))
+        runCommand({QLatin1String(enabled ? "be" : "bd") + id, NoFlags});
 }
 
 void CdbImpl::flushPendingBridgeWork()
@@ -2383,6 +2399,7 @@ void CdbImpl::restartSession()
     m_interpreterStepArmed = false;
     m_atNativeToQmlBoundary = false;
     m_nativeCallHookIds.clear();
+    m_nativeCallHookEnabled = false;
     m_metacallBreakpointId.clear();
     m_nativeCallDescent = NativeCallDescent::None;
     m_pendingBridgeWork.clear();
@@ -3810,6 +3827,7 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     m_inferiorRunning = false;
     m_inInternalStop = false;
     m_stopReported = true;
+    setNativeCallHookEnabled(false);
     if (stoppedInArtificialThread(stopData)) {
         emit message(Tr::tr("Switching to main thread..."), LogMisc);
         runCommand({"~0 s", NoFlags});

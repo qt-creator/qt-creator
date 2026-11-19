@@ -256,6 +256,7 @@ private:
                                      const BreakpointParameters &params, bool report);
     void changeInterpreterBreakpoint(const BreakpointChangeRequest &request);
     void armInterpreterHooks();
+    void setNativeCallHookEnabled(bool enabled);
     void runServiceCommand(const DebuggerCommand &cmd);
     void armServiceSafePoint();
     void handleServiceSafePoint(const GdbMi &stopData);
@@ -318,6 +319,7 @@ private:
     bool m_interpreterStepArmed = false;
     bool m_atNativeToQmlBoundary = false;
     QSet<QString> m_nativeCallHookIds;
+    bool m_nativeCallHookEnabled = false;
     QString m_metacallBreakpointId;
     enum class NativeCallDescent { None, ToHookBody, ToMetacall, SteppingOut, ToMethodBody };
     NativeCallDescent m_nativeCallDescent = NativeCallDescent::None;
