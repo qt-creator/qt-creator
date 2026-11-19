@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/filesystemmodel.h>
 
@@ -119,7 +120,18 @@ void tst_filesystemmodel::removeRowsKeepsProxyMappingConsistent()
         dirs.append(model.filePath(dirIndex));
         model.fetchMore(dirIndex);
     }
-    QTRY_COMPARE(loadedSpy.size(), 1 + dirCount);
+    // The watcher may reload the root in between, so do not count the signals.
+    const auto allDirsLoaded = [&] {
+        for (const FilePath &dir : std::as_const(dirs)) {
+            const bool loaded = Utils::anyOf(loadedSpy, [&dir](const QList<QVariant> &args) {
+                return args.at(0).value<FilePath>() == dir;
+            });
+            if (!loaded)
+                return false;
+        }
+        return true;
+    };
+    QTRY_VERIFY(allDirsLoaded());
 
     const auto mapInnerFiles = [&] {
         for (const FilePath &dir : std::as_const(dirs))
