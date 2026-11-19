@@ -78,6 +78,7 @@ public:
 
     // Utility to find all registered wizards
     static QList<IWizardFactory*> allWizardFactories();
+    static void reloadWizardFactories();
     static QSet<Utils::Id> allAvailablePlatforms();
     static QString displayNameForPlatform(Utils::Id i);
 

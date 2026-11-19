@@ -383,6 +383,20 @@ void IWizardFactory::destroyFeatureProvider()
     s_providerList.clear();
 }
 
+/*!
+    Deletes all wizard factories and creates them anew from the registered
+    factory creators, for example to pick up wizards that were added to the
+    file system.
+
+    Must not be called while a wizard is running.
+*/
+void IWizardFactory::reloadWizardFactories()
+{
+    clearWizardFactories();
+    // Registers the wizard actions again, so their shortcuts keep working.
+    (void) allWizardFactories();
+}
+
 void IWizardFactory::clearWizardFactories()
 {
     s_plugins.clear();
@@ -429,7 +443,7 @@ void IWizardFactory::initialize()
     ActionBuilder(ActionManager::instance(), "Wizard.Factory.Reset")
         .setText(Tr::tr("Reload All Wizards"))
         .bindContextAction(&resetAction)
-        .addOnTriggered(&IWizardFactory::clearWizardFactories);
+        .addOnTriggered(&IWizardFactory::reloadWizardFactories);
 
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
             [resetAction] { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
