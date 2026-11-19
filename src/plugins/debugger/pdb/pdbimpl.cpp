@@ -174,6 +174,7 @@ static DebuggerEngineSetupData pdbImplSetupData()
                            | DebuggerExtraCapability::Threads;
     data.startModes = DebuggerStartModeFlag::Launch;
     data.toolTipHandling = ToolTipHandling::IfStoppedInferior;
+    data.validatesRunParameters = false;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
         if (query.startMode == AttachToCore)
             return false;

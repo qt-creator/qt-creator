@@ -308,6 +308,7 @@ public:
     DebuggerExtraCapabilities extraCapabilities;
     DebuggerStartModes startModes;
     ToolTipHandling toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
+    bool validatesRunParameters = true;
 };
 
 class DEBUGGER_EXPORT DebuggerEngineInterface : public QObject

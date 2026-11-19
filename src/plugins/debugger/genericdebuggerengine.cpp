@@ -49,6 +49,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     setObjectName("GenericDebuggerEngine");
     setDebuggerName(debuggerTypeName);
     setToolTipHandling(m_backend->setupData().toolTipHandling);
+    setRunParametersValidationEnabled(m_backend->setupData().validatesRunParameters);
 
     connect(m_backend.get(), &DebuggerEngineInterface::message, this,
             [this](const QString &text, int channel, int timeout) {
