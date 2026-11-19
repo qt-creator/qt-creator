@@ -10,6 +10,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
+#include <coreplugin/jsbind.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/messagemanager.h>
 
@@ -70,20 +71,6 @@ void setupUtilsModule();
 
 void setupLuaExpander(MacroExpander *expander);
 
-class LuaJsExtension : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit LuaJsExtension(QObject *parent = nullptr)
-        : QObject(parent)
-    {}
-
-    Q_INVOKABLE QString metaFolder() const
-    {
-        return Core::ICore::resourcePath("lua/meta").toFSPathString();
-    }
-};
 
 class ItemDelegate : public QStyledItemDelegate
 {
@@ -331,7 +318,11 @@ public:
         setupTranslateModule();
         setupUtilsModule();
 
-        Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
+        Core::JsExpander::registerGlobalFunctions("Lua", [](Core::JsBind::Registrar &registrar) {
+            registrar.set("metaFolder", [] {
+                return Core::ICore::resourcePath("lua/meta").toFSPathString();
+            });
+        });
 
         setupLuaExpander(globalMacroExpander());
 

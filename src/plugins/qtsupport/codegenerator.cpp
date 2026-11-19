@@ -5,6 +5,8 @@
 
 #include "codegensettings.h"
 
+#include <coreplugin/jsbind.h>
+
 #include <utils/codegeneration.h>
 #include <utils/qtcassert.h>
 
@@ -185,6 +187,20 @@ bool CodeGenerator::uiAsMember()
 bool CodeGenerator::uiAsInheritance()
 {
     return codeGenSettings().embedding() == CodeGenSettings::InheritedUiClass;
+}
+
+void registerQtSupportFunctions(Core::JsBind::Registrar &registrar)
+{
+    registrar.set("changeUiClassName", [](QString uiXml, QString newUiClassName) {
+        return CodeGenerator::changeUiClassName(uiXml, newUiClassName);
+    });
+    registrar.set("uiClassName", [](QString uiXml) { return CodeGenerator::uiClassName(uiXml); });
+    registrar.set("qtIncludes", [](QStringList qt4, QStringList qt5) {
+        return CodeGenerator::qtIncludes(qt4, qt5);
+    });
+    registrar.set("uiAsPointer", [] { return CodeGenerator::uiAsPointer(); });
+    registrar.set("uiAsMember", [] { return CodeGenerator::uiAsMember(); });
+    registrar.set("uiAsInheritance", [] { return CodeGenerator::uiAsInheritance(); });
 }
 
 } // namespace QtSupport

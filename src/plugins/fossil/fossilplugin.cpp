@@ -261,7 +261,7 @@ FossilPluginPrivate::FossilPluginPrivate()
     m_commandLocator = new CommandLocator("Fossil", "fossil", "fossil", this);
     m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
 
-    JsExpander::registerGlobalObject("Fossil", [] { return new FossilJsExtension; });
+    JsExpander::registerGlobalFunctions("Fossil", &registerFossilFunctions);
 
     connect(&settings(), &AspectContainer::changed,
             this, &IVersionControl::configurationChanged);

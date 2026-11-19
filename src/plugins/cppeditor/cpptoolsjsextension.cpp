@@ -7,6 +7,8 @@
 #include "cpplocatordata.h"
 #include "cppworkingcopy.h"
 
+#include <coreplugin/jsbind.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -23,6 +25,8 @@
 #include <QFileInfo>
 #include <QStringList>
 #include <QTextStream>
+
+#include <memory>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -273,6 +277,33 @@ QString CppToolsJsExtension::cxxHeaderSuffix() const
 QString CppToolsJsExtension::cxxSourceSuffix() const
 {
     return fileSettings().sourceSuffix;
+}
+
+void registerCppToolsFunctions(Core::JsBind::Registrar &registrar, CppLocatorData *locatorData)
+{
+    const auto ext = std::make_shared<CppToolsJsExtension>(locatorData);
+    registrar.set("headerGuard", [ext](QString in) { return ext->headerGuard(in); });
+    registrar.set("licenseTemplate", [ext] { return ext->licenseTemplate(); });
+    registrar.set("usePragmaOnce", [ext] { return ext->usePragmaOnce(); });
+    registrar.set("namespaces", [ext](QString klass) { return ext->namespaces(klass); });
+    registrar.set("hasNamespaces", [ext](QString klass) { return ext->hasNamespaces(klass); });
+    registrar.set("className", [ext](QString klass) { return ext->className(klass); });
+    registrar.set("classToFileName", [ext](QString klass, QString extension) {
+        return ext->classToFileName(klass, extension);
+    });
+    registrar.set("openNamespaces", [ext](QString klass) { return ext->openNamespaces(klass); });
+    registrar.set("closeNamespaces", [ext](QString klass) { return ext->closeNamespaces(klass); });
+    registrar.set("hasQObjectParent", [ext](QString klassName) {
+        return ext->hasQObjectParent(klassName);
+    });
+    registrar.set("includeStatement",
+                  [ext](QString fullyQualifiedClassName, QString suffix,
+                        QStringList specialClasses, QString pathOfIncludingFile) {
+        return ext->includeStatement(fullyQualifiedClassName, suffix, specialClasses,
+                                     pathOfIncludingFile);
+    });
+    registrar.set("cxxHeaderSuffix", [ext] { return ext->cxxHeaderSuffix(); });
+    registrar.set("cxxSourceSuffix", [ext] { return ext->cxxSourceSuffix(); });
 }
 
 } // namespace CppEditor::Internal

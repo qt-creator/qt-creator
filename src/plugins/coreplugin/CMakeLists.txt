@@ -1,17 +1,7 @@
 find_package(Qt6 COMPONENTS DBus QUIET)
 
-# The JavaScript macro expander and the Locator's JavaScript filter are the only
-# things here that need a JavaScript engine. Neither has a role in the
-# standalone profiler builds, and leaving them out there drops Qt Qml and the
-# engine behind it - together the largest remaining dependency of that build.
-if (QTPROFILER_STANDALONE)
-  set(CORE_QML_DEPENDENCY "")
-else()
-  set(CORE_QML_DEPENDENCY Qt::Qml)
-endif()
-
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport ${CORE_QML_DEPENDENCY} Qt::Gui TerminalLib qtkeychain
+  DEPENDS Qt::PrintSupport Qt::Gui TerminalLib qtkeychain quickjsng
   PLUGIN_TEST_DEPENDS BinEditor TextEditor
   PUBLIC_DEPENDS ExtensionSystem Utils
   SOURCES
@@ -187,6 +177,7 @@ add_qtc_plugin(Core
     iwelcomepage.h
     iwizardfactory.cpp
     iwizardfactory.h
+    jsbind.h
     locator/commandlocator.cpp
     locator/commandlocator.h
     locator/directoryfilter.cpp

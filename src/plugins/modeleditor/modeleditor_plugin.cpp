@@ -51,7 +51,7 @@ void ModelEditorPlugin::initialize()
 {
     d = new ModelEditorPluginPrivate;
 
-    Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
+    Core::JsExpander::registerGlobalFunctions("Modeling", &registerModelingFunctions);
 
 #ifdef WITH_TESTS
     addTestCreator(createClassViewControllerTest);

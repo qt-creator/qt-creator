@@ -3,28 +3,28 @@
 
 #pragma once
 
-#include <QStringList>
 #include <QMap>
-#include <QObject>
+#include <QString>
+#include <QStringList>
+
+namespace Core::JsBind { class Registrar; }
 
 namespace Fossil::Internal {
 
-class FossilJsExtension : public QObject
+class FossilJsExtension
 {
-    Q_OBJECT
-
 public:
     static QMap<QString, QString> parseArgOptions(const QStringList &args);
 
-    FossilJsExtension();
-    ~FossilJsExtension();
-
-    Q_INVOKABLE bool isConfigured() const;
-    Q_INVOKABLE QString displayName() const;
-    Q_INVOKABLE QString defaultAdminUser() const;
-    Q_INVOKABLE QString defaultSslIdentityFile() const;
-    Q_INVOKABLE QString defaultLocalRepoPath() const;
-    Q_INVOKABLE bool defaultDisableAutosync() const;
+    bool isConfigured() const;
+    QString displayName() const;
+    QString defaultAdminUser() const;
+    QString defaultSslIdentityFile() const;
+    QString defaultLocalRepoPath() const;
+    bool defaultDisableAutosync() const;
 };
+
+// Registers the functions of the "Fossil" JavaScript object.
+void registerFossilFunctions(Core::JsBind::Registrar &registrar);
 
 } // namespace Fossil::Internal

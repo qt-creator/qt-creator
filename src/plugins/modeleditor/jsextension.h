@@ -3,21 +3,11 @@
 
 #pragma once
 
-#include <QObject>
-
-#include <utils/filepath.h>
+namespace Core::JsBind { class Registrar; }
 
 namespace ModelEditor::Internal {
 
-class JsExtension : public QObject
-{
-    Q_OBJECT
-
-public:
-    JsExtension() {}
-
-    Q_INVOKABLE QString fileNameToElementName(const Utils::FilePath &file);
-    Q_INVOKABLE QString elementNameToFileName(const QString &element);
-};
+// Registers the functions of the "Modeling" JavaScript object.
+void registerModelingFunctions(Core::JsBind::Registrar &registrar);
 
 } // namespace ModelEditor::Internal

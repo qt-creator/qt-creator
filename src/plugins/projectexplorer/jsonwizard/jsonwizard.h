@@ -15,6 +15,8 @@
 #include <QDebug>
 #include <QVariant>
 
+namespace Core::JsBind { class Registrar; }
+
 namespace ProjectExplorer {
 
 class JsonWizard;
@@ -24,19 +26,8 @@ namespace Internal {
 
 bool isAnyPluginRunning(const QStringList &ids);
 
-class JsonWizardJsExtension : public QObject
-{
-    Q_OBJECT
-public:
-    JsonWizardJsExtension(JsonWizard *wizard);
-
-    Q_INVOKABLE QVariant value(const QString &name) const;
-    Q_INVOKABLE bool isPluginRunning(const QString &id) const;
-    Q_INVOKABLE bool isAnyPluginRunning(const QStringList &ids) const;
-
-private:
-    JsonWizard *m_wizard;
-};
+// Registers the functions of the "Wizard" JavaScript object for a wizard.
+void registerWizardFunctions(Core::JsBind::Registrar &registrar, JsonWizard *wizard);
 
 } // namespace Internal
 

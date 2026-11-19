@@ -900,8 +900,8 @@ CppModelManager *CppModelManager::instance()
 
 void CppModelManager::registerJsExtension()
 {
-    JsExpander::registerGlobalObject("Cpp", [] {
-        return new CppToolsJsExtension(&d->m_locatorData);
+    JsExpander::registerGlobalFunctions("Cpp", [](Core::JsBind::Registrar &registrar) {
+        registerCppToolsFunctions(registrar, &d->m_locatorData);
     });
 }
 

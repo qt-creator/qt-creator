@@ -5,34 +5,35 @@
 
 #include "qtsupport_global.h"
 
-#include <QObject>
+#include <QString>
 #include <QStringList>
+
+namespace Core::JsBind { class Registrar; }
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT CodeGenerator : public QObject
+class QTSUPPORT_EXPORT CodeGenerator
 {
-    Q_OBJECT
-
 public:
-    CodeGenerator(QObject *parent = nullptr) : QObject(parent) { }
-
     // Ui file related:
     // Change the class name in a UI XML form
-    Q_INVOKABLE static QString changeUiClassName(const QString &uiXml, const QString &newUiClassName);
+    static QString changeUiClassName(const QString &uiXml, const QString &newUiClassName);
 
     // Low level method to get everything at the same time:
     static bool uiData(const QString &uiXml, QString *formBaseClass, QString *uiClassName);
 
-    Q_INVOKABLE static QString uiClassName(const QString &uiXml);
+    static QString uiClassName(const QString &uiXml);
 
     // Generic Qt:
-    Q_INVOKABLE static QString qtIncludes(const QStringList &qt4, const QStringList &qt5);
+    static QString qtIncludes(const QStringList &qt4, const QStringList &qt5);
 
     // UI file integration
-    Q_INVOKABLE static bool uiAsPointer();
-    Q_INVOKABLE static bool uiAsMember();
-    Q_INVOKABLE static bool uiAsInheritance();
+    static bool uiAsPointer();
+    static bool uiAsMember();
+    static bool uiAsInheritance();
 };
+
+// Registers the functions of the "QtSupport" JavaScript object.
+void registerQtSupportFunctions(Core::JsBind::Registrar &registrar);
 
 } // namespace QtSupport

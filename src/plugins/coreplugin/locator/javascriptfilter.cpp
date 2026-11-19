@@ -10,14 +10,16 @@
 
 #include <utils/algorithm.h>
 
+#include <quickjs.h>
+
 #include <QClipboard>
 #include <QGuiApplication>
-#include <QJSEngine>
 #include <QPair>
 #include <QPointer>
 #include <QTimer>
 #include <QWaitCondition>
 
+#include <atomic>
 #include <chrono>
 
 using namespace Core;
@@ -54,6 +56,59 @@ static const char s_initData[] = R"(
     function tan(x) { return Math.tan(x); }
 )";
 
+// Minimal QuickJS wrapper replacing QJSEngine for the calculator filter. Only
+// evaluates expressions and supports cross-thread interruption; the interrupt
+// flag is polled by QuickJS's interrupt handler during execution.
+class JsInterpreter
+{
+public:
+    JsInterpreter()
+        : m_runtime(JS_NewRuntime())
+        , m_context(JS_NewContext(m_runtime))
+    {
+        JS_SetInterruptHandler(m_runtime, &JsInterpreter::interruptHandler, this);
+        // Fits the smallest thread stack Creator runs on (512 KB on macOS).
+        JS_SetMaxStackSize(m_runtime, 256 * 1024);
+    }
+    ~JsInterpreter()
+    {
+        JS_FreeContext(m_context);
+        JS_FreeRuntime(m_runtime);
+    }
+    Q_DISABLE_COPY_MOVE(JsInterpreter)
+
+    // Returns the string form of the result, or of the exception when the
+    // evaluation threw; isError is set accordingly.
+    QString evaluate(const QString &input, bool *isError)
+    {
+        const QByteArray utf8 = input.toUtf8();
+        JS_UpdateStackTop(m_runtime);
+        const JSValue value = JS_Eval(m_context, utf8.constData(), utf8.size(),
+                                      "<input>", JS_EVAL_TYPE_GLOBAL);
+        *isError = JS_IsException(value);
+        const JSValue string = *isError ? JS_GetException(m_context) : JS_DupValue(m_context, value);
+        const char *utf8Result = JS_ToCString(m_context, string);
+        const QString result = QString::fromUtf8(utf8Result);
+        JS_FreeCString(m_context, utf8Result);
+        JS_FreeValue(m_context, string);
+        JS_FreeValue(m_context, value);
+        return result;
+    }
+
+    void setInterrupted(bool interrupted) { m_interrupted.store(interrupted); }
+    bool isInterrupted() const { return m_interrupted.load(); }
+
+private:
+    static int interruptHandler(JSRuntime *, void *opaque)
+    {
+        return static_cast<JsInterpreter *>(opaque)->m_interrupted.load() ? 1 : 0;
+    }
+
+    JSRuntime *m_runtime = nullptr;
+    JSContext *m_context = nullptr;
+    std::atomic_bool m_interrupted = false;
+};
+
 enum class JavaScriptResult {
     FinishedWithSuccess,
     FinishedWithError,
@@ -73,7 +128,7 @@ using JavaScriptCallback = std::function<void(const JavaScriptOutput &)>;
 class JavaScriptInput
 {
 public:
-    bool m_reset = false; // Recreates the QJSEngine, re-inits it and continues the request queue
+    bool m_reset = false; // Recreates the engine, re-inits it and continues the request queue
     QString m_input;
     JavaScriptCallback m_callback = {};
 };
@@ -115,7 +170,7 @@ private:
     }
 
     int m_maxId = 0;
-    std::unique_ptr<QJSEngine> m_engine;
+    std::unique_ptr<JsInterpreter> m_engine;
 
     mutable QMutex m_mutex;
     QWaitCondition m_waitCondition;
@@ -128,14 +183,15 @@ private:
 void JavaScriptThread::run()
 {
     const auto evaluate = [this](const QString &input) {
-        const QJSValue result = m_engine->evaluate(input);
+        bool isError = false;
+        const QString output = m_engine->evaluate(input, &isError);
         if (m_engine->isInterrupted()) {
             return JavaScriptOutput{Tr::tr("The evaluation was interrupted."),
                                     JavaScriptResult::Canceled};
         }
-        return JavaScriptOutput{result.toString(),
-                                result.isError() ? JavaScriptResult::FinishedWithError
-                                                 : JavaScriptResult::FinishedWithSuccess};
+        return JavaScriptOutput{output,
+                                isError ? JavaScriptResult::FinishedWithError
+                                        : JavaScriptResult::FinishedWithSuccess};
     };
     const auto reset = [evaluate] {
         JavaScriptOutput output = evaluate(s_initData);
@@ -149,7 +205,7 @@ void JavaScriptThread::run()
         QMutexLocker locker(&m_mutex);
         if (m_canceled)
             return;
-        m_engine.reset(new QJSEngine);
+        m_engine.reset(new JsInterpreter);
     }
 
     // TODO: consider placing a reset request as the first input instead
@@ -176,7 +232,7 @@ void JavaScriptThread::run()
             }
             m_currentItem = currentItem = m_inputQueue.takeFirst();
             if (currentItem.m_input.m_reset)
-                m_engine.reset(new QJSEngine);
+                m_engine.reset(new JsInterpreter);
             m_engine->setInterrupted(false);
         }
         const JavaScriptInput &input = currentItem.m_input;

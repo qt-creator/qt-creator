@@ -317,7 +317,7 @@ void VcsPlugin::initialize()
         Tr::tr("Version Control"),
         ":/vcsbase/images/settingscategory_vcs.png");
 
-    JsExpander::registerGlobalObject<VcsJsExtension>("Vcs");
+    JsExpander::registerGlobalFunctions("Vcs", &registerVcsFunctions);
 
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,

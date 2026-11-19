@@ -8,7 +8,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QObject;
 class QString;
 QT_END_NAMESPACE
 
@@ -21,23 +20,20 @@ class ICorePrivate;
 class JsExpanderPrivate;
 } // namespace Internal
 
+namespace JsBind { class Registrar; }
+
 class CORE_EXPORT JsExpander
 {
 public:
-    using ObjectFactory = std::function<QObject *()>;
+    // Populates a named JavaScript object with bound C++ callables (see jsbind.h).
+    using FunctionFactory = std::function<void(JsBind::Registrar &)>;
 
     JsExpander();
     ~JsExpander();
 
-    template <class T>
-    static void registerGlobalObject(const QString &name)
-    {
-        registerGlobalObject(name, []{ return new T; });
-    }
+    static void registerGlobalFunctions(const QString &name, const FunctionFactory &factory);
 
-    static void registerGlobalObject(const QString &name, const ObjectFactory &factory);
-
-    void registerObject(const QString &name, QObject *obj);
+    void registerFunctions(const QString &name, const FunctionFactory &factory);
     QString evaluate(const QString &expression, QString *errorMessage = nullptr);
 
     void registerForExpander(Utils::MacroExpander *macroExpander);

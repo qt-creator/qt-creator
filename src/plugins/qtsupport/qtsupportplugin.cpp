@@ -151,7 +151,7 @@ void QtSupportPlugin::initialize()
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
 
-    JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
+    JsExpander::registerGlobalFunctions("QtSupport", &registerQtSupportFunctions);
 
     BuildPropertiesSettings::showQtSettings();
 

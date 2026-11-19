@@ -13,13 +13,6 @@ QtcPlugin {
         submodules: ["gui-private", "network", "printsupport", "widgets", "xml"]
     }
 
-    // Only the JavaScript macro expander and the Locator's JavaScript filter
-    // need a JavaScript engine, and a WebAssembly build leaves both out
-    // (see CMakeLists.txt).
-    Depends {
-        name: "Qt.qml"
-        condition: !project.qtprofilerWasm
-    }
     Properties {
         condition: project.qtprofilerWasm
         cpp.defines: base.concat("QTPROFILER_STANDALONE")
@@ -30,6 +23,7 @@ QtcPlugin {
     Depends { name: "TerminalLib" }
     Depends { name: "qtkeychain" }
     Depends { name: "Qt.dbus"; condition: useUnityLauncher }
+    Depends { name: "quickjsng" }
 
     pluginTestDepends: [
         "BinEditor",
@@ -143,6 +137,7 @@ QtcPlugin {
             "iwelcomepage.h",
             "iwizardfactory.cpp",
             "iwizardfactory.h",
+            "jsbind.h",
             "loggingviewer.cpp",
             "loggingviewer.h",
             "manhattanstyle.cpp",

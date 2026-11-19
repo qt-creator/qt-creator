@@ -6,7 +6,10 @@
 #include "../fossilclient.h"
 
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/jsbind.h>
 #include <coreplugin/vcsmanager.h>
+
+#include <memory>
 
 using namespace Core;
 
@@ -23,10 +26,6 @@ QMap<QString, QString> FossilJsExtension::parseArgOptions(const QStringList &arg
     }
     return options;
 }
-
-FossilJsExtension::FossilJsExtension() = default;
-
-FossilJsExtension::~FossilJsExtension() = default;
 
 bool FossilJsExtension::isConfigured() const
 {
@@ -61,6 +60,17 @@ bool FossilJsExtension::defaultDisableAutosync() const
         return false;
 
     return settings().disableAutosync();
+}
+
+void registerFossilFunctions(JsBind::Registrar &registrar)
+{
+    const auto ext = std::make_shared<FossilJsExtension>();
+    registrar.set("isConfigured", [ext] { return ext->isConfigured(); });
+    registrar.set("displayName", [ext] { return ext->displayName(); });
+    registrar.set("defaultAdminUser", [ext] { return ext->defaultAdminUser(); });
+    registrar.set("defaultSslIdentityFile", [ext] { return ext->defaultSslIdentityFile(); });
+    registrar.set("defaultLocalRepoPath", [ext] { return ext->defaultLocalRepoPath(); });
+    registrar.set("defaultDisableAutosync", [ext] { return ext->defaultDisableAutosync(); });
 }
 
 } // namespace Fossil::Internal

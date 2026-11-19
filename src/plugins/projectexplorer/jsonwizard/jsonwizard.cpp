@@ -15,6 +15,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/jsbind.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -142,7 +143,9 @@ JsonWizard::JsonWizard()
             return m_expander.expand(key) == key ? QString() : QLatin1String("true");
         });
     // override default JS macro by custom one that adds Wizard specific features
-    m_jsExpander.registerObject("Wizard", new Internal::JsonWizardJsExtension(this));
+    m_jsExpander.registerFunctions("Wizard", [this](Core::JsBind::Registrar &registrar) {
+        Internal::registerWizardFunctions(registrar, this);
+    });
     m_jsExpander.evaluate("var value = Wizard.value");
     m_jsExpander.evaluate("var isPluginRunning = Wizard.isPluginRunning");
     m_jsExpander.evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
@@ -526,22 +529,13 @@ bool JsonWizard::OptionDefinition::condition(MacroExpander &expander) const
 
 namespace Internal {
 
-JsonWizardJsExtension::JsonWizardJsExtension(JsonWizard *wizard)
-    : m_wizard(wizard)
-{}
-
-QVariant JsonWizardJsExtension::value(const QString &name) const
+void registerWizardFunctions(Core::JsBind::Registrar &registrar, JsonWizard *wizard)
 {
-    return m_wizard->expander()->expandVariant(m_wizard->value(name));
-}
-
-bool JsonWizardJsExtension::isPluginRunning(const QString &id) const
-{
-    return Internal::isAnyPluginRunning({id});
-}
-bool JsonWizardJsExtension::isAnyPluginRunning(const QStringList &ids) const
-{
-    return Internal::isAnyPluginRunning(ids);
+    registrar.set("value", [wizard](QString name) -> QVariant {
+        return wizard->expander()->expandVariant(wizard->value(name));
+    });
+    registrar.set("isPluginRunning", [](QString id) { return isAnyPluginRunning({id}); });
+    registrar.set("isAnyPluginRunning", [](QStringList ids) { return isAnyPluginRunning(ids); });
 }
 
 bool isAnyPluginRunning(const QStringList &ids)

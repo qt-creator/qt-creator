@@ -3,18 +3,11 @@
 
 #pragma once
 
-#include <QObject>
+namespace Core::JsBind { class Registrar; }
 
 namespace VcsBase::Internal {
 
-class VcsJsExtension : public QObject
-{
-    Q_OBJECT
-
-public:
-    Q_INVOKABLE bool isConfigured(const QString &vcsId) const;
-    Q_INVOKABLE QString displayName(const QString &vcsId) const;
-    Q_INVOKABLE bool isValidRepoUrl(const QString &vcsId, const QString &location) const;
-};
+// Registers the functions of the "Vcs" JavaScript object.
+void registerVcsFunctions(Core::JsBind::Registrar &registrar);
 
 } // namespace VcsBase::Internal

@@ -3,16 +3,24 @@
 
 #include "jsextension.h"
 
+#include <coreplugin/jsbind.h>
+
 #include <qmt/controller/namecontroller.h>
+
+#include <utils/filepath.h>
 
 using Utils::FilePath;
 
-QString ModelEditor::Internal::JsExtension::fileNameToElementName(const FilePath &file)
+namespace ModelEditor::Internal {
+
+void registerModelingFunctions(Core::JsBind::Registrar &registrar)
 {
-    return qmt::NameController::convertFileNameToElementName(file);
+    registrar.set("fileNameToElementName", [](FilePath file) {
+        return qmt::NameController::convertFileNameToElementName(file);
+    });
+    registrar.set("elementNameToFileName", [](QString element) {
+        return qmt::NameController::convertElementNameToBaseFileName(element);
+    });
 }
 
-QString ModelEditor::Internal::JsExtension::elementNameToFileName(const QString &element)
-{
-    return qmt::NameController::convertElementNameToBaseFileName(element);
-}
+} // namespace ModelEditor::Internal

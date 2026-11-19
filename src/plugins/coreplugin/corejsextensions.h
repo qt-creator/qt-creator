@@ -3,67 +3,11 @@
 
 #pragma once
 
-#include <QObject>
-#include <QSet>
+namespace Core::JsBind { class Registrar; }
 
 namespace Core::Internal {
 
-class UtilsJsExtension : public QObject
-{
-    Q_OBJECT
+// Registers the functions of the "Util" JavaScript object (see jsbind.h).
+void registerUtilFunctions(JsBind::Registrar &registrar);
 
-public:
-    UtilsJsExtension(QObject *parent = nullptr) : QObject(parent) { }
-
-    // General information
-    Q_INVOKABLE QString qtVersion() const;
-    Q_INVOKABLE QString qtCreatorVersion() const;
-    Q_INVOKABLE QString qtCreatorIdeVersion() const;
-    Q_INVOKABLE QString qtCreatorSettingsPath() const;
-
-    // Compares two Major.Minor.Patch version strings. Returns a negative value,
-    // zero, or a positive value if version1 is less than, equal to, or greater
-    // than version2. Use this instead of JavaScript's string/number comparison,
-    // which gets e.g. "6.9" vs "6.10" wrong.
-    Q_INVOKABLE int versionCompare(const QString &version1, const QString &version2) const;
-
-    // File name conversions:
-    Q_INVOKABLE QString toNativeSeparators(const QString &in) const;
-    Q_INVOKABLE QString fromNativeSeparators(const QString &in) const;
-
-    Q_INVOKABLE QString baseName(const QString &in) const;
-    Q_INVOKABLE QString fileName(const QString &in) const;
-    Q_INVOKABLE QString completeBaseName(const QString &in) const;
-    Q_INVOKABLE QString suffix(const QString &in) const;
-    Q_INVOKABLE QString completeSuffix(const QString &in) const;
-    Q_INVOKABLE QString path(const QString &in) const;
-    Q_INVOKABLE QString absoluteFilePath(const QString &in) const;
-
-    Q_INVOKABLE QString relativeFilePath(const QString &path, const QString &base) const;
-
-    // File checks:
-    Q_INVOKABLE bool exists(const QString &in) const;
-    Q_INVOKABLE bool isDirectory(const QString &in) const;
-    Q_INVOKABLE bool isFile(const QString &in) const;
-
-    // MimeDB:
-    Q_INVOKABLE QString preferredSuffix(const QString &mimetype) const;
-
-    // Generate filename:
-    Q_INVOKABLE QString fileName(const QString &path,
-                                 const QString &extension) const;
-
-    // Generate temporary file:
-    Q_INVOKABLE QString mktemp(const QString &pattern) const;
-
-    // Generate a ascii-only string:
-    Q_INVOKABLE QString asciify(const QString &input) const;
-
-    // Generate a string that is safe to use as a component in a file path:
-    Q_INVOKABLE QString fileSystemFriendly(const QString &input) const;
-
-    // Heuristic to find out which QtQuick import version to use for the given file.
-    Q_INVOKABLE QString qtQuickVersion(const QString &filePath) const;
-};
-
-} // Core::Internal
+} // namespace Core::Internal

@@ -11,6 +11,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/jsbind.h>
 #include <coreplugin/jsexpander.h>
 #include <coreplugin/messagemanager.h>
 
@@ -80,47 +81,6 @@ static QList<JsonWizardGeneratorFactory *> &generatorFactories()
     return theGeneratorFactories;
 }
 
-namespace Internal {
-
-class JsonWizardFactoryJsExtension final : public QObject
-{
-    Q_OBJECT
-
-public:
-    JsonWizardFactoryJsExtension(Id platformId,
-                                 const QSet<Id> &availableFeatures,
-                                 const QSet<Id> &pluginFeatures)
-        : m_platformId(platformId)
-        , m_availableFeatures(availableFeatures)
-        , m_pluginFeatures(pluginFeatures)
-    {}
-
-    Q_INVOKABLE QVariant value(const QString &name) const
-    {
-        if (name == "Platform")
-            return m_platformId.toString();
-        if (name == "Features")
-            return Id::toStringList(m_availableFeatures);
-        if (name == "Plugins")
-            return Id::toStringList(m_pluginFeatures);
-        return {};
-    }
-    Q_INVOKABLE bool isPluginRunning(const QString &id) const
-    {
-        return Internal::isAnyPluginRunning({id});
-    }
-    Q_INVOKABLE bool isAnyPluginRunning(const QStringList &ids) const
-    {
-        return Internal::isAnyPluginRunning(ids);
-    }
-
-private:
-    Id m_platformId;
-    QSet<Id> m_availableFeatures;
-    QSet<Id> m_pluginFeatures;
-};
-
-} // namespace Internal
 int JsonWizardFactory::m_verbose = 0;
 
 
@@ -791,11 +751,27 @@ bool JsonWizardFactory::isAvailable(Id platformId) const
         return JsonWizard::stringListToArrayString(Id::toStringList(pluginFeatures()), e);
     });
     Core::JsExpander jsExpander;
-    jsExpander.registerObject("Wizard",
-                              new Internal::JsonWizardFactoryJsExtension(platformId,
-                                                                         availableFeatures(
-                                                                             platformId),
-                                                                         pluginFeatures()));
+    const Id platform = platformId;
+    const QSet<Id> features = availableFeatures(platformId);
+    const QSet<Id> plugins = pluginFeatures();
+    jsExpander.registerFunctions("Wizard", [platform, features, plugins](
+                                               Core::JsBind::Registrar &registrar) {
+        registrar.set("value", [platform, features, plugins](QString name) -> QVariant {
+            if (name == "Platform")
+                return platform.toString();
+            if (name == "Features")
+                return Id::toStringList(features);
+            if (name == "Plugins")
+                return Id::toStringList(plugins);
+            return {};
+        });
+        registrar.set("isPluginRunning", [](QString id) {
+            return Internal::isAnyPluginRunning({id});
+        });
+        registrar.set("isAnyPluginRunning", [](QStringList ids) {
+            return Internal::isAnyPluginRunning(ids);
+        });
+    });
     jsExpander.evaluate("var value = Wizard.value");
     jsExpander.evaluate("var isPluginRunning = Wizard.isPluginRunning");
     jsExpander.evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
@@ -932,5 +908,3 @@ Result<> JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &
 }
 
 } // namespace ProjectExplorer
-
-#include "jsonwizardfactory.moc"
