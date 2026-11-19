@@ -212,7 +212,7 @@ public:
                 m_data.setAllocatedCapacity(newCapacity);
             } else {
                 auto oldSize = size();
-                new (this) BasicSmallString{data(), oldSize, std::max(newCapacity, oldSize)};
+                *this = BasicSmallString{data(), oldSize, std::max(newCapacity, oldSize)};
             }
         }
     }
