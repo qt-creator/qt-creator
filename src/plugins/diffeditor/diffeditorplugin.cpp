@@ -672,6 +672,7 @@ private slots:
     void testInlineDiffGhostSigns();
     void testSideBySideChangeSigns();
     void testChangeSignsToggle();
+    void testOptionsMenu();
     void testHighlightChangedCharacters();
     void testDuplicateKeepsHighlightChangedCharacters();
     void testOpenPatch_data();
@@ -1228,6 +1229,29 @@ void DiffEditor::Internal::DiffEditorPlugin::testChangeSignsToggle()
     QCOMPARE(TextEditor::displaySettings().markDiffChangeSigns(), previous);
     TextEditor::displaySettings().markDiffChangeSigns.setValue(!previous);
     QCOMPARE(action->isChecked(), !previous);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testOptionsMenu()
+{
+    IEditor *editor = EditorManager::openEditorWithContents(
+        Constants::DIFF_EDITOR_ID, nullptr, QByteArray("--- a/a.txt\n+++ b/a.txt\n"
+                                                     "@@ -1 +1 @@\n-old\n+new\n"));
+    QVERIFY(editor);
+    const QScopeGuard close([editor] { EditorManager::closeEditors({editor}, false); });
+    QToolButton *button = editor->toolBar()->findChild<QToolButton *>("DiffEditorOptionsButton");
+    QVERIFY(button);
+    QCOMPARE(button->text(), QString("Options"));
+    QMenu *menu = button->menu();
+    QVERIFY(menu);
+    const QList<QAction *> actions = menu->actions();
+    QCOMPARE(actions.size(), 3);
+    QCOMPARE(actions.at(0)->text(), QString("Ignore Whitespace"));
+    QCOMPARE(actions.at(1)->text(), QString("Show Change Signs"));
+    QCOMPARE(actions.at(2)->text(), QString("Highlight Changed Characters"));
+    QVERIFY(Utils::allOf(actions, [](QAction *action) { return action->isCheckable(); }));
+    QVERIFY(Utils::allOf(actions, [menu](QAction *action) {
+        return action->parent() == menu;
+    }));
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testHighlightChangedCharacters()

@@ -38,6 +38,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QLabel>
+#include <QMenu>
 #include <QPointer>
 #include <QSignalBlocker>
 #include <QSpinBox>
@@ -451,17 +452,30 @@ DiffEditor::DiffEditor()
     m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
     m_contextSpinBoxAction = m_toolBar->addWidget(m_contextSpinBox);
 
-    m_whitespaceButtonAction = addAction({}, Tr::tr("Ignore Whitespace"),
-                                         Tr::tr("Ctrl+Meta+I"), Tr::tr("Ctrl+Alt+I"));
+    auto optionsButton = new QToolButton(m_toolBar);
+    optionsButton->setObjectName("DiffEditorOptionsButton");
+    optionsButton->setText(Tr::tr("Options"));
+    optionsButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    optionsButton->setFocusPolicy(Qt::StrongFocus);
+    optionsButton->setPopupMode(QToolButton::InstantPopup);
+    auto optionsMenu = new QMenu(optionsButton);
+    optionsMenu->setToolTipsVisible(true);
+    optionsButton->setMenu(optionsMenu);
+    m_toolBar->addWidget(optionsButton);
+
+    m_whitespaceButtonAction = optionsMenu->addAction(Tr::tr("Ignore Whitespace"));
+    m_whitespaceButtonAction->setShortcut(
+        QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+I") : Tr::tr("Ctrl+Alt+I")));
+    optionsButton->addAction(m_whitespaceButtonAction);
     m_whitespaceButtonAction->setCheckable(true);
-    m_signsButtonAction = addAction({}, Tr::tr("Change Signs"), {}, {});
+    m_signsButtonAction = optionsMenu->addAction(Tr::tr("Show Change Signs"));
     m_signsButtonAction->setObjectName("DiffEditorChangeSignsAction"); // autotest
     m_signsButtonAction->setCheckable(true);
     m_signsButtonAction->setChecked(TextEditor::displaySettings().markDiffChangeSigns());
     m_signsButtonAction->setToolTip(Tr::tr("Mark added, removed, and whitespace-only lines with "
                                            "plus, minus, and dot signs, so changes can be told apart "
                                            "without relying on color."));
-    m_characterChangesAction = addAction({}, Tr::tr("Character Changes"), {}, {});
+    m_characterChangesAction = optionsMenu->addAction(Tr::tr("Highlight Changed Characters"));
     m_characterChangesAction->setObjectName("DiffEditorCharacterChangesAction"); // autotest
     m_characterChangesAction->setCheckable(true);
     m_characterChangesAction->setChecked(true);
