@@ -3,9 +3,12 @@
 
 #include "elidinglabel.h"
 
+#include "utilstr.h"
+
 #include <QFontMetrics>
 #include <QPainter>
 #include <QStyle>
+#include <QTextBlock>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 
@@ -18,17 +21,68 @@
 
     Rich text is elided as the plain text it shows. A link spanning the whole
     text stays clickable while elided.
+
+    While the text is elided, the tool tip shows it in full, followed by the
+    target of each link whose text does not already say where it leads. The
+    tool tip is always shown as plain text.
 */
 
 namespace Utils {
 
+static bool isRichText(const QLabel *label)
+{
+    const Qt::TextFormat format = label->textFormat();
+    return format == Qt::RichText
+           || (format == Qt::AutoText && Qt::mightBeRichText(label->text()));
+}
+
 static QString shownText(const QLabel *label)
 {
-    const QString text = label->text();
-    const Qt::TextFormat format = label->textFormat();
-    if (format == Qt::RichText || (format == Qt::AutoText && Qt::mightBeRichText(text)))
-        return QTextDocumentFragment::fromHtml(text).toPlainText();
-    return text;
+    if (isRichText(label))
+        return QTextDocumentFragment::fromHtml(label->text()).toPlainText();
+    return label->text();
+}
+
+// The targets of the links whose text differs from where they lead, so that
+// the text cannot pretend to be a different target.
+static QStringList hiddenLinkTargets(const QLabel *label)
+{
+    if (!isRichText(label))
+        return {};
+
+    QTextDocument document;
+    document.setHtml(label->text());
+    QStringList targets;
+    QString href;
+    QString anchorText;
+    const auto flush = [&] {
+        if (!href.isEmpty() && href != anchorText.trimmed() && !targets.contains(href))
+            targets.append(href);
+        href.clear();
+        anchorText.clear();
+    };
+    for (QTextBlock block = document.begin(); block.isValid(); block = block.next()) {
+        for (auto it = block.begin(); !it.atEnd(); ++it) {
+            const QTextFragment fragment = it.fragment();
+            const QTextCharFormat format = fragment.charFormat();
+            const QString fragmentHref = format.isAnchor() ? format.anchorHref() : QString();
+            if (fragmentHref != href)
+                flush();
+            href = fragmentHref;
+            if (!href.isEmpty())
+                anchorText += fragment.text();
+        }
+        flush();
+    }
+    return targets;
+}
+
+static QString elidedToolTip(const QLabel *label, const QString &shown)
+{
+    QString toolTip = shown;
+    for (const QString &target : hiddenLinkTargets(label))
+        toolTip += '\n' + Tr::tr("Link: %1").arg(target);
+    return toolTip;
 }
 
 ElidingLabel::ElidingLabel(QWidget *parent)
@@ -97,7 +151,7 @@ void ElidingLabel::paintEvent(QPaintEvent *)
         return;
     }
 
-    updateToolTip(elide ? txt : QString());
+    updateToolTip(elide ? elidedToolTip(this, txt) : QString());
     const QString shown = elide ? fm.elidedText(txt, m_elideMode, contents.width()) : txt;
     const int flags = QStyle::visualAlignment(layoutDirection(), alignment()) | Qt::TextSingleLine;
 
@@ -108,17 +162,18 @@ void ElidingLabel::paintEvent(QPaintEvent *)
 
 void ElidingLabel::updateToolTip(const QString &elidedText)
 {
-    if (m_additionalToolTip.isEmpty()) {
-        setToolTip(elidedText);
-        return;
-    }
+    QString toolTip;
+    if (m_additionalToolTip.isEmpty())
+        toolTip = elidedText;
+    else if (elidedText.isEmpty())
+        toolTip = m_additionalToolTip;
+    else
+        toolTip = elidedText + m_additionalToolTipSeparator + m_additionalToolTip;
 
-    if (elidedText.isEmpty()) {
-        setToolTip(m_additionalToolTip);
-        return;
-    }
-
-    setToolTip(elidedText + m_additionalToolTipSeparator + m_additionalToolTip);
+    // QToolTip renders anything that looks like markup as rich text.
+    if (Qt::mightBeRichText(toolTip))
+        toolTip = Qt::convertFromPlainText(toolTip, Qt::WhiteSpaceNormal);
+    setToolTip(toolTip);
 }
 
 QString ElidingLabel::additionalToolTipSeparator() const

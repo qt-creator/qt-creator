@@ -11,6 +11,7 @@ Project {
         "dialogtask/dialogtask.qbs",
         "displayname/displayname.qbs",
         "elfreader/elfreader.qbs",
+        "elidinglabel/elidinglabel.qbs",
         "expander/expander.qbs",
         "expected/expected.qbs",
         "fancytextedit/fancytextedit.qbs",
