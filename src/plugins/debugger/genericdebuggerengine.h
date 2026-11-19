@@ -87,6 +87,15 @@ private:
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     void applyInterpreterBkptData(const GdbMi &bkpt, const Breakpoint &bp);
     BreakpointParameters parametersForDebugger(const Breakpoint &bp) const;
+    struct KeptBreakpoint
+    {
+        Breakpoint bp;
+        BreakpointParameters params;
+        int modelId = 0;
+    };
+    void sendBreakpointRemoval(const Breakpoint &bp, const QString &responseId,
+                               const BreakpointParameters &params, int modelId);
+    void finishDeferredRemoval(const GdbMi &bkpt, const KeptBreakpoint &removal);
     void handleBreakpointModified(const GdbMi &data);
     void handleSignalReceived(const QString &name, const QString &meaning);
     void handleStopReasonReported(const QString &reason);
@@ -118,6 +127,20 @@ private:
     quint64 m_nextFullBacktraceRequestId = 1;
     quint64 m_nextWatchPointRequestId = 1;
     QHash<quint64, Breakpoint> m_pendingBreakpoints;
+    // The model ids of interpreter breakpoints it gave up on, which no later
+    // report is going to give a number.
+    QSet<int> m_refusedInterpreterBreakpoints;
+    // The model ids of deferred interpreter breakpoints changed before it
+    // numbered them, which the report that gives the number updates.
+    QSet<int> m_owedInterpreterUpdates;
+    // Interpreter breakpoints removed before it numbered them, by model id.
+    QHash<int, KeptBreakpoint> m_deferredRemovals;
+    // Interpreter breakpoints changed while an insertion of theirs is in
+    // flight, by model id. A removal in that state never reaches the engine,
+    // so the answer to the insertion takes it over from what is kept here.
+    QHash<int, KeptBreakpoint> m_heldInterpreterUpdates;
+    // The insertions that carry the change of a refused interpreter breakpoint.
+    QSet<quint64> m_reinsertions;
     struct PendingSubToggle
     {
         SubBreakpoint sbp;

@@ -32,6 +32,8 @@
 
 #include <QMessageBox>
 
+#include <optional>
+
 using namespace Utils;
 
 namespace Debugger::Internal {
@@ -560,25 +562,94 @@ void GenericDebuggerEngine::insertBreakpoint(const Breakpoint &bp)
 void GenericDebuggerEngine::removeBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
+    m_owedInterpreterUpdates.remove(bp->modelId());
     if (bp->responseId().isEmpty()) {
-        // The insertion is still in flight, and what answers it takes the
-        // removal over from there.
+        // The insertion is still in flight, or the interpreter deferred it,
+        // and what answers either takes the removal over from there.
+        // One the interpreter gave up on has no answer left to wait for.
+        if (m_refusedInterpreterBreakpoints.remove(bp->modelId())) {
+            notifyBreakpointRemoveProceeding(bp);
+            notifyBreakpointRemoveOk(bp);
+        } else if (!bp->requestedParameters().isCppBreakpoint()) {
+            // Deleting the global breakpoint takes the model id and the
+            // parameters away right after this, so keep what the report needs.
+            m_deferredRemovals.insert(bp->modelId(),
+                                      {bp, parametersForDebugger(bp), bp->modelId()});
+        }
         return;
     }
+    sendBreakpointRemoval(bp, bp->responseId(), parametersForDebugger(bp), bp->modelId());
+}
+
+void GenericDebuggerEngine::sendBreakpointRemoval(const Breakpoint &bp, const QString &responseId,
+                                                  const BreakpointParameters &params, int modelId)
+{
     notifyBreakpointRemoveProceeding(bp);
     BreakpointChangeRequest request;
     request.op = BreakpointOp::Remove;
     request.requestId = m_nextBreakpointRequestId++;
-    request.responseId = bp->responseId();
-    request.params = parametersForDebugger(bp);
-    request.modelId = bp->modelId();
+    request.responseId = responseId;
+    // The backend tells an interpreter breakpoint from a C++ one by the
+    // parameters, and without them sends the number the interpreter handed
+    // out to lldb's own numbering.
+    request.params = params;
+    request.modelId = modelId;
     m_pendingBreakpoints[request.requestId] = bp;
     m_backend->changeBreakpoint(request);
+}
+
+// The interpreter reports a breakpoint it deferred once it takes it, or gives
+// up on it. Removed in the meantime, the breakpoint has waited for the number.
+void GenericDebuggerEngine::finishDeferredRemoval(const GdbMi &bkpt, const KeptBreakpoint &removal)
+{
+    if (bkpt["pending"].toInt())
+        return;
+    m_deferredRemovals.remove(removal.modelId);
+    const QString nr = bkpt["number"].data();
+    if (nr.toInt() > 0) {
+        sendBreakpointRemoval(removal.bp, nr, removal.params, removal.modelId);
+        return;
+    }
+    notifyBreakpointRemoveProceeding(removal.bp);
+    notifyBreakpointRemoveOk(removal.bp);
 }
 
 void GenericDebuggerEngine::updateBreakpoint(const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
+    if (bp->responseId().isEmpty() && !bp->requestedParameters().isCppBreakpoint()) {
+        // The interpreter holds nothing of a refused one, so the change sets it
+        // anew. A backend changes an interpreter breakpoint by removing it
+        // first, and the cdb one stops there when the removal fails.
+        if (m_refusedInterpreterBreakpoints.remove(bp->modelId())) {
+            notifyBreakpointChangeProceeding(bp);
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = m_nextBreakpointRequestId++;
+            request.params = parametersForDebugger(bp);
+            request.modelId = bp->modelId();
+            m_pendingBreakpoints[request.requestId] = bp;
+            m_heldInterpreterUpdates.insert(bp->modelId(),
+                                            {bp, request.params, request.modelId});
+            m_reinsertions.insert(request.requestId);
+            m_backend->changeBreakpoint(request);
+            return;
+        }
+        // The answer to an insertion in flight sends the update.
+        if (std::find(m_pendingBreakpoints.cbegin(), m_pendingBreakpoints.cend(), bp)
+                != m_pendingBreakpoints.cend()) {
+            m_heldInterpreterUpdates.insert(bp->modelId(),
+                                            {bp, parametersForDebugger(bp), bp->modelId()});
+            return;
+        }
+        // The interpreter deferred it, and the report that gives it a number
+        // sends the update. Until then the breakpoint must not sit in an update
+        // state, since a removal in that state never reaches the engine.
+        notifyBreakpointChangeProceeding(bp);
+        notifyBreakpointChangeOk(bp);
+        m_owedInterpreterUpdates.insert(bp->modelId());
+        return;
+    }
     notifyBreakpointChangeProceeding(bp);
     BreakpointChangeRequest request;
     request.op = BreakpointOp::Update;
@@ -638,33 +709,78 @@ void GenericDebuggerEngine::handleBreakpointEvent(quint64 requestId, BreakpointO
     }
 
     switch (op) {
-    case BreakpointOp::Insert:
-        if (bp->state() == BreakpointRemoveRequested && ok && data.childCount() > 0) {
-            const QString nr = data.childAt(0)["number"].data();
-            if (!nr.isEmpty()) {
-                notifyBreakpointRemoveProceeding(bp);
-                BreakpointChangeRequest removeRequest;
-                removeRequest.op = BreakpointOp::Remove;
-                removeRequest.requestId = m_nextBreakpointRequestId++;
-                removeRequest.responseId = nr;
-                // The backend tells an interpreter breakpoint from a C++ one
-                // by the parameters, and without them sends the number the
-                // interpreter handed out to lldb's own numbering.
-                removeRequest.params = parametersForDebugger(bp);
-                removeRequest.modelId = bp->modelId();
-                m_pendingBreakpoints[removeRequest.requestId] = bp;
-                m_backend->changeBreakpoint(removeRequest);
+    case BreakpointOp::Insert: {
+        std::optional<KeptBreakpoint> held;
+        for (const KeptBreakpoint &candidate : std::as_const(m_heldInterpreterUpdates)) {
+            if (candidate.bp == bp)
+                held = candidate;
+        }
+        if (held)
+            m_heldInterpreterUpdates.remove(held->modelId);
+        const bool reinsertion = m_reinsertions.remove(requestId);
+        if (bp->state() == BreakpointRemoveRequested && reinsertion && !ok) {
+            notifyBreakpointRemoveProceeding(bp);
+            notifyBreakpointRemoveOk(bp);
+            break;
+        }
+        if (bp->state() == BreakpointRemoveRequested && ok) {
+            const QString nr = data.childCount() > 0 ? data.childAt(0)["number"].data()
+                                                     : QString();
+            std::optional<KeptBreakpoint> removal;
+            for (const KeptBreakpoint &candidate : std::as_const(m_deferredRemovals)) {
+                if (candidate.bp == bp)
+                    removal = candidate;
+            }
+            // Deleted while the update was held, and the global breakpoint
+            // may have taken the model id and the parameters away since.
+            if (!removal && held) {
+                m_deferredRemovals.insert(held->modelId, *held);
+                removal = held;
+            }
+            if (removal) {
+                // A deferral is finished by the interpreter's later report.
+                if (data.childCount() > 0)
+                    finishDeferredRemoval(data.childAt(0), *removal);
                 break;
             }
+            if (!nr.isEmpty()) {
+                sendBreakpointRemoval(bp, nr, parametersForDebugger(bp), bp->modelId());
+                break;
+            }
+        }
+        if (reinsertion) {
+            if (ok) {
+                for (const GdbMi &bkpt : data)
+                    applyBkptData(bkpt, bp);
+            } else {
+                m_refusedInterpreterBreakpoints.insert(bp->modelId());
+            }
+            // Changed again while the insertion was in flight, and
+            // updateBreakpoint() held that change back for this answer.
+            if (bp->state() == BreakpointUpdateRequested) {
+                updateBreakpoint(bp);
+                break;
+            }
+            // Refused again, it stays to be changed or removed like before.
+            notifyBreakpointChangeOk(bp);
+            break;
         }
         if (ok) {
             for (const GdbMi &bkpt : data)
                 applyBkptData(bkpt, bp);
+            if (bp->state() == BreakpointUpdateRequested
+                    && !bp->requestedParameters().isCppBreakpoint()) {
+                // Changed while the insertion was in flight, and updateBreakpoint()
+                // held the update back for want of a number.
+                updateBreakpoint(bp);
+                break;
+            }
             notifyBreakpointInsertOk(bp);
         } else {
             notifyBreakpointInsertFailed(bp);
         }
         break;
+    }
     case BreakpointOp::Remove:
         if (ok)
             notifyBreakpointRemoveOk(bp);
@@ -718,7 +834,14 @@ void GenericDebuggerEngine::applyInterpreterBkptData(const GdbMi &bkpt, const Br
 {
     // The number the interpreter assigned is the only handle the backend takes
     // for removing or changing it later.
-    bp->setResponseId(bkpt["number"].data());
+    // A deferred breakpoint carries a placeholder number, which is no handle.
+    const QString nr = bkpt["number"].data();
+    const bool deferred = bkpt["pending"].toInt();
+    bp->setResponseId(deferred || nr.toInt() <= 0 ? QString() : nr);
+    if (!deferred && nr.toInt() <= 0)
+        m_refusedInterpreterBreakpoints.insert(bp->modelId());
+    else
+        m_refusedInterpreterBreakpoints.remove(bp->modelId());
     bp->setEnabled(bkpt["enabled"].toInt());
     bp->setCondition(bkpt["condition"].data());
     bp->setIgnoreCount(bkpt["ignorecount"].toInt());
@@ -790,9 +913,18 @@ void GenericDebuggerEngine::handleBreakpointModified(const GdbMi &data)
             // The interpreter counts its breakpoints itself, so its number can
             // be one a C++ breakpoint already carries. Only the model id may
             // look one up, and a report that matches none is dropped.
+            const auto removal = m_deferredRemovals.constFind(bkpt["modelid"].toInt());
+            if (removal != m_deferredRemovals.cend()) {
+                finishDeferredRemoval(bkpt, KeptBreakpoint(*removal));
+                bp = {};
+                continue;
+            }
             bp = handler->findBreakpointByModelId(bkpt["modelid"].toInt());
-            if (bp)
+            if (bp) {
                 applyInterpreterBkptData(bkpt, bp);
+                if (!bkpt["pending"].toInt() && m_owedInterpreterUpdates.remove(bp->modelId()))
+                    handler->requestBreakpointUpdate(bp);
+            }
         } else {
             bp = handler->findBreakpointByResponseId(nr);
             if (bp)

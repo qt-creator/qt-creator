@@ -336,6 +336,16 @@ private slots:
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
+    void testDeferredInterpreterBreakpointIsRemoved();
+    void testDeferredInterpreterBreakpointIsDeleted();
+    void testDeferredInterpreterBreakpointIsUpdated();
+    void testDeferredInterpreterBreakpointChangedThenDeleted();
+    void testInterpreterBreakpointDeferredDuringChange();
+    void testRefusedInterpreterBreakpointIsSetAnewByAChange();
+    void testRefusedInterpreterBreakpointChangedTwice();
+    void testInterpreterBreakpointChangedDuringInsert();
+    void testInterpreterBreakpointChangedAndDeletedDuringInsert();
+    void testDeferredInterpreterBreakpointRemovedOnTheWay();
     void testBreakpointFileNameSpelledAsOnDisk();
     void testUnresolvedLegacyLanguagesSurviveASave();
     void testLegacyQmlAndPythonKeepsBothLanguages();
@@ -4291,6 +4301,9 @@ void DebuggerUnitTests::testNormalizedSourcePathPrefix()
 
 // A backend that records what it is asked to do and answers only when told to,
 // so the engine's side of a breakpoint's life can be driven a step at a time.
+// A deferred report carries a placeholder number, a final one the number or a refusal.
+enum class Report { Final, Deferred };
+
 class RecordingBackend : public DebuggerEngineInterface
 {
 public:
@@ -4311,7 +4324,8 @@ public:
 
     // What the QML debug service reports: its own spelling, and the model id
     // the request went out with.
-    static GdbMi interpreterReport(int modelId, const QString &number)
+    static GdbMi interpreterReport(int modelId, const QString &number,
+                                   Report report = Report::Final)
     {
         GdbMi bkpt;
         bkpt.m_type = GdbMi::Tuple;
@@ -4321,31 +4335,46 @@ public:
         bkpt.addConst("ignorecount", "0");
         bkpt.addConst("line", "10");
         bkpt.addConst("modelid", QString::number(modelId));
-        bkpt.addConst("pending", "0");
+        bkpt.addConst("pending", report == Report::Deferred ? "1" : "0");
         GdbMi list;
         list.m_type = GdbMi::List;
         list.addChild(bkpt);
         return list;
     }
 
-    // Answer the request this breakpoint's op went out as. Picking the request
-    // by model id rather than by recency keeps whatever else the session had
-    // claimed out of it.
-    bool answerAsInterpreter(int modelId, BreakpointOp op, const QString &number)
+    // Answer the latest request this breakpoint's op went out as. Picking the
+    // request by model id keeps whatever else the session had claimed out of it.
+    bool answerAsInterpreter(int modelId, BreakpointOp op, const QString &number,
+                             Report report = Report::Final)
     {
-        for (const BreakpointChangeRequest &request : std::as_const(requests)) {
+        for (qsizetype i = requests.size() - 1; i >= 0; --i) {
+            const BreakpointChangeRequest &request = requests.at(i);
             if (request.modelId == modelId && request.op == op) {
                 emit breakpointEvent(request.requestId, op, true,
-                                     interpreterReport(modelId, number));
+                                     interpreterReport(modelId, number, report));
                 return true;
             }
         }
         return false;
     }
 
-    void reportAsInterpreter(int modelId, const QString &number)
+    // What a backend answers for an insert the service could not take yet:
+    // done, but no number.
+    bool answerAsDeferred(int modelId)
     {
-        emit breakpointModified(interpreterReport(modelId, number));
+        for (const BreakpointChangeRequest &request : std::as_const(requests)) {
+            if (request.modelId == modelId && request.op == BreakpointOp::Insert) {
+                emit breakpointEvent(request.requestId, BreakpointOp::Insert, true);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void reportAsInterpreter(int modelId, const QString &number,
+                             Report report = Report::Final)
+    {
+        emit breakpointModified(interpreterReport(modelId, number, report));
     }
 
     QList<BreakpointChangeRequest> requests;
@@ -4432,6 +4461,445 @@ void DebuggerUnitTests::testInterpreterBreakpointStaysEnabled()
     backend->reportAsInterpreter(modelId + 1000, "1");
     QVERIFY2(bp->isEnabled(), "a report for another breakpoint was applied by number");
     QCOMPARE(bp->condition(), QString("x > 1"));
+}
+
+// A QML breakpoint set before the service is up gets its number only when the
+// interpreter takes it later. Removed before that, it has no number to be
+// removed by, and was left in BreakpointRemoveRequested while the service
+// went on to stop at it.
+void DebuggerUnitTests::testDeferredInterpreterBreakpointIsRemoved()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint taken = createInterpreterBreakpoint();
+    const GlobalBreakpoint refused = createInterpreterBreakpoint();
+    QVERIFY(taken && refused);
+    const QScopeGuard removeBreakpoints([taken, refused] {
+        taken->removeBreakpointFromModel();
+        refused->removeBreakpointFromModel();
+    });
+    const int takenId = taken->modelId();
+    const int refusedId = refused->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    for (const int modelId : {takenId, refusedId}) {
+        const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+        QVERIFY(bp);
+        QVERIFY(backend->answerAsDeferred(modelId));
+        QCOMPARE(bp->state(), BreakpointInserted);
+        QVERIFY(bp->responseId().isEmpty());
+        handler->requestBreakpointRemoval(bp);
+        QCOMPARE(bp->state(), BreakpointRemoveRequested);
+    }
+    const auto removals = [backend] {
+        return Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+            return r.op == BreakpointOp::Remove;
+        });
+    };
+    QVERIFY(removals().isEmpty());
+
+    // Still deferred: the removal goes on waiting.
+    backend->reportAsInterpreter(takenId, "-1", Report::Deferred);
+    QVERIFY(removals().isEmpty());
+    QCOMPARE(handler->findBreakpointByModelId(takenId)->state(), BreakpointRemoveRequested);
+
+    backend->reportAsInterpreter(takenId, "3");
+    QCOMPARE(removals().size(), 1);
+    QCOMPARE(removals().first().modelId, takenId);
+    QCOMPARE(removals().first().responseId, QString("3"));
+    QVERIFY(backend->answerAsInterpreter(takenId, BreakpointOp::Remove, "3"));
+    QVERIFY2(!handler->findBreakpointByModelId(takenId), "the taken breakpoint stayed");
+
+    // The interpreter gave up on it, so there is nothing left to remove.
+    backend->reportAsInterpreter(refusedId, "-1");
+    QCOMPARE(removals().size(), 1);
+    QVERIFY2(!handler->findBreakpointByModelId(refusedId), "the refused breakpoint stayed");
+
+    // The refusal comes first: no report is left to finish the removal.
+    const GlobalBreakpoint early = createInterpreterBreakpoint();
+    QVERIFY(early);
+    const QScopeGuard removeEarly([early] { early->removeBreakpointFromModel(); });
+    const int earlyId = early->modelId();
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    const Breakpoint earlyBp = handler->findBreakpointByModelId(earlyId);
+    QVERIFY(earlyBp);
+    QVERIFY(backend->answerAsDeferred(earlyId));
+    backend->reportAsInterpreter(earlyId, "-1");
+    QCOMPARE(earlyBp->state(), BreakpointInserted);
+    handler->requestBreakpointRemoval(earlyBp);
+    QCOMPARE(removals().size(), 1);
+    QVERIFY2(!handler->findBreakpointByModelId(earlyId), "the early refused breakpoint stayed");
+}
+
+// The removal comes while the insert is in flight, or the insert is answered
+// with the placeholder number of a deferred breakpoint. Neither is a number
+// to remove by.
+void DebuggerUnitTests::testDeferredInterpreterBreakpointRemovedOnTheWay()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint early = createInterpreterBreakpoint();
+    const GlobalBreakpoint placeholder = createInterpreterBreakpoint();
+    const GlobalBreakpoint answered = createInterpreterBreakpoint();
+    QVERIFY(early && placeholder && answered);
+    const QScopeGuard removeBreakpoints([early, placeholder, answered] {
+        early->removeBreakpointFromModel();
+        placeholder->removeBreakpointFromModel();
+        answered->removeBreakpointFromModel();
+    });
+    const int earlyId = early->modelId();
+    const int answeredId = answered->modelId();
+    const int placeholderId = placeholder->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const auto removals = [backend] {
+        return Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+            return r.op == BreakpointOp::Remove;
+        });
+    };
+
+    // Removed before the deferred answer.
+    const Breakpoint earlyBp = handler->findBreakpointByModelId(earlyId);
+    QVERIFY(earlyBp);
+    handler->requestBreakpointRemoval(earlyBp);
+    QVERIFY(backend->answerAsDeferred(earlyId));
+    QCOMPARE(earlyBp->state(), BreakpointRemoveRequested);
+    QVERIFY(removals().isEmpty());
+    backend->reportAsInterpreter(earlyId, "3");
+    QCOMPARE(removals().size(), 1);
+    QCOMPARE(removals().first().responseId, QString("3"));
+
+    // Answered with the placeholder, then removed.
+    const Breakpoint placeholderBp = handler->findBreakpointByModelId(placeholderId);
+    QVERIFY(placeholderBp);
+    QVERIFY(backend->answerAsInterpreter(placeholderId, BreakpointOp::Insert, "-1", Report::Deferred));
+    handler->requestBreakpointRemoval(placeholderBp);
+    QCOMPARE(placeholderBp->state(), BreakpointRemoveRequested);
+    QCOMPARE(removals().size(), 1);
+    backend->reportAsInterpreter(placeholderId, "4");
+    QCOMPARE(removals().size(), 2);
+    QCOMPARE(removals().last().responseId, QString("4"));
+
+    // Removed before the insert is answered, with the placeholder as data.
+    const Breakpoint answeredBp = handler->findBreakpointByModelId(answeredId);
+    QVERIFY(answeredBp);
+    handler->requestBreakpointRemoval(answeredBp);
+    QVERIFY(backend->answerAsInterpreter(answeredId, BreakpointOp::Insert, "-1", Report::Deferred));
+    QCOMPARE(answeredBp->state(), BreakpointRemoveRequested);
+    QCOMPARE(removals().size(), 2);
+    backend->reportAsInterpreter(answeredId, "6");
+    QCOMPARE(removals().size(), 3);
+    QCOMPARE(removals().last().responseId, QString("6"));
+}
+
+// Deleting the global breakpoint, as the editor and the view do, takes the model
+// id and the parameters of the engine's breakpoint with it.
+void DebuggerUnitTests::testDeferredInterpreterBreakpointIsDeleted()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const int modelId = gbp->modelId();
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    const Breakpoint bp = engine->breakHandler()->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    QVERIFY(backend->answerAsDeferred(modelId));
+
+    // What GlobalBreakpointItem::deleteBreakpoint() does for each engine, which
+    // the test engine is not registered with.
+    engine->breakHandler()->removeBreakpoint(bp);
+    gbp->removeBreakpointFromModel();
+    QCOMPARE(bp->state(), BreakpointRemoveRequested);
+    const auto removals = [backend] {
+        return Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+            return r.op == BreakpointOp::Remove;
+        });
+    };
+    QVERIFY(removals().isEmpty());
+
+    backend->reportAsInterpreter(modelId, "3");
+    QCOMPARE(removals().size(), 1);
+    QCOMPARE(removals().first().responseId, QString("3"));
+    QCOMPARE(removals().first().modelId, modelId);
+    QVERIFY(!removals().first().params.isCppBreakpoint());
+}
+
+// Changed while deferred, the breakpoint has no number to be changed by, and a
+// backend that rejects the request kills it.
+void DebuggerUnitTests::testDeferredInterpreterBreakpointIsUpdated()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "-1", Report::Deferred));
+    const auto updates = [backend] {
+        return Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+            return r.op == BreakpointOp::Update;
+        });
+    };
+
+    handler->requestBreakpointUpdate(bp);
+    QVERIFY(updates().isEmpty());
+    QCOMPARE(bp->state(), BreakpointInserted);
+
+    backend->reportAsInterpreter(modelId, "-1", Report::Deferred);
+    QVERIFY(updates().isEmpty());
+
+    backend->reportAsInterpreter(modelId, "5");
+    QCOMPARE(updates().size(), 1);
+    QCOMPARE(updates().first().responseId, QString("5"));
+}
+
+// The held-back update can wait for seconds, until the service is up. Deleted in
+// that time, the breakpoint has to go once it has a number, like one that was
+// never changed.
+void DebuggerUnitTests::testDeferredInterpreterBreakpointChangedThenDeleted()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const int modelId = gbp->modelId();
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    QVERIFY(backend->answerAsDeferred(modelId));
+
+    handler->requestBreakpointUpdate(bp);
+    // What GlobalBreakpointItem::deleteBreakpoint() does for each engine.
+    handler->removeBreakpoint(bp);
+    gbp->removeBreakpointFromModel();
+    QCOMPARE(bp->state(), BreakpointRemoveRequested);
+
+    backend->reportAsInterpreter(modelId, "3");
+    const QList<BreakpointChangeRequest> removals
+        = Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+              return r.op == BreakpointOp::Remove;
+          });
+    QCOMPARE(removals.size(), 1);
+    QCOMPARE(removals.first().responseId, QString("3"));
+    QCOMPARE(removals.first().modelId, modelId);
+    QVERIFY(Utils::allOf(backend->requests, [](const BreakpointChangeRequest &r) {
+        return r.op != BreakpointOp::Update;
+    }));
+}
+
+// The interpreter holds nothing of a breakpoint it refused, so a change sets it
+// anew, and a refusal of that leaves it to be changed or removed again.
+void DebuggerUnitTests::testRefusedInterpreterBreakpointIsSetAnewByAChange()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "-1", Report::Deferred));
+
+    handler->requestBreakpointUpdate(bp);
+    QCOMPARE(bp->state(), BreakpointInserted);
+
+    const auto requestCount = [backend](BreakpointOp op) {
+        return Utils::count(backend->requests, [op](const BreakpointChangeRequest &r) {
+            return r.op == op;
+        });
+    };
+    // The refusal brings the update the deferral held back.
+    backend->reportAsInterpreter(modelId, "-1");
+    QCOMPARE(requestCount(BreakpointOp::Insert), 2);
+    QCOMPARE(bp->state(), BreakpointUpdateProceeding);
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "-1"));
+    QCOMPARE(bp->state(), BreakpointInserted);
+
+    handler->requestBreakpointUpdate(bp);
+    QCOMPARE(requestCount(BreakpointOp::Insert), 3);
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "5"));
+    QCOMPARE(bp->state(), BreakpointInserted);
+    QCOMPARE(bp->responseId(), QString("5"));
+    QCOMPARE(requestCount(BreakpointOp::Update), 0);
+
+    handler->removeBreakpoint(bp);
+    QCOMPARE(requestCount(BreakpointOp::Remove), 1);
+    QCOMPARE(backend->requests.last().responseId, QString("5"));
+}
+
+// Changed again while the insertion that sets it anew is in flight, the
+// breakpoint gets the second change once the answer brings the number.
+void DebuggerUnitTests::testRefusedInterpreterBreakpointChangedTwice()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "-1"));
+    QCOMPARE(bp->state(), BreakpointInserted);
+
+    BreakpointParameters params = gbp->requestedParameters();
+    params.condition = "first";
+    gbp->setParameters(params);
+    handler->requestBreakpointUpdate(bp);
+    QCOMPARE(bp->state(), BreakpointUpdateProceeding);
+    params.condition = "second";
+    gbp->setParameters(params);
+    handler->requestBreakpointUpdate(bp);
+
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "5"));
+    const QList<BreakpointChangeRequest> updates
+        = Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+              return r.op == BreakpointOp::Update;
+          });
+    QCOMPARE(updates.size(), 1);
+    QCOMPARE(updates.first().responseId, QString("5"));
+    QCOMPARE(updates.first().params.condition, QString("second"));
+}
+
+// Changed while the insertion is in flight, the update is held back until the
+// answer to the insertion brings the number to change it by.
+void DebuggerUnitTests::testInterpreterBreakpointChangedDuringInsert()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    const auto updates = [backend] {
+        return Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+            return r.op == BreakpointOp::Update;
+        });
+    };
+
+    handler->requestBreakpointUpdate(bp);
+    QCOMPARE(bp->state(), BreakpointUpdateRequested);
+    QVERIFY(updates().isEmpty());
+
+    QVERIFY(backend->answerAsInterpreter(modelId, BreakpointOp::Insert, "7"));
+    QCOMPARE(updates().size(), 1);
+    QCOMPARE(updates().first().responseId, QString("7"));
+}
+
+// Deleted while the update is held back, the breakpoint has to go once it has a
+// number, also when the answer to the insertion comes without one.
+void DebuggerUnitTests::testInterpreterBreakpointChangedAndDeletedDuringInsert()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const int modelId = gbp->modelId();
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+
+    handler->requestBreakpointUpdate(bp);
+    // What GlobalBreakpointItem::deleteBreakpoint() does for each engine.
+    handler->removeBreakpoint(bp);
+    gbp->removeBreakpointFromModel();
+    QCOMPARE(bp->state(), BreakpointRemoveRequested);
+
+    QVERIFY(backend->answerAsDeferred(modelId));
+    backend->reportAsInterpreter(modelId, "3");
+    const QList<BreakpointChangeRequest> removals
+        = Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+              return r.op == BreakpointOp::Remove;
+          });
+    QCOMPARE(removals.size(), 1);
+    QCOMPARE(removals.first().responseId, QString("3"));
+    QCOMPARE(removals.first().modelId, modelId);
+    QVERIFY(Utils::allOf(backend->requests, [](const BreakpointChangeRequest &r) {
+        return r.op != BreakpointOp::Update;
+    }));
+}
+
+// The insertion is answered without a number when the service deferred it, and
+// the update then waits for the report that gives it one.
+void DebuggerUnitTests::testInterpreterBreakpointDeferredDuringChange()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+
+    const GlobalBreakpoint gbp = createInterpreterBreakpoint();
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    const int modelId = gbp->modelId();
+
+    BreakpointManager::claimBreakpointsForEngine(engine);
+    BreakHandler *handler = engine->breakHandler();
+    const Breakpoint bp = handler->findBreakpointByModelId(modelId);
+    QVERIFY(bp);
+    const auto updates = [backend] {
+        return Utils::filtered(backend->requests, [](const BreakpointChangeRequest &r) {
+            return r.op == BreakpointOp::Update;
+        });
+    };
+
+    handler->requestBreakpointUpdate(bp);
+    QVERIFY(backend->answerAsDeferred(modelId));
+    QCOMPARE(bp->state(), BreakpointInserted);
+    QVERIFY(updates().isEmpty());
+
+    backend->reportAsInterpreter(modelId, "5");
+    QCOMPARE(updates().size(), 1);
+    QCOMPARE(updates().first().responseId, QString("5"));
 }
 
 // The debuggers match the file name case-sensitively. A breakpoint restored from
