@@ -33,12 +33,29 @@ public:
     QSize minimumSizeHint() const override;
 
 protected:
+    bool event(QEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
+    bool focusNextPrevChild(bool next) override;
     void updateToolTip(const QString& elidedText);
 
 private:
+    void followLinkHandler();
+    bool handlesLinksItself() const;
+    bool handlesLinkFocusItself() const;
+    void activateLink(const QString &link);
+
     Qt::TextElideMode m_elideMode;
     QString m_additionalToolTip;
+    QString m_hoveredLink;
+    QString m_pressedLink;
+    int m_focusedAnchor = -1;
+    bool m_paintsRichTextItself = false;
     QString m_additionalToolTipSeparator{"\n\n"};
 };
 
