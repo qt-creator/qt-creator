@@ -456,9 +456,9 @@ private slots:
         const QString text = "<<<<<<< HEAD\nunchanged\nint value = 10;\nreturn value;\n"
             "=======\nextra line\nunchanged\nint value = 20;\nreturn value;\n>>>>>>> branch\n";
         setText(text);
-        QTRY_COMPARE(comparisons().size(), 1);
-        QCOMPARE(comparisons().first()->currentText(), QString("Current to Incoming"));
+        // nothing to choose without a base section
         QTRY_COMPARE(wordHighlights(8), QStringList{"2"});
+        QVERIFY(comparisons().isEmpty());
         QCOMPARE(wordHighlights(3), QStringList{"1"});
         QVERIFY(!wordHighlights(6).isEmpty());
         QVERIFY(wordHighlights(2).isEmpty());
@@ -536,10 +536,9 @@ private slots:
         QCOMPARE(wordHighlights(14), QStringList{"incoming"});
         comparisons().last()->setCurrentIndex(1);
         setText("<<<<<<< HEAD\noldValue\n=======\nnewValue\n>>>>>>> branch");
-        QTRY_COMPARE(comparisons().size(), 1);
         QTRY_COMPARE(wordHighlights(4), QStringList{"new"});
         QTRY_COMPARE(wordHighlights(2), QStringList{"old"});
-        QCOMPARE(comparisons().first()->currentText(), QString("Current to Incoming"));
+        QVERIFY(comparisons().isEmpty());
     }
 
     void testWordHighlightsEmptySides_data()
@@ -703,21 +702,12 @@ private slots:
         QVERIFY(m_widget->toPlainText().startsWith("typedprefix"));
     }
 
-    void testComparisonWheel_data()
-    {
-        QTest::addColumn<bool>("diff3");
-        QTest::newRow("two-way") << false;
-        QTest::newRow("diff3") << true;
-    }
-
     void testComparisonWheel()
     {
-        QFETCH(bool, diff3);
         m_widget->resize(600, 250);
         m_widget->show();
-        const QString text = diff3
-            ? QString("<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n=======\nincoming\n>>>>>>> branch\n")
-            : QString(QLatin1StringView(conflictText)) + '\n';
+        const QString text
+            = "<<<<<<< HEAD\ncurrent\n||||||| base\nbase\n=======\nincoming\n>>>>>>> branch\n";
         setText(text + QString("line\n").repeated(100));
         QTRY_COMPARE(comparisons().size(), 1);
         QComboBox *comparison = comparisons().first();

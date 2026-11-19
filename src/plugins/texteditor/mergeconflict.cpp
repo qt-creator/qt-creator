@@ -529,8 +529,8 @@ public:
             return false;
         for (int i = 0; i < rows.size(); ++i) {
             const Row &row = rows.at(i);
-            if (!row.label || !row.comparison || row.anchorLine() != conflicts.at(i).startLine
-                || (row.comparison->count() > 1) != (conflicts.at(i).baseLine > 0))
+            if (!row.label || row.anchorLine() != conflicts.at(i).startLine
+                || bool(row.comparison) != (conflicts.at(i).baseLine > 0))
                 return false;
         }
         return true;
@@ -658,24 +658,25 @@ public:
             const QTextBlock block = doc->findBlockByNumber(conflict.startLine - 1);
             if (!block.isValid())
                 continue;
-            auto comparison = new QComboBox(widget->viewport());
-            comparison->setObjectName(QLatin1StringView(MERGE_CONFLICT_COMPARISON_OBJECT_NAME));
-            Utils::setWheelScrollingWithoutFocusBlocked(comparison);
-            comparison->setFocusPolicy(Qt::NoFocus);
-            comparison->installEventFilter(q);
-            comparison->setToolTip(Tr::tr("Compare changes within this conflict"));
+            // there is only something to choose with a base section
+            QComboBox *comparison = nullptr;
+            int controlHeight = lineHeight;
             if (conflict.baseLine > 0) {
+                comparison = new QComboBox(widget->viewport());
+                comparison->setObjectName(QLatin1StringView(MERGE_CONFLICT_COMPARISON_OBJECT_NAME));
+                Utils::setWheelScrollingWithoutFocusBlocked(comparison);
+                comparison->setFocusPolicy(Qt::NoFocus);
+                comparison->installEventFilter(q);
+                comparison->setToolTip(Tr::tr("Compare changes within this conflict"));
                 comparison->addItem(Tr::tr("Base to Incoming"), BaseIncoming);
                 comparison->addItem(Tr::tr("Base to Current"), BaseCurrent);
-            } else {
-                comparison->addItem(Tr::tr("Current to Incoming"), CurrentIncoming);
+                const int selected = comparison->findData(comparisons.value(conflict.startLine, -1));
+                if (selected >= 0)
+                    comparison->setCurrentIndex(selected);
+                comparison->adjustSize();
+                controlHeight = qMax(lineHeight, comparison->sizeHint().height());
+                rowHeight = qMax(rowHeight, controlHeight);
             }
-            const int selected = comparison->findData(comparisons.value(conflict.startLine, -1));
-            if (selected >= 0)
-                comparison->setCurrentIndex(selected);
-            comparison->adjustSize();
-            const int controlHeight = qMax(lineHeight, comparison->sizeHint().height());
-            rowHeight = qMax(rowHeight, controlHeight);
             // reserve a line above the "<<<<<<<" marker for the controls to float on
             l->ensureBlockLayout(block);
             l->prependLayoutItem(block,
@@ -705,9 +706,11 @@ public:
             label->installEventFilter(q);
             label->adjustSize();
             label->setFixedHeight(controlHeight);
-            comparison->setFixedHeight(controlHeight);
-            QObject::connect(comparison, &QComboBox::currentIndexChanged, q,
-                             [this] { rescan(); });
+            if (comparison) {
+                comparison->setFixedHeight(controlHeight);
+                QObject::connect(comparison, &QComboBox::currentIndexChanged, q,
+                                 [this] { rescan(); });
+            }
             rows.append({label, comparison, anchor});
         }
         l->emitDocumentSizeChanged();
