@@ -818,9 +818,8 @@ public:
     FilePathAspect(AspectContainer *container = nullptr);
     ~FilePathAspect();
 
-    struct Data : BaseAspect::Data
+    struct Data : TypedAspect<QString>::Data
     {
-        QString value;
         FilePath filePath;
     };
 
@@ -928,8 +927,6 @@ public:
     void setDisplayScaleFactor(qint64 factor);
     void setSpecialValueText(const QString &specialText);
     void setSingleStep(qint64 step);
-
-    struct Data : BaseAspect::Data { qint64 value = 0; };
 
 protected:
     void volatileValueToGui() override;

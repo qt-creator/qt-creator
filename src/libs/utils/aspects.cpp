@@ -1725,7 +1725,6 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
 {
     setSpan(2, 1); // Default: Label + something
 
-    addDataExtractor(this, &FilePathAspect::value, &Data::value);
     addDataExtractor(this, &FilePathAspect::operator(), &Data::filePath);
 
     connect(this, &BaseAspect::changed, this, [this] { d->m_effectiveBinary.reset(); });

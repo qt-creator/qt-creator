@@ -33,7 +33,7 @@ public:
     static QmlMultiLanguageAspect *current(ProjectExplorer::Project *project);
     static QmlMultiLanguageAspect *current(ProjectExplorer::Target *target);
 
-    struct Data : BaseAspect::Data
+    struct Data : Utils::BoolAspect::Data
     {
         const void *origin = nullptr;
     };

@@ -34,7 +34,7 @@ public:
     void setUseMultiProcess(bool on);
     QString overrideStartup() const;
 
-    struct Data : BaseAspect::Data
+    struct Data : ProjectExplorer::GlobalOrProjectAspect::Data
     {
         bool useCppDebugger = false;
         bool useQmlDebugger = false;
