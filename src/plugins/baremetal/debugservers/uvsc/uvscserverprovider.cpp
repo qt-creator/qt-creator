@@ -183,7 +183,7 @@ Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &r
     rp.setInferior(inferior);
     rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
-    rp.setRemoteChannel(channelPipe());
+    rp.setRemoteChannel(m_channel.toString());
     rp.setUseContinueInsteadOfRun(true);
     return ResultOk;
 }
