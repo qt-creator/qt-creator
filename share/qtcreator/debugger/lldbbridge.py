@@ -1034,6 +1034,13 @@ class Dumper(DumperBase):
         if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
 
+        # Work around llvm/llvm-project#166480: loading the modules of an
+        # attached process in parallel deadlocks LLDB 21, and crashes it while
+        # several modules are fetched through adb at once. LLDB versions
+        # without the setting refuse it, which is harmless.
+        if self.platform_ == 'remote-android':
+            self.commandOutput('settings set target.parallel-module-load false')
+
         # There seems to be some kind of unexpected behavior, or bug in LLDB
         # such that target.Attach(attachInfo, error) below does not create
         # a valid process if this symbolFile here is valid.
