@@ -26,6 +26,8 @@
 #include <QTextBrowser>
 #include <QVBoxLayout>
 
+#include <utility>
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -82,6 +84,7 @@ public:
     void handleProcessListUpdated();
     void handleProcessKilled();
     void updateButtons();
+    void selectFirstMatch();
     ProcessInfo selectedProcess() const;
 
     QDialog *q;
@@ -95,6 +98,7 @@ public:
     FancyLineEdit *processFilterLineEdit;
     QPushButton *updateListButton;
     QPushButton *killProcessButton;
+    bool skipSelectFirstMatch = false;
     QPushButton *acceptButton;
     QDialogButtonBox *buttonBox;
 };
@@ -162,6 +166,8 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QDialog *parent)
 
     connect(processFilterLineEdit, &FancyLineEdit::textChanged,
             &proxyModel, QOverload<const QString &>::of(&ProcessListFilterModel::setFilterRegularExpression));
+    connect(processFilterLineEdit, &FancyLineEdit::textChanged,
+            this, &DeviceProcessesDialogPrivate::selectFirstMatch);
     connect(procView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &DeviceProcessesDialogPrivate::updateButtons);
     connect(updateListButton, &QAbstractButton::clicked,
@@ -183,6 +189,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QDialog *parent)
 void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
 {
     processList.reset();
+    skipSelectFirstMatch = false;
     proxyModel.setSourceModel(nullptr);
     if (!device)
         return;
@@ -194,8 +201,11 @@ void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
 
     connect(processList.get(), &ProcessList::error,
             this, &DeviceProcessesDialogPrivate::handleRemoteError);
-    connect(processList.get(), &ProcessList::processListUpdated,
-            this, &DeviceProcessesDialogPrivate::handleProcessListUpdated);
+    connect(processList.get(), &ProcessList::processListUpdated, this, [this] {
+        if (!std::exchange(skipSelectFirstMatch, false))
+            selectFirstMatch();
+        handleProcessListUpdated();
+    });
     connect(processList.get(), &ProcessList::processKilled,
             this, &DeviceProcessesDialogPrivate::handleProcessKilled, Qt::QueuedConnection);
 
@@ -243,6 +253,8 @@ void DeviceProcessesDialogPrivate::updateDevice()
 
 void DeviceProcessesDialogPrivate::handleProcessKilled()
 {
+    // A second click on Kill must not hit the next match.
+    skipSelectFirstMatch = true;
     updateProcessList();
 }
 
@@ -253,6 +265,23 @@ void DeviceProcessesDialogPrivate::updateButtons()
         acceptButton->setEnabled(hasSelection);
     killProcessButton->setEnabled(hasSelection);
     errorText->setVisible(!errorText->document()->isEmpty());
+}
+
+// Lets a typed filter followed by Enter accept the first matching process.
+void DeviceProcessesDialogPrivate::selectFirstMatch()
+{
+    if (!acceptButton || processFilterLineEdit->text().isEmpty())
+        return;
+    if (procView->selectionModel()->hasSelection())
+        return;
+    const Qt::ItemFlags selectable = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    for (int row = 0, n = proxyModel.rowCount(); row < n; ++row) {
+        const QModelIndex index = proxyModel.index(row, 0);
+        if ((index.flags() & selectable) == selectable) {
+            procView->setCurrentIndex(index);
+            return;
+        }
+    }
 }
 
 ProcessInfo DeviceProcessesDialogPrivate::selectedProcess() const
