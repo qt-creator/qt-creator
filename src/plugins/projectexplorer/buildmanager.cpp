@@ -389,6 +389,7 @@ public:
     int m_maxProgress = 0;
     bool m_poppedUpTaskWindow = false;
     bool m_isDeploying = false;
+    const RunConfiguration *m_runConfigForDeploy = nullptr;
     // used to decide if we are building a project to decide when to emit buildStateChanged(Project *)
     QHash<Project *, int>  m_activeBuildSteps;
     QHash<Target *, int> m_activeBuildStepsPerTarget;
@@ -549,8 +550,10 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
     }
 
     Project * const pro = rc->project();
+    d->m_runConfigForDeploy = rc;
     const int queueCount = queue(projectWithDependencies(pro, stepIds),
                                  ConfigSelection::Active, rc);
+    d->m_runConfigForDeploy = nullptr;
     if (rc->buildConfiguration())
         rc->buildConfiguration()->restrictNextBuild(nullptr);
 
@@ -559,6 +562,24 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
     if (queueCount > 0 || isBuilding(rc->project()))
         return BuildForRunConfigStatus::Building;
     return BuildForRunConfigStatus::NotBuilding;
+}
+
+/*!
+    Returns the run configuration that the deployment of \a step prepares,
+    or \c nullptr if the deployment is not for running a specific one, or if
+    \a step is not part of the active deploy configuration of that run
+    configuration's build configuration.
+
+    Only valid while the steps are initialized, so a deploy step reads it in
+    its BuildStep::init() and keeps what it needs from it.
+*/
+const RunConfiguration *BuildManager::runConfigurationForDeploy(const BuildStep *step)
+{
+    const RunConfiguration *rc = d->m_runConfigForDeploy;
+    if (!rc || !rc->buildConfiguration() || !step || !step->stepList())
+        return nullptr;
+    const DeployConfiguration *dc = rc->buildConfiguration()->activeDeployConfiguration();
+    return dc && step->projectConfiguration() == dc ? rc : nullptr;
 }
 
 BuildManager::~BuildManager()

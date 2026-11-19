@@ -47,6 +47,7 @@ public:
     static int deployProjects(const QList<Project *> &projects);
 
     static BuildForRunConfigStatus potentiallyBuildForRunConfig(RunConfiguration *rc);
+    static const RunConfiguration *runConfigurationForDeploy(const BuildStep *step);
 
     static bool isBuilding();
     static bool isDeploying();
