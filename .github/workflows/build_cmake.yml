@@ -15,6 +15,7 @@ env:
   NINJA_VERSION: 1.10.2
   BUILD_TYPE: Release
   CCACHE_VERSION: 4.11.2
+  VULKAN_SDK_VERSION: 1.4.363.0
   QT_MIRRORS: download.qt.io;mirrors.ocf.berkeley.edu/qt;ftp.fau.de/qtproject;mirrors.sau.edu.cn/qt
 
 jobs:
@@ -184,7 +185,7 @@ jobs:
               sudo apt install chrpath
                                libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
                                libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxcb-randr0 libxcb-icccm4 libsecret-1-dev
-                               libxcb-cursor0 xvfb
+                               libxcb-cursor0 xvfb glslc spirv-headers
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -243,6 +244,27 @@ jobs:
         if (docker_executable)
           execute_process(COMMAND ${docker_executable} pull alpine:latest COMMAND_ECHO STDOUT)
         endif()
+
+    # Voice input transcribes on the GPU with Vulkan, which needs glslc and
+    # SPIRV-Headers at build time.
+    - name: Install Vulkan SDK
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $version = $env:VULKAN_SDK_VERSION
+        $root = "C:\VulkanSDK\$version"
+        $installer = "$env:RUNNER_TEMP\vulkansdk.exe"
+        Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/$version/windows/vulkansdk-windows-X64-$version.exe" -OutFile $installer
+        $process = Start-Process -FilePath $installer -Wait -PassThru -ArgumentList `
+          "--root", $root, "--accept-licenses", "--default-answer", "--confirm-command", "install"
+        if ($process.ExitCode -ne 0) {
+          throw "The Vulkan SDK installer failed with exit code $($process.ExitCode)"
+        }
+        if (-not (Test-Path "$root\Lib\cmake\SPIRV-Headers\SPIRV-HeadersConfig.cmake")) {
+          throw "The Vulkan SDK was not installed to $root"
+        }
+        "VULKAN_SDK=$root" | Out-File -FilePath $env:GITHUB_ENV -Append
+        "$root\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Download Qt
       id: qt

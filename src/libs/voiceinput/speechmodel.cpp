@@ -5,15 +5,20 @@
 
 #include "speechactivity.h"
 
+#include <utils/filepath.h>
+
+#include <QCoreApplication>
 #include <QFile>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QStringList>
 
+#include <ggml-backend.h>
 #include <whisper.h>
 
 #include <algorithm>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace VoiceInput::Internal {
@@ -47,6 +52,43 @@ static void logFromWhisper(ggml_log_level level, const char *text, void *)
         qCDebug(voiceLog).noquote() << QString::fromUtf8(text).trimmed();
 }
 
+// Loads the backends that ggml was built with as modules. One whose
+// requirements this system lacks, such as a Vulkan driver, is skipped.
+static void loadBackends()
+{
+#ifdef GGML_BACKEND_DL
+    // Only Qt Creator's own directory: ggml would also search the current one.
+    const Utils::FilePath backendPath = Utils::FilePath::fromString(
+                                            QCoreApplication::applicationDirPath())
+                                            .pathAppended(QTC_GGML_BACKEND_PATH);
+    ggml_backend_load_all_from_path(backendPath.nativePath().toUtf8().constData());
+#endif
+    for (size_t i = 0; i < ggml_backend_dev_count(); ++i) {
+        ggml_backend_dev_t device = ggml_backend_dev_get(i);
+        qCDebug(voiceLog) << "Device:" << ggml_backend_dev_name(device)
+                          << ggml_backend_dev_description(device);
+    }
+}
+
+// The index of the first discrete GPU, counted the way whisper.cpp counts
+// gpu_device. An integrated GPU can be slower than the CPU it sits next to.
+static std::optional<int> discreteGpuIndex()
+{
+    int gpu = 0;
+    for (size_t i = 0; i < ggml_backend_dev_count(); ++i) {
+        switch (ggml_backend_dev_type(ggml_backend_dev_get(i))) {
+        case GGML_BACKEND_DEVICE_TYPE_GPU:
+            return gpu;
+        case GGML_BACKEND_DEVICE_TYPE_IGPU:
+            ++gpu;
+            break;
+        default:
+            break;
+        }
+    }
+    return {};
+}
+
 /*!
     \internal
 
@@ -54,14 +96,17 @@ static void logFromWhisper(ggml_log_level level, const char *text, void *)
 */
 std::shared_ptr<SpeechModel> loadSpeechModel(const QString &modelPath)
 {
-    static std::once_flag logInstalled;
-    std::call_once(logInstalled, [] {
+    static std::once_flag initialized;
+    std::call_once(initialized, [] {
         whisper_log_set(&logFromWhisper, nullptr);
+        loadBackends();
     });
 
     auto model = std::make_shared<SpeechModel>();
     whisper_context_params params = whisper_context_default_params();
-    params.use_gpu = true;
+    const std::optional<int> gpu = discreteGpuIndex();
+    params.use_gpu = gpu.has_value();
+    params.gpu_device = gpu.value_or(0);
     model->whisper
         = whisper_init_from_file_with_params(QFile::encodeName(modelPath).constData(), params);
     if (!model->whisper)

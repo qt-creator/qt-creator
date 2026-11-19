@@ -36,3 +36,9 @@ qtc_add_resources(VoiceInput "images"
     images/microphone.png
     images/microphone@2x.png
 )
+
+# The shared libraries and backend modules of a whisper.cpp that
+# src/libs/3rdparty built, installed only where VoiceInput is.
+if(TARGET VoiceInput AND COMMAND qtc_install_whisper)
+  qtc_install_whisper()
+endif()
