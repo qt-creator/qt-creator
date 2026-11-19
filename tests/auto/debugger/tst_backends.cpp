@@ -6242,8 +6242,15 @@ void tst_backends::testReloadModuleCapability()
     modulesRequest.requestId = 81;
     engine->refresh(modulesRequest);
     QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Modules)), s_timeout);
-    QVERIFY(responses.value(int(RefreshKind::Modules)).toString()
-                .contains(inferiorTestData(backend).moduleListMarker, Qt::CaseInsensitive));
+    const GdbMi modules = responses.value(int(RefreshKind::Modules));
+    const QString marker = inferiorTestData(backend).moduleListMarker;
+    // The engine builds a row from these two fields only.
+    const bool found = Utils::anyOf(modules, [&marker](const GdbMi &module) {
+        return !module["modulepath"].data().isEmpty()
+               && (module["modulepath"].data().contains(marker, Qt::CaseInsensitive)
+                   || module["modulename"].data().contains(marker, Qt::CaseInsensitive));
+    });
+    QVERIFY2(found, qPrintable(modules.toString()));
 }
 
 void tst_backends::testReloadModuleSymbolsCapability()

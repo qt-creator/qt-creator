@@ -5,6 +5,7 @@
 
 #include "../breakpoint.h"
 #include "../debuggerconstants.h"
+#include "../debuggertr.h"
 #include "../procinterrupt.h"
 
 #include <utils/environment.h>
@@ -120,6 +121,31 @@ static bool mayAnswer(const BreakpointParameters &params, const QString &file, i
         return true;
     return line == params.textPosition.line
         && params.fileName.fileName() == FilePath::fromString(file).fileName();
+}
+
+// The bridge reports a module as its name and its repr, which carries the path
+// as "<module 'name' from '/path'>".
+static GdbMi moduleList(const GdbMi &modules)
+{
+    GdbMi result;
+    result.m_type = GdbMi::List;
+    for (const GdbMi &item : modules) {
+        QString path = item["value"].data();
+        const int pos = path.indexOf("' from '");
+        if (pos != -1) {
+            path = path.mid(pos + 8);
+            if (path.size() >= 2)
+                path.chop(2);
+        } else if (path.startsWith("<module '") && path.endsWith("' (built-in)>")) {
+            path = "(builtin)";
+        }
+        GdbMi module;
+        module.m_type = GdbMi::Tuple;
+        module.addConst("modulename", item["name"].data());
+        module.addConst("modulepath", path);
+        result.addChild(module);
+    }
+    return result;
 }
 
 static DebuggerEngineSetupData pdbImplSetupData()
@@ -241,7 +267,9 @@ void PdbImpl::start()
     }
     const FilePath script = inferiorRunData->command.executable();
     if (!script.isReadableFile()) {
-        emit message("Cannot open script file " + script.toUserOutput(), LogError);
+        emit startFailed(Tr::tr("Python Error"),
+                         Tr::tr("Cannot open script file %1.").arg(script.toUserOutput()),
+                         Key("PdbScriptNotReadable"));
         emit inferiorEvent(InferiorEvent::EngineSetupFailed);
         return;
     }
@@ -712,6 +740,8 @@ void PdbImpl::refresh(const RefreshRequest &request)
         cmd.arg("partialvar", request.partialVariable);
         cmd.arg("watchers", request.watchers);
         cmd.arg("expanded", request.expandedForDumpers());
+        cmd.arg("typeformats", request.typeFormats);
+        cmd.arg("formats", request.individualFormats);
         m_lastDebuggableCommand = cmd;
         runCommand(cmd);
         return;
@@ -1032,7 +1062,8 @@ void PdbImpl::handleOutputLine(const QString &line)
         emit refreshDataReceived(m_pendingLocalsRequestId, RefreshKind::Locals,
                                  wrapped(item, m_pendingLocalsArePartial));
     } else if (line.startsWith("modules=[")) {
-        emit refreshDataReceived(m_pendingModulesRequestId, RefreshKind::Modules, item);
+        emit refreshDataReceived(m_pendingModulesRequestId, RefreshKind::Modules,
+                                 moduleList(item));
     } else if (line.startsWith("threads={")) {
         emit refreshDataReceived(m_pendingThreadsRequestId, RefreshKind::Threads, item);
     } else if (line.startsWith("sourcefiles=[")) {
