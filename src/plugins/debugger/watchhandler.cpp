@@ -38,6 +38,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -517,6 +518,7 @@ public:
     QMenu *createBreakpointMenu(WatchItem *item, QWidget *parent);
 
     void addStackLayoutMemoryView(bool separateView, const QPoint &p);
+    void saveMemoryToFile(WatchItem *item);
 
     void addVariableMemoryView(bool separateView, WatchItem *item, bool atPointerAddress,
                                const QPoint &pos);
@@ -2079,7 +2081,40 @@ QMenu *WatchModel::createMemoryMenu(WatchItem *item, QWidget *parent)
                     }
                });
 
+    menu->addSeparator();
+
+    addAction(this, menu, Tr::tr("Save Object's Memory to File..."),
+              item->address && item->size && m_engine->canReadMemory(),
+              [this, item] { saveMemoryToFile(item); });
+
     return menu;
+}
+
+void WatchModel::saveMemoryToFile(WatchItem *item)
+{
+    const QString name = item->name;
+    const quint64 address = item->address;
+    const quint64 size = item->size;
+    FilePath dir = m_engine->runParameters().inferior().workingDirectory;
+    if (dir.isEmpty() || dir.needsDevice())
+        dir = FileUtils::homePath();
+    const FilePath defaultPath = dir / (FileUtils::fileSystemFriendlyName(name) + ".bin");
+    const FilePath filePath
+        = FileUtils::getSaveFilePath(Tr::tr("Save Memory of \"%1\"").arg(name), defaultPath);
+    if (filePath.isEmpty() || !m_engine)
+        return;
+
+    m_engine->readMemory(address, size, [name, filePath](const MemoryReadResult &result) {
+        if (!result.unreadable.isEmpty()) {
+            AsynchronousMessageBox::critical(
+                Tr::tr("Cannot Save Memory"),
+                Tr::tr("The memory of \"%1\" could not be read: %2")
+                    .arg(name, result.unreadable.first().reason));
+            return;
+        }
+        if (const Result<qint64> res = filePath.writeFileContents(result.data); !res)
+            AsynchronousMessageBox::critical(Tr::tr("Cannot Save Memory"), res.error());
+    });
 }
 
 void WatchModel::addCharsPrintableMenu(QMenu *menu)

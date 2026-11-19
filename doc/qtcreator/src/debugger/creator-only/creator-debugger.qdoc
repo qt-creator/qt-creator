@@ -1449,6 +1449,10 @@
         \li Jump to the selected address in the current data view or a new one.
     \endlist
 
+    To save the memory of a variable to a binary file, right-click it in the
+    \uicontrol Locals or \uicontrol Expressions view, and then select
+    \uicontrol {Open Memory Editor} > \uicontrol {Save Object's Memory to File...}.
+
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 
