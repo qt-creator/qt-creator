@@ -204,7 +204,7 @@ public:
 
         static_assert(BindParameterCount == sizeof...(values), "Wrong binding parameter count!");
 
-        int index = 0;
+        [[maybe_unused]] int index = 0;
         (BaseStatement::bind(++index, values, sourceLocation), ...);
     }
 
