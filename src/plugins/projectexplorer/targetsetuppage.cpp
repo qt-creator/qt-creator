@@ -62,7 +62,8 @@ public:
     void updateVisibility();
 
     void reLayout();
-    static bool compareKits(const Kit *k1, const Kit *k2);
+    bool isPreferredKit(const Kit *k) const { return importer() && importer()->isPreferredKit(k); }
+    bool compareKits(const Kit *k1, const Kit *k2) const;
     std::vector<Internal::TargetSetupWidget *> sortedWidgetList() const;
 
     void kitSelectionChanged();
@@ -180,7 +181,8 @@ bool TargetSetupPage::isComplete() const
 
 void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
 {
-    for (Kit *k : KitManager::sortedKits()) {
+    const QList<Kit *> kits = importer() ? importer()->sortedKits() : KitManager::sortedKits();
+    for (Kit *k : kits) {
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
         if (importer() && !importer()->filter(k))
@@ -417,8 +419,12 @@ void TargetSetupPagePrivate::reLayout()
     addAdditionalWidgets();
 }
 
-bool TargetSetupPagePrivate::compareKits(const Kit *k1, const Kit *k2)
+bool TargetSetupPagePrivate::compareKits(const Kit *k1, const Kit *k2) const
 {
+    // The kits the project brings, e.g. those of its CMake presets, come first
+    const bool preferred1 = isPreferredKit(k1);
+    if (preferred1 != isPreferredKit(k2))
+        return preferred1;
     const QString name1 = k1->displayName();
     const QString name2 = k2->displayName();
     if (name1 < name2)
@@ -430,7 +436,7 @@ bool TargetSetupPagePrivate::compareKits(const Kit *k1, const Kit *k2)
 
 std::vector<TargetSetupWidget *> TargetSetupPagePrivate::sortedWidgetList() const
 {
-    return sorted(widgets, [](const TargetSetupWidget *w1, const TargetSetupWidget *w2) {
+    return sorted(widgets, [this](const TargetSetupWidget *w1, const TargetSetupWidget *w2) {
         return compareKits(w1->kit(), w2->kit());
     });
 }
@@ -627,7 +633,7 @@ TargetSetupWidget *TargetSetupPagePrivate::addWidget(Kit *k)
 
     // Insert widget, sorted.
     const auto insertionPos = std::find_if(widgets.begin(), widgets.end(),
-                                           [k](const TargetSetupWidget *w) {
+                                           [this, k](const TargetSetupWidget *w) {
         return compareKits(k, w->kit());
     });
     const bool addedToEnd = insertionPos == widgets.end();

@@ -1243,7 +1243,8 @@ void TargetGroupItem::rebuildContents()
 {
     m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
-    const auto sortedKits = KitManager::sortedKits();
+    const ProjectImporter * const importer = m_project->projectImporter();
+    const auto sortedKits = importer ? importer->sortedKits() : KitManager::sortedKits();
     removeChildren();
 
     const KitFilter kitFilter = globalProjectExplorerSettings().kitFilter();

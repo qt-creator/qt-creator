@@ -38,6 +38,7 @@ public:
     // The kits to check on the setup page, instead of the one that the page picks
     virtual bool isKitSelectedByDefault(const Kit *) const { return false; }
 
+    QList<Kit *> sortedKits() const;
     bool isUpdating() const { return m_isUpdating; }
 
     void makePersistent(Kit *k) const;

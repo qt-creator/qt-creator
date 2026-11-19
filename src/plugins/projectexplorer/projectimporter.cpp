@@ -183,6 +183,16 @@ Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
     return activeTarget;
 }
 
+// The kits the project brings, e.g. those of its CMake presets, come first
+QList<Kit *> ProjectImporter::sortedKits() const
+{
+    QList<Kit *> kits = KitManager::sortedKits();
+    std::stable_partition(kits.begin(), kits.end(), [this](const Kit *k) {
+        return isPreferredKit(k);
+    });
+    return kits;
+}
+
 void ProjectImporter::markKitAsTemporary(Kit *k) const
 {
     QTC_ASSERT(!k->hasValue(KIT_IS_TEMPORARY), return);

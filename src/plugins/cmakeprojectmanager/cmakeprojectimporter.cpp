@@ -2263,12 +2263,15 @@ void CMakeProjectImporter::deleteDirectoryData(void *directoryData) const
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/targetsetuppage.h>
 
 #include <utils/detailswidget.h>
 
 #include <QCheckBox>
+#include <QComboBox>
+#include <QLayout>
 #include <QPointer>
 #include <QScopeGuard>
 #include <QTemporaryDir>
@@ -2300,6 +2303,7 @@ private slots:
     void testPresetBuildConfigurationIsNoImport();
     void testBuildConfigurationNameFollowsAVariable();
     void testUnusablePresetsLeaveTheOtherKits();
+    void testPresetKitsAreListedFirst();
     void testSetupPagePrefersPresetKits();
     void testQtFromFilesIsFoundByPrefixPath();
     void testPresetQmakeNotInPathFindsNoQt();
@@ -3109,6 +3113,123 @@ void CMakeProjectImporterTest::testUnusablePresetsLeaveTheOtherKits()
     Kit otherKit;
     QVERIFY2(project.projectImporter()->filter(&otherKit),
              "A project whose presets yield no kit can be configured with the other kits.");
+}
+
+void CMakeProjectImporterTest::testPresetKitsAreListedFirst()
+{
+    if (Environment::systemEnvironment().searchInPath("ninja").isEmpty())
+        QSKIP("A preset needs a generator that is installed for its probes to run.");
+
+    const FilePath projectDir = presetProjectDirectory("preset-setup-order");
+    QVERIFY(!projectDir.isEmpty());
+
+    const QtVersionRestorer qtVersionRestorer;
+
+    QVERIFY(writePresets(projectDir, R"({
+        "version": 3,
+        "configurePresets": [
+            {
+                "name": "zzz",
+                "generator": "Ninja",
+                "binaryDir": "${sourceDir}/build",
+                "cacheVariables": {
+                    "CMAKE_C_COMPILER": "cc",
+                    "CMAKE_CXX_COMPILER": "c++"
+                }
+            }
+        ]
+    })"));
+
+    // A name that sorts before the preset kit's
+    Kit * const otherKit = KitManager::registerKit(
+        [](Kit *k) { k->setUnexpandedDisplayName("!other"); });
+    QVERIFY(otherKit);
+    const Id otherKitId = otherKit->id();
+    const auto deregisterOtherKit = qScopeGuard([otherKit] { KitManager::deregisterKit(otherKit); });
+
+    const KitFilter previousKitFilter = globalProjectExplorerSettings().kitFilter();
+    globalProjectExplorerSettings().kitFilter.setValue(KitFilter::ShowAll);
+    const auto restoreKitFilter = qScopeGuard([previousKitFilter] {
+        globalProjectExplorerSettings().kitFilter.setValue(previousKitFilter);
+    });
+
+    auto project = new CMakeProject(projectDir / Constants::CMAKE_LISTS_TXT);
+    const QList<Id> presetKitIds = project->presetKitIds();
+    ProjectManager::addProject(project);
+    const auto closeProject = qScopeGuard([project, presetKitIds] {
+        ProjectManager::removeProject(project);
+        KitManager::deregisterKits(Utils::filtered(KitManager::kits(), [&presetKitIds](Kit *k) {
+            return presetKitIds.contains(k->id());
+        }));
+    });
+    QCOMPARE(presetKitIds.size(), 1);
+    // Reloading the presets replaces the kit, but keeps its ID
+    const Id presetKitId = presetKitIds.first();
+    QVERIFY(KitManager::kit(presetKitId));
+
+    {
+        TargetSetupPage page;
+        page.setProjectAndPath(project, project->projectFilePath());
+        page.initializePage();
+
+        // Each kit's details are in a widget of its own, which the page lays out in its order
+        const auto position = [&page](Id kitId) {
+            const Kit * const k = KitManager::kit(kitId);
+            if (!k)
+                return -1;
+            const QList<DetailsWidget *> kitWidgets = page.findChildren<DetailsWidget *>();
+            const DetailsWidget * const w = Utils::findOrDefault(kitWidgets, [k](DetailsWidget *w) {
+                return w->summaryText() == k->displayName();
+            });
+            if (!w || !w->parentWidget() || !w->parentWidget()->parentWidget())
+                return -1;
+            QWidget * const kitWidget = w->parentWidget();
+            return kitWidget->parentWidget()->layout()->indexOf(kitWidget);
+        };
+        QVERIFY(position(otherKitId) >= 0);
+        QVERIFY(position(presetKitId) >= 0);
+        QVERIFY2(position(presetKitId) < position(otherKitId),
+                 "The kits of the presets come before the other kits.");
+
+        // A kit that arrives while the page is open, as on a reload of the presets
+        deregisterPresetKits(*project);
+        // Gets rid of the widget of the old kit, which has the same name
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+        QCOMPARE(position(presetKitId), -1);
+        project->createKitsFromPresets();
+        QVERIFY(position(presetKitId) >= 0);
+        QVERIFY2(position(presetKitId) < position(otherKitId),
+                 "A preset kit that is added to the page comes before the other kits.");
+    }
+
+    // The kit list of the Projects mode
+    const auto projectSelection = qobject_cast<QComboBox *>(
+        Utils::findOrDefault(QApplication::allWidgets(), [](const QWidget *w) {
+            return w->objectName() == "ProjectSelection";
+        }));
+    QVERIFY(projectSelection);
+    const QAbstractItemModel * const model = projectSelection->model();
+    QModelIndex kitsIndex;
+    for (int row = 0; row < model->rowCount(); ++row) {
+        const QModelIndex projectIndex = model->index(row, 0);
+        if (projectIndex.data().toString() == project->displayName())
+            kitsIndex = model->index(0, 0, projectIndex);
+    }
+    QVERIFY(kitsIndex.isValid());
+    const auto kitRow = [model, kitsIndex](Id kitId) {
+        const Kit * const k = KitManager::kit(kitId);
+        if (!k)
+            return -1;
+        for (int row = 0; row < model->rowCount(kitsIndex); ++row) {
+            if (model->index(row, 0, kitsIndex).data().toString() == k->displayName())
+                return row;
+        }
+        return -1;
+    };
+    // The list is rebuilt after the kits change
+    QTRY_VERIFY(kitRow(otherKitId) >= 0 && kitRow(presetKitId) >= 0);
+    QVERIFY2(kitRow(presetKitId) < kitRow(otherKitId),
+             "The Projects mode lists the kits of the presets before the other kits.");
 }
 
 void CMakeProjectImporterTest::testSetupPagePrefersPresetKits()
