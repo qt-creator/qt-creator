@@ -198,6 +198,13 @@ DiffFilesController::DiffFilesController(IDocument *document, const ReloadInputL
     setReloadRecipe(recipe);
 }
 
+// A text file in an unexpected encoding is still diffed, only NUL bytes mark binary data.
+static bool isBinary(const TextFileFormat::ReadResult &result)
+{
+    return result.code == TextFileFormat::ReadEncodingError
+           && result.content.contains(QChar::Null);
+}
+
 static QList<ReloadInput> reloadInputHelper(IDocument *doc, bool onlyIfModified = true)
 {
     auto textDocument = qobject_cast<TextDocument *>(doc);
@@ -216,7 +223,9 @@ static QList<ReloadInput> reloadInputHelper(IDocument *doc, bool onlyIfModified 
     reloadInput.fileInfo = {DiffFileInfo(filePath.path(), Tr::tr("Saved")),
                             DiffFileInfo(filePath.path(), Tr::tr("Modified"))};
     reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
-    reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
+    reloadInput.binaryFiles = isBinary(leftResult);
+    reloadInput.fileInfo[LeftSide].notInDefaultEncoding
+        = leftResult.code == TextFileFormat::ReadEncodingError;
 
     if (leftResult.code == TextFileFormat::ReadIOError)
         reloadInput.fileOperation = FileData::NewFile;
@@ -250,18 +259,25 @@ static QList<ReloadInput> modifiedFilesReloadInputList(const FilePaths &filePath
 static QList<ReloadInput> externalFilesReloadInputList(const FilePath &leftFilePath,
                                                        const FilePath &rightFilePath)
 {
-    TextFileFormat format;
-    format.setEncoding(EditorManager::defaultTextEncoding());
-
-    const TextFileFormat::ReadResult leftResult = format.readFile(leftFilePath, format.encoding());
-    const TextFileFormat::ReadResult rightResult = format.readFile(rightFilePath, format.encoding());
+    const auto readFile = [](const FilePath &filePath) {
+        TextFileFormat format;
+        return format.readFile(filePath,
+                               EditorManager::defaultTextEncoding(),
+                               EditorManager::fallbackTextEncoding());
+    };
+    const TextFileFormat::ReadResult leftResult = readFile(leftFilePath);
+    const TextFileFormat::ReadResult rightResult = readFile(rightFilePath);
+    const auto notInDefaultEncoding = [](const TextFileFormat::ReadResult &result) {
+        return result.code == TextFileFormat::ReadEncodingError || result.usedDecodingFallback;
+    };
 
     ReloadInput reloadInput;
     reloadInput.text = {leftResult.content, rightResult.content};
     reloadInput.fileInfo[LeftSide].fileName = leftFilePath.path();
     reloadInput.fileInfo[RightSide].fileName = rightFilePath.path();
-    reloadInput.binaryFiles = leftResult.code == TextFileFormat::ReadEncodingError
-                           || rightResult.code == TextFileFormat::ReadEncodingError;
+    reloadInput.binaryFiles = isBinary(leftResult) || isBinary(rightResult);
+    reloadInput.fileInfo[LeftSide].notInDefaultEncoding = notInDefaultEncoding(leftResult);
+    reloadInput.fileInfo[RightSide].notInDefaultEncoding = notInDefaultEncoding(rightResult);
 
     const bool leftFileExists = leftResult.code != TextFileFormat::ReadIOError;
     const bool rightFileExists = rightResult.code != TextFileFormat::ReadIOError;
@@ -693,6 +709,7 @@ private slots:
     void testInlineDiffGhostSelection();
     void testInlineDiffChunkActions();
     void testInlineDiffBaselineMargin();
+    void testDiffFilesUndecodableText();
 #endif // WITH_TESTS
 };
 
@@ -5799,6 +5816,92 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffBaselineMargin()
     const QPointer<QWidget> diffWidgetGuard = diffWidget;
     QVERIFY(EditorManager::closeDocuments({sourceDocument.data()}, false));
     QTRY_VERIFY(diffWidgetGuard.isNull());
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDiffFilesUndecodableText()
+{
+    const TemporaryDirectory directory("DiffFilesUndecodableText-XXXXXX");
+    const FilePath left = directory.filePath("left.log");
+    const FilePath right = directory.filePath("right.log");
+    const FilePath plain = directory.filePath("plain.log");
+    const FilePath other = directory.filePath("other.log");
+    const FilePath binary = directory.filePath("binary.dat");
+    QVERIFY(left.writeFileContents("one\nDatenverlust m\x94glich\nthree\n"));
+    QVERIFY(right.writeFileContents("one\nDatenverlust m\x94glich\nTHREE\n"));
+    QVERIFY(plain.writeFileContents("one\nthree\n"));
+    QVERIFY(other.writeFileContents("one\nTHREE\n"));
+    QVERIFY(binary.writeFileContents(QByteArray("one\n\0\x94\nthree\n", 13)));
+
+    const auto diff = [this](const FilePath &leftFile, const FilePath &rightFile) {
+        m_service.diffFiles(leftFile, rightFile);
+        return qobject_cast<DiffEditorDocument *>(EditorManager::currentDocument());
+    };
+    const auto revertEnabled = [](DiffEditorDocument *document) {
+        DiffEditorWidgetController controller(nullptr);
+        controller.setDocument(document);
+        controller.m_contextFileData = document->diffFiles();
+        QMenu menu;
+        controller.addPatchAction(&menu, 0, 0, PatchAction::Revert);
+        return menu.actions().first()->isEnabled();
+    };
+
+    DiffEditorDocument *document = diff(left, right);
+    QVERIFY(document);
+    QTRY_COMPARE(document->state(), DiffEditorDocument::LoadOK);
+    QCOMPARE(document->diffFiles().size(), 1);
+    QVERIFY(!document->diffFiles().first().binaryFiles);
+    QCOMPARE(document->diffFiles().first().chunks.size(), 1);
+    QVERIFY(!revertEnabled(document));
+
+    document = diff(plain, right);
+    QVERIFY(document);
+    QTRY_COMPARE(document->state(), DiffEditorDocument::LoadOK);
+    QCOMPARE(document->diffFiles().first().chunks.size(), 1);
+    QVERIFY(!revertEnabled(document));
+
+    document = diff(plain, other);
+    QVERIFY(document);
+    QTRY_COMPARE(document->state(), DiffEditorDocument::LoadOK);
+    QCOMPARE(document->diffFiles().first().chunks.size(), 1);
+    QVERIFY(revertEnabled(document));
+
+    {
+        QtcSettings *settings = ICore::settings();
+        const Key fallbackKey(Core::Constants::SETTINGS_FALLBACKTEXTENCODING);
+        const QVariant previousFallback = settings->value(fallbackKey);
+        const bool hadFallback = settings->contains(fallbackKey);
+        const QScopeGuard restoreFallback([=] {
+            if (hadFallback)
+                settings->setValue(fallbackKey, previousFallback);
+            else
+                settings->remove(fallbackKey);
+        });
+        settings->setValue(fallbackKey, TextEncoding(TextEncoding::Latin1).name());
+
+        document = diff(left, right);
+        QVERIFY(document);
+        QTRY_COMPARE(document->state(), DiffEditorDocument::LoadOK);
+        QCOMPARE(document->diffFiles().first().chunks.size(), 1);
+        const QList<RowData> rows = document->diffFiles().first().chunks.first().rows;
+        const QString decoded = QString("Datenverlust m") + QChar(0x94) + "glich";
+        QVERIFY(Utils::anyOf(rows, [decoded](const RowData &row) {
+            return row.line[LeftSide].text == decoded;
+        }));
+        QVERIFY(!revertEnabled(document));
+    }
+
+    document = diff(left, binary);
+    QVERIFY(document);
+    QTRY_COMPARE(document->state(), DiffEditorDocument::LoadOK);
+    QCOMPARE(document->diffFiles().size(), 1);
+    QVERIFY(document->diffFiles().first().binaryFiles);
+
+    DiffEditorWidgetController emptyController(nullptr);
+    QMenu menu;
+    emptyController.addPatchAction(&menu, -1, -1, PatchAction::Revert);
+    QVERIFY(!menu.actions().first()->isEnabled());
+
+    EditorManager::closeAllEditors(false);
 }
 
 #endif // WITH_TESTS

@@ -40,6 +40,7 @@ public:
     int firstLineNumber = 1;
     int columnOffset = 0;
     bool isRangeComparison = false;
+    bool notInDefaultEncoding = false;
     PatchBehaviour patchBehaviour = PatchFile;
 
     std::optional<int> sourceColumn(int lineNumber, int columnNumber) const

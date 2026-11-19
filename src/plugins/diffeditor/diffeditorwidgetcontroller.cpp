@@ -283,8 +283,13 @@ void DiffEditorWidgetController::addPatchAction(QMenu *menu, int fileIndex, int 
         this,
         [this, fileIndex, chunkIndex, patchAction] { patch(patchAction, fileIndex, chunkIndex); },
         Qt::QueuedConnection);
-    const bool enabled = chunkExists(fileIndex, chunkIndex)
-            && !m_contextFileData.at(fileIndex).fileInfo[LeftSide].isRangeComparison
+    // The patch is written in the default encoding.
+    const auto patchable = [this, fileIndex] {
+        const DiffFileInfoArray &fileInfo = m_contextFileData.at(fileIndex).fileInfo;
+        return !fileInfo[LeftSide].isRangeComparison && !fileInfo[LeftSide].notInDefaultEncoding
+               && !fileInfo[RightSide].notInDefaultEncoding;
+    };
+    const bool enabled = chunkExists(fileIndex, chunkIndex) && patchable()
             && (patchAction == PatchAction::Revert || fileNamesAreDifferent(fileIndex));
     action->setEnabled(enabled);
 }
