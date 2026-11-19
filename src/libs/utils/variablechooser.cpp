@@ -79,8 +79,6 @@ public:
     void updatePositionAndShow(bool);
     void updateFilter(const QString &filterText);
 
-    QWidget *currentWidget() const;
-
     int buttonMargin() const;
     void updateButtonGeometry();
 
@@ -88,10 +86,7 @@ public:
     VariableChooser *q;
     TreeModel<> m_model;
 
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QTextEdit> m_textEdit;
-    QPointer<QPlainTextEdit> m_qplainTextEdit;
-    QPointer<PlainTextEdit> m_plainTextEdit;
+    QPointer<QWidget> m_currentWidget;
     QPointer<FancyIconButton> m_iconButton;
 
     FancyLineEdit *m_variableFilter;
@@ -239,10 +234,6 @@ void VariableTreeView::currentChanged(const QModelIndex &current, const QModelIn
 
 VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
     : q(parent),
-      m_lineEdit(nullptr),
-      m_textEdit(nullptr),
-      m_qplainTextEdit(nullptr),
-      m_plainTextEdit(nullptr),
       m_iconButton(nullptr),
       m_variableFilter(nullptr),
       m_variableTree(nullptr),
@@ -439,17 +430,29 @@ int VariableChooserPrivate::buttonMargin() const
 
 void VariableChooserPrivate::updateButtonGeometry()
 {
-    QWidget *current = currentWidget();
     int margin = buttonMargin();
     int rightPadding = 0;
-    if (const auto scrollArea = qobject_cast<const QAbstractScrollArea*>(current)) {
+    if (const auto scrollArea = qobject_cast<const QAbstractScrollArea*>(m_currentWidget)) {
         rightPadding = scrollArea->verticalScrollBar()->isVisible() ?
                     scrollArea->verticalScrollBar()->width() : 0;
     }
-    m_iconButton->setGeometry(current->rect().adjusted(
-                                  current->width() - (margin + 4), 0,
-                                  0, -qMax(0, current->height() - (margin + 4)))
+    m_iconButton->setGeometry(m_currentWidget->rect().adjusted(
+                                  m_currentWidget->width() - (margin + 4), 0,
+                                  0, -qMax(0, m_currentWidget->height() - (margin + 4)))
                               .translated(-rightPadding, 0));
+}
+
+static bool isEditable(QWidget *widget)
+{
+    if (auto lineEdit = qobject_cast<QLineEdit *>(widget))
+        return !lineEdit->isReadOnly();
+    if (auto textEdit = qobject_cast<QTextEdit *>(widget))
+        return !textEdit->isReadOnly();
+    if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
+        return !plainTextEdit->isReadOnly();
+    if (auto plainTextEdit = qobject_cast<PlainTextEdit *>(widget))
+        return !plainTextEdit->isReadOnly();
+    return false;
 }
 
 void VariableChooserPrivate::updateCurrentEditor()
@@ -472,44 +475,29 @@ void VariableChooserPrivate::updateCurrentEditor()
     if (!handle)
         return;
 
-    QLineEdit *previousLineEdit = m_lineEdit;
-    QWidget *previousWidget = currentWidget();
-    m_lineEdit = nullptr;
-    m_textEdit = nullptr;
-    m_qplainTextEdit = nullptr;
-    m_plainTextEdit = nullptr;
+    QWidget *previousWidget = m_currentWidget;
     auto chooser = widget->property(kVariableSupportProperty).value<QWidget *>();
     m_currentVariableName = widget->property(kVariableNameProperty).toByteArray();
     bool supportsVariables = chooser == q;
-    if (auto lineEdit = qobject_cast<QLineEdit *>(widget))
-        m_lineEdit = (supportsVariables && !lineEdit->isReadOnly() ? lineEdit : nullptr);
-    else if (auto textEdit = qobject_cast<QTextEdit *>(widget))
-        m_textEdit = (supportsVariables && !textEdit->isReadOnly() ? textEdit : nullptr);
-    else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(widget))
-        m_qplainTextEdit = (supportsVariables && !plainTextEdit->isReadOnly() ?
-                               plainTextEdit : nullptr);
-    else if (auto plainTextEdit = qobject_cast<PlainTextEdit *>(widget))
-        m_plainTextEdit = (supportsVariables && !plainTextEdit->isReadOnly() ?
-                               plainTextEdit : nullptr);
+    m_currentWidget = (supportsVariables && isEditable(widget) ? widget : nullptr);
 
-    QWidget *current = currentWidget();
-    if (current != previousWidget) {
+    if (m_currentWidget != previousWidget) {
         if (previousWidget)
             previousWidget->removeEventFilter(q);
-        if (previousLineEdit)
+        if (auto previousLineEdit = qobject_cast<QLineEdit *>(previousWidget))
             previousLineEdit->setTextMargins(0, 0, 0, 0);
         if (m_iconButton) {
             m_iconButton->hide();
             m_iconButton->setParent(nullptr);
         }
-        if (current) {
-            current->installEventFilter(q); // escape key handling and geometry changes
+        if (m_currentWidget) {
+            m_currentWidget->installEventFilter(q); // escape key handling and geometry changes
             if (!m_iconButton)
                 createIconButton();
             int margin = buttonMargin();
-            if (m_lineEdit)
-                m_lineEdit->setTextMargins(0, 0, margin, 0);
-            m_iconButton->setParent(current);
+            if (auto lineEdit = qobject_cast<QLineEdit *>(m_currentWidget))
+                lineEdit->setTextMargins(0, 0, margin, 0);
+            m_iconButton->setParent(m_currentWidget);
             updateButtonGeometry();
             m_iconButton->show();
         } else {
@@ -545,20 +533,6 @@ void VariableChooserPrivate::updateFilter(const QString &filterText)
 /*!
  * \internal
  */
-QWidget *VariableChooserPrivate::currentWidget() const
-{
-    if (m_lineEdit)
-        return m_lineEdit;
-    if (m_textEdit)
-        return m_textEdit;
-    if (m_qplainTextEdit)
-        return m_qplainTextEdit;
-    return m_plainTextEdit;
-}
-
-/*!
- * \internal
- */
 void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
 {
     QString text = m_model.data(m_sortModel.mapToSource(index), UnexpandedTextRole).toString();
@@ -571,18 +545,18 @@ void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
  */
 void VariableChooserPrivate::insertText(const QString &text)
 {
-    if (m_lineEdit) {
-        m_lineEdit->insert(text);
-        m_lineEdit->activateWindow();
-    } else if (m_textEdit) {
-        m_textEdit->insertPlainText(text);
-        m_textEdit->activateWindow();
-    } else if (m_qplainTextEdit) {
-        m_qplainTextEdit->insertPlainText(text);
-        m_qplainTextEdit->activateWindow();
-    } else if (m_plainTextEdit) {
-        m_plainTextEdit->insertPlainText(text);
-        m_plainTextEdit->activateWindow();
+    if (auto lineEdit = qobject_cast<QLineEdit *>(m_currentWidget)) {
+        lineEdit->insert(text);
+        lineEdit->activateWindow();
+    } else if (auto textEdit = qobject_cast<QTextEdit *>(m_currentWidget)) {
+        textEdit->insertPlainText(text);
+        textEdit->activateWindow();
+    } else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(m_currentWidget)) {
+        plainTextEdit->insertPlainText(text);
+        plainTextEdit->activateWindow();
+    } else if (auto plainTextEdit = qobject_cast<PlainTextEdit *>(m_currentWidget)) {
+        plainTextEdit->insertPlainText(text);
+        plainTextEdit->activateWindow();
     }
 }
 
@@ -617,7 +591,7 @@ bool VariableChooser::event(QEvent *ev)
  */
 bool VariableChooser::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj != d->currentWidget())
+    if (obj != d->m_currentWidget)
         return false;
     if ((event->type() == QEvent::KeyPress || event->type() == QEvent::ShortcutOverride) && isVisible()) {
         auto ke = static_cast<QKeyEvent *>(event);
