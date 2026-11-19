@@ -623,6 +623,18 @@ void ClangModelManagerSupport::doUpdateLanguageClient(
         LanguageClientManager::shutdownClient(oldClient);
     }
 
+    // The clients of the build configurations that were active before.
+    if (project) {
+        const QList<Client *> staleClients
+            = Utils::filtered(LanguageClientManager::clients(), [project](const Client *c) {
+                  return qobject_cast<const ClangdClient *>(c) && c->project() == project
+                         && c->state() != Client::ShutdownRequested
+                         && c->state() != Client::Shutdown;
+              });
+        for (Client * const c : staleClients)
+            LanguageClientManager::shutdownClient(c);
+    }
+
     if (project && !project->activeBuildConfiguration())
         return;
 

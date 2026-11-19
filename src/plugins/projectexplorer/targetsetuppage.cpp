@@ -31,6 +31,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QSet>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -696,6 +697,7 @@ void TargetSetupPage::setupProject(Project *project)
     QTC_ASSERT(project, return);
 
     QList<BuildInfo> toSetUp;
+    QSet<Id> setUpKits;
     for (TargetSetupWidget *widget : d->widgets) {
         if (!widget->isKitSelected())
             continue;
@@ -704,6 +706,8 @@ void TargetSetupPage::setupProject(Project *project)
 
         if (k && d->importer())
             d->importer()->makePersistent(k);
+        if (k)
+            setUpKits.insert(k->id());
         toSetUp << widget->selectedBuildInfoList();
         widget->clearKit();
     }
@@ -717,6 +721,17 @@ void TargetSetupPage::setupProject(Project *project)
     Target *activeTarget = nullptr;
     if (d->importer())
         activeTarget = d->importer()->preferredTarget(project->targets());
+
+    // Prefer a just-configured usable target over an unusable one.
+    const auto isUsableTarget = [this](const Target *t) { return t && d->isUsable(t->kit()); };
+    if (!isUsableTarget(activeTarget ? activeTarget : project->activeTarget())) {
+        if (Target * const usable = findOrDefault(project->targets(), [&](const Target *t) {
+                return setUpKits.contains(t->kit()->id()) && isUsableTarget(t);
+            })) {
+            activeTarget = usable;
+        }
+    }
+
     if (activeTarget)
         project->setActiveTarget(activeTarget, SetActive::NoCascade);
 }

@@ -470,7 +470,6 @@ private:
         m_tabBar = new ViewTabBar(m_parentView, m_tabBarContainer);
         qobject_cast<QVBoxLayout *>(m_tabBarContainer->layout())->addWidget(m_tabBar);
 
-        m_tabBar->setDocumentMode(true);
         m_tabBar->setUsesScrollButtons(true);
         m_tabBar->setExpanding(false);
         m_tabBar->setMovable(true);

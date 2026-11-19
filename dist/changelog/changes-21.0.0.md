@@ -16,7 +16,7 @@ New plugins
 ### HarmonyOS
 
 Adds support for [HarmonyOS](https://consumer.huawei.com/en/harmonyos/).
-([Documentation](https://doc-snapshots.qt.io/qtcreator-master/creator-developing-harmonyos.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-developing-harmonyos.html))
 
 General
 -------
@@ -24,13 +24,13 @@ General
 Added
 
 * Multiple selection in the `File System` view
-  ([QTCREATORBUG-16](https://bugreports.qt.io/browse/QTCREATORBUG-16))
+  ([QTCREATORBUG-16](https://qt-project.atlassian.net/browse/QTCREATORBUG-16))
 * `Copy Path Relative to Project` and `Copy Path and Line Number Relative to
   Project` to the file context menus
-  ([QTCREATORBUG-9028](https://bugreports.qt.io/browse/QTCREATORBUG-9028))
+  ([QTCREATORBUG-9028](https://qt-project.atlassian.net/browse/QTCREATORBUG-9028))
 * The `Disable atomic saving of files` option to
   `Preferences > Environment > System` for turning off the atomic saving of files
-  ([QTCREATORBUG-7598](https://bugreports.qt.io/browse/QTCREATORBUG-7598))
+  ([QTCREATORBUG-7598](https://qt-project.atlassian.net/browse/QTCREATORBUG-7598))
 
 Changed
 
@@ -41,28 +41,28 @@ Changed
 Fixed
 
 * Performance issues with the `File System` view
-  ([QTCREATORBUG-33785](https://bugreports.qt.io/browse/QTCREATORBUG-33785))
+  ([QTCREATORBUG-33785](https://qt-project.atlassian.net/browse/QTCREATORBUG-33785))
 * That JavaScript macros could block endlessly
-  ([QTCREATORBUG-19691](https://bugreports.qt.io/browse/QTCREATORBUG-19691))
+  ([QTCREATORBUG-19691](https://qt-project.atlassian.net/browse/QTCREATORBUG-19691))
 * That the `File System` view did not integrate with the version control
   system when renaming files or directories
-  ([QTCREATORBUG-34605](https://bugreports.qt.io/browse/QTCREATORBUG-34605))
+  ([QTCREATORBUG-34605](https://qt-project.atlassian.net/browse/QTCREATORBUG-34605))
 * That external tools could be run even if they used unavailable macros
-  ([QTCREATORBUG-8490](https://bugreports.qt.io/browse/QTCREATORBUG-8490))
+  ([QTCREATORBUG-8490](https://qt-project.atlassian.net/browse/QTCREATORBUG-8490))
 * That external tools could modify read-only editors and replace read-only
   selections
-  ([QTCREATORBUG-12405](https://bugreports.qt.io/browse/QTCREATORBUG-12405))
+  ([QTCREATORBUG-12405](https://qt-project.atlassian.net/browse/QTCREATORBUG-12405))
 * That external tool actions were enabled even without the context that they
   need
-  ([QTCREATORBUG-3837](https://bugreports.qt.io/browse/QTCREATORBUG-3837))
+  ([QTCREATORBUG-3837](https://qt-project.atlassian.net/browse/QTCREATORBUG-3837))
 * That the navigation history could contain duplicate entries
-  ([QTCREATORBUG-5179](https://bugreports.qt.io/browse/QTCREATORBUG-5179))
+  ([QTCREATORBUG-5179](https://qt-project.atlassian.net/browse/QTCREATORBUG-5179))
 * That icons were scaled wrongly with large UI scaling
-  ([QTCREATORBUG-17829](https://bugreports.qt.io/browse/QTCREATORBUG-17829))
+  ([QTCREATORBUG-17829](https://qt-project.atlassian.net/browse/QTCREATORBUG-17829))
 * That nested macros could recurse endlessly
 * That the `Show keyboard shortcuts in context menus` setting was not applied
   at startup
-  ([QTCREATORBUG-35019](https://bugreports.qt.io/browse/QTCREATORBUG-35019))
+  ([QTCREATORBUG-35019](https://qt-project.atlassian.net/browse/QTCREATORBUG-35019))
 * That failures were not reported when extracting archives; for example,
   when installing plugins
 * Issues with queueing commands in the `!` Locator filter
@@ -73,23 +73,23 @@ Added
 
 * Support for elicitation, so that agents can ask for input in the chat
 * Automatic updating of agents from the registry
-  ([QTCREATORBUG-34760](https://bugreports.qt.io/browse/QTCREATORBUG-34760))
+  ([QTCREATORBUG-34760](https://qt-project.atlassian.net/browse/QTCREATORBUG-34760))
 * The option to create a new session for a workspace from the history
-  ([QTCREATORBUG-34619](https://bugreports.qt.io/browse/QTCREATORBUG-34619))
+  ([QTCREATORBUG-34619](https://qt-project.atlassian.net/browse/QTCREATORBUG-34619))
 * The option to delete sessions (if supported)
 * The option to switch the session (if supported)
 * Dropping files onto the chat input to add them to the context
 * The display of the token usage of a session and of the running turn
-  ([QTCREATORBUG-34869](https://bugreports.qt.io/browse/QTCREATORBUG-34869))
+  ([QTCREATORBUG-34869](https://qt-project.atlassian.net/browse/QTCREATORBUG-34869))
 * Scroll wheel zoom for the chat
-  ([QTCREATORBUG-34921](https://bugreports.qt.io/browse/QTCREATORBUG-34921))
+  ([QTCREATORBUG-34921](https://qt-project.atlassian.net/browse/QTCREATORBUG-34921))
 * Actions for clearing the chat input history
 * Suggestions from the chat input history
-  ([QTCREATORBUG-34877](https://bugreports.qt.io/browse/QTCREATORBUG-34877))
+  ([QTCREATORBUG-34877](https://qt-project.atlassian.net/browse/QTCREATORBUG-34877))
 * Filterable pickers for the mode and model, with favorites
-  ([QTCREATORBUG-34469](https://bugreports.qt.io/browse/QTCREATORBUG-34469))
+  ([QTCREATORBUG-34469](https://qt-project.atlassian.net/browse/QTCREATORBUG-34469))
 * The working directory of a chat to the tool tip of its tab
-  ([QTCREATORBUG-34995](https://bugreports.qt.io/browse/QTCREATORBUG-34995))
+  ([QTCREATORBUG-34995](https://qt-project.atlassian.net/browse/QTCREATORBUG-34995))
 * The option to add agents from the registry directly from the chat
 * Progress information while downloading and extracting agents
 
@@ -105,17 +105,17 @@ Changed
 * The content of additional context files and of editors without a file is
   no longer sent to the agent, which reduces the token usage
 * The state of including the current editor in the context is now persisted
-  ([QTCREATORBUG-34863](https://bugreports.qt.io/browse/QTCREATORBUG-34863))
+  ([QTCREATORBUG-34863](https://qt-project.atlassian.net/browse/QTCREATORBUG-34863))
 
 Fixed
 
 * That the chat button was only added to the tool bar of text editors
 * That file links in the chat were not opened
-  ([QTCREATORBUG-34927](https://bugreports.qt.io/browse/QTCREATORBUG-34927))
+  ([QTCREATORBUG-34927](https://qt-project.atlassian.net/browse/QTCREATORBUG-34927))
 * That text after a `<` in the output of agents could be lost
 * That discarding changes in the agent preferences did not revert the
   selection of a registry template
-  ([QTCREATORBUG-34868](https://bugreports.qt.io/browse/QTCREATORBUG-34868))
+  ([QTCREATORBUG-34868](https://qt-project.atlassian.net/browse/QTCREATORBUG-34868))
 
 ### Model Context Protocol
 
@@ -124,10 +124,10 @@ Added
 * Support for the MCP revision 2026-07-28
 * Authentication of clients with a bearer token
 * The option to import and export the Qt Creator MCP server settings
-  ([QTCREATORBUG-34918](https://bugreports.qt.io/browse/QTCREATORBUG-34918))
+  ([QTCREATORBUG-34918](https://qt-project.atlassian.net/browse/QTCREATORBUG-34918))
 * The option to enable and disable tools in
   `Preferences > AI > Qt Creator MCP Server`
-  ([QTCREATORBUG-34617](https://bugreports.qt.io/browse/QTCREATORBUG-34617))
+  ([QTCREATORBUG-34617](https://qt-project.atlassian.net/browse/QTCREATORBUG-34617))
 * The `-mcp-port` command line option
 * The option to provide a line and column to the `open_file` tool
 * The option to provide a starting line and ending line to the `file_plain_text`
@@ -135,11 +135,11 @@ Added
 * Tools for the tests, CMake, projects, devices, plugins,
   language server protocol, C++, the Qt Creator documentation, profiling, kits,
   Qt versions, and debugging
-  ([QTCREATORBUG-34629](https://bugreports.qt.io/browse/QTCREATORBUG-34629),
-   [QTCREATORBUG-35070](https://bugreports.qt.io/browse/QTCREATORBUG-35070),
-   [QTCREATORBUG-35071](https://bugreports.qt.io/browse/QTCREATORBUG-35071),
-   [QTCREATORBUG-35073](https://bugreports.qt.io/browse/QTCREATORBUG-35073),
-   [QTCREATORBUG-35074](https://bugreports.qt.io/browse/QTCREATORBUG-35074))
+  ([QTCREATORBUG-34629](https://qt-project.atlassian.net/browse/QTCREATORBUG-34629),
+   [QTCREATORBUG-35070](https://qt-project.atlassian.net/browse/QTCREATORBUG-35070),
+   [QTCREATORBUG-35071](https://qt-project.atlassian.net/browse/QTCREATORBUG-35071),
+   [QTCREATORBUG-35073](https://qt-project.atlassian.net/browse/QTCREATORBUG-35073),
+   [QTCREATORBUG-35074](https://qt-project.atlassian.net/browse/QTCREATORBUG-35074))
 * The `-mcp-dump-tools`, `-mcp-enable-tools`, and `-mcp-info-file` command line
   options
 
@@ -155,7 +155,11 @@ Fixed
 
 * That modified documents could be overwritten with `set_file_plain_text`
 * A crash when sessions are closed
-  ([QTCREATORBUG-35058](https://bugreports.qt.io/browse/QTCREATORBUG-35058))
+  ([QTCREATORBUG-35058](https://qt-project.atlassian.net/browse/QTCREATORBUG-35058))
+* That disabling the server was not persisted
+  ([QTCREATORBUG-35172](https://qt-project.atlassian.net/browse/QTCREATORBUG-35172))
+* That strict clients reported streamed responses as aborted
+  ([QTCREATORBUG-35064](https://qt-project.atlassian.net/browse/QTCREATORBUG-35064))
 
 Help
 ----
@@ -164,11 +168,16 @@ Fixed
 
 * That registered Qt Creator documentation could accumulate over version updates
 * The rendering of `sub` and `sup` tags
-  ([QTBUG-102998](https://bugreports.qt.io/browse/QTBUG-102998))
+  ([QTBUG-102998](https://qt-project.atlassian.net/browse/QTBUG-102998))
 * That animated images were not supported
-  ([QTBUG-111594](https://bugreports.qt.io/browse/QTBUG-111594))
+  ([QTBUG-111594](https://qt-project.atlassian.net/browse/QTBUG-111594))
 * That opening links to images only showed garbled text
   ([QTCREATORBUG-31339](https://qt-project.atlassian.net/browse/QTCREATORBUG-31339))
+* That dark themes where not applied to SVG images
+  ([QTCREATORBUG-35083](https://qt-project.atlassian.net/browse/QTCREATORBUG-35083))
+* That the context help for the item in a tool tip was not shown when other
+  context help was available
+  ([QTCREATORBUG-35045](https://qt-project.atlassian.net/browse/QTCREATORBUG-35045))
 
 Editing
 -------
@@ -177,22 +186,22 @@ Added
 
 * The option to open a project file as a project in Qt Creator
 * The option to immediately reload unchanged documents
-  ([QTCREATORBUG-34634](https://bugreports.qt.io/browse/QTCREATORBUG-34634))
+  ([QTCREATORBUG-34634](https://qt-project.atlassian.net/browse/QTCREATORBUG-34634))
 * `Window > Equally Distribute Splits`
-  ([QTCREATORBUG-30013](https://bugreports.qt.io/browse/QTCREATORBUG-30013))
+  ([QTCREATORBUG-30013](https://qt-project.atlassian.net/browse/QTCREATORBUG-30013))
 * That jumping to search results from `Advanced Search` selects the matching
   text
-  ([QTCREATORBUG-34592](https://bugreports.qt.io/browse/QTCREATORBUG-34592))
+  ([QTCREATORBUG-34592](https://qt-project.atlassian.net/browse/QTCREATORBUG-34592))
 * Support for spell checking text files and comments using the built-in services
   on Windows and macOS, and the `enchant-2` library on Linux (if available)
-  ([QTCREATORBUG-1861](https://bugreports.qt.io/browse/QTCREATORBUG-1861))
+  ([QTCREATORBUG-1861](https://qt-project.atlassian.net/browse/QTCREATORBUG-1861))
 * The option to resolve merge conflicts directly in the text editor
 * `Move Document to Next Split` and `Move Document to Previous Split`
-  ([QTCREATORBUG-8135](https://bugreports.qt.io/browse/QTCREATORBUG-8135))
+  ([QTCREATORBUG-8135](https://qt-project.atlassian.net/browse/QTCREATORBUG-8135))
 * Auto-scrolling with the middle mouse button on Windows and macOS
-  ([QTCREATORBUG-8514](https://bugreports.qt.io/browse/QTCREATORBUG-8514))
+  ([QTCREATORBUG-8514](https://qt-project.atlassian.net/browse/QTCREATORBUG-8514))
 * A separate `Template Parameter` text highlighting style
-  ([QTCREATORBUG-6225](https://bugreports.qt.io/browse/QTCREATORBUG-6225))
+  ([QTCREATORBUG-6225](https://qt-project.atlassian.net/browse/QTCREATORBUG-6225))
 * `Cut Lines`, `Copy Lines`, and `Delete Lines`, which extend the selection to
   whole lines
 
@@ -202,43 +211,50 @@ Changed
   editor notifications
 * Changed the tab stop distance to be based on the width of a space, so tabs
   and spaces line up
-  ([QTCREATORBUG-10367](https://bugreports.qt.io/browse/QTCREATORBUG-10367))
+  ([QTCREATORBUG-10367](https://qt-project.atlassian.net/browse/QTCREATORBUG-10367))
 * Changed Makefiles to always be indented with tabs
-  ([QTCREATORBUG-3408](https://bugreports.qt.io/browse/QTCREATORBUG-3408))
+  ([QTCREATORBUG-3408](https://qt-project.atlassian.net/browse/QTCREATORBUG-3408))
 * `Rewrap Paragraph` now acts on all paragraphs of a selection
-  ([QTCREATORBUG-31067](https://bugreports.qt.io/browse/QTCREATORBUG-31067))
+  ([QTCREATORBUG-31067](https://qt-project.atlassian.net/browse/QTCREATORBUG-31067))
 
 Fixed
 
 * A performance issue with the tabs for editors
 * That `Clean Whitespace` could wrongly convert tabs to spaces
-  ([QTCREATORBUG-33670](https://bugreports.qt.io/browse/QTCREATORBUG-33670))
+  ([QTCREATORBUG-33670](https://qt-project.atlassian.net/browse/QTCREATORBUG-33670))
 * An issue with code folding after saving files
-  ([QTCREATORBUG-8078](https://bugreports.qt.io/browse/QTCREATORBUG-8078))
+  ([QTCREATORBUG-8078](https://qt-project.atlassian.net/browse/QTCREATORBUG-8078))
 * That printing a selection printed the whole document
-  ([QTCREATORBUG-12552](https://bugreports.qt.io/browse/QTCREATORBUG-12552))
+  ([QTCREATORBUG-12552](https://qt-project.atlassian.net/browse/QTCREATORBUG-12552))
 * The page range that is offered in the print dialog
-  ([QTCREATORBUG-12059](https://bugreports.qt.io/browse/QTCREATORBUG-12059))
+  ([QTCREATORBUG-12059](https://qt-project.atlassian.net/browse/QTCREATORBUG-12059))
 * That `Clean Whitespace` reflowed code that follows a line comment
-  ([QTCREATORBUG-31149](https://bugreports.qt.io/browse/QTCREATORBUG-31149))
+  ([QTCREATORBUG-31149](https://qt-project.atlassian.net/browse/QTCREATORBUG-31149))
 * That the indentation was cleaned up even for ignored file types
-  ([QTCREATORBUG-32894](https://bugreports.qt.io/browse/QTCREATORBUG-32894))
+  ([QTCREATORBUG-32894](https://qt-project.atlassian.net/browse/QTCREATORBUG-32894))
 * `Open Terminal Here` for subdirectories
 * That the `Do not ask again` check box of the dialog for large files was not
   persisted
-  ([QTCREATORBUG-34916](https://bugreports.qt.io/browse/QTCREATORBUG-34916))
+  ([QTCREATORBUG-34916](https://qt-project.atlassian.net/browse/QTCREATORBUG-34916))
 * That the completion popup changed its width while scrolling
-  ([QTCREATORBUG-7925](https://bugreports.qt.io/browse/QTCREATORBUG-7925))
+  ([QTCREATORBUG-7925](https://qt-project.atlassian.net/browse/QTCREATORBUG-7925))
 * That annotations, such as `Instant Blame`, overlapped with folded code
 * That a search result that directly follows another one was not highlighted
-  ([QTCREATORBUG-35026](https://bugreports.qt.io/browse/QTCREATORBUG-35026))
+  ([QTCREATORBUG-35026](https://qt-project.atlassian.net/browse/QTCREATORBUG-35026))
 * That multi-cursor editing did not work with dead keys
-  ([QTCREATORBUG-35061](https://bugreports.qt.io/browse/QTCREATORBUG-35061))
+  ([QTCREATORBUG-35061](https://qt-project.atlassian.net/browse/QTCREATORBUG-35061))
 * That an empty last line of a selection was left behind when moving lines
-  ([QTCREATORBUG-34933](https://bugreports.qt.io/browse/QTCREATORBUG-34933))
+  ([QTCREATORBUG-34933](https://qt-project.atlassian.net/browse/QTCREATORBUG-34933))
 * That `Rewrap Paragraph` removed the space after the comment leader in
   Doxygen comments
-  ([QTCREATORBUG-31067](https://bugreports.qt.io/browse/QTCREATORBUG-31067))
+  ([QTCREATORBUG-31067](https://qt-project.atlassian.net/browse/QTCREATORBUG-31067))
+* That `Whole words only` did not find search terms that start or end with
+  characters that are not part of words
+  ([QTCREATORBUG-7314](https://qt-project.atlassian.net/browse/QTCREATORBUG-7314))
+* That a file that was removed and reappeared on disk was not detected
+  ([QTCREATORBUG-3895](https://qt-project.atlassian.net/browse/QTCREATORBUG-3895))
+* The overwrite cursor on wrapped lines
+  ([QTCREATORBUG-35128](https://qt-project.atlassian.net/browse/QTCREATORBUG-35128))
 
 ### C++
 
@@ -247,80 +263,85 @@ Added
 * The `Wrap in std::as_const()` quick fix
 * The `Inline Function Call` and `Inline Function Call and Remove Function If
   Unused` quick fixes
-  ([QTCREATORBUG-9615](https://bugreports.qt.io/browse/QTCREATORBUG-9615))
+  ([QTCREATORBUG-9615](https://qt-project.atlassian.net/browse/QTCREATORBUG-9615))
 * Quick fixes for converting a lambda in a `connect()` call into a free
   function, a member function, or a slot
-  ([QTCREATORBUG-26048](https://bugreports.qt.io/browse/QTCREATORBUG-26048))
+  ([QTCREATORBUG-26048](https://qt-project.atlassian.net/browse/QTCREATORBUG-26048))
 * The `Convert to std::unique_ptr` and `Convert to QScopedPointer` quick fixes
-  ([QTCREATORBUG-12733](https://bugreports.qt.io/browse/QTCREATORBUG-12733))
+  ([QTCREATORBUG-12733](https://qt-project.atlassian.net/browse/QTCREATORBUG-12733))
 * A quick fix for adding a binding to an existing `Q_PROPERTY`
-  ([QTCREATORBUG-25036](https://bugreports.qt.io/browse/QTCREATORBUG-25036))
+  ([QTCREATORBUG-25036](https://qt-project.atlassian.net/browse/QTCREATORBUG-25036))
 * Built-in
     * Support for `__has_include`
-      ([QTCREATORBUG-25181](https://bugreports.qt.io/browse/QTCREATORBUG-25181))
+      ([QTCREATORBUG-25181](https://qt-project.atlassian.net/browse/QTCREATORBUG-25181))
 
 Changed
 
 * Improved the code style settings
 * Jumping to a function from the `Class View` now opens the definition if
   available
-  ([QTCREATORBUG-16175](https://bugreports.qt.io/browse/QTCREATORBUG-16175))
+  ([QTCREATORBUG-16175](https://qt-project.atlassian.net/browse/QTCREATORBUG-16175))
 * That `Open Include Hierarchy` opens the hierarchy of the `#include` under
   the text cursor, if any
-  ([QTCREATORBUG-2311](https://bugreports.qt.io/browse/QTCREATORBUG-2311))
+  ([QTCREATORBUG-2311](https://qt-project.atlassian.net/browse/QTCREATORBUG-2311))
 
 Fixed
 
 * That the `Generate Missing Q_PROPERTY Members` quick fix did not consider the
   `BINDABLE` attribute
-  ([QTCREATORBUG-34561](https://bugreports.qt.io/browse/QTCREATORBUG-34561))
+  ([QTCREATORBUG-34561](https://qt-project.atlassian.net/browse/QTCREATORBUG-34561))
 * That the `Class View` expanded on each update
-  ([QTCREATORBUG-18891](https://bugreports.qt.io/browse/QTCREATORBUG-18891))
+  ([QTCREATORBUG-18891](https://qt-project.atlassian.net/browse/QTCREATORBUG-18891))
 * That a space was inserted into operator symbols
-  ([QTCREATORBUG-34875](https://bugreports.qt.io/browse/QTCREATORBUG-34875))
+  ([QTCREATORBUG-34875](https://qt-project.atlassian.net/browse/QTCREATORBUG-34875))
 * The indentation of lambdas with the Whitesmith style
-  ([QTCREATORBUG-34742](https://bugreports.qt.io/browse/QTCREATORBUG-34742))
+  ([QTCREATORBUG-34742](https://qt-project.atlassian.net/browse/QTCREATORBUG-34742))
 * That symbols were displayed differently in the various Locator filters
-  ([QTCREATORBUG-34858](https://bugreports.qt.io/browse/QTCREATORBUG-34858))
+  ([QTCREATORBUG-34858](https://qt-project.atlassian.net/browse/QTCREATORBUG-34858))
 * That the code model could work on an outdated document
-  ([QTCREATORBUG-18800](https://bugreports.qt.io/browse/QTCREATORBUG-18800))
+  ([QTCREATORBUG-18800](https://qt-project.atlassian.net/browse/QTCREATORBUG-18800))
 * The performance of finding function definitions, for example for the
   `Add Definitions` quick fixes
-  ([QTCREATORBUG-32466](https://bugreports.qt.io/browse/QTCREATORBUG-32466))
+  ([QTCREATORBUG-32466](https://qt-project.atlassian.net/browse/QTCREATORBUG-32466))
 * A freeze when saving with the ClangFormat indenter
-  ([QTCREATORBUG-35069](https://bugreports.qt.io/browse/QTCREATORBUG-35069))
+  ([QTCREATORBUG-35069](https://qt-project.atlassian.net/browse/QTCREATORBUG-35069))
 * Clangd
     * That the context help was not shown for calls without an explicit
       `this->` when the cursor is in front of the parenthesis
-      ([QTCREATORBUG-34937](https://bugreports.qt.io/browse/QTCREATORBUG-34937))
+      ([QTCREATORBUG-34937](https://qt-project.atlassian.net/browse/QTCREATORBUG-34937))
+    * That no context help was found for qualified variables, such as
+      `std::string::npos`
+      ([QTCREATORBUG-35092](https://qt-project.atlassian.net/browse/QTCREATORBUG-35092))
 
 ### QML
 
 Changed
 
 * Enabled `qmlls` by default
-  ([QTCREATORBUG-30851](https://bugreports.qt.io/browse/QTCREATORBUG-30851))
+  ([QTCREATORBUG-30851](https://qt-project.atlassian.net/browse/QTCREATORBUG-30851))
 
 Fixed
 
 * A crash when editing a file with an inline component
-  ([QTCREATORBUG-34993](https://bugreports.qt.io/browse/QTCREATORBUG-34993))
+  ([QTCREATORBUG-34993](https://qt-project.atlassian.net/browse/QTCREATORBUG-34993))
 * That `qmlls` was not enabled for Python projects
-  ([QTCREATORBUG-34467](https://bugreports.qt.io/browse/QTCREATORBUG-34467))
+  ([QTCREATORBUG-34467](https://qt-project.atlassian.net/browse/QTCREATORBUG-34467))
 * That `qmlls` was enabled for `.qbs` files
 * That formatting code dropped destructuring variables
-  ([QTCREATORBUG-33279](https://bugreports.qt.io/browse/QTCREATORBUG-33279))
+  ([QTCREATORBUG-33279](https://qt-project.atlassian.net/browse/QTCREATORBUG-33279))
 * Issues with `.mjs` module files
-  ([QTCREATORBUG-27738](https://bugreports.qt.io/browse/QTCREATORBUG-27738))
+  ([QTCREATORBUG-27738](https://qt-project.atlassian.net/browse/QTCREATORBUG-27738))
+* The replaying of input events in `QML Preview`
+  ([QTCREATORBUG-35136](https://qt-project.atlassian.net/browse/QTCREATORBUG-35136))
 
 ### Python
 
 Fixed
 
 * That the language servers of interpreters that no longer exist were kept
-  ([QTCREATORBUG-34264](https://bugreports.qt.io/browse/QTCREATORBUG-34264))
+  ([QTCREATORBUG-34264](https://qt-project.atlassian.net/browse/QTCREATORBUG-34264))
 * That `qmlImportPaths` from `pyproject.toml` was ignored
-  ([QTCREATORBUG-34911](https://bugreports.qt.io/browse/QTCREATORBUG-34911))
+  ([QTCREATORBUG-34911](https://qt-project.atlassian.net/browse/QTCREATORBUG-34911))
 * That Python interpreters were not found by the tool detection of devices
 
 ### Language Server Protocol
@@ -329,16 +350,23 @@ Changed
 
 * Language servers are now also used for files in the source directory of a
   project that are not part of the project
-  ([QTCREATORBUG-34931](https://bugreports.qt.io/browse/QTCREATORBUG-34931))
+  ([QTCREATORBUG-34931](https://qt-project.atlassian.net/browse/QTCREATORBUG-34931))
 
 Fixed
 
 * That the tool button in the editor could vanish if the language server failed
 * That symbol tags that are not part of the released protocol were advertised
-  ([QTCREATORBUG-34906](https://bugreports.qt.io/browse/QTCREATORBUG-34906))
+  ([QTCREATORBUG-34906](https://qt-project.atlassian.net/browse/QTCREATORBUG-34906))
 * That servers with an empty file pattern were used for documents without a
   file, such as version control logs
-  ([QTCREATORBUG-34935](https://bugreports.qt.io/browse/QTCREATORBUG-34935))
+  ([QTCREATORBUG-34935](https://qt-project.atlassian.net/browse/QTCREATORBUG-34935))
+
+### Copilot
+
+Changed
+
+* Marked the plugin as deprecated in favor of the Agent Client Protocol and the
+  Model Context Protocol integrations
 
 ### QDoc
 
@@ -353,16 +381,16 @@ Added
 
 * An editable live diff view for single files
 * The patience algorithm for computing diffs
-  ([QTCREATORBUG-34836](https://bugreports.qt.io/browse/QTCREATORBUG-34836))
+  ([QTCREATORBUG-34836](https://qt-project.atlassian.net/browse/QTCREATORBUG-34836))
 * The display of the description of patch files, including links
-  ([QTCREATORBUG-13120](https://bugreports.qt.io/browse/QTCREATORBUG-13120))
+  ([QTCREATORBUG-13120](https://qt-project.atlassian.net/browse/QTCREATORBUG-13120))
 
 Fixed
 
 * Misaligned indentation guides
-  ([QTCREATORBUG-33858](https://bugreports.qt.io/browse/QTCREATORBUG-33858))
+  ([QTCREATORBUG-33858](https://qt-project.atlassian.net/browse/QTCREATORBUG-33858))
 * The highlighting of changes that contain repeated substrings
-  ([QTCREATORBUG-33879](https://bugreports.qt.io/browse/QTCREATORBUG-33879))
+  ([QTCREATORBUG-33879](https://qt-project.atlassian.net/browse/QTCREATORBUG-33879))
 * `Jump to Original File` for renamed files
 * The color for visualized whitespace
 
@@ -372,19 +400,19 @@ Added
 
 * The option `Generate pointer-to-member connections in "Go to Slot"`
   (enabled by default)
-  ([QTCREATORBUG-29257](https://bugreports.qt.io/browse/QTCREATORBUG-29257))
+  ([QTCREATORBUG-29257](https://qt-project.atlassian.net/browse/QTCREATORBUG-29257))
 
 Fixed
 
 * That the text representation of `.ui` files was not updated when saving
-  ([QTCREATORBUG-11270](https://bugreports.qt.io/browse/QTCREATORBUG-11270))
+  ([QTCREATORBUG-11270](https://qt-project.atlassian.net/browse/QTCREATORBUG-11270))
 
 ### TODO
 
 Changed
 
 * The view now shows file paths relative to the active project
-  ([QTCREATORBUG-9165](https://bugreports.qt.io/browse/QTCREATORBUG-9165))
+  ([QTCREATORBUG-9165](https://qt-project.atlassian.net/browse/QTCREATORBUG-9165))
 
 ### Markdown
 
@@ -392,24 +420,24 @@ Added
 
 * Support for language servers
 * Support for multiple editors on the same document (splitting)
-  ([QTCREATORBUG-30767](https://bugreports.qt.io/browse/QTCREATORBUG-30767))
+  ([QTCREATORBUG-30767](https://qt-project.atlassian.net/browse/QTCREATORBUG-30767))
 * Support for file links with line numbers
 * Zoom shortcuts for the preview
 
 Fixed
 
 * Some rendering issues
-  ([QTCREATORBUG-34571](https://bugreports.qt.io/browse/QTCREATORBUG-34571))
+  ([QTCREATORBUG-34571](https://qt-project.atlassian.net/browse/QTCREATORBUG-34571))
 * That searching in the preview was not possible
 * That search results were not highlighted in the other view
-  ([QTCREATORBUG-34901](https://bugreports.qt.io/browse/QTCREATORBUG-34901))
+  ([QTCREATORBUG-34901](https://qt-project.atlassian.net/browse/QTCREATORBUG-34901))
 
 ### SCXML
 
 Fixed
 
 * The width of transition items
-  ([QTCREATORBUG-33139](https://bugreports.qt.io/browse/QTCREATORBUG-33139))
+  ([QTCREATORBUG-33139](https://qt-project.atlassian.net/browse/QTCREATORBUG-33139))
 
 ### FakeVim
 
@@ -417,28 +445,28 @@ Added
 
 * Support for `:delmarks`
 * Automatic removal of indentation from new lines that are left empty
-  ([QTCREATORBUG-15009](https://bugreports.qt.io/browse/QTCREATORBUG-15009))
+  ([QTCREATORBUG-15009](https://qt-project.atlassian.net/browse/QTCREATORBUG-15009))
 * Support for `,` with the option to revert to the old behavior that passes
   shortcuts to Qt Creator
-  ([QTCREATORBUG-12115](https://bugreports.qt.io/browse/QTCREATORBUG-12115))
+  ([QTCREATORBUG-12115](https://qt-project.atlassian.net/browse/QTCREATORBUG-12115))
 * Support for `gp` and `gw`
-  ([QTCREATORBUG-28622](https://bugreports.qt.io/browse/QTCREATORBUG-28622))
+  ([QTCREATORBUG-28622](https://qt-project.atlassian.net/browse/QTCREATORBUG-28622))
 * Support for `zi`
-  ([QTCREATORBUG-11753](https://bugreports.qt.io/browse/QTCREATORBUG-11753))
+  ([QTCREATORBUG-11753](https://qt-project.atlassian.net/browse/QTCREATORBUG-11753))
 * Support for the `timeout` and `timeoutlen` configure options
-  ([QTCREATORBUG-29162](https://bugreports.qt.io/browse/QTCREATORBUG-29162))
+  ([QTCREATORBUG-29162](https://qt-project.atlassian.net/browse/QTCREATORBUG-29162))
 * Support for `gd`
-  ([QTCREATORBUG-27191](https://bugreports.qt.io/browse/QTCREATORBUG-27191))
+  ([QTCREATORBUG-27191](https://qt-project.atlassian.net/browse/QTCREATORBUG-27191))
 * Support for `breakindent`
-  ([QTCREATORBUG-20974](https://bugreports.qt.io/browse/QTCREATORBUG-20974))
+  ([QTCREATORBUG-20974](https://qt-project.atlassian.net/browse/QTCREATORBUG-20974))
 * The `Cursor blink rate` option
-  ([QTCREATORBUG-18181](https://bugreports.qt.io/browse/QTCREATORBUG-18181))
+  ([QTCREATORBUG-18181](https://qt-project.atlassian.net/browse/QTCREATORBUG-18181))
 * The option to `Use the editor's tabulator and indentation settings`
-  ([QTCREATORBUG-14273](https://bugreports.qt.io/browse/QTCREATORBUG-14273))
+  ([QTCREATORBUG-14273](https://qt-project.atlassian.net/browse/QTCREATORBUG-14273))
 * The option to show the `Command line in the editor`
-  ([QTCREATORBUG-21005](https://bugreports.qt.io/browse/QTCREATORBUG-21005))
+  ([QTCREATORBUG-21005](https://qt-project.atlassian.net/browse/QTCREATORBUG-21005))
 * Support for Vimscript
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
     * Legacy scripts and Vim9 script, with `:def` functions, `var`, `const`,
       and `final` declarations, `(args) => expr` lambdas, string
       interpolation, implicit line continuation, and `import`/`export`
@@ -473,117 +501,123 @@ Added
 * Support for running Vim plugins, such as `matchit`, `comment`, `justify`,
   `editorconfig`, `repeat.vim`, `vim-unimpaired`, `vim-exchange`, and
   `ReplaceWithRegister`
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Support for `g@` and the `operatorfunc` option
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Support for modelines, with the `modeline` and `modelines` options
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Detection of the file type of a document, which sets `filetype` and the
   buffer-local `commentstring` that `gc` uses as the comment leader
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Support for Select mode
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Many more Ex commands, options, motions, text objects, and insert-mode and
   command-line keys, such as `gi`, `g_`, `gn`, `g;`, `gf`, `]p`, `:copy`,
   `:sort`, `:retab`, `:put`, `:mark`, `:earlier`, `:startinsert`,
   `nrformats`, `matchpairs`, `whichwrap`, `softtabstop`, and `cpoptions`
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Support for the `it` and `at` tag text objects
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Support for `Ctrl+G` and `Ctrl+^`
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * Support for `K` that opens the context help
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * The option to match brackets for `%` like Vim, instead of using the
   syntax-aware bracket matching of the editor
 
 Fixed
 
 * The `normal` Ex mode command
-  ([QTCREATORBUG-33296](https://bugreports.qt.io/browse/QTCREATORBUG-33296))
+  ([QTCREATORBUG-33296](https://qt-project.atlassian.net/browse/QTCREATORBUG-33296))
 * Delete and backspace in replace mode
-  ([QTCREATORBUG-12120](https://bugreports.qt.io/browse/QTCREATORBUG-12120))
+  ([QTCREATORBUG-12120](https://qt-project.atlassian.net/browse/QTCREATORBUG-12120))
 * That indentation could be lost during block insert
-  ([QTCREATORBUG-24094](https://bugreports.qt.io/browse/QTCREATORBUG-24094))
+  ([QTCREATORBUG-24094](https://qt-project.atlassian.net/browse/QTCREATORBUG-24094))
 * Yanking and pasting wrapped lines in visual line mode
-  ([QTCREATORBUG-16713](https://bugreports.qt.io/browse/QTCREATORBUG-16713))
+  ([QTCREATORBUG-16713](https://qt-project.atlassian.net/browse/QTCREATORBUG-16713))
 * Issues with quoting text selections
-  ([QTCREATORBUG-22484](https://bugreports.qt.io/browse/QTCREATORBUG-22484))
+  ([QTCREATORBUG-22484](https://qt-project.atlassian.net/browse/QTCREATORBUG-22484))
 * The scroll behavior (`Ctrl+E` and `Ctrl+Y`) with regards to `scrolloff`
-  ([QTCREATORBUG-34074](https://bugreports.qt.io/browse/QTCREATORBUG-34074))
+  ([QTCREATORBUG-34074](https://qt-project.atlassian.net/browse/QTCREATORBUG-34074))
 * `:move` on the last line of the document
 * `zz`, `zt`, and `zb` when `Center cursor on scroll` is enabled
-  ([QTCREATORBUG-15407](https://bugreports.qt.io/browse/QTCREATORBUG-15407))
+  ([QTCREATORBUG-15407](https://qt-project.atlassian.net/browse/QTCREATORBUG-15407))
 * A crash when `tabstop=0` is set
-  ([QTCREATORBUG-29376](https://bugreports.qt.io/browse/QTCREATORBUG-29376))
+  ([QTCREATORBUG-29376](https://qt-project.atlassian.net/browse/QTCREATORBUG-29376))
 * The handling of the `ISO_Level5_Shift` modifier key
-  ([QTCREATORBUG-26818](https://bugreports.qt.io/browse/QTCREATORBUG-26818))
+  ([QTCREATORBUG-26818](https://qt-project.atlassian.net/browse/QTCREATORBUG-26818))
 * The handling of `Ctrl-]` and `Ctrl-T`
-  ([QTCREATORBUG-11754](https://bugreports.qt.io/browse/QTCREATORBUG-11754))
+  ([QTCREATORBUG-11754](https://qt-project.atlassian.net/browse/QTCREATORBUG-11754))
 * The text cursor past the end of the line
-  ([QTCREATORBUG-29553](https://bugreports.qt.io/browse/QTCREATORBUG-29553))
+  ([QTCREATORBUG-29553](https://qt-project.atlassian.net/browse/QTCREATORBUG-29553))
 * Multi-line selection with `$` in block-visual mode
-  ([QTCREATORBUG-22192](https://bugreports.qt.io/browse/QTCREATORBUG-22192))
+  ([QTCREATORBUG-22192](https://qt-project.atlassian.net/browse/QTCREATORBUG-22192))
 * Issues with `inoremap` with `"` in its expansion
-  ([QTCREATORBUG-11617](https://bugreports.qt.io/browse/QTCREATORBUG-11617))
+  ([QTCREATORBUG-11617](https://qt-project.atlassian.net/browse/QTCREATORBUG-11617))
 * That `Ctrl+Y` and `Ctrl+E` did not scroll past `scrolloff`
-  ([QTCREATORBUG-34074](https://bugreports.qt.io/browse/QTCREATORBUG-34074))
+  ([QTCREATORBUG-34074](https://qt-project.atlassian.net/browse/QTCREATORBUG-34074))
 * The position of line numbers relative to the cursor
-  ([QTCREATORBUG-26802](https://bugreports.qt.io/browse/QTCREATORBUG-26802))
+  ([QTCREATORBUG-26802](https://qt-project.atlassian.net/browse/QTCREATORBUG-26802))
 * Issues with some key bindings
-  ([QTCREATORBUG-20998](https://bugreports.qt.io/browse/QTCREATORBUG-20998))
+  ([QTCREATORBUG-20998](https://qt-project.atlassian.net/browse/QTCREATORBUG-20998))
 * That FakeVim stayed disabled after a document becomes writable
-  ([QTCREATORBUG-24237](https://bugreports.qt.io/browse/QTCREATORBUG-24237))
+  ([QTCREATORBUG-24237](https://qt-project.atlassian.net/browse/QTCREATORBUG-24237))
 * That `Ctrl+O` and `Ctrl+I` didn't work across files
-  ([QTCREATORBUG-12114](https://bugreports.qt.io/browse/QTCREATORBUG-12114))
+  ([QTCREATORBUG-12114](https://qt-project.atlassian.net/browse/QTCREATORBUG-12114))
 * The behavior of repeating pastes with `.`
-  ([QTCREATORBUG-18298](https://bugreports.qt.io/browse/QTCREATORBUG-18298))
+  ([QTCREATORBUG-18298](https://qt-project.atlassian.net/browse/QTCREATORBUG-18298))
 * That the standard shortcuts for copy & paste did not work in the FakeVim
   command line
-  ([QTCREATORBUG-23785](https://bugreports.qt.io/browse/QTCREATORBUG-23785))
+  ([QTCREATORBUG-23785](https://qt-project.atlassian.net/browse/QTCREATORBUG-23785))
 * That operators did not work with the `/` and `?` motions when
   `Use search dialog` is enabled
-  ([QTCREATORBUG-24172](https://bugreports.qt.io/browse/QTCREATORBUG-24172))
+  ([QTCREATORBUG-24172](https://qt-project.atlassian.net/browse/QTCREATORBUG-24172))
 * That text was overwritten when the editor handles the keys itself, for
   example for snippets and `Rename Symbol Under Cursor`
-  ([QTCREATORBUG-34908](https://bugreports.qt.io/browse/QTCREATORBUG-34908))
+  ([QTCREATORBUG-34908](https://qt-project.atlassian.net/browse/QTCREATORBUG-34908))
 * That the mini buffer showed the Vim state even when FakeVim was disabled
-  ([QTCREATORBUG-34897](https://bugreports.qt.io/browse/QTCREATORBUG-34897))
+  ([QTCREATORBUG-34897](https://qt-project.atlassian.net/browse/QTCREATORBUG-34897))
 * Many differences to Vim's behavior in motions, text objects, operators,
   registers, marks, Ex ranges, mappings, options, and the insert-mode and
   command-line keys
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * That `:xmap` and its variants did not apply in visual mode
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * That `:map` dropped the options that follow `<silent>`
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * That the abbreviations of Ex commands were only accepted in their shortest
   and longest spelling
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * That `:normal` did not take the rest of the line after a `|`
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * That `:w {file}` wrote only the current line
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
 * A crash with `:global` and `:vglobal` without arguments
-  ([QTCREATORBUG-34817](https://bugreports.qt.io/browse/QTCREATORBUG-34817))
+  ([QTCREATORBUG-34817](https://qt-project.atlassian.net/browse/QTCREATORBUG-34817))
+* That searching and yanking were not possible in read-only editors, such as
+  `Git Blame`
+  ([QTCREATORBUG-33047](https://qt-project.atlassian.net/browse/QTCREATORBUG-33047))
+* That Visual mode was kept when switching to another editor
+* That a cursor was painted on every line of a block selection
+* Filtering lines through external commands (`:!`) on Windows
 
 ### Binary Files
 
 Added
 
 * The option to group bytes into words for the display
-  ([QTCREATORBUG-4392](https://bugreports.qt.io/browse/QTCREATORBUG-4392))
+  ([QTCREATORBUG-4392](https://qt-project.atlassian.net/browse/QTCREATORBUG-4392))
 * Coloring of the bytes by their value
-  ([QTCREATORBUG-34459](https://bugreports.qt.io/browse/QTCREATORBUG-34459))
+  ([QTCREATORBUG-34459](https://qt-project.atlassian.net/browse/QTCREATORBUG-34459))
 
 Fixed
 
 * That a missing file was not reported as missing
-  ([QTCREATORBUG-34870](https://bugreports.qt.io/browse/QTCREATORBUG-34870))
+  ([QTCREATORBUG-34870](https://qt-project.atlassian.net/browse/QTCREATORBUG-34870))
 * That the cursor did not move down when the view is scrolled to the end
-  ([QTCREATORBUG-35016](https://bugreports.qt.io/browse/QTCREATORBUG-35016))
+  ([QTCREATORBUG-35016](https://qt-project.atlassian.net/browse/QTCREATORBUG-35016))
 * A crash when selecting the `ISO-2022-KR` encoding
-  ([QTCREATORBUG-35018](https://bugreports.qt.io/browse/QTCREATORBUG-35018))
+  ([QTCREATORBUG-35018](https://qt-project.atlassian.net/browse/QTCREATORBUG-35018))
 * That changed bytes could be marked in the wrong columns
 
 Projects
@@ -593,19 +627,19 @@ Added
 
 * The option to create and open a Workspace project for executable files that
   are opened in an editor
-  ([QTCREATORBUG-30837](https://bugreports.qt.io/browse/QTCREATORBUG-30837))
+  ([QTCREATORBUG-30837](https://qt-project.atlassian.net/browse/QTCREATORBUG-30837))
 * The option to filter for run configurations in the target selector
-  ([QTCREATORBUG-34608](https://bugreports.qt.io/browse/QTCREATORBUG-34608))
+  ([QTCREATORBUG-34608](https://qt-project.atlassian.net/browse/QTCREATORBUG-34608))
 * The `sp` Locator filter for switching the active project
 * The `Create Kits Now` button and the `Set as Active Kit` context menu item
   to the device and kit preferences
-  ([QTCREATORBUG-31233](https://bugreports.qt.io/browse/QTCREATORBUG-31233))
+  ([QTCREATORBUG-31233](https://qt-project.atlassian.net/browse/QTCREATORBUG-31233))
 * The `Use debug version of frameworks` option for custom executables
-  ([QTCREATORBUG-9333](https://bugreports.qt.io/browse/QTCREATORBUG-9333))
+  ([QTCREATORBUG-9333](https://qt-project.atlassian.net/browse/QTCREATORBUG-9333))
 * A warning when adding files to a resource that already contains them
-  ([QTCREATORBUG-10328](https://bugreports.qt.io/browse/QTCREATORBUG-10328))
+  ([QTCREATORBUG-10328](https://qt-project.atlassian.net/browse/QTCREATORBUG-10328))
 * Removing multiple files from a resource at once
-  ([QTCREATORBUG-11276](https://bugreports.qt.io/browse/QTCREATORBUG-11276))
+  ([QTCREATORBUG-11276](https://qt-project.atlassian.net/browse/QTCREATORBUG-11276))
 
 Changed
 
@@ -616,43 +650,43 @@ Changed
 * Unified the context menu of the `Projects` view with the other file menus
 * The default name of a kit is now shown as a placeholder instead of being
   written into the name field
-  ([QTCREATORBUG-25411](https://bugreports.qt.io/browse/QTCREATORBUG-25411))
+  ([QTCREATORBUG-25411](https://qt-project.atlassian.net/browse/QTCREATORBUG-25411))
 
 Fixed
 
 * The handling of ANSI escape sequences in incomplete lines
-  ([QTCREATORBUG-33704](https://bugreports.qt.io/browse/QTCREATORBUG-33704))
+  ([QTCREATORBUG-33704](https://qt-project.atlassian.net/browse/QTCREATORBUG-33704))
 * That switching application output tabs temporarily disabled the search tool
   bar
-  ([QTCREATORBUG-32444](https://bugreports.qt.io/browse/QTCREATORBUG-32444))
+  ([QTCREATORBUG-32444](https://qt-project.atlassian.net/browse/QTCREATORBUG-32444))
 * That only scripts with certain file extensions could be used to read
   environment variables in
-  ([QTCREATORBUG-34717](https://bugreports.qt.io/browse/QTCREATORBUG-34717))
+  ([QTCREATORBUG-34717](https://qt-project.atlassian.net/browse/QTCREATORBUG-34717))
 * That project wide searches with `Show Paths in Relation to Active Project`
   could show absolute paths for files in the project that are located outside
   the project's top level directory
-  ([QTCREATORBUG-31530](https://bugreports.qt.io/browse/QTCREATORBUG-31530))
+  ([QTCREATORBUG-31530](https://qt-project.atlassian.net/browse/QTCREATORBUG-31530))
 * That Qt versions that were registered with `qtpaths` were marked as invalid
-  ([QTCREATORBUG-33606](https://bugreports.qt.io/browse/QTCREATORBUG-33606))
+  ([QTCREATORBUG-33606](https://qt-project.atlassian.net/browse/QTCREATORBUG-33606))
 * That the project encoding setting did not affect documents that are already
   open
-  ([QTCREATORBUG-33844](https://bugreports.qt.io/browse/QTCREATORBUG-33844))
+  ([QTCREATORBUG-33844](https://qt-project.atlassian.net/browse/QTCREATORBUG-33844))
 * That items with the same name were indistinguishable in the project tree
-  ([QTCREATORBUG-34500](https://bugreports.qt.io/browse/QTCREATORBUG-34500))
+  ([QTCREATORBUG-34500](https://qt-project.atlassian.net/browse/QTCREATORBUG-34500))
 * That the output pane offered actions that a passive run, such as the Android
   `Logcat`, cannot perform
-  ([QTCREATORBUG-34397](https://bugreports.qt.io/browse/QTCREATORBUG-34397),
-   [QTCREATORBUG-33853](https://bugreports.qt.io/browse/QTCREATORBUG-33853))
+  ([QTCREATORBUG-34397](https://qt-project.atlassian.net/browse/QTCREATORBUG-34397),
+   [QTCREATORBUG-33853](https://qt-project.atlassian.net/browse/QTCREATORBUG-33853))
 * That the environment of the run device was fetched only while starting the
   run, and that a failure to fetch it was not reported
-  ([QTCREATORBUG-34920](https://bugreports.qt.io/browse/QTCREATORBUG-34920))
+  ([QTCREATORBUG-34920](https://qt-project.atlassian.net/browse/QTCREATORBUG-34920))
 * That devices whose type is not available were permanently removed
 * That run configurations could end up without a name
 * That the columns of the target selector kept the width for the previously
   selected project
-  ([QTCREATORBUG-30476](https://bugreports.qt.io/browse/QTCREATORBUG-30476))
+  ([QTCREATORBUG-30476](https://qt-project.atlassian.net/browse/QTCREATORBUG-30476))
 * That the names of compressed folder chains were shortened in the project tree
-  ([QTCREATORBUG-35030](https://bugreports.qt.io/browse/QTCREATORBUG-35030))
+  ([QTCREATORBUG-35030](https://qt-project.atlassian.net/browse/QTCREATORBUG-35030))
 * That environment variables that are disabled in the environment editor were
   treated as set in some places, for example `VSLANG`
 * That passwords were shown in the exit message of build steps
@@ -662,21 +696,27 @@ Fixed
 * That tools that are reachable through symbolic links were detected multiple
   times
 * That `file://` links in the application output were not opened
-  ([QTCREATORBUG-34870](https://bugreports.qt.io/browse/QTCREATORBUG-34870))
-
+  ([QTCREATORBUG-34870](https://qt-project.atlassian.net/browse/QTCREATORBUG-34870))
+* That the summaries of build steps were not updated, for example for
+  `%{ActiveProject:...}` variables
+  ([QTCREATORBUG-35163](https://qt-project.atlassian.net/browse/QTCREATORBUG-35163))
+* That invalid Qt versions were not reported as issues of kits
+  ([QTCREATORBUG-34631](https://qt-project.atlassian.net/browse/QTCREATORBUG-34631))
+* A possible crash in the `Projects` mode
+  ([QTCREATORBUG-35157](https://qt-project.atlassian.net/browse/QTCREATORBUG-35157))
 
 ### CMake
 
 Added
 
 * The option to run arbitrary CMake commands with the `cm` Locator filter
-  ([QTCREATORBUG-34769](https://bugreports.qt.io/browse/QTCREATORBUG-34769))
+  ([QTCREATORBUG-34769](https://qt-project.atlassian.net/browse/QTCREATORBUG-34769))
 * The option `Include support for Figma to Qt content` to make the feature
   opt-out in the `Qt Quick Application` wizard
-  ([QTCREATORBUG-34719](https://bugreports.qt.io/browse/QTCREATORBUG-34719))
+  ([QTCREATORBUG-34719](https://qt-project.atlassian.net/browse/QTCREATORBUG-34719))
 * The option to format and indent with a built-in indenter instead of
   `cmake-format` (`Preferences > CMake > Formatter`, enabled by default)
-  ([QTCREATORBUG-19417](https://bugreports.qt.io/browse/QTCREATORBUG-19417))
+  ([QTCREATORBUG-19417](https://qt-project.atlassian.net/browse/QTCREATORBUG-19417))
 * An outline of CMake files, completion for the arguments of custom commands,
   highlighting of command keywords, documentation tool tips, and renaming of
   the symbols of a project
@@ -685,8 +725,11 @@ Added
   subdirectory
 * The `ct` Locator filter for running arbitrary `ctest` commands
 * The `runSettings` and `runDevice` vendor extensions for CMake Presets
-  ([QTCREATORBUG-34563](https://bugreports.qt.io/browse/QTCREATORBUG-34563),
-   [QTCREATORBUG-34834](https://bugreports.qt.io/browse/QTCREATORBUG-34834))
+  ([QTCREATORBUG-34563](https://qt-project.atlassian.net/browse/QTCREATORBUG-34563),
+   [QTCREATORBUG-34834](https://qt-project.atlassian.net/browse/QTCREATORBUG-34834))
+* A warning when the CMake generator of a build configuration differs from the
+  one of the kit
+  ([QTCREATORBUG-35087](https://qt-project.atlassian.net/browse/QTCREATORBUG-35087))
 
 Changed
 
@@ -694,53 +737,59 @@ Changed
 * Deployment data is now derived from the `install()` rules, unless the
   project has a `QtCreatorDeployment.txt`
 * Files are now added to the variable that holds the sources, if there is one
-  ([QTCREATORBUG-30582](https://bugreports.qt.io/browse/QTCREATORBUG-30582))
+  ([QTCREATORBUG-30582](https://qt-project.atlassian.net/browse/QTCREATORBUG-30582))
 
 Fixed
 
 * Issues with `FILE_SET` in combination with `INTERFACE` libraries
-  ([QTCREATORBUG-34298](https://bugreports.qt.io/browse/QTCREATORBUG-34298))
+  ([QTCREATORBUG-34298](https://qt-project.atlassian.net/browse/QTCREATORBUG-34298))
 * The coloring of CMake output in `General Messages`
-  ([QTCREATORBUG-34812](https://bugreports.qt.io/browse/QTCREATORBUG-34812))
+  ([QTCREATORBUG-34812](https://qt-project.atlassian.net/browse/QTCREATORBUG-34812))
 * That some targets were missing from the `cm` Locator filter
-  ([QTCREATORBUG-34776](https://bugreports.qt.io/browse/QTCREATORBUG-34776))
+  ([QTCREATORBUG-34776](https://qt-project.atlassian.net/browse/QTCREATORBUG-34776))
 * That the sources of untaken branches were missing from the project tree
-  ([QTCREATORBUG-33444](https://bugreports.qt.io/browse/QTCREATORBUG-33444))
+  ([QTCREATORBUG-33444](https://qt-project.atlassian.net/browse/QTCREATORBUG-33444))
 * That the DLLs of private and imported dependencies were not found for
   running and debugging
-  ([QTCREATORBUG-31018](https://bugreports.qt.io/browse/QTCREATORBUG-31018),
-   [QTCREATORBUG-33022](https://bugreports.qt.io/browse/QTCREATORBUG-33022))
+  ([QTCREATORBUG-31018](https://qt-project.atlassian.net/browse/QTCREATORBUG-31018),
+   [QTCREATORBUG-33022](https://qt-project.atlassian.net/browse/QTCREATORBUG-33022))
 * That a source file was not mapped to the binaries that link it
-  ([QTCREATORBUG-30265](https://bugreports.qt.io/browse/QTCREATORBUG-30265),
-   [QTCREATORBUG-27058](https://bugreports.qt.io/browse/QTCREATORBUG-27058))
+  ([QTCREATORBUG-30265](https://qt-project.atlassian.net/browse/QTCREATORBUG-30265),
+   [QTCREATORBUG-27058](https://qt-project.atlassian.net/browse/QTCREATORBUG-27058))
 * That the indentation was lost when renaming a file
 * That some `target_` commands were missing from code completion
-  ([QTCREATORBUG-34930](https://bugreports.qt.io/browse/QTCREATORBUG-34930))
+  ([QTCREATORBUG-34930](https://qt-project.atlassian.net/browse/QTCREATORBUG-34930))
 * That issues could be reported for the wrong line
-  ([QTCREATORBUG-31944](https://bugreports.qt.io/browse/QTCREATORBUG-31944))
+  ([QTCREATORBUG-31944](https://qt-project.atlassian.net/browse/QTCREATORBUG-31944))
 * That a toolchain file from the environment was overridden
-  ([QTCREATORBUG-35012](https://bugreports.qt.io/browse/QTCREATORBUG-35012))
+  ([QTCREATORBUG-35012](https://qt-project.atlassian.net/browse/QTCREATORBUG-35012))
 * That `.qrc` files were added with the wrong syntax
-  ([QTCREATORBUG-34248](https://bugreports.qt.io/browse/QTCREATORBUG-34248))
+  ([QTCREATORBUG-34248](https://qt-project.atlassian.net/browse/QTCREATORBUG-34248))
 * That interface sources from other directories were shown with absolute paths
   in `<Other Locations>`
-  ([QTCREATORBUG-35030](https://bugreports.qt.io/browse/QTCREATORBUG-35030))
+  ([QTCREATORBUG-35030](https://qt-project.atlassian.net/browse/QTCREATORBUG-35030))
+* The handling of CMake from snap 2.77 and later
+  ([QTCREATORBUG-35137](https://qt-project.atlassian.net/browse/QTCREATORBUG-35137))
 * Presets
     * Various differences to the handling of presets by CMake, including a
       crash with cyclic `inherits` and the merging of environments
     * That presets that inherit from a missing preset were accepted
-      ([QTCREATORBUG-35022](https://bugreports.qt.io/browse/QTCREATORBUG-35022))
+      ([QTCREATORBUG-35022](https://qt-project.atlassian.net/browse/QTCREATORBUG-35022))
     * That the preset kits of multiple projects were mixed up
-      ([QTCREATORBUG-33463](https://bugreports.qt.io/browse/QTCREATORBUG-33463))
+      ([QTCREATORBUG-33463](https://qt-project.atlassian.net/browse/QTCREATORBUG-33463))
     * That the presets were probed again in every session, which could be slow
-      ([QTCREATORBUG-34838](https://bugreports.qt.io/browse/QTCREATORBUG-34838))
+      ([QTCREATORBUG-34838](https://qt-project.atlassian.net/browse/QTCREATORBUG-34838))
+    * That only the preset kits were offered for a project with presets, even if
+      none of them could be set up
+    * A crash when reloading presets that share a compiler while the
+      `Configure Project` page is open
 
 ### qmake
 
 Fixed
 
 * That qmake was passed paths that its device does not know
-  ([QTCREATORBUG-27230](https://bugreports.qt.io/browse/QTCREATORBUG-27230))
+  ([QTCREATORBUG-27230](https://qt-project.atlassian.net/browse/QTCREATORBUG-27230))
 * That qmake arguments could be split for the wrong device OS
 
 ### Qbs
@@ -748,10 +797,10 @@ Fixed
 Fixed
 
 * That errors from resolving the project were reported as many separate issues
-  ([QTCREATORBUG-35043](https://bugreports.qt.io/browse/QTCREATORBUG-35043))
+  ([QTCREATORBUG-35043](https://qt-project.atlassian.net/browse/QTCREATORBUG-35043))
 * That a source file was not mapped to the binaries that link it
-  ([QTCREATORBUG-30265](https://bugreports.qt.io/browse/QTCREATORBUG-30265),
-   [QTCREATORBUG-27058](https://bugreports.qt.io/browse/QTCREATORBUG-27058))
+  ([QTCREATORBUG-30265](https://qt-project.atlassian.net/browse/QTCREATORBUG-30265),
+   [QTCREATORBUG-27058](https://qt-project.atlassian.net/browse/QTCREATORBUG-27058))
 
 ### Workspace
 
@@ -760,7 +809,7 @@ Fixed
 * That the same project could be opened multiple times
 * A hang when many files in the project directory were added or removed
   while Qt Creator was in the background
-  ([QTCREATORBUG-34934](https://bugreports.qt.io/browse/QTCREATORBUG-34934))
+  ([QTCREATORBUG-34934](https://qt-project.atlassian.net/browse/QTCREATORBUG-34934))
 
 Debugging
 ---------
@@ -770,13 +819,13 @@ Added
 * The experimental option to use a combined engine for debugging C++ and QML
   that enables combined stack traces (GDB and LLDB), in the `Debug` setting of
   run configurations
-  ([QTCREATORBUG-2171](https://bugreports.qt.io/browse/QTCREATORBUG-2171),
-   [QTCREATORBUG-7433](https://bugreports.qt.io/browse/QTCREATORBUG-7433))
+  ([QTCREATORBUG-2171](https://qt-project.atlassian.net/browse/QTCREATORBUG-2171),
+   [QTCREATORBUG-7433](https://qt-project.atlassian.net/browse/QTCREATORBUG-7433))
 * The option `Resolve symbolic links in breakpoint paths`
-  ([QTCREATORBUG-17554](https://bugreports.qt.io/browse/QTCREATORBUG-17554))
+  ([QTCREATORBUG-17554](https://qt-project.atlassian.net/browse/QTCREATORBUG-17554))
 * Support for passing arguments to the debuggee with the `-debug` command line
   option
-  ([QTCREATORBUG-19398](https://bugreports.qt.io/browse/QTCREATORBUG-19398))
+  ([QTCREATORBUG-19398](https://qt-project.atlassian.net/browse/QTCREATORBUG-19398))
 * The experimental option to use new debugger backends
 * Support for source files and source path mapping targets that exist only on
   the device of the debugger
@@ -786,35 +835,38 @@ Added
 Fixed
 
 * That `Copy Current Value to Clipboard` truncated long values
-  ([QTCREATORBUG-13192](https://bugreports.qt.io/browse/QTCREATORBUG-13192))
+  ([QTCREATORBUG-13192](https://qt-project.atlassian.net/browse/QTCREATORBUG-13192))
 * That the debugger unnecessarily got keyboard focus during startup
-  ([QTCREATORBUG-15818](https://bugreports.qt.io/browse/QTCREATORBUG-15818))
+  ([QTCREATORBUG-15818](https://qt-project.atlassian.net/browse/QTCREATORBUG-15818))
 * That the user's display format choice was stored based only on the name,
   not the type
-  ([QTCREATORBUG-17221](https://bugreports.qt.io/browse/QTCREATORBUG-17221))
+  ([QTCREATORBUG-17221](https://qt-project.atlassian.net/browse/QTCREATORBUG-17221))
 * That the source path mappings were not shown the way they were entered
-  ([QTCREATORBUG-22001](https://bugreports.qt.io/browse/QTCREATORBUG-22001),
-   [QTCREATORBUG-26715](https://bugreports.qt.io/browse/QTCREATORBUG-26715))
+  ([QTCREATORBUG-22001](https://qt-project.atlassian.net/browse/QTCREATORBUG-22001),
+   [QTCREATORBUG-26715](https://qt-project.atlassian.net/browse/QTCREATORBUG-26715))
 * That breakpoints stopped working when a source path mapping is used
-  ([QTCREATORBUG-33433](https://bugreports.qt.io/browse/QTCREATORBUG-33433))
+  ([QTCREATORBUG-33433](https://qt-project.atlassian.net/browse/QTCREATORBUG-33433))
 * That the views were not refreshed when the display format changes
 * That a jump to a line with several locations was performed for an arbitrary
   one
 * That the QML console popped up for messages that are filtered out
-  ([QTCREATORBUG-19886](https://bugreports.qt.io/browse/QTCREATORBUG-19886))
+  ([QTCREATORBUG-19886](https://qt-project.atlassian.net/browse/QTCREATORBUG-19886))
 * The name of the menu in the tool tip of the `Modules` view
-  ([QTCREATORBUG-19539](https://bugreports.qt.io/browse/QTCREATORBUG-19539))
+  ([QTCREATORBUG-19539](https://qt-project.atlassian.net/browse/QTCREATORBUG-19539))
 * That a scratch buffer kept its display name after it was saved
-  ([QTCREATORBUG-12276](https://bugreports.qt.io/browse/QTCREATORBUG-12276))
+  ([QTCREATORBUG-12276](https://qt-project.atlassian.net/browse/QTCREATORBUG-12276))
 * That the layout of the views was restored wrongly when debugging C++ and QML
-  ([QTCREATORBUG-35051](https://bugreports.qt.io/browse/QTCREATORBUG-35051))
+  ([QTCREATORBUG-35051](https://qt-project.atlassian.net/browse/QTCREATORBUG-35051))
 * That breakpoint markers vanished from the editor when the debugger ended
   unexpectedly
 * That starting the debugger hung when the terminal failed to start
-  ([QTCREATORBUG-13208](https://bugreports.qt.io/browse/QTCREATORBUG-13208))
+  ([QTCREATORBUG-13208](https://qt-project.atlassian.net/browse/QTCREATORBUG-13208))
 * That the `Debug` mode kept showing another tool when debugging was started
   while that tool was shown
-  ([QTCREATORBUG-35095](https://bugreports.qt.io/browse/QTCREATORBUG-35095))
+  ([QTCREATORBUG-35095](https://qt-project.atlassian.net/browse/QTCREATORBUG-35095))
+* That the `New Evaluated Expression` dialog did not stay on top of the main
+  window
+  ([QTCREATORBUG-35176](https://qt-project.atlassian.net/browse/QTCREATORBUG-35176))
 
 ### C++
 
@@ -824,123 +876,128 @@ Added
   `std::priority_queue`, `std::chrono::duration`, `std::chrono::time_point`,
   `std::bitset`, `std::reference_wrapper`, `std::filesystem::path`, and
   `std::expected`
-  ([QTCREATORBUG-34499](https://bugreports.qt.io/browse/QTCREATORBUG-34499))
+  ([QTCREATORBUG-34499](https://qt-project.atlassian.net/browse/QTCREATORBUG-34499))
 * The `Show variables from all scopes` option (GDB)
-  ([QTCREATORBUG-18058](https://bugreports.qt.io/browse/QTCREATORBUG-18058))
+  ([QTCREATORBUG-18058](https://qt-project.atlassian.net/browse/QTCREATORBUG-18058))
 * `Add Fixed-Address Expression Evaluator` to the context menu of the
   `Locals` and `Expressions` views, for watching an object from other stack
   frames
-  ([QTCREATORBUG-19172](https://bugreports.qt.io/browse/QTCREATORBUG-19172))
+  ([QTCREATORBUG-19172](https://qt-project.atlassian.net/browse/QTCREATORBUG-19172))
 * Support for remote Windows devices (CDB)
 
 Changed
 
 * Made the display of classes with a single member more compact in the `Locals`
   view
-  ([QTCREATORBUG-22565](https://bugreports.qt.io/browse/QTCREATORBUG-22565))
+  ([QTCREATORBUG-22565](https://qt-project.atlassian.net/browse/QTCREATORBUG-22565))
 * The status bar now shows the name of signals that are expected (GDB)
-  ([QTCREATORBUG-9827](https://bugreports.qt.io/browse/QTCREATORBUG-9827))
+  ([QTCREATORBUG-9827](https://qt-project.atlassian.net/browse/QTCREATORBUG-9827))
 
 Fixed
 
 * The display of 256-bit registers in the `Registers` view
 * `Start and Break on Main` on Android devices
 * The display of two-dimensional arrays in the `Locals` view
-  ([QTCREATORBUG-18946](https://bugreports.qt.io/browse/QTCREATORBUG-18946))
+  ([QTCREATORBUG-18946](https://qt-project.atlassian.net/browse/QTCREATORBUG-18946))
 * Conditional breakpoints with LLDB
-  ([QTCREATORBUG-34583](https://bugreports.qt.io/browse/QTCREATORBUG-34583))
+  ([QTCREATORBUG-34583](https://qt-project.atlassian.net/browse/QTCREATORBUG-34583))
 * Interrupting debugging when using the J-Link GDB server
-  ([QTCREATORBUG-30508](https://bugreports.qt.io/browse/QTCREATORBUG-30508))
+  ([QTCREATORBUG-30508](https://qt-project.atlassian.net/browse/QTCREATORBUG-30508))
 * Issues with parsing peripheral register values
 * That `Operate by Instruction` did not show disassembly on macOS/LLDB
-  ([QTCREATORBUG-32393](https://bugreports.qt.io/browse/QTCREATORBUG-32393))
+  ([QTCREATORBUG-32393](https://qt-project.atlassian.net/browse/QTCREATORBUG-32393))
 * The handling of timeouts while GDB is downloading debug information
-  ([QTCREATORBUG-34811](https://bugreports.qt.io/browse/QTCREATORBUG-34811))
+  ([QTCREATORBUG-34811](https://qt-project.atlassian.net/browse/QTCREATORBUG-34811))
 * The available display formats for `typedef`s
-  ([QTCREATORBUG-7186](https://bugreports.qt.io/browse/QTCREATORBUG-7186))
+  ([QTCREATORBUG-7186](https://qt-project.atlassian.net/browse/QTCREATORBUG-7186))
 * That the Qt source path and the Qt namespace were not taken from the debug
   information of the binary
-  ([QTCREATORBUG-21007](https://bugreports.qt.io/browse/QTCREATORBUG-21007),
-   [QTCREATORBUG-33211](https://bugreports.qt.io/browse/QTCREATORBUG-33211))
+  ([QTCREATORBUG-21007](https://qt-project.atlassian.net/browse/QTCREATORBUG-21007),
+   [QTCREATORBUG-33211](https://qt-project.atlassian.net/browse/QTCREATORBUG-33211))
 * That the locals of a constructor were listed several times
-  ([QTCREATORBUG-18165](https://bugreports.qt.io/browse/QTCREATORBUG-18165))
+  ([QTCREATORBUG-18165](https://qt-project.atlassian.net/browse/QTCREATORBUG-18165))
 * That a run that ends in an uncaught exception was not explained
-  ([QTCREATORBUG-21234](https://bugreports.qt.io/browse/QTCREATORBUG-21234))
+  ([QTCREATORBUG-21234](https://qt-project.atlassian.net/browse/QTCREATORBUG-21234))
 * The memory usage of the disassembly view for frames without debug
   information
-  ([QTCREATORBUG-9786](https://bugreports.qt.io/browse/QTCREATORBUG-9786))
+  ([QTCREATORBUG-9786](https://qt-project.atlassian.net/browse/QTCREATORBUG-9786))
 * GDB
     * That static class members were missing from the `Locals` view
-      ([QTCREATORBUG-14133](https://bugreports.qt.io/browse/QTCREATORBUG-14133))
+      ([QTCREATORBUG-14133](https://qt-project.atlassian.net/browse/QTCREATORBUG-14133))
     * The detection of `gdb-multiarch` and of a crosstool-NG GDB
-      ([QTCREATORBUG-34887](https://bugreports.qt.io/browse/QTCREATORBUG-34887))
+      ([QTCREATORBUG-34887](https://qt-project.atlassian.net/browse/QTCREATORBUG-34887))
     * That the debuggee read back its own output from the standard input when
       not running in a terminal
-      ([QTCREATORBUG-35027](https://bugreports.qt.io/browse/QTCREATORBUG-35027))
+      ([QTCREATORBUG-35027](https://qt-project.atlassian.net/browse/QTCREATORBUG-35027))
     * That stepping could hang in remote Linux sessions, for example on
       Boot to Qt devices
-      ([QTCREATORBUG-33753](https://bugreports.qt.io/browse/QTCREATORBUG-33753))
+      ([QTCREATORBUG-33753](https://qt-project.atlassian.net/browse/QTCREATORBUG-33753))
     * That stopping a remote session could fail with an error message or
       send the shutdown commands twice
-      ([QTCREATORBUG-33481](https://bugreports.qt.io/browse/QTCREATORBUG-33481),
-       [QTCREATORBUG-34694](https://bugreports.qt.io/browse/QTCREATORBUG-34694))
+      ([QTCREATORBUG-33481](https://qt-project.atlassian.net/browse/QTCREATORBUG-33481),
+       [QTCREATORBUG-34694](https://qt-project.atlassian.net/browse/QTCREATORBUG-34694))
     * That output of the debuggee that arrived on the standard output of GDB
       was not shown
-      ([QTCREATORBUG-34588](https://bugreports.qt.io/browse/QTCREATORBUG-34588))
+      ([QTCREATORBUG-34588](https://qt-project.atlassian.net/browse/QTCREATORBUG-34588))
     * That the `Locals` and `Expressions` views could stay grayed out
-      ([QTCREATORBUG-33035](https://bugreports.qt.io/browse/QTCREATORBUG-33035))
+      ([QTCREATORBUG-33035](https://qt-project.atlassian.net/browse/QTCREATORBUG-33035))
+    * That containers of `std::function`, such as `QMap`, lost their children
+      ([QTCREATORBUG-35166](https://qt-project.atlassian.net/browse/QTCREATORBUG-35166))
+    * Loading core files with spaces in their path with GDB 16 and later
+    * That the dialog for timeouts showed generic button texts with KDE Plasma
+      ([QTCREATORBUG-35179](https://qt-project.atlassian.net/browse/QTCREATORBUG-35179))
 * LLDB
     * Issues with `Additional startup commands`
-      ([QTCREATORBUG-15584](https://bugreports.qt.io/browse/QTCREATORBUG-15584))
+      ([QTCREATORBUG-15584](https://qt-project.atlassian.net/browse/QTCREATORBUG-15584))
     * That registers were fetched twice per step
-      ([QTCREATORBUG-17843](https://bugreports.qt.io/browse/QTCREATORBUG-17843))
+      ([QTCREATORBUG-17843](https://qt-project.atlassian.net/browse/QTCREATORBUG-17843))
     * That threads were not ordered and identified by their index ID
-      ([QTCREATORBUG-34580](https://bugreports.qt.io/browse/QTCREATORBUG-34580))
+      ([QTCREATORBUG-34580](https://qt-project.atlassian.net/browse/QTCREATORBUG-34580))
     * The display of signed bitfields
     * That the debugger stopped in `__clone3` when running in a terminal
-      ([QTCREATORBUG-34842](https://bugreports.qt.io/browse/QTCREATORBUG-34842))
+      ([QTCREATORBUG-34842](https://qt-project.atlassian.net/browse/QTCREATORBUG-34842))
     * That classes that are only declared in the module of the current frame
       showed no members
-      ([QTCREATORBUG-35068](https://bugreports.qt.io/browse/QTCREATORBUG-35068))
+      ([QTCREATORBUG-35068](https://qt-project.atlassian.net/browse/QTCREATORBUG-35068))
     * That stops on signals and exceptions were not reported
-      ([QTCREATORBUG-11049](https://bugreports.qt.io/browse/QTCREATORBUG-11049))
+      ([QTCREATORBUG-11049](https://qt-project.atlassian.net/browse/QTCREATORBUG-11049))
 * CDB
     * That the output of the debuggee was not shown in `Application Output`
-      ([QTCREATORBUG-10626](https://bugreports.qt.io/browse/QTCREATORBUG-10626))
+      ([QTCREATORBUG-10626](https://qt-project.atlassian.net/browse/QTCREATORBUG-10626))
     * The display of multi-dimensional arrays
-      ([QTCREATORBUG-18946](https://bugreports.qt.io/browse/QTCREATORBUG-18946))
+      ([QTCREATORBUG-18946](https://qt-project.atlassian.net/browse/QTCREATORBUG-18946))
     * That breaking on a thrown C++ exception was not possible
-      ([QTCREATORBUG-11871](https://bugreports.qt.io/browse/QTCREATORBUG-11871))
+      ([QTCREATORBUG-11871](https://qt-project.atlassian.net/browse/QTCREATORBUG-11871))
     * That all registers were dropped when one of them is unreadable
     * That Qt Creator did not tell the user when the system blocks
       `qtcreatorcdbext.dll`
     * Performance issues when expanding values in the `Locals` view
     * That the `Locals` view stayed empty when the path to Qt Creator contains
       non-ASCII characters
-      ([QTCREATORBUG-35040](https://bugreports.qt.io/browse/QTCREATORBUG-35040))
+      ([QTCREATORBUG-35040](https://qt-project.atlassian.net/browse/QTCREATORBUG-35040))
 
 ### QML
 
 Fixed
 
 * That the QML debugger could hang when the first connection attempt stalls
-  ([QTCREATORBUG-34848](https://bugreports.qt.io/browse/QTCREATORBUG-34848))
+  ([QTCREATORBUG-34848](https://qt-project.atlassian.net/browse/QTCREATORBUG-34848))
 * That the QML debugger could fail to start when the port is used on a
   different network interface
-  ([QTCREATORBUG-35032](https://bugreports.qt.io/browse/QTCREATORBUG-35032))
+  ([QTCREATORBUG-35032](https://qt-project.atlassian.net/browse/QTCREATORBUG-35032))
 * That debugging hung without explanation when the QML debug server of the
   application did not start
 * A crash with deeply nested object trees
-  ([QTCREATORBUG-33434](https://bugreports.qt.io/browse/QTCREATORBUG-33434))
+  ([QTCREATORBUG-33434](https://qt-project.atlassian.net/browse/QTCREATORBUG-33434))
 * Performance issues with many objects without a parent, such as delegates
-  ([QTCREATORBUG-35173](https://bugreports.qt.io/browse/QTCREATORBUG-35173))
+  ([QTCREATORBUG-35173](https://qt-project.atlassian.net/browse/QTCREATORBUG-35173))
 
 ### Python
 
 Fixed
 
 * The inspection of Qt properties of PySide objects
-  ([QTCREATORBUG-34195](https://bugreports.qt.io/browse/QTCREATORBUG-34195))
+  ([QTCREATORBUG-34195](https://qt-project.atlassian.net/browse/QTCREATORBUG-34195))
 
 Analyzer
 --------
@@ -956,7 +1013,7 @@ Added
     * Support for the [Common Trace Format version 2](https://diamon.org/ctf/)
       and [version 1.8](https://diamon.org/ctf/v1.8.3/) (in contrast to the
       already supported Chrome Trace Event Format)
-      ([QTCREATORBUG-29909](https://bugreports.qt.io/browse/QTCREATORBUG-29909))
+      ([QTCREATORBUG-29909](https://qt-project.atlassian.net/browse/QTCREATORBUG-29909))
     * Opening `.qtd`, `.qzt`, and `.ptq` files in the profiler by opening
       the file (for example on the command line or with `File > Open File`)
     * Opening several traces at once, each in its own editor
@@ -987,14 +1044,33 @@ Fixed
 
 * That an unknown project was silently substituted by another one
 * A crash when the project information is not available yet
-  ([QTCREATORBUG-33008](https://bugreports.qt.io/browse/QTCREATORBUG-33008))
+  ([QTCREATORBUG-33008](https://qt-project.atlassian.net/browse/QTCREATORBUG-33008))
+* That line markers were removed when switching the project
+  ([QTCREATORBUG-35113](https://qt-project.atlassian.net/browse/QTCREATORBUG-35113))
+* That line markers were not updated when path mappings change
+  ([QTCREATORBUG-35110](https://qt-project.atlassian.net/browse/QTCREATORBUG-35110))
+* That showing issue details from a line marker did not switch to the
+  Axivion view
+  ([QTCREATORBUG-35112](https://qt-project.atlassian.net/browse/QTCREATORBUG-35112))
+* That changes to the path mappings were not shown in the preferences
+  ([QTCREATORBUG-35109](https://qt-project.atlassian.net/browse/QTCREATORBUG-35109))
+* That the file dialog for path mappings did not open at the suggested
+  directory
+  ([QTCREATORBUG-35108](https://qt-project.atlassian.net/browse/QTCREATORBUG-35108))
+* That reloading while using a local dashboard left the issues table empty
+
+### Clang Tools
+
+Fixed
+
+* That the column of issues was off by one in the `Issues` view
 
 ### Cppcheck
 
 Added
 
 * Support for analyzing files outside the project directory
-  ([QTCREATORBUG-25416](https://bugreports.qt.io/browse/QTCREATORBUG-25416))
+  ([QTCREATORBUG-25416](https://qt-project.atlassian.net/browse/QTCREATORBUG-25416))
 
 Terminal
 --------
@@ -1002,9 +1078,9 @@ Terminal
 Added
 
 * Support for OSC 8 hyperlinks
-  ([QTCREATORBUG-34910](https://bugreports.qt.io/browse/QTCREATORBUG-34910))
+  ([QTCREATORBUG-34910](https://qt-project.atlassian.net/browse/QTCREATORBUG-34910))
 * Support for the images that an application draws
-  ([QTCREATORBUG-32316](https://bugreports.qt.io/browse/QTCREATORBUG-32316))
+  ([QTCREATORBUG-32316](https://qt-project.atlassian.net/browse/QTCREATORBUG-32316))
 * Support for OSC 11 background color queries
 * A confirmation prompt for pasting control characters
 * Support for synchronized output (DEC mode 2026)
@@ -1018,7 +1094,7 @@ Changed
 Fixed
 
 * That the scrollback was not reflowed when the terminal is resized
-  ([QTCREATORBUG-32648](https://bugreports.qt.io/browse/QTCREATORBUG-32648))
+  ([QTCREATORBUG-32648](https://qt-project.atlassian.net/browse/QTCREATORBUG-32648))
 * That the title that the shell sets was not shown in the tab
 * That the cursor could move when the terminal is resized
 * Issues when resizing the terminal while an application uses the alternate
@@ -1036,7 +1112,7 @@ Added
 Fixed
 
 * That files could not be opened from the `Version Control` output pane
-  ([QTCREATORBUG-23690](https://bugreports.qt.io/browse/QTCREATORBUG-23690))
+  ([QTCREATORBUG-23690](https://qt-project.atlassian.net/browse/QTCREATORBUG-23690))
 * The activation of a link at the end of a match
 * That commit hashes at the start or end of a line in the `Version Control`
   output pane were not linked
@@ -1064,27 +1140,35 @@ Changed
 
 * Removed support for Gerrit version earlier than 3
 * Increased the width of command output in the output view
-  ([QTCREATORBUG-27374](https://bugreports.qt.io/browse/QTCREATORBUG-27374))
+  ([QTCREATORBUG-27374](https://qt-project.atlassian.net/browse/QTCREATORBUG-27374))
 
 Fixed
 
 * Amending commits with `log.showsignature true`
-  ([QTCREATORBUG-34756](https://bugreports.qt.io/browse/QTCREATORBUG-34756))
+  ([QTCREATORBUG-34756](https://qt-project.atlassian.net/browse/QTCREATORBUG-34756))
 * That instant blame was not available when showing files at a revision
 * That opening a commit from the editor for an interactive rebase did not
   find the right repository for a submodule
 * Crashes in the `Branches` view
-  ([QTCREATORBUG-32186](https://bugreports.qt.io/browse/QTCREATORBUG-32186),
-   [QTCREATORBUG-33765](https://bugreports.qt.io/browse/QTCREATORBUG-33765))
+  ([QTCREATORBUG-32186](https://qt-project.atlassian.net/browse/QTCREATORBUG-32186),
+   [QTCREATORBUG-33765](https://qt-project.atlassian.net/browse/QTCREATORBUG-33765))
 * A crash after editing a commit message
-  ([QTCREATORBUG-35048](https://bugreports.qt.io/browse/QTCREATORBUG-35048))
+  ([QTCREATORBUG-35048](https://qt-project.atlassian.net/browse/QTCREATORBUG-35048))
 * Gerrit
     * That changes in the `Integrating` state were not shown by default
-      ([QTCREATORBUG-34239](https://bugreports.qt.io/browse/QTCREATORBUG-34239))
+      ([QTCREATORBUG-34239](https://qt-project.atlassian.net/browse/QTCREATORBUG-34239))
     * That filtering broke the order and indentation of changes
-      ([QTCREATORBUG-33842](https://bugreports.qt.io/browse/QTCREATORBUG-33842))
+      ([QTCREATORBUG-33842](https://qt-project.atlassian.net/browse/QTCREATORBUG-33842))
     * That query errors were not shown
     * That pressing `Enter` in the query field closed the dialog
+
+### Subversion
+
+Fixed
+
+* That lines in commit messages could be mistaken for revision headers in the
+  log
+  ([QTCREATORBUG-32426](https://qt-project.atlassian.net/browse/QTCREATORBUG-32426))
 
 Test Integration
 ----------------
@@ -1099,9 +1183,9 @@ Fixed
 
 * That disabling a test framework also removed all its data from the test tree
 * Running autotests on Android
-  ([QTCREATORBUG-25875](https://bugreports.qt.io/browse/QTCREATORBUG-25875))
+  ([QTCREATORBUG-25875](https://qt-project.atlassian.net/browse/QTCREATORBUG-25875))
 * The performance of parsing for tests
-  ([QTCREATORBUG-34915](https://bugreports.qt.io/browse/QTCREATORBUG-34915))
+  ([QTCREATORBUG-34915](https://qt-project.atlassian.net/browse/QTCREATORBUG-34915))
 * A possible crash when parsing for tests is canceled
 * The quoting of test names and arguments that contain spaces or special
   characters
@@ -1112,7 +1196,7 @@ Fixed
 Fixed
 
 * The lookup of derived tests
-  ([QTCREATORBUG-25066](https://bugreports.qt.io/browse/QTCREATORBUG-25066))
+  ([QTCREATORBUG-25066](https://qt-project.atlassian.net/browse/QTCREATORBUG-25066))
 * The quoting for Qt Quick tests
 
 Platforms
@@ -1124,29 +1208,32 @@ Fixed
 
 * Links to Windows paths with drive letters in the
   `Application Output`
-  ([QTCREATORBUG-34808](https://bugreports.qt.io/browse/QTCREATORBUG-34808))
+  ([QTCREATORBUG-34808](https://qt-project.atlassian.net/browse/QTCREATORBUG-34808))
 
 ### Linux
 
 Added
 
 * Progress information in the task bar or Dock icon
-  ([QTCREATORBUG-19219](https://bugreports.qt.io/browse/QTCREATORBUG-19219))
+  ([QTCREATORBUG-19219](https://qt-project.atlassian.net/browse/QTCREATORBUG-19219))
 
 Fixed
 
 * That the global menu vanished after opening a `QMainWindow` `.ui` file
-  ([QTBUG-148580](https://bugreports.qt.io/browse/QTBUG-148580))
+  ([QTBUG-148580](https://qt-project.atlassian.net/browse/QTBUG-148580))
 * That the POSIX ACLs of a file were lost when saving it
-  ([QTCREATORBUG-7598](https://bugreports.qt.io/browse/QTCREATORBUG-7598))
+  ([QTCREATORBUG-7598](https://qt-project.atlassian.net/browse/QTCREATORBUG-7598))
 
 ### macOS
 
 Fixed
 
 * The copy and paste actions in file dialogs
-  ([QTCREATORBUG-31352](https://bugreports.qt.io/browse/QTCREATORBUG-31352))
+  ([QTCREATORBUG-31352](https://qt-project.atlassian.net/browse/QTCREATORBUG-31352))
 * A crash when quitting Qt Creator in full screen mode
+* That the headers of Qt 6.12 were not resolved on macOS, which broke
+  quick fixes that rely on type information
+  ([QTCREATORBUG-35090](https://qt-project.atlassian.net/browse/QTCREATORBUG-35090))
 
 ### Android
 
@@ -1156,23 +1243,34 @@ Added
   package (`package:<name>`, `package:mine`), tag (`tag:<text>`), level
   (`level:<level>`), and negation (`-tag:<text>`), which automatically binds
   to the application that is run
-  ([QTCREATORBUG-34145](https://bugreports.qt.io/browse/QTCREATORBUG-34145),
-   [QTCREATORBUG-34398](https://bugreports.qt.io/browse/QTCREATORBUG-34398),
-   [QTCREATORBUG-34399](https://bugreports.qt.io/browse/QTCREATORBUG-34399))
+  ([QTCREATORBUG-34145](https://qt-project.atlassian.net/browse/QTCREATORBUG-34145),
+   [QTCREATORBUG-34398](https://qt-project.atlassian.net/browse/QTCREATORBUG-34398),
+   [QTCREATORBUG-34399](https://qt-project.atlassian.net/browse/QTCREATORBUG-34399))
 * A parser for crashes in the logcat output
-  ([QTCREATORBUG-29935](https://bugreports.qt.io/browse/QTCREATORBUG-29935))
+  ([QTCREATORBUG-29935](https://qt-project.atlassian.net/browse/QTCREATORBUG-29935))
 * The name for API level 37
 * Support for `mipmap` icons in the manifest editor
-  ([QTCREATORBUG-16991](https://bugreports.qt.io/browse/QTCREATORBUG-16991))
+  ([QTCREATORBUG-16991](https://qt-project.atlassian.net/browse/QTCREATORBUG-16991))
+
+Changed
+
+* Updated the Android SDK Command-line Tools to version 23.0, using the native
+  version on Apple Silicon
 
 Fixed
 
 * Fixed a freeze when resolving emulator names
 * That the keystore password was asked for twice
-  ([QTCREATORBUG-34712](https://bugreports.qt.io/browse/QTCREATORBUG-34712))
+  ([QTCREATORBUG-34712](https://qt-project.atlassian.net/browse/QTCREATORBUG-34712))
 * That deployment reported success when installing the application failed,
   and that 32-bit ABIs were assumed to be supported by 64-bit devices
-  ([QTCREATORBUG-33326](https://bugreports.qt.io/browse/QTCREATORBUG-33326))
+  ([QTCREATORBUG-33326](https://qt-project.atlassian.net/browse/QTCREATORBUG-33326))
+* That the package ID was wrong for Gradle projects that define different IDs
+  for build types or flavors
+  ([QTCREATORBUG-28822](https://qt-project.atlassian.net/browse/QTCREATORBUG-28822),
+   [QTCREATORBUG-29508](https://qt-project.atlassian.net/browse/QTCREATORBUG-29508))
+* That the deployment settings were not found for some Qt 5 CMake projects
+  ([QTCREATORBUG-29938](https://qt-project.atlassian.net/browse/QTCREATORBUG-29938))
 
 ### iOS
 
@@ -1181,14 +1279,14 @@ Changed
 * Replaced the dialog for a device that is in user mode by an information
   popup, and improved the reporting of the pairing and development state of a
   device
-  ([QTCREATORBUG-33222](https://bugreports.qt.io/browse/QTCREATORBUG-33222))
+  ([QTCREATORBUG-33222](https://qt-project.atlassian.net/browse/QTCREATORBUG-33222))
 * Devices are only reported when a kit for iOS devices is configured
 
 Fixed
 
 * That no useful error message was shown when Rosetta is not installed or the
   architecture of the simulator does not match the application binary
-  ([QTCREATORBUG-34070](https://bugreports.qt.io/browse/QTCREATORBUG-34070))
+  ([QTCREATORBUG-34070](https://qt-project.atlassian.net/browse/QTCREATORBUG-34070))
 * Running on devices with Xcode 27
 
 ### Remote SSH
@@ -1201,22 +1299,22 @@ Added
 Fixed
 
 * Performance issues with the SFTP file transfer method
-  ([QTCREATORBUG-30378](https://bugreports.qt.io/browse/QTCREATORBUG-30378))
+  ([QTCREATORBUG-30378](https://qt-project.atlassian.net/browse/QTCREATORBUG-30378))
 * That an ambient SSH `ControlMaster` was trusted
-  ([QTCREATORBUG-34898](https://bugreports.qt.io/browse/QTCREATORBUG-34898))
+  ([QTCREATORBUG-34898](https://qt-project.atlassian.net/browse/QTCREATORBUG-34898))
 * The deployment of SSH keys to administrator accounts
 * That triggering a run was blocked when the remote executable was not known yet
-  ([QTCREATORBUG-34860](https://bugreports.qt.io/browse/QTCREATORBUG-34860))
+  ([QTCREATORBUG-34860](https://qt-project.atlassian.net/browse/QTCREATORBUG-34860))
 * That the default display for X11 forwarding was resolved only once
-  ([QTCREATORBUG-34872](https://bugreports.qt.io/browse/QTCREATORBUG-34872))
+  ([QTCREATORBUG-34872](https://qt-project.atlassian.net/browse/QTCREATORBUG-34872))
 
 ### Development Container
 
 Added
 
 * A confirmation prompt before running a command outside of the container
-  ([QTCREATORBUG-34672](https://bugreports.qt.io/browse/QTCREATORBUG-34672),
-   [QTCREATORBUG-34557](https://bugreports.qt.io/browse/QTCREATORBUG-34557))
+  ([QTCREATORBUG-34672](https://qt-project.atlassian.net/browse/QTCREATORBUG-34672),
+   [QTCREATORBUG-34557](https://qt-project.atlassian.net/browse/QTCREATORBUG-34557))
 
 ### Docker
 
@@ -1224,7 +1322,7 @@ Added
 
 * Support for Podman
 * The option to mount a host directory elsewhere in the container
-  ([QTCREATORBUG-31762](https://bugreports.qt.io/browse/QTCREATORBUG-31762))
+  ([QTCREATORBUG-31762](https://qt-project.atlassian.net/browse/QTCREATORBUG-31762))
 
 Changed
 
@@ -1235,9 +1333,11 @@ Fixed
 
 * That the container start event could be lost, and that a transient failure
   of the command bridge setup was fatal
-  ([QTCREATORBUG-34867](https://bugreports.qt.io/browse/QTCREATORBUG-34867))
+  ([QTCREATORBUG-34867](https://qt-project.atlassian.net/browse/QTCREATORBUG-34867))
 * That the X11 display was hardcoded
-  ([QTCREATORBUG-34872](https://bugreports.qt.io/browse/QTCREATORBUG-34872))
+  ([QTCREATORBUG-34872](https://qt-project.atlassian.net/browse/QTCREATORBUG-34872))
+* QML debugging
+  ([QTCREATORBUG-35140](https://qt-project.atlassian.net/browse/QTCREATORBUG-35140))
 
 ### QNX
 
@@ -1254,15 +1354,15 @@ Changed
 Fixed
 
 * That application output was only shown when debugging
-  ([QTCREATORBUG-18906](https://bugreports.qt.io/browse/QTCREATORBUG-18906))
+  ([QTCREATORBUG-18906](https://qt-project.atlassian.net/browse/QTCREATORBUG-18906))
 * Cross-compilation with auto-detected QNX kits
 * That the device test required commands that are not standard on QNX
-  ([QTCREATORBUG-30631](https://bugreports.qt.io/browse/QTCREATORBUG-30631))
+  ([QTCREATORBUG-30631](https://qt-project.atlassian.net/browse/QTCREATORBUG-30631))
 * That `pdebug` could not be stopped
-  ([QTCREATORBUG-32505](https://bugreports.qt.io/browse/QTCREATORBUG-32505))
+  ([QTCREATORBUG-32505](https://qt-project.atlassian.net/browse/QTCREATORBUG-32505))
 * The remote `Custom Executable` run configuration
 * The pretty printers, which could be confused by an unknown allocator size
-  ([QTCREATORBUG-32959](https://bugreports.qt.io/browse/QTCREATORBUG-32959))
+  ([QTCREATORBUG-32959](https://qt-project.atlassian.net/browse/QTCREATORBUG-32959))
 
 ### Qt for MCUs
 
@@ -1279,7 +1379,7 @@ Added
 Fixed
 
 * The cloning of debug server providers
-  ([QTCREATORBUG-25716](https://bugreports.qt.io/browse/QTCREATORBUG-25716))
+  ([QTCREATORBUG-25716](https://qt-project.atlassian.net/browse/QTCREATORBUG-25716))
 * That the debugger was started before the debug server was ready
 
 Credits for these changes go to:
@@ -1289,6 +1389,7 @@ Alessandro Portale
 Alexandre Laurent  
 Andre Hartmann  
 André Pönitz  
+Andrey Filipenkov  
 Assam Boudjelthia  
 Christian Kandeler  
 Christian Stenger  
@@ -1307,6 +1408,7 @@ Kai Köhne
 Lauri Pohjanheimo  
 Leena Miettinen  
 Marcus Tillmanns  
+Michael Weghorn  
 Mitch Curtis  
 Orgad Shaneh  
 Paul Olav Tvete  

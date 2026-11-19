@@ -59,6 +59,7 @@
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectfilewizardextension.h"
+#include "projectimporter.h"
 #include "projectmanager.h"
 #include "projectmodels.h"
 #include "projectnodes.h"
@@ -954,6 +955,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createLinuxIccParserTest);
     addTestCreator(createMsvcParserTest);
     addTestCreator(createOutputParserTest);
+    addTestCreator(createProjectImporterTest);
     addTestCreator(createProjectModelTest);
     addTestCreator(createProjectTest);
     addTestCreator(createRunConfigurationTest);

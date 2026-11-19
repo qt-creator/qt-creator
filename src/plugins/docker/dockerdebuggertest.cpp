@@ -209,25 +209,31 @@ private slots:
 
     // Runs first: the other tests replace the device's free ports.
     // Verifies that the ports offered for QML debugging are reachable from the
-    // host through "localhost", which is how the tools connect to them.
+    // host under the address the tools connect to.
     void testFreePortIsReachableFromHost()
     {
         PortList ports = m_device->freePorts();
         QVERIFY(ports.count() > 0);
         const quint16 port = ports.getNextFreePort({}).number();
+        const QString host = m_device->toolControlChannel(IDevice::QmlControlChannel).host();
+        // The ports are published on 127.0.0.1 only. A name can resolve to ::1 first,
+        // which Windows takes seconds to refuse.
+        QCOMPARE(host, "127.0.0.1");
 
         Process server;
         server.setCommand(CommandLine{
             m_device->filePath("/bin/sh"),
             {"-c", QString("while true; do echo reachable | nc -l -p %1; done").arg(port)}});
         server.start();
+        // Closing it earlier would have no process ID to signal yet.
+        QVERIFY(server.waitForStarted());
 
         // The connection is refused until the container side listens. QTRY_* evaluates
         // its condition once more after it first holds, so remember the answer.
         QByteArray received;
-        const auto probe = [&received, port] {
+        const auto probe = [&received, &host, port] {
             QTcpSocket socket;
-            socket.connectToHost("localhost", port);
+            socket.connectToHost(host, port);
             if (socket.waitForConnected(1000) && socket.waitForReadyRead(3000))
                 received = socket.readAll();
             return !received.isEmpty();

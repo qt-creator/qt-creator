@@ -97,6 +97,7 @@ void ClangCodeModelPlugin::initialize()
         return wasUsed;
     };
     addTestCreator(createActivationSequenceProcessorTest);
+    addTestCreator(createClangdTestBuildConfigurationSwitch);
     addTestCreator(createClangdTestCompletion);
     addTestCreator(createClangdTestExternalChanges);
     addTestCreator(createClangdTestFindReferences);
