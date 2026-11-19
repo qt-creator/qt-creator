@@ -13,6 +13,7 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/globaltasktree.h>
+#include <utils/hostosinfo.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 
@@ -419,6 +420,15 @@ public:
         m_highPass = Internal::HighPassFilter(kHighPassHz, kSampleRate);
 
         m_audioSource = new QAudioSource(device, format, q);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 12, 0)
+        // Work around QTBUG-152440: on Windows, Qt's buffer holds a single
+        // 10 ms period by default. A microphone that delivers late, like the
+        // one of a Remote Desktop session, overruns it and loses half of the
+        // audio. Elsewhere this would set the period of the whole PipeWire
+        // graph. 4096 is the largest period that Qt accepts.
+        if (HostOsInfo::isWindowsHost())
+            m_audioSource->setNativePeriodFrameCount(4096);
+#endif
         m_audioDevice = m_audioSource->start();
         if (!m_audioDevice) {
             fail(Tr::tr("Cannot record from \"%1\".").arg(device.description()));
