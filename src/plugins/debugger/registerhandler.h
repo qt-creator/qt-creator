@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "debugger_global.h"
+
 #include <utils/treemodel.h>
 
 #include <QHash>
@@ -137,7 +139,7 @@ private:
     }
 };
 
-class RegisterValue
+class DEBUGGER_TEST_EXPORT RegisterValue
 {
 public:
     // Enough for the widest registers, the 512-bit ones of AVX-512.

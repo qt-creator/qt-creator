@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uvscengine.h"
+#include "uvscimpl.h"
 #include "uvscutils.h"
 
 #include <debugger/breakhandler.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/debuggertr.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/disassemblerlines.h>
@@ -54,8 +56,18 @@ static void allowRootLocals(const FilePath &projectFile)
 }
 
 // Accessed by debuggerRecipe()
-DebuggerEngine *createUvscEngine()
+DebuggerEngine *createUvscEngine(const DebuggerRunParameters &rp)
 {
+    if (DebuggerEngine::isUsingGenericDebugger()) {
+        UvscImplStartData startData;
+        startData.uVisionExecutable = rp.debugger().command.executable();
+        startData.remoteChannel = rp.remoteChannel();
+        startData.projectFile = rp.uVisionProjectFilePath();
+        startData.optionsFile = rp.uVisionOptionsFilePath();
+        startData.simulator = rp.uVisionSimulator();
+        startData.inferiorExecutable = rp.inferior().command.executable();
+        return new GenericDebuggerEngine("UVSC (UvscImpl)", new UvscImpl(startData));
+    }
     return new UvscEngine;
 }
 

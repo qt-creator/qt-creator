@@ -15,5 +15,6 @@ Project {
         "protocol.qbs",
         "offsets.qbs",
         "simplifytypes.qbs",
+        "uvsc.qbs",
     ]
 }

@@ -7,6 +7,8 @@
 
 #include <debugger/debuggerengine.h>
 
+namespace Debugger { class DebuggerRunParameters; }
+
 namespace Debugger::Internal {
 
 class UvscEngine final : public DebuggerEngine
@@ -94,6 +96,6 @@ private:
     std::unique_ptr<UvscClient> m_client;
 };
 
-DebuggerEngine *createUvscEngine();
+DebuggerEngine *createUvscEngine(const DebuggerRunParameters &rp);
 
 } // Debugger::Internal

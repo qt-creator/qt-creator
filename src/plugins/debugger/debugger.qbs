@@ -173,6 +173,7 @@ QtcPlugin {
             "uvscdatatypes.h",
             "uvscengine.cpp", "uvscengine.h",
             "uvscfunctions.h",
+            "uvscimpl.cpp", "uvscimpl.h",
             "uvscutils.cpp", "uvscutils.h",
         ]
     }

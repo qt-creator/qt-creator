@@ -178,6 +178,11 @@ add_qtc_test(tst_debugger_jdwp
   SOURCES tst_jdwp.cpp
 )
 
+add_qtc_test(tst_debugger_uvsc
+  DEPENDS Utils Debugger
+  SOURCES tst_uvsc.cpp
+)
+
 add_qtc_test(tst_debugger_protocol
   DEPENDS Qt::Network Utils
   INCLUDES

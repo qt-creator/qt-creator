@@ -271,6 +271,7 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                 reg.name = item["name"].data();
                 reg.size = item["size"].toInt();
                 reg.reportedType = item["type"].data();
+                reg.description = item["description"].data();
                 reg.groups = item["groups"].data().split(',', Qt::SkipEmptyParts);
                 reg.value.fromString(item["value"].data(), HexadecimalFormat);
                 handler->updateRegister(reg);

@@ -619,7 +619,7 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
             break;
         }
         case UvscEngineType:
-            engines << createUvscEngine();
+            engines << createUvscEngine(rp);
             break;
         default:
             if (!rp.isQmlDebugging()) {

@@ -105,6 +105,7 @@ add_qtc_plugin(Debugger
     uvsc/uvscdatatypes.h
     uvsc/uvscengine.cpp uvsc/uvscengine.h
     uvsc/uvscfunctions.h
+    uvsc/uvscimpl.cpp uvsc/uvscimpl.h
     uvsc/uvscutils.cpp uvsc/uvscutils.h
     watchdata.cpp watchdata.h
     watchdelegatewidgets.cpp watchdelegatewidgets.h
