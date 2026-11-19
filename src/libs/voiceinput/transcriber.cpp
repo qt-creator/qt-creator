@@ -263,6 +263,21 @@ static void downloadModel(const QString &id, QWidget *dialogParent,
         });
 }
 
+// Deletes the files of a model, including the partial file that an interrupted
+// download can leave behind. Returns why that failed, if it did.
+static QString removeModel(const QString &id)
+{
+    const ModelInfo *info = modelInfo(id);
+    QTC_ASSERT(info, return QString());
+    for (const ModelFile &file : modelFiles(*info)) {
+        file.path.stringAppended(".part").removeFile();
+        if (const Result<> result = file.path.removeFile(); !result)
+            return Tr::tr("Removing the model file \"%1\" failed: %2")
+                .arg(file.path.toUserOutput(), result.error());
+    }
+    return {};
+}
+
 static QString joined(const QString &first, const QString &second)
 {
     if (first.isEmpty())
@@ -704,8 +719,8 @@ QString Transcriber::modelName()
 /*!
     Shows a menu at \a globalPos for selecting the model and the other voice
     input settings. Selecting a model that is not downloaded yet downloads it,
-    with \a parent as the parent of the progress dialog. Calls \a onChanged
-    after a setting changed.
+    with \a parent as the parent of the progress dialog. A downloaded model can
+    be removed again. Calls \a onChanged after a setting changed.
 */
 void Transcriber::showSettingsMenu(QWidget *parent,
                                    const QPoint &globalPos,
@@ -753,6 +768,25 @@ void Transcriber::showSettingsMenu(QWidget *parent,
                     select();
             });
         });
+        if (downloaded) {
+            QAction *remove = modelEntry->addAction(Tr::tr("Remove"));
+            remove->setToolTip(Tr::tr("Deletes the downloaded model files from \"%1\". Selecting "
+                                      "the model downloads them again.")
+                                   .arg(modelDirectory().toUserOutput()));
+            QObject::connect(remove, &QAction::triggered,
+                             [id, name = info.name, guardedParent, changed] {
+                const auto answer = QMessageBox::question(
+                    guardedParent, Tr::tr("Remove Voice Input Model \"%1\"").arg(name),
+                    Tr::tr("Delete the downloaded model files?"));
+                if (answer != QMessageBox::Yes)
+                    return;
+                const QString error = removeModel(id);
+                if (error.isEmpty())
+                    changed();
+                else
+                    QMessageBox::warning(guardedParent, Tr::tr("Voice Input"), error);
+            });
+        }
         modelEntry->addSeparator();
 
         QAction *licenseAction = modelEntry->addAction(
