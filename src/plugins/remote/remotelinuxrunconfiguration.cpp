@@ -34,6 +34,7 @@ public:
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
     RunAsAspect runAs{this};
+    OutputEncodingAspect outputEncoding{this};
     TerminalAspect terminal{this};
     X11ForwardingAspect x11Forwarding{this};
     UseVncDisplayAspect useVncDisplay{this};

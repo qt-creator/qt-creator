@@ -34,6 +34,7 @@
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/terminalinterface.h>
+#include <utils/textcodec.h>
 #include <utils/url.h>
 #include <utils/utilsicons.h>
 
@@ -1161,6 +1162,17 @@ ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> 
         process.setEnvironment(env);
         process.setExtraData(TERMINAL_SHELL_NAME, shellName);
         process.setForceDefaultErrorModeOnWindows(true);
+        if (auto encodingAspect = aspectData<OutputEncodingAspect>();
+            encodingAspect && !encodingAspect->value.isEmpty()) {
+            const QByteArray name = encodingAspect->value.toUtf8();
+            if (QStringDecoder(name.constData()).isValid()) {
+                process.setEncoding(TextEncoding(name));
+            } else {
+                postMessage(Tr::tr("Unknown output encoding \"%1\". Using the default encoding.")
+                                .arg(encodingAspect->value),
+                            ErrorMessageFormat);
+            }
+        }
 
         QObject::connect(&process, &Process::started, this, [this, process = &process] {
             const bool isDesktop = process->commandLine().executable().isLocal();
@@ -1442,6 +1454,89 @@ private slots:
 QObject *createRunControlStandardInputTest()
 {
     return new RunControlStandardInputTest;
+}
+
+class RunControlOutputEncodingTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+
+    void testOutputEncoding()
+    {
+        const FilePath printer = Environment::systemEnvironment().searchInPath("printf");
+        if (printer.isEmpty() || HostOsInfo::isWindowsHost())
+            QSKIP("The test needs a printf command that understands octal escapes.");
+        if (!QStringDecoder("GBK").isValid())
+            QSKIP("The test needs the GBK encoding.");
+        const TextEncoding gbk("GBK");
+
+        OutputEncodingAspect encodingAspect;
+        encodingAspect.setValue(QString::fromUtf8(gbk.name()));
+        AspectContainerData aspectData;
+        aspectData.append(encodingAspect.extractData());
+
+        RunControl runControl(Constants::NORMAL_RUN_MODE);
+        runControl.setDeviceForTest(DeviceManager::defaultDesktopDevice());
+        runControl.setAspectDataForTest(aspectData);
+        // "Ni hao" in GBK.
+        runControl.setCommandLine({printer, {"\\304\\343\\272\\303\\n"}});
+        runControl.setRunRecipe(runControl.processRecipe(runControl.processTask()));
+
+        QString output;
+        QString messages;
+        connect(&runControl, &RunControl::appendMessage,
+                [&output, &messages](const QString &msg, OutputFormat format) {
+            messages += msg;
+            if (format == StdOutFormat)
+                output += msg;
+        });
+
+        QSignalSpy stoppedSpy(&runControl, &RunControl::stopped);
+        runControl.initiateStart();
+        QTRY_VERIFY2(!stoppedSpy.isEmpty(), qPrintable(messages));
+        QVERIFY2(output.contains(QString::fromUtf8("\xe4\xbd\xa0\xe5\xa5\xbd")),
+                 qPrintable(messages));
+    }
+
+    void testUnknownOutputEncoding()
+    {
+        const FilePath echo = Environment::systemEnvironment().searchInPath("echo");
+        if (echo.isEmpty() || HostOsInfo::isWindowsHost())
+            QSKIP("The test needs an echo command.");
+
+        OutputEncodingAspect encodingAspect;
+        encodingAspect.setValue("NoSuchEncoding");
+        AspectContainerData aspectData;
+        aspectData.append(encodingAspect.extractData());
+
+        RunControl runControl(Constants::NORMAL_RUN_MODE);
+        runControl.setDeviceForTest(DeviceManager::defaultDesktopDevice());
+        runControl.setAspectDataForTest(aspectData);
+        runControl.setCommandLine({echo, {"hello"}});
+        runControl.setRunRecipe(runControl.processRecipe(runControl.processTask()));
+
+        QString output;
+        QString errors;
+        connect(&runControl, &RunControl::appendMessage,
+                [&output, &errors](const QString &msg, OutputFormat format) {
+            if (format == StdOutFormat)
+                output += msg;
+            else if (format == ErrorMessageFormat)
+                errors += msg;
+        });
+
+        QSignalSpy stoppedSpy(&runControl, &RunControl::stopped);
+        runControl.initiateStart();
+        QTRY_VERIFY(!stoppedSpy.isEmpty());
+        QVERIFY2(output.contains("hello"), qPrintable(errors));
+        QVERIFY2(errors.contains("NoSuchEncoding"), qPrintable(errors));
+    }
+};
+
+QObject *createRunControlOutputEncodingTest()
+{
+    return new RunControlOutputEncodingTest;
 }
 
 } // ProjectExplorer::Internal

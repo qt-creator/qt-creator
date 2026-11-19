@@ -963,6 +963,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createRunWorkerConflictTest);
     addTestCreator(createRunControlOutputPaneTest);
     addTestCreator(createRunControlStandardInputTest);
+    addTestCreator(createRunControlOutputEncodingTest);
     addTestCreator(createSanitizerOutputParserTest);
     addTestCreator(createSelectableFilesWidgetTest);
     addTestCreator(createSessionTest);

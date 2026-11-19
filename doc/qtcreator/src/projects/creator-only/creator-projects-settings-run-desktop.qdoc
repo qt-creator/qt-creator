@@ -63,6 +63,13 @@
     To turn on filtering for logging categories (QLoggingCategory) in
     \l {Application Output}, select \uicontrol {Enable logging category filtering}.
 
+    \section1 Set the output encoding
+
+    By default, \l {Application Output} decodes the application's output with
+    the system's text encoding. If the application writes its output in
+    another encoding, such as UTF-8 on a Windows system that uses a different
+    code page, select that encoding in \uicontrol {Output encoding}.
+
 //! [run-as-user]
     \section1 Run as a different user
 

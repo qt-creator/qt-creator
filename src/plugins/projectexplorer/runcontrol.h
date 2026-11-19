@@ -355,6 +355,7 @@ namespace Internal {
 QObject *createRunWorkerConflictTest();
 QObject *createRunControlOutputPaneTest();
 QObject *createRunControlStandardInputTest();
+QObject *createRunControlOutputEncodingTest();
 } // Internal
 #endif
 

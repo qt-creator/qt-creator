@@ -108,6 +108,7 @@ private:
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
     RunAsAspect runAs{this};
+    OutputEncodingAspect outputEncoding{this};
     TerminalAspect terminal{this};
     UseDyldSuffixAspect useDyldSuffix{this};
     UseLibraryPathsAspect useLibraryPaths{this};

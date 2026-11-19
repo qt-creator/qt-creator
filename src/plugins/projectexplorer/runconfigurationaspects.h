@@ -191,6 +191,17 @@ private:
 
 };
 
+class PROJECTEXPLORER_EXPORT OutputEncodingAspect : public Utils::TypedAspect<QString>
+{
+    Q_OBJECT
+
+public:
+    OutputEncodingAspect(Utils::AspectContainer *container = nullptr);
+
+private:
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+};
+
 class PROJECTEXPLORER_EXPORT EnableCategoriesFilterAspect : public Utils::BoolAspect
 {
     Q_OBJECT

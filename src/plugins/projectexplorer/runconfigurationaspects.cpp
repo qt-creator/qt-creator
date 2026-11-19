@@ -22,6 +22,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/textcodec.h>
 #include <utils/utilsicons.h>
 #include <utils/widgets.h>
 
@@ -915,6 +916,55 @@ void RunAsAspect::updateUserNameEnabled()
 }
 
 /*!
+    \class ProjectExplorer::OutputEncodingAspect
+    \inmodule QtCreator
+
+    \brief The OutputEncodingAspect class lets a user specify the text encoding
+    of the application's standard output and standard error.
+
+    An empty value means the default encoding of the device the application
+    runs on.
+*/
+OutputEncodingAspect::OutputEncodingAspect(AspectContainer *container)
+    : TypedAspect(container)
+{
+    setId("OutputEncoding");
+    setSettingsKey("RunConfiguration.OutputEncoding");
+    setDisplayName(Tr::tr("Output Encoding"));
+    setLabelText(Tr::tr("Output encoding:"));
+}
+
+void OutputEncodingAspect::addToLayoutImpl(Layout &parent)
+{
+    auto comboBox = createSubWidget<QComboBox>();
+    comboBox->addItem(Tr::tr("Default"), QString());
+    const TextEncoding system(QStringEncoder::System);
+    for (const TextEncoding &encoding : TextEncoding::availableEncodings()) {
+        if (encoding != system)
+            comboBox->addItem(encoding.fullDisplayName(), QString::fromUtf8(encoding.name()));
+    }
+
+    const auto showValue = [this, comboBox] {
+        const QSignalBlocker blocker(comboBox);
+        int index = comboBox->findData(value());
+        if (index < 0) {
+            comboBox->addItem(value(), value());
+            index = comboBox->count() - 1;
+        }
+        comboBox->setCurrentIndex(index);
+    };
+    showValue();
+
+    connect(comboBox, &QComboBox::currentIndexChanged, this, [this, comboBox](int index) {
+        if (index >= 0)
+            setValue(comboBox->itemData(index).toString());
+    });
+    connect(this, &BaseAspect::changed, comboBox, showValue);
+
+    parent.addItems({createLabel(), comboBox, st});
+}
+
+/*!
     \class ProjectExplorer::EnableCategoriesFilterAspect
     \inmodule QtCreator
 
@@ -1229,6 +1279,7 @@ class RunConfigurationAspectsTest final : public QObject
 private slots:
     void testTerminalAspectUpdatesEveryCheckBox();
     void testLauncherAspectUpdatesEveryComboBox();
+    void testOutputEncodingAspectUpdatesEveryComboBox();
     void testLauncherAspectPicksOfferedLauncherWithoutWidget();
     void testWorkingDirectoryAspectUpdatesEveryChooser();
     void testWorkingDirectoryAspectKeepsAClearedChooserEmpty();
@@ -1267,6 +1318,34 @@ static Launcher testLauncher(const QString &id)
     launcher.displayName = id;
     launcher.command = FilePath::fromString("/launchers/" + id);
     return launcher;
+}
+
+void RunConfigurationAspectsTest::testOutputEncodingAspectUpdatesEveryComboBox()
+{
+    OutputEncodingAspect aspect;
+    const auto first = createWidget(aspect);
+    const auto second = createWidget(aspect);
+    QComboBox *firstBox = first->findChild<QComboBox *>();
+    QComboBox *secondBox = second->findChild<QComboBox *>();
+    QVERIFY(firstBox);
+    QVERIFY(secondBox);
+    QCOMPARE(firstBox->currentData().toString(), QString());
+
+    const int utf8 = firstBox->findData(QString::fromUtf8(TextEncoding(TextEncoding::Utf8).name()));
+    QVERIFY(utf8 > 0);
+    firstBox->setCurrentIndex(utf8);
+    QCOMPARE(TextEncoding(aspect().toUtf8()), TextEncoding(TextEncoding::Utf8));
+    QCOMPARE(secondBox->currentIndex(), utf8);
+
+    aspect.setValue({});
+    QCOMPARE(firstBox->currentIndex(), 0);
+    QCOMPARE(secondBox->currentIndex(), 0);
+
+    const int count = firstBox->count();
+    aspect.setValue("NoSuchEncoding");
+    QCOMPARE(firstBox->count(), count + 1);
+    QCOMPARE(firstBox->currentText(), "NoSuchEncoding");
+    QCOMPARE(aspect(), "NoSuchEncoding");
 }
 
 void RunConfigurationAspectsTest::testLauncherAspectUpdatesEveryComboBox()
