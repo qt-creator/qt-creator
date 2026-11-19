@@ -169,7 +169,7 @@ void AcpChatWidget::updateOverview()
     for (int i = 0; i < m_stack->count(); ++i) {
         if (auto *tab = qobject_cast<AcpChatTab *>(m_stack->widget(i))) {
             entries.append({tab->agentName(), tab->toolTip(), tab->activity(),
-                            tab->serverIcon()});
+                            tab->serverIcon(), tab->sessionTitle()});
             anyRunning |= tab->activity() == SessionActivity::Running;
         }
     }
@@ -186,7 +186,7 @@ void AcpChatWidget::updateSwitcherButton()
     if (!tab)
         return;
     m_switcherButton->setEntry({tab->agentName(), tab->toolTip(), tab->activity(),
-                                tab->serverIcon()},
+                                tab->serverIcon(), tab->sessionTitle()},
                                m_runningIndicator->icon());
 }
 

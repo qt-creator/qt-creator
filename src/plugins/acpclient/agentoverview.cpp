@@ -155,10 +155,19 @@ static int summaryHeight()
                 qMax(nameFormat().lineHeight(), detailFormat().lineHeight()));
 }
 
+QString sessionEntryName(const SessionEntry &entry)
+{
+    for (const QStringView line : QStringView(entry.sessionTitle).split(u'\n')) {
+        if (const QStringView trimmed = line.trimmed(); !trimmed.isEmpty())
+            return trimmed.toString();
+    }
+    return entry.agentName;
+}
+
 static QString sessionEntryLabel(const SessionEntry &entry)
 {
-    //: %1 = agent name, %2 = session state, such as "Running"
-    return Tr::tr("%1 (%2)").arg(entry.agentName, sessionActivityText(entry.activity));
+    //: %1 = session title or agent name, %2 = session state, such as "Running"
+    return Tr::tr("%1 (%2)").arg(sessionEntryName(entry), sessionActivityText(entry.activity));
 }
 
 QString sessionEntryText(const SessionEntry &entry)
@@ -169,13 +178,17 @@ QString sessionEntryText(const SessionEntry &entry)
 
 QString sessionEntryToolTip(const SessionEntry &entry)
 {
-    if (entry.activity == SessionActivity::Idle)
-        return entry.path;
-    const QString state = sessionActivityText(entry.activity);
-    return entry.path.isEmpty() ? state : entry.path + '\n' + state;
+    QStringList lines;
+    if (!entry.sessionTitle.isEmpty())
+        lines << entry.agentName;
+    if (!entry.path.isEmpty())
+        lines << entry.path;
+    if (entry.activity != SessionActivity::Idle)
+        lines << sessionActivityText(entry.activity);
+    return lines.join('\n');
 }
 
-// Paints the server icon, the agent name, the path in a muted color and, at the
+// Paints the server icon, the name, the path in a muted color and, at the
 // right end of rect, the state of a session that is not idle.
 static void paintSessionSummary(QPainter &p, const QRect &rect, const SessionEntry &entry,
                                 const QIcon &runningIcon, bool enabled)
@@ -220,7 +233,8 @@ static void paintSessionSummary(QPainter &p, const QRect &rect, const SessionEnt
     const int nameAvailable = right - x;
     if (nameAvailable <= 0)
         return;
-    const QString name = nameFm.elidedText(entry.agentName, Qt::ElideRight, nameAvailable);
+    const QString name = nameFm.elidedText(sessionEntryName(entry), Qt::ElideRight,
+                                           nameAvailable);
     const int nameWidth = nameFm.horizontalAdvance(name);
     p.setFont(nameFont);
     p.setPen(color(nameFormat().themeColor));
@@ -242,8 +256,9 @@ static void paintSessionSummary(QPainter &p, const QRect &rect, const SessionEnt
     \class AcpClient::Internal::SessionSwitcherButton
     \internal
 
-    Shows the current chat in the tool bar: an icon, the agent name and the
-    workspace in a muted color, followed by an arrow that points down while the
+    Shows the current chat in the tool bar: an icon, the title of the session,
+    or the agent name for a session without one, and the workspace in a muted
+    color, followed by an arrow that points down while the
     list of all chats is closed and up while it is open, which is when the
     button is checked. The icon is the state of a session that runs or waits
     for the user, and the icon of the server otherwise.
@@ -277,7 +292,8 @@ static int switcherFixedWidth()
 
 QSize SessionSwitcherButton::sizeHint() const
 {
-    const int nameWidth = QFontMetrics(nameFormat().font()).horizontalAdvance(m_entry.agentName);
+    const int nameWidth = QFontMetrics(nameFormat().font())
+                              .horizontalAdvance(sessionEntryName(m_entry));
     const int pathWidth = m_entry.path.isEmpty()
                               ? -GapHS
                               : QFontMetrics(detailFormat().font()).horizontalAdvance(m_entry.path);
@@ -287,7 +303,9 @@ QSize SessionSwitcherButton::sizeHint() const
 
 QSize SessionSwitcherButton::minimumSizeHint() const
 {
-    const int nameWidth = QFontMetrics(nameFormat().font()).horizontalAdvance(m_entry.agentName);
+    const QFontMetrics fm(nameFormat().font());
+    const int nameWidth = qMin(fm.horizontalAdvance(sessionEntryName(m_entry)),
+                               fm.horizontalAdvance(m_entry.agentName));
     return {switcherFixedWidth() - GapHS + nameWidth, sizeHint().height()};
 }
 
@@ -325,7 +343,7 @@ void SessionSwitcherButton::paintEvent(QPaintEvent *)
 
     const QFont nameFont = nameFormat().font();
     const QFontMetrics nameFm(nameFont);
-    const QString name = nameFm.elidedText(m_entry.agentName, Qt::ElideRight,
+    const QString name = nameFm.elidedText(sessionEntryName(m_entry), Qt::ElideRight,
                                            qMax(0, textRight - x));
     const int nameWidth = nameFm.horizontalAdvance(name);
     p.setFont(nameFont);

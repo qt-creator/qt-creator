@@ -414,6 +414,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                                          : project                     ? project->projectDirectory()
                                                                        : FilePath();
             m_controller->createNewSession(sessionPath);
+            setSessionTitle({});
             emit titleChanged();
             return;
         }
@@ -455,6 +456,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
                 m_serverIcon = {};
                 emit serverIconChanged();
             }
+            setSessionTitle({});
             emit titleChanged();
         }
     });
@@ -597,6 +599,13 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         } else if (kind == QLatin1String("usage_update")) {
             if (const auto *uu = update.get<UsageUpdate>())
                 m_chatPanel->setUsage(*uu);
+        } else if (kind == QLatin1String("session_info_update")) {
+            if (const auto *info = update.get<SessionInfoUpdate>()) {
+                if (info->title().isNull())
+                    setSessionTitle({});
+                else if (info->title().has_value())
+                    setSessionTitle(*info->title());
+            }
         } else if (kind == QLatin1String("notice")) {
             if (const auto *notice = update.get<Notice>())
                 m_chatPanel->addNotice(*notice);
@@ -654,6 +663,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         showSessionPicker();
+        setSessionTitle({});
         emit titleChanged();
     });
     connect(m_controller, &AcpChatController::sessionLoaded, this, [this](const QString &sessionId) {
@@ -795,6 +805,14 @@ void AcpChatTab::updateActivity()
     emit activityChanged();
 }
 
+void AcpChatTab::setSessionTitle(const QString &title)
+{
+    if (title == m_sessionTitle)
+        return;
+    m_sessionTitle = title;
+    emit titleChanged();
+}
+
 static IDocument *currentNonTemporaryDocument()
 {
     IDocument *currentDocument = EditorManager::currentDocument();
@@ -835,11 +853,12 @@ void AcpChatTab::showSessionPicker()
     picker->setCanDeleteSessions(m_controller->supportsSessionDelete());
 
     connect(picker, &SessionPickerWidget::sessionSelected, this,
-            [this, picker](const QString &sessionId, const FilePath &cwd) {
+            [this, picker](const QString &sessionId, const QString &title, const FilePath &cwd) {
         picker->setResolved(sessionId);
         m_activePicker = nullptr;
         m_sessionPending = true;
         m_controller->loadSession(sessionId, cwd);
+        setSessionTitle(title);
         emit titleChanged();
     });
     connect(picker, &SessionPickerWidget::newSessionRequested,
@@ -847,6 +866,7 @@ void AcpChatTab::showSessionPicker()
         m_activePicker = nullptr;
         m_sessionPending = true;
         m_controller->createNewSession(cwd);
+        setSessionTitle({});
         emit titleChanged();
     });
     connect(picker, &SessionPickerWidget::loadMoreRequested,

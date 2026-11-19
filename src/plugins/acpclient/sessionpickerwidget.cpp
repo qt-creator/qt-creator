@@ -429,7 +429,8 @@ Utils::FilePath SessionPickerWidget::defaultTarget() const
 
 void SessionPickerWidget::addSessionItem(const SessionInfo &session)
 {
-    const QString title = session.title().asOptional().value_or(session.sessionId());
+    const QString sessionTitle = session.title().asOptional().value_or(QString());
+    const QString title = sessionTitle.isEmpty() ? session.sessionId() : sessionTitle;
     auto *item = new PickerItem(title, {}, this);
     if (session.updatedAt().has_value())
         item->setTrailingText(relativeTime(*session.updatedAt()));
@@ -437,10 +438,10 @@ void SessionPickerWidget::addSessionItem(const SessionInfo &session)
     const QString sessionId = session.sessionId();
     m_sessionItems.insert(sessionId, item);
     const Utils::FilePath cwd = Utils::FilePath::fromUserInput(session.cwd());
-    connect(item, &PickerItem::clicked, this, [this, sessionId, cwd] {
+    connect(item, &PickerItem::clicked, this, [this, sessionId, sessionTitle, cwd] {
         if (m_resolved)
             return;
-        emit sessionSelected(sessionId, cwd);
+        emit sessionSelected(sessionId, sessionTitle, cwd);
     });
     if (m_canDeleteSessions) {
         item->setDeleteButton();

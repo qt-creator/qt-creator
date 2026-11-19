@@ -666,6 +666,7 @@ private slots:
     void testChatWidgetTermsAccepted();
     void testSessionSwitcherButton();
     void testChatWidgetOverview();
+    void testChatWidgetSessionTitle();
     void testChatWidgetServerIconClearedOnDisconnect();
     void testChatTabResponseCommands();
     void testChatWidgetOverviewHeight();
@@ -4876,6 +4877,16 @@ void AcpClientTest::testSessionSwitcherButton()
     QImage empty(rest.size(), rest.format());
     empty.fill(rest.pixelColor(rest.width() - 1, rest.height() - 1));
     QCOMPARE(rest, empty);
+
+    // A titled session shows its title in place of the agent name, which
+    // moves to the tool tip.
+    const SessionEntry titled{"Agent", "/path", SessionActivity::Idle, serverIcon, "Fix the bug"};
+    QCOMPARE(sessionEntryName(titled), "Fix the bug");
+    button.setEntry(titled, runningIcon);
+    QVERIFY(button.accessibleName().startsWith("Fix the bug"));
+    QVERIFY(button.toolTip().contains("Agent"));
+    QVERIFY(button.toolTip().contains("/path"));
+    QVERIFY(render(titled) != render({"Agent", "/path", SessionActivity::Idle, serverIcon}));
 }
 
 // The button in the tool bar shows the current chat and opens the list of all
@@ -4983,6 +4994,69 @@ void AcpClientTest::testChatWidgetOverview()
     switcher->click();
     QVERIFY(overview->isHidden());
     QVERIFY(!stack->isHidden());
+}
+
+// The title an agent reports for its session names the chat in the switcher
+// and in the list, until the agent clears it again.
+void AcpClientTest::testChatWidgetSessionTitle()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    AcpChatWidget widget;
+    const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
+    QCOMPARE(tabs.size(), 1);
+    AcpChatTab *tab = tabs.first();
+    auto *controller = tab->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    auto *switcher = widget.findChild<SessionSwitcherButton *>();
+    QVERIFY(switcher);
+    auto *overview = widget.findChild<AgentOverview *>();
+    QVERIFY(overview);
+    QVERIFY(switcher->entry().sessionTitle.isEmpty());
+
+    const auto sendTitle = [controller](const QJsonValue &title) {
+        const auto update = V2::fromJson<V2::SessionUpdate>(
+            QJsonObject{{"sessionUpdate", "session_info_update"}, {"title", title}});
+        QVERIFY(update);
+        emit controller->sessionUpdate("session", *update);
+    };
+
+    sendTitle("Fix the bug");
+    QCOMPARE(tab->sessionTitle(), "Fix the bug");
+    QCOMPARE(switcher->entry().sessionTitle, "Fix the bug");
+    QCOMPARE(sessionEntryName(switcher->entry()), "Fix the bug");
+    QCOMPARE(overview->entryButtons().size(), 1);
+    QVERIFY(overview->entryButtons().first()->accessibleName().startsWith("Fix the bug"));
+
+    // An update without a title leaves it alone.
+    const auto noTitle = V2::fromJson<V2::SessionUpdate>(
+        QJsonObject{{"sessionUpdate", "session_info_update"},
+                    {"updatedAt", "2026-01-01T00:00:00Z"}});
+    QVERIFY(noTitle);
+    emit controller->sessionUpdate("session", *noTitle);
+    QCOMPARE(switcher->entry().sessionTitle, "Fix the bug");
+
+    // A long title does not widen the chat pane: the switcher can still get
+    // as narrow as with the agent name and elides the title.
+    sendTitle(QJsonValue::Null);
+    const int minimumWidth = switcher->minimumSizeHint().width();
+    const int preferredWidth = switcher->sizeHint().width();
+    sendTitle(QString(200, 'x'));
+    QCOMPARE(switcher->minimumSizeHint().width(), minimumWidth);
+    QVERIFY(switcher->sizeHint().width() > preferredWidth);
+
+    // Agents often take the first prompt as title, which may span lines.
+    // Only its first line names the chat.
+    sendTitle("\n  review abc  \r\nThe current editor in Qt Creator");
+    QCOMPARE(sessionEntryName(switcher->entry()), "review abc");
+    QVERIFY(overview->entryButtons().first()->accessibleName().startsWith("review abc ("));
+
+    sendTitle(QJsonValue::Null);
+    QVERIFY(tab->sessionTitle().isEmpty());
+    QCOMPARE(sessionEntryName(switcher->entry()), tab->agentName());
+    QVERIFY(overview->entryButtons().first()->accessibleName().startsWith(tab->agentName()));
 }
 
 // A chat without a server shows no server icon, neither in the switcher nor

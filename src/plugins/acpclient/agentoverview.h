@@ -59,11 +59,14 @@ struct SessionEntry
     QString path;
     SessionActivity activity = SessionActivity::None;
     QIcon serverIcon;
+    QString sessionTitle;
 };
 
-// "Agent (State) - path", for accessible names.
+// The title of the session, or the agent name for a session without one.
+QString sessionEntryName(const SessionEntry &entry);
+// "Name (State) - path", for accessible names.
 QString sessionEntryText(const SessionEntry &entry);
-// The path and the state, one per line.
+// The agent of a titled session, the path and the state, one per line.
 QString sessionEntryToolTip(const SessionEntry &entry);
 
 class SessionSwitcherButton final : public QAbstractButton

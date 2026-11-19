@@ -45,6 +45,7 @@ public:
 
     QString title() const;
     QString agentName() const;
+    QString sessionTitle() const { return m_sessionTitle; }
     QString toolTip() const;
     QWidget *toolBarWidget() const;
     SessionActivity activity() const { return m_activity; }
@@ -70,6 +71,7 @@ private:
     void registryFetchFailed(RegistryFailure failure);
     void showSessionPicker();
     void updateActivity();
+    void setSessionTitle(const QString &title);
 
     // Config page
     QStackedWidget *m_stack;
@@ -102,6 +104,7 @@ private:
     bool m_sessionPending = false;
     bool m_startupFailed = false;
     QString m_pendingPrompt;
+    QString m_sessionTitle;
     SessionActivity m_activity = SessionActivity::None;
     QIcon m_serverIcon;
 };

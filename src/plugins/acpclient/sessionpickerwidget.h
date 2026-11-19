@@ -42,7 +42,8 @@ public:
     Utils::FilePath defaultTarget() const;
 
 signals:
-    void sessionSelected(const QString &sessionId, const Utils::FilePath &cwd);
+    void sessionSelected(const QString &sessionId, const QString &title,
+                         const Utils::FilePath &cwd);
     void loadMoreRequested(const QString &cursor);
     void newSessionRequested(const Utils::FilePath &cwd);
     void deleteSessionRequested(const QString &sessionId);
