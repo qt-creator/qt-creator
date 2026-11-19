@@ -392,7 +392,9 @@
             \uicontrol {Attach to Running Application}.
             \image {qtcreator-debugger-attach-to-running.png} {Attach to Running Application dialog}
         \li In \uicontrol Filter, enter a string to filter processes
-            by their process ID or name.
+            by their process ID, user, or name. The filter is a regular
+            expression, so \c {^username$} shows only the processes of
+            that user.
         \li Select a process in the list, and then select
             \uicontrol {Attach to Process} to start debugging.
     \endlist

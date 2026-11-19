@@ -18,6 +18,7 @@ public:
     qint64 processId = 0;
     QString executable;
     QString commandLine;
+    QString user;
 
     bool operator<(const ProcessInfo &other) const;
 

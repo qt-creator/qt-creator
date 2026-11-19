@@ -148,6 +148,7 @@ private slots:
     void crashAfterOneSecond();
     void recursiveCrashingProcess();
     void recursiveBlockingProcess();
+    void processInfoListHasUser();
     void quitBlockingProcess_data();
     void quitBlockingProcess();
     void tarPipe();
@@ -1206,6 +1207,30 @@ static int runningTestProcessCount()
             ++testProcessCounter;
     }
     return testProcessCounter;
+}
+
+void tst_Process::processInfoListHasUser()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The process list has no user names on Windows.");
+
+    Process id;
+    id.setCommand({"id", {"-un"}});
+    id.runBlocking();
+    const QString userName = id.cleanedStdOut().trimmed();
+    if (userName.isEmpty())
+        QSKIP("The test needs \"id -un\".");
+
+    const Result<QList<ProcessInfo>> processInfoList = ProcessInfo::processInfoList();
+    if (!processInfoList)
+        QFAIL(qPrintable(processInfoList.error()));
+    const qint64 ownPid = QCoreApplication::applicationPid();
+    const auto own = std::find_if(processInfoList->cbegin(), processInfoList->cend(),
+                                  [ownPid](const ProcessInfo &info) {
+                                      return info.processId == ownPid;
+                                  });
+    QVERIFY(own != processInfoList->cend());
+    QCOMPARE(own->user, userName);
 }
 
 void tst_Process::recursiveBlockingProcess()

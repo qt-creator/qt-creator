@@ -131,7 +131,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QDialog *parent)
     procView->setSortingEnabled(true);
     procView->header()->setDefaultSectionSize(100);
     procView->header()->setStretchLastSection(true);
-    procView->sortByColumn(1, Qt::AscendingOrder);
+    procView->sortByColumn(2, Qt::AscendingOrder);
     procView->setActivationMode(DoubleClickActivation);
 
     errorText = new QTextBrowser(q);

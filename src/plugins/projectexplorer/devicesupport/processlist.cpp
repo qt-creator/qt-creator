@@ -71,7 +71,7 @@ using namespace Internal;
 ProcessList::ProcessList(const IDevice::ConstPtr &device, QObject *parent)
     : QObject(parent), d(std::make_unique<DeviceProcessListPrivate>(device))
 {
-    d->model.setHeader({Tr::tr("Process ID"), Tr::tr("Command Line")});
+    d->model.setHeader({Tr::tr("Process ID"), Tr::tr("User"), Tr::tr("Command Line")});
 }
 
 ProcessList::~ProcessList() = default;
@@ -170,8 +170,9 @@ QVariant DeviceProcessTreeItem::data(int column, int role) const
     if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
         if (column == 0)
             return process.processId ? process.processId : QVariant();
-        else
-            return process.commandLine;
+        if (column == 1)
+            return process.user;
+        return process.commandLine;
     }
     return {};
 }

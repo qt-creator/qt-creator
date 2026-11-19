@@ -158,6 +158,13 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
     if (!cmdLines)
         return ResultError(cmdLines.error());
 
+    // procps cuts user names longer than eight characters unless given a width.
+    Result<QMap<qint64, QString>> users = getLocalProcessDataUsingPs(ps, "user:64");
+    if (!users)
+        users = getLocalProcessDataUsingPs(ps, "user");
+    if (!users)
+        return ResultError(users.error());
+
     for (auto it = exeNames->begin(), end = exeNames->end(); it != end; ++it) {
         const qint64 pid = it.key();
         if (pid <= 0)
@@ -168,7 +175,7 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
         const QString exeName = it.value();
         if (exeName.isEmpty())
             continue;
-        processes.append({pid, exeName, cmdLine});
+        processes.append({pid, exeName, cmdLine, users->value(pid)});
     }
 
     return processes;
