@@ -12,6 +12,7 @@
 
 #include <QDebug>
 #include <QApplication>
+#include <QThread>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -102,10 +103,13 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     process.start();
 
     // waiting for finish
-    QApplication::setOverrideCursor(Qt::BusyCursor);
+    const bool onGuiThread = QThread::isMainThread();
+    if (onGuiThread)
+        QApplication::setOverrideCursor(Qt::BusyCursor);
     using namespace std::chrono_literals;
     bool waitResult = process.waitForFinished(10s);
-    QApplication::restoreOverrideCursor();
+    if (onGuiThread)
+        QApplication::restoreOverrideCursor();
     if (!waitResult)
         return items;
 

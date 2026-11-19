@@ -29,4 +29,8 @@ protected:
 void setupQnxToolchain();
 void setupQnxDebuggerDetection(QObject *guard);
 
+#ifdef WITH_TESTS
+QObject *createQnxDebuggerDetectionTest();
+#endif
+
 } // Qnx::Internal

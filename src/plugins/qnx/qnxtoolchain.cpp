@@ -17,10 +17,19 @@
 #include <projectexplorer/toolchainconfigwidget.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
+#include <utils/futuresynchronizer.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
 #include <QFormLayout>
+#include <QScopeGuard>
+
+#ifdef WITH_TESTS
+#include <QTemporaryDir>
+#include <QTest>
+#endif
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -261,19 +270,24 @@ void QnxToolchainConfigWidget::handleSdpPathChange()
 // QnxSdpEnvFileToolAspect, but fall back to probing the well-known SDP install
 // locations on the device (newer SDP first): that aspect is populated
 // asynchronously and may not be set yet while device tool detection runs.
-static FilePath qnxSdpEnvFile(const IDevice::ConstPtr &device)
+static FilePath findSdpEnvFile(const FilePath &fromAspect, const FilePath &rootPath)
 {
-    const FilePath fromAspect = device->deviceToolPath(Constants::QNX_SDPENVFILE_TOOL_ID);
     if (!fromAspect.isEmpty())
         return fromAspect;
 
     for (const char *candidate : {"/opt/qnx800/qnxsdp-env.sh", "/opt/qnx710/qnxsdp-env.sh",
                                   "/opt/qnx800/qnxsdp-env.bat", "/opt/qnx710/qnxsdp-env.bat"}) {
-        const FilePath f = device->rootPath().withNewPath(QLatin1String(candidate));
+        const FilePath f = rootPath.withNewPath(QLatin1String(candidate));
         if (f.exists())
             return f;
     }
     return {};
+}
+
+static FilePath qnxSdpEnvFile(const IDevice::ConstPtr &device)
+{
+    return findSdpEnvFile(device->deviceToolPath(Constants::QNX_SDPENVFILE_TOOL_ID),
+                          device->rootPath());
 }
 
 // Detect QNX toolchains from an SDP environment file (e.g. the one carried by a
@@ -365,15 +379,23 @@ void setupQnxToolchain()
     static QnxToolchainFactory theQnxToolChainFactory;
 }
 
-// Register the QNX debuggers (nto*-gdb) shipped in the SDP referenced by a
-// device's QnxSdpEnvFileToolAspect, so device-driven kit creation can pick a
-// matching debugger for the QNX kits.
-static void detectQnxDebuggers(const IDevice::ConstPtr &device, const DetectionSource &source,
-                               const ToolDetectionLogger &logger)
+class QnxDebuggerScan
 {
-    const FilePath envFile = qnxSdpEnvFile(device);
+public:
+    bool searched = false;
+    QList<Debugger::DebuggerItem> items;
+};
+
+// Find the QNX debuggers (nto*-gdb) shipped in the SDP referenced by a
+// device's QnxSdpEnvFileToolAspect, so device-driven kit creation can pick a
+// matching debugger for the QNX kits. Runs off the GUI thread, as it starts each of them.
+static QnxDebuggerScan scanQnxDebuggers(const FilePath &envFile, const DetectionSource &source,
+                                        const FilePaths &known,
+                                        const std::function<bool()> &isCanceled)
+{
+    QnxDebuggerScan scan;
     if (envFile.isEmpty() || !envFile.exists())
-        return;
+        return scan;
 
     FilePath qnxHost;
     // The nto gdbs need QNX_HOST/QNX_TARGET/QNX_CONFIGURATION set to run and to
@@ -388,10 +410,8 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const DetectionS
             qnxVars.append(item);
     }
     if (qnxHost.isEmpty())
-        return;
-
-    if (logger)
-        logger.logTopLevel(Tr::tr("Searching for QNX debuggers..."));
+        return scan;
+    scan.searched = true;
 
     const FilePath binDir = qnxHost.pathAppended("usr/bin");
     QString pattern = "nto*-gdb";
@@ -401,13 +421,10 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const DetectionS
     Environment sysEnv = qnxHost.deviceEnvironment();
     sysEnv.modify(qnxVars);
     const FilePaths gdbs = binDir.dirEntries({{pattern}, DirFilterFlag::Files});
-    bool foundNew = false;
     for (const FilePath &gdb : gdbs) {
-        const bool known = Utils::anyOf(Debugger::DebuggerItemManager::debuggers(),
-                                        [&gdb](const Debugger::DebuggerItem &di) {
-                                            return di.command() == gdb;
-                                        });
-        if (known)
+        if (isCanceled())
+            return scan;
+        if (known.contains(gdb))
             continue;
 
         Debugger::DebuggerItem item;
@@ -416,10 +433,27 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const DetectionS
         item.reinitializeFromFile(nullptr, &sysEnv);
         item.setUnexpandedDisplayName(Tr::tr("QNX Debugger (%1)").arg(gdb.fileName()));
         item.setDetectionSource(source);
+        scan.items.append(item);
+    }
+    return scan;
+}
+
+static void registerQnxDebuggers(const QnxDebuggerScan &scan, const ToolDetectionLogger &logger)
+{
+    if (!scan.searched)
+        return;
+
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for QNX debuggers..."));
+
+    bool foundNew = false;
+    for (const Debugger::DebuggerItem &item : scan.items) {
+        if (Debugger::DebuggerItemManager::findByCommand(item.command()))
+            continue;
         Debugger::DebuggerItemManager::registerDebugger(item);
         foundNew = true;
         if (logger)
-            logger.logItem(Tr::tr("Found QNX debugger: %1").arg(gdb.toUserOutput()));
+            logger.logItem(Tr::tr("Found QNX debugger: %1").arg(item.command().toUserOutput()));
     }
     if (logger && !foundNew)
         logger.logItem(Tr::tr("No new QNX debuggers found."));
@@ -427,11 +461,109 @@ static void detectQnxDebuggers(const IDevice::ConstPtr &device, const DetectionS
 
 void setupQnxDebuggerDetection(QObject *guard)
 {
-    DeviceManager::addToolDetector(guard, {}, [](const ToolDetectionRequest &request,
-                                                 const std::function<void()> &done) {
-        detectQnxDebuggers(request.device, request.source, request.logger);
-        done();
+    DeviceManager::addToolDetector(guard, {}, [guard](const ToolDetectionRequest &request,
+                                                      const std::function<void()> &done) {
+        const FilePaths known = Utils::transform(Debugger::DebuggerItemManager::debuggers(),
+                                                 &Debugger::DebuggerItem::command);
+        const FilePath fromAspect = request.device->deviceToolPath(
+            Constants::QNX_SDPENVFILE_TOOL_ID);
+        const QFuture<QnxDebuggerScan> future = Utils::asyncRun(
+            [fromAspect, root = request.device->rootPath(), source = request.source,
+             known](QPromise<QnxDebuggerScan> &promise) {
+                const QnxDebuggerScan scan = scanQnxDebuggers(
+                    findSdpEnvFile(fromAspect, root), source, known,
+                    [&promise] { return promise.isCanceled(); });
+                if (!promise.isCanceled())
+                    promise.addResult(scan);
+            });
+        Utils::futureSynchronizer()->addFuture(future);
+        Utils::onFinished(future, guard, [deviceId = request.device->id(), logger = request.logger,
+                                          done](const QFuture<QnxDebuggerScan> &f) {
+            if (f.resultCount() > 0 && DeviceManager::find(deviceId))
+                registerQnxDebuggers(f.result(), logger);
+            done();
+        });
     });
 }
 
+#ifdef WITH_TESTS
+class QnxDebuggerDetectionTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDetectsSdpDebuggersOffGuiThread()
+    {
+        if (HostOsInfo::isWindowsHost())
+            QSKIP("The fake SDP environment file and debugger are shell scripts.");
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath root = FilePath::fromString(dir.path()).canonicalPath();
+        const FilePath qnxHost = root / "host";
+        QVERIFY((qnxHost / "usr/bin").ensureWritableDir());
+        const FilePath gdb = qnxHost / "usr/bin/ntox86_64-gdb";
+        QVERIFY(gdb.writeFileContents("#!/bin/sh\necho 'GNU gdb (GDB) 12.1'\n"));
+        QVERIFY(gdb.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+        const FilePath envFile = root / "qnxsdp-env.sh";
+        QVERIFY(envFile.writeFileContents("export QNX_HOST=" + qnxHost.path().toUtf8()
+                                          + "\nexport QNX_TARGET=" + root.path().toUtf8()
+                                          + "/target\n"));
+        const FilePath emptyDir = root / "empty";
+        QVERIFY(emptyDir.ensureWritableDir());
+
+        const IDevice::Ptr device = DeviceManager::find(
+            ProjectExplorer::Constants::DESKTOP_DEVICE_ID);
+        QVERIFY(device);
+        DeviceToolAspect *envFileAspect = Utils::findOrDefault(
+            device->deviceToolAspects(DeviceToolAspect::AllTools),
+            [](DeviceToolAspect *aspect) {
+                return aspect->toolId() == Constants::QNX_SDPENVFILE_TOOL_ID;
+            });
+        QVERIFY(envFileAspect);
+        const QString oldEnvFile = envFileAspect->value();
+        envFileAspect->setToolPath(envFile);
+
+        const QScopeGuard cleanup([envFileAspect, oldEnvFile, gdb] {
+            envFileAspect->setValue(oldEnvFile);
+            while (const Debugger::DebuggerItem item
+                   = Debugger::DebuggerItemManager::findByCommand(gdb)) {
+                Debugger::DebuggerItemManager::deregisterDebugger(item.id());
+            }
+        });
+
+        const auto log = std::make_shared<QStringList>();
+        const ToolDetectionLogger logger([log](const QString &message) {
+            log->append(message.trimmed());
+        });
+
+        device->requestToolDetection({emptyDir}, logger);
+        QVERIFY(!Debugger::DebuggerItemManager::findByCommand(gdb));
+
+        const QString found = "Found QNX debugger: " + gdb.toUserOutput();
+        QTRY_VERIFY(log->contains(found));
+        const Debugger::DebuggerItem item = Debugger::DebuggerItemManager::findByCommand(gdb);
+        QVERIFY(item);
+        QCOMPARE(item.unexpandedDisplayName(), "QNX Debugger (ntox86_64-gdb)");
+        QCOMPARE(item.version(), "12.1.0");
+
+        // A debugger that is already registered is not added again.
+        log->clear();
+        device->requestToolDetection({emptyDir}, logger);
+        QTRY_VERIFY(log->contains("No new QNX debuggers found."));
+        const auto sameCommand = [&gdb](const Debugger::DebuggerItem &di) {
+            return di.command() == gdb;
+        };
+        QCOMPARE(Utils::count(Debugger::DebuggerItemManager::debuggers(), sameCommand), 1);
+    }
+};
+
+QObject *createQnxDebuggerDetectionTest()
+{
+    return new QnxDebuggerDetectionTest;
+}
+#endif // WITH_TESTS
+
 } // Qnx::Internal
+
+#include "qnxtoolchain.moc"

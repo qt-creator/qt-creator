@@ -20,6 +20,7 @@
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/groupedmodel.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -56,6 +57,7 @@ using namespace Utils;
 static DebuggerItem makeAutoDetectedDebuggerItem(
     const FilePath &command,
     const DebuggerItem::TechnicalData &technicalData,
+    const QDateTime &lastModified,
     const DetectionSource &detectionSource)
 {
     DebuggerItem item;
@@ -65,7 +67,7 @@ static DebuggerItem makeAutoDetectedDebuggerItem(
     item.setEngineType(technicalData.engineType);
     item.setAbis(technicalData.abis);
     item.setVersion(technicalData.version);
-    item.setLastModified(command.lastModified());
+    item.setLastModified(lastModified);
     return item;
 }
 
@@ -78,7 +80,8 @@ static Result<DebuggerItem> makeAutoDetectedDebuggerItem(
     if (!technicalData)
         return make_unexpected(std::move(technicalData).error());
 
-    return makeAutoDetectedDebuggerItem(command, *technicalData, detectionSource);
+    return makeAutoDetectedDebuggerItem(command, *technicalData, command.lastModified(),
+                                        detectionSource);
 }
 
 namespace Debugger {
@@ -95,6 +98,36 @@ static FilePath userSettingsFileName()
     return ICore::userResourcePath(DEBUGGER_FILENAME);
 }
 
+class DebuggerSearch
+{
+public:
+    FilePaths searchPaths;
+    QStringList filters;
+    QList<std::pair<FilePath, QDateTime>> known;
+    DetectionSource detectionSource;
+    bool isDesktop = false;
+    bool searchCdb = false;
+    FilePath rootPath;
+    Environment environment;
+};
+
+class DebuggerCandidate
+{
+public:
+    FilePath command;
+    FilePath knownCommand; // The command of the known item the scan matched.
+    QDateTime lastModified;
+    // Unset if a known item is up to date.
+    std::optional<Result<DebuggerItem::TechnicalData>> technicalData;
+};
+
+class DebuggerScan
+{
+public:
+    QList<DebuggerCandidate> gdbOrLldbs;
+    QList<std::pair<DebuggerCandidate, Abis>> cdbs;
+};
+
 // --------------------------------------------------------------------------
 // DebuggerItemModel
 // --------------------------------------------------------------------------
@@ -108,6 +141,9 @@ public:
 
     void detectDebuggers(const IDeviceConstPtr &device, const FilePaths &searchPaths,
                          const ToolDetectionLogger &logger = {});
+    void detectDebuggersAsync(const IDeviceConstPtr &device, const FilePaths &searchPaths,
+                              const ToolDetectionLogger &logger,
+                              const std::function<void()> &done);
     void restoreDebuggers();
     void saveDebuggers();
 
@@ -115,13 +151,16 @@ public:
     void deregisterDebugger(const QVariant &id);
 
     void readDebuggers(const FilePath &fileName, bool isSdk);
-    void autoDetectCdbDebuggers(const IDeviceConstPtr &device,
-                                const DetectionSource &detectionSource,
-                                const ToolDetectionLogger &logger = {});
-    void autoDetectGdbOrLldbDebuggers(
-        const FilePaths &searchPaths,
-        const DetectionSource &detectionSource,
-        const ToolDetectionLogger &logger = {});
+    DebuggerSearch prepareSearch(const IDeviceConstPtr &device,
+                                 const FilePaths &searchPaths) const;
+    void addDetectedDebuggers(const DebuggerSearch &search, const DebuggerScan &scan,
+                              const ToolDetectionLogger &logger);
+    void addGdbOrLldbDebuggers(const QList<DebuggerCandidate> &candidates,
+                               const DetectionSource &detectionSource,
+                               const ToolDetectionLogger &logger);
+    void addCdbDebuggers(const QList<std::pair<DebuggerCandidate, Abis>> &cdbs,
+                         const DetectionSource &detectionSource,
+                         const ToolDetectionLogger &logger);
     void autoDetectUvscDebuggers(const ToolDetectionLogger &logger = {});
     int cloneRow(int row) override;
     QString uniqueDisplayName(const QString &base);
@@ -140,7 +179,7 @@ private:
 int DebuggerModel::findRowByCommand(const FilePath &command) const
 {
     for (int i = 0; i < itemCount(); ++i) {
-        if (item(i).command().isSameExecutable(command))
+        if (item(i).command() == command)
             return i;
     }
     return -1;
@@ -166,8 +205,7 @@ DebuggerModel::DebuggerModel()
             this, &DebuggerModel::saveDebuggers);
     DeviceManager::addToolDetector(this, {}, [this](const ToolDetectionRequest &request,
                                                     const std::function<void()> &done) {
-        detectDebuggers(request.device, request.searchPaths, request.logger);
-        done();
+        detectDebuggersAsync(request.device, request.searchPaths, request.logger, done);
     });
 }
 
@@ -197,113 +235,6 @@ void DebuggerModel::updateDebugger(const DebuggerItem &ditem)
     }
 }
 
-
-void DebuggerModel::autoDetectCdbDebuggers(const IDeviceConstPtr &device,
-                                           const DetectionSource &detectionSource,
-                                           const ToolDetectionLogger &logger)
-{
-    if (device->osType() != OsTypeWindows)
-        return;
-
-    if (logger)
-        logger.logTopLevel(Tr::tr("Searching for CDB..."));
-
-    const bool isLocal = device->rootPath().isLocal();
-    const Environment env = device->systemEnvironment();
-    FilePaths cdbs;
-    FilePaths kitFolders;
-
-    FilePaths programDirs;
-    for (const char *name : {"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
-        const QString dirName = env.value(QLatin1StringView(name));
-        if (!dirName.isEmpty())
-            programDirs.append(device->filePath(QDir::fromNativeSeparators(dirName)));
-    }
-
-    for (const FilePath &dir : Utils::filteredUnique(programDirs)) {
-        // Windows SDK's starting from version 8 live in
-        // "ProgramDir\Windows Kits\<version>"
-        const FileFilter dirs({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
-        kitFolders.append((dir / "Windows Kits").dirEntries(dirs, DirSortFlag::Time));
-
-        // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
-        const FilePaths toolDirs = dir.dirEntries({{"Debugging Tools for Windows*"},
-                                                   DirFilterFlag::Dirs
-                                                       | DirFilterFlag::NoDotAndDotDot});
-        for (const FilePath &toolDir : toolDirs) {
-            const FilePath filePath = toolDir.pathAppended("cdb.exe");
-            if (!cdbs.contains(filePath))
-                cdbs.append(filePath);
-        }
-    }
-
-    if (isLocal) {
-        constexpr char RootVal[]   = "KitsRoot";
-        constexpr char RootVal81[] = "KitsRoot81";
-        constexpr char RootVal10[] = "KitsRoot10";
-        const QSettings installedRoots(
-                    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots",
-                    QSettings::NativeFormat);
-        for (auto rootVal : {RootVal, RootVal81, RootVal10}) {
-            const FilePath root = FilePath::fromUserInput(
-                installedRoots.value(QLatin1String(rootVal)).toString());
-            if (!root.isEmpty() && root.exists() && !kitFolders.contains(root))
-                kitFolders.append(root);
-        }
-    }
-
-    const bool isArm64 = isLocal ? HostOsInfo::hostArchitecture() == Utils::OsArchArm64
-                                 : env.value("PROCESSOR_ARCHITECTURE") == "ARM64";
-    QStringList abis = {"x86", "x64"};
-    if (isArm64)
-        abis << "arm64";
-    for (const FilePath &kitFolder : std::as_const(kitFolders)) {
-        for (const QString &abi : std::as_const(abis)) {
-            const FilePath cdbBinary = kitFolder / "Debuggers" / abi / "cdb.exe";
-            if (cdbBinary.isExecutableFile() && !cdbs.contains(cdbBinary))
-                cdbs.append(cdbBinary);
-        }
-    }
-
-    const int oldCount = itemCount();
-    for (const FilePath &cdb : std::as_const(cdbs)) {
-        const int existingRow = findRowByCommand(cdb);
-        if (existingRow >= 0) {
-            DebuggerItem existingItem = item(existingRow);
-            if (cdb.lastModified() != existingItem.lastModified()) {
-                QString error;
-                existingItem.reinitializeFromFile(&error);
-                if (!error.isEmpty()) {
-                    if (logger)
-                        logger.logItem(error);
-                    continue;
-                }
-                if (isItemDirty(existingRow)) {
-                    setVolatileItem(existingRow, existingItem);
-                    notifyRowChanged(existingRow);
-                } else {
-                    resetItem(existingRow, existingItem);
-                }
-            }
-            continue;
-        }
-        Result<DebuggerItem> item = makeAutoDetectedDebuggerItem(cdb, detectionSource);
-        if (!item) {
-            if (logger)
-                logger.logItem(item.error());
-            item = makeAutoDetectedDebuggerItem(
-                cdb,
-                {.engineType = CdbEngineType, .abis = Abi::abisOfBinary(cdb), .version = {}},
-                detectionSource);
-            item->setLastModified({});
-        }
-        appendItem(*item);
-        if (logger)
-            logger.logItem(Tr::tr("Found: \"%1\".").arg(cdb.toUserOutput()));
-    }
-    if (logger && itemCount() == oldCount)
-        logger.logItem(Tr::tr("No new CDB found."));
-}
 
 static Utils::FilePaths searchGdbPathsFromRegistry()
 {
@@ -366,14 +297,94 @@ static QStringList debuggerSearchFilters()
     return filters;
 }
 
-void DebuggerModel::autoDetectGdbOrLldbDebuggers(
-    const FilePaths &searchPaths, const DetectionSource &detectionSource,
-    const ToolDetectionLogger &logger)
+static DebuggerCandidate makeCandidate(const DebuggerSearch &search, const FilePath &command)
 {
-    const QStringList filters = debuggerSearchFilters();
+    DebuggerCandidate candidate{command, {}, command.lastModified(), {}};
+    const auto known = std::find_if(search.known.cbegin(), search.known.cend(),
+                                    [&command](const std::pair<FilePath, QDateTime> &item) {
+                                        return item.first.isSameExecutable(command);
+                                    });
+    if (known != search.known.cend())
+        candidate.knownCommand = known->first;
+    if (known == search.known.cend() || known->second != candidate.lastModified)
+        candidate.technicalData = DebuggerItem::TechnicalData::extract(command, {});
+    return candidate;
+}
 
+static QList<std::pair<DebuggerCandidate, Abis>> findCdbs(const DebuggerSearch &search,
+                                                          const std::function<bool()> &isCanceled)
+{
+    const bool isLocal = search.rootPath.isLocal();
+    FilePaths cdbs;
+    FilePaths kitFolders;
+
+    FilePaths programDirs;
+    for (const char *name : {"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
+        const QString dirName = search.environment.value(QLatin1StringView(name));
+        if (!dirName.isEmpty())
+            programDirs.append(search.rootPath.withNewPath(QDir::fromNativeSeparators(dirName)));
+    }
+
+    for (const FilePath &dir : Utils::filteredUnique(programDirs)) {
+        // Windows SDK's starting from version 8 live in
+        // "ProgramDir\Windows Kits\<version>"
+        const FileFilter dirs({}, DirFilterFlag::Dirs | DirFilterFlag::NoDotAndDotDot);
+        kitFolders.append((dir / "Windows Kits").dirEntries(dirs, DirSortFlag::Time));
+
+        // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
+        const FilePaths toolDirs = dir.dirEntries({{"Debugging Tools for Windows*"},
+                                                   DirFilterFlag::Dirs
+                                                       | DirFilterFlag::NoDotAndDotDot});
+        for (const FilePath &toolDir : toolDirs) {
+            const FilePath filePath = toolDir.pathAppended("cdb.exe");
+            if (!cdbs.contains(filePath))
+                cdbs.append(filePath);
+        }
+    }
+
+    if (isLocal) {
+        constexpr char RootVal[]   = "KitsRoot";
+        constexpr char RootVal81[] = "KitsRoot81";
+        constexpr char RootVal10[] = "KitsRoot10";
+        const QSettings installedRoots(
+                    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots",
+                    QSettings::NativeFormat);
+        for (auto rootVal : {RootVal, RootVal81, RootVal10}) {
+            const FilePath root = FilePath::fromUserInput(
+                installedRoots.value(QLatin1String(rootVal)).toString());
+            if (!root.isEmpty() && root.exists() && !kitFolders.contains(root))
+                kitFolders.append(root);
+        }
+    }
+
+    const bool isArm64 = isLocal ? HostOsInfo::hostArchitecture() == Utils::OsArchArm64
+                                 : search.environment.value("PROCESSOR_ARCHITECTURE") == "ARM64";
+    QStringList abis = {"x86", "x64"};
+    if (isArm64)
+        abis << "arm64";
+    for (const FilePath &kitFolder : std::as_const(kitFolders)) {
+        for (const QString &abi : std::as_const(abis)) {
+            const FilePath cdbBinary = kitFolder / "Debuggers" / abi / "cdb.exe";
+            if (cdbBinary.isExecutableFile() && !cdbs.contains(cdbBinary))
+                cdbs.append(cdbBinary);
+        }
+    }
+
+    QList<std::pair<DebuggerCandidate, Abis>> candidates;
+    for (const FilePath &cdb : std::as_const(cdbs)) {
+        if (isCanceled())
+            return {};
+        candidates.append({makeCandidate(search, cdb), Abi::abisOfBinary(cdb)});
+    }
+    return candidates;
+}
+
+static QList<DebuggerCandidate> findGdbOrLldbs(const DebuggerSearch &search,
+                                               const std::function<bool()> &isCanceled)
+{
+    const FilePaths &searchPaths = search.searchPaths;
     if (searchPaths.isEmpty())
-        return;
+        return {};
 
     FilePaths suspects;
 
@@ -402,19 +413,116 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
     paths = Utils::filteredUnique(paths);
 
     for (const FilePath &path : std::as_const(paths))
-        suspects.append(path.dirEntries(Utils::FileFilter{filters, Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
+        suspects.append(path.dirEntries(
+            Utils::FileFilter{search.filters,
+                              Utils::DirFilterFlag::Files | Utils::DirFilterFlag::Executable}));
 
     suspects = suspects.uniqueExecutables();
 
+    QList<DebuggerCandidate> candidates;
+    for (const FilePath &command : std::as_const(suspects)) {
+        if (isCanceled())
+            return {};
+        candidates.append(makeCandidate(search, command));
+    }
+    return candidates;
+}
+
+// Runs off the GUI thread: it starts every debugger it finds and may access a remote device.
+static DebuggerScan scanForDebuggers(const DebuggerSearch &search,
+                                     const std::function<bool()> &isCanceled)
+{
+    DebuggerScan scan;
+    scan.gdbOrLldbs = findGdbOrLldbs(search, isCanceled);
+    if (search.searchCdb && !isCanceled())
+        scan.cdbs = findCdbs(search, isCanceled);
+    return scan;
+}
+
+void DebuggerModel::addCdbDebuggers(const QList<std::pair<DebuggerCandidate, Abis>> &cdbs,
+                                    const DetectionSource &detectionSource,
+                                    const ToolDetectionLogger &logger)
+{
+    if (logger)
+        logger.logTopLevel(Tr::tr("Searching for CDB..."));
+
+    const int oldCount = itemCount();
+    for (const auto &[candidate, abis] : cdbs) {
+        const FilePath &cdb = candidate.command;
+        const FilePath &match = candidate.knownCommand.isEmpty() ? cdb : candidate.knownCommand;
+        const int existingRow = findRowByCommand(match);
+        if (existingRow >= 0) {
+            DebuggerItem existingItem = item(existingRow);
+            if (candidate.technicalData && candidate.lastModified != existingItem.lastModified()) {
+                const Result<DebuggerItem::TechnicalData> &technicalData
+                    = *candidate.technicalData;
+                if (!technicalData) {
+                    if (logger)
+                        logger.logItem(technicalData.error());
+                    continue;
+                }
+                existingItem.setEngineType(technicalData->engineType);
+                existingItem.setAbis(technicalData->abis);
+                existingItem.setVersion(technicalData->version);
+                existingItem.setLastModified(candidate.lastModified);
+                if (isItemDirty(existingRow)) {
+                    setVolatileItem(existingRow, existingItem);
+                    notifyRowChanged(existingRow);
+                } else {
+                    resetItem(existingRow, existingItem);
+                }
+            }
+            continue;
+        }
+
+        // Known when the scan ran, and removed since.
+        if (!candidate.technicalData)
+            continue;
+        const Result<DebuggerItem::TechnicalData> &technicalData = *candidate.technicalData;
+        DebuggerItem newItem;
+        if (technicalData) {
+            newItem = makeAutoDetectedDebuggerItem(cdb, *technicalData, candidate.lastModified,
+                                                   detectionSource);
+        } else {
+            if (logger)
+                logger.logItem(technicalData.error());
+            newItem = makeAutoDetectedDebuggerItem(
+                cdb, {.engineType = CdbEngineType, .abis = abis, .version = {}}, {},
+                detectionSource);
+        }
+        appendItem(newItem);
+        if (logger)
+            logger.logItem(Tr::tr("Found: \"%1\".").arg(cdb.toUserOutput()));
+    }
+    if (logger && itemCount() == oldCount)
+        logger.logItem(Tr::tr("No new CDB found."));
+}
+
+void DebuggerModel::addGdbOrLldbDebuggers(
+    const QList<DebuggerCandidate> &candidates, const DetectionSource &detectionSource,
+    const ToolDetectionLogger &logger)
+{
     if (logger)
         logger.logTopLevel(Tr::tr("Searching for GDB and LLDB..."));
     const int oldCount = itemCount();
-    for (const FilePath &command : std::as_const(suspects)) {
-        const int existingRow = findRowByCommand(command);
+    for (const DebuggerCandidate &candidate : candidates) {
+        const FilePath &command = candidate.command;
+        const FilePath &match = candidate.knownCommand.isEmpty() ? candidate.command
+                                                                 : candidate.knownCommand;
+        const int existingRow = findRowByCommand(match);
         if (existingRow >= 0) {
             DebuggerItem existingItem = item(existingRow);
-            if (command.lastModified() != existingItem.lastModified()) {
-                existingItem.reinitializeFromFile();
+            if (candidate.technicalData && candidate.lastModified != existingItem.lastModified()) {
+                const Result<DebuggerItem::TechnicalData> &technicalData
+                    = *candidate.technicalData;
+                if (technicalData) {
+                    existingItem.setEngineType(technicalData->engineType);
+                    existingItem.setAbis(technicalData->abis);
+                    existingItem.setVersion(technicalData->version);
+                    existingItem.setLastModified(candidate.lastModified);
+                } else {
+                    existingItem.setEngineType(NoEngineType);
+                }
                 // Like a new item, the update takes effect and is saved without waiting for
                 // the settings page to be applied, unless the row has changes of its own.
                 if (isDirty(existingRow)) {
@@ -424,7 +532,6 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
                     resetItem(existingRow, existingItem);
                 }
             }
-
             if (nativeDapDebuggersEnabled()) {
                 if (existingItem.engineType() != GdbEngineType)
                     continue;
@@ -436,8 +543,9 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
                     continue;
                 // This is the "update" path: there's already a capable GDB in the settings,
                 // we only need to add a corresponding DAP entry if it's missing.
-                const bool hasDap = Utils::anyOf(volatileItems(), [&command](const DebuggerItem &item) {
-                    return item.command().isSameExecutable(command)
+                const bool hasDap = Utils::anyOf(volatileItems(),
+                                                 [&match, &command](const DebuggerItem &item) {
+                    return (item.command() == match || item.command() == command)
                            && item.engineType() == GdbDapEngineType;
                 });
                 if (hasDap)
@@ -450,6 +558,7 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
                         .abis = existingItem.abis(),
                         .version = existingItem.version(),
                     },
+                    candidate.lastModified,
                     detectionSource);
                 appendItem(dapItem);
                 if (logger) {
@@ -461,34 +570,39 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
             continue;
         }
 
-        const Result<DebuggerItem> item
-            = makeAutoDetectedDebuggerItem(command, detectionSource);
-        if (!item) {
+        // Known when the scan ran, and removed since.
+        if (!candidate.technicalData)
+            continue;
+        const Result<DebuggerItem::TechnicalData> &technicalData = *candidate.technicalData;
+        if (!technicalData) {
             if (logger)
-                logger.logItem(item.error());
+                logger.logItem(technicalData.error());
             continue;
         }
 
-        appendItem(*item);
+        const DebuggerItem newItem = makeAutoDetectedDebuggerItem(
+            command, *technicalData, candidate.lastModified, detectionSource);
+        appendItem(newItem);
         if (logger)
             logger.logItem(Tr::tr("Found: \"%1\".").arg(command.toUserOutput()));
         if (nativeDapDebuggersEnabled()) {
-            if (item->engineType() != GdbEngineType)
+            if (newItem.engineType() != GdbEngineType)
                 continue;
 
             // GDB starting version 14.1.0 supports DAP interface, but unlike LLDB,
             // it uses the same binary, hence this hack
             const QVersionNumber dapSupportMinVersion{14, 1, 0};
-            if (QVersionNumber::fromString(item->version()) < dapSupportMinVersion)
+            if (QVersionNumber::fromString(newItem.version()) < dapSupportMinVersion)
                 continue;
 
             const DebuggerItem dapItem = makeAutoDetectedDebuggerItem(
                 command,
                 {
                     .engineType = GdbDapEngineType,
-                    .abis = item->abis(),
-                    .version = item->version(),
+                    .abis = newItem.abis(),
+                    .version = newItem.version(),
                 },
+                candidate.lastModified,
                 detectionSource);
             appendItem(dapItem);
             if (logger) {
@@ -642,17 +756,63 @@ void DebuggerModel::restoreDebuggers()
         detectDebuggers(desktopDevice, desktopDevice->systemEnvironment().path());
 }
 
+DebuggerSearch DebuggerModel::prepareSearch(const IDeviceConstPtr &device,
+                                            const FilePaths &searchPaths) const
+{
+    DebuggerSearch search;
+    search.searchPaths = searchPaths;
+    search.filters = debuggerSearchFilters();
+    for (const DebuggerItem &item : volatileItems())
+        search.known.append({item.command(), item.lastModified()});
+    search.isDesktop = device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+    search.detectionSource = DetectionSource::forDevice(device);
+    search.searchCdb = device->osType() == OsTypeWindows;
+    if (search.searchCdb) {
+        search.rootPath = device->rootPath();
+        search.environment = device->systemEnvironment();
+    }
+    return search;
+}
+
+void DebuggerModel::addDetectedDebuggers(const DebuggerSearch &search, const DebuggerScan &scan,
+                                         const ToolDetectionLogger &logger)
+{
+    addGdbOrLldbDebuggers(scan.gdbOrLldbs, search.detectionSource, logger);
+    if (search.searchCdb)
+        addCdbDebuggers(scan.cdbs, search.detectionSource, logger);
+    if (search.isDesktop)
+        autoDetectUvscDebuggers(logger);
+}
+
 void DebuggerModel::detectDebuggers(
     const IDeviceConstPtr &device, const FilePaths &searchPaths,
     const ToolDetectionLogger &logger)
 {
     QTC_ASSERT(device, return);
-    const bool isDesktopDevice = device->id() == ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
-    const DetectionSource detectionSource = DetectionSource::forDevice(device);
-    autoDetectGdbOrLldbDebuggers(searchPaths, detectionSource, logger);
-    autoDetectCdbDebuggers(device, detectionSource, logger);
-    if (isDesktopDevice)
-        autoDetectUvscDebuggers(logger);
+    const DebuggerSearch search = prepareSearch(device, searchPaths);
+    addDetectedDebuggers(search, scanForDebuggers(search, [] { return false; }), logger);
+}
+
+void DebuggerModel::detectDebuggersAsync(
+    const IDeviceConstPtr &device, const FilePaths &searchPaths,
+    const ToolDetectionLogger &logger, const std::function<void()> &done)
+{
+    QTC_ASSERT(device, done(); return);
+    const DebuggerSearch search = prepareSearch(device, searchPaths);
+    const QFuture<DebuggerScan> future = Utils::asyncRun(
+        [search](QPromise<DebuggerScan> &promise) {
+            const DebuggerScan scan
+                = scanForDebuggers(search, [&promise] { return promise.isCanceled(); });
+            if (!promise.isCanceled())
+                promise.addResult(scan);
+        });
+    Utils::futureSynchronizer()->addFuture(future);
+    Utils::onFinished(future, this, [this, deviceId = device->id(), search, logger,
+                                     done](const QFuture<DebuggerScan> &f) {
+        if (f.resultCount() > 0 && DeviceManager::find(deviceId))
+            addDetectedDebuggers(search, f.result(), logger);
+        done();
+    });
 }
 
 void DebuggerModel::saveDebuggers()

@@ -24,6 +24,7 @@
 #include "debuggericons.h"
 #include "debuggerinternalconstants.h"
 #include "debuggeritem.h"
+#include "debuggeritemmanager.h"
 #include "debuggerkitaspect.h"
 #include "debuggertr.h"
 #include "debuggerrunconfigurationaspect.h"
@@ -154,6 +155,10 @@ private slots:
 
     void testDebuggerMatching_data();
     void testDebuggerMatching();
+    void testDeviceDetectionDoesNotBlock();
+    void testDeviceDetectionFailedExtraction();
+    void testDeviceDetectionKnownItemRemoved();
+    void testDeviceDetectionDapForLinkedGdb();
 
     void testBenchmark();
     void testStateMachine();
@@ -1065,6 +1070,181 @@ void DebuggerUnitTests::testDebuggerMatching()
         level = DebuggerItem::MatchesWell;
 
     QCOMPARE(expectedLevel, level);
+}
+
+static bool writeFakeGdb(const FilePath &gdb, const QByteArray &output,
+                         const QDateTime &lastModified = {})
+{
+    if (!gdb.writeFileContents("#!/bin/sh\necho '" + output + "'\n"))
+        return false;
+    if (!gdb.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner))
+        return false;
+    if (!lastModified.isValid())
+        return true;
+    QFile gdbFile(gdb.path());
+    return gdbFile.open(QIODevice::ReadWrite)
+           && gdbFile.setFileTime(lastModified, QFileDevice::FileModificationTime);
+}
+
+// The flag is set by the last line the GDB and LLDB detection logs.
+static ToolDetectionLogger finishedLogger(const std::shared_ptr<bool> &finished)
+{
+    return ToolDetectionLogger([finished](const QString &message) {
+        if (message.contains("No new GDB or LLDB found."))
+            *finished = true;
+    });
+}
+
+void DebuggerUnitTests::testDeviceDetectionDoesNotBlock()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The fake debugger is a shell script.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath gdb = FilePath::fromString(dir.path()) / "gdb";
+    QVERIFY(writeFakeGdb(gdb, "GNU gdb (GDB) 15.1"));
+
+    const QScopeGuard cleanup([gdb] {
+        while (const DebuggerItem item = DebuggerItemManager::findByCommand(gdb))
+            DebuggerItemManager::deregisterDebugger(item.id());
+    });
+
+    const IDevice::Ptr device = DeviceManager::find(ProjectExplorer::Constants::DESKTOP_DEVICE_ID);
+    QVERIFY(device);
+    device->requestToolDetection({gdb.parentDir()}, {});
+    QVERIFY(!DebuggerItemManager::findByCommand(gdb));
+
+    QTRY_VERIFY(DebuggerItemManager::findByCommand(gdb));
+    QCOMPARE(DebuggerItemManager::findByCommand(gdb).version(), "15.1.0");
+
+    const QDateTime newer = QDateTime::currentDateTime().addSecs(60);
+    QVERIFY(writeFakeGdb(gdb, "GNU gdb (GDB) 16.2", newer));
+    device->requestToolDetection({gdb.parentDir()}, {});
+    QTRY_COMPARE(DebuggerItemManager::findByCommand(gdb).version(), "16.2.0");
+
+    // A binary with an unchanged modification time is not looked at again, so
+    // the registered version stays. The last log line arrives after the item
+    // would have been replaced.
+    QVERIFY(writeFakeGdb(gdb, "GNU gdb (GDB) 17.0", newer));
+    const auto finished = std::make_shared<bool>(false);
+    device->requestToolDetection({gdb.parentDir()}, finishedLogger(finished));
+    QTRY_VERIFY(*finished);
+    QCOMPARE(DebuggerItemManager::findByCommand(gdb).version(), "16.2.0");
+}
+
+void DebuggerUnitTests::testDeviceDetectionFailedExtraction()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The fake debugger is a shell script.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath gdb = FilePath::fromString(dir.path()) / "gdb";
+    QVERIFY(writeFakeGdb(gdb, "GNU gdb (GDB) 12.1"));
+
+    const QScopeGuard cleanup([gdb] {
+        while (const DebuggerItem item = DebuggerItemManager::findByCommand(gdb))
+            DebuggerItemManager::deregisterDebugger(item.id());
+    });
+
+    const IDevice::Ptr device = DeviceManager::find(ProjectExplorer::Constants::DESKTOP_DEVICE_ID);
+    QVERIFY(device);
+    device->requestToolDetection({gdb.parentDir()}, {});
+    QTRY_VERIFY(DebuggerItemManager::findByCommand(gdb));
+    QCOMPARE(DebuggerItemManager::findByCommand(gdb).engineType(), GdbEngineType);
+
+    // A known binary that changed and no longer identifies itself stays, without an engine.
+    QVERIFY(writeFakeGdb(gdb, "not a debugger", QDateTime::currentDateTime().addSecs(60)));
+    const auto finished = std::make_shared<bool>(false);
+    device->requestToolDetection({gdb.parentDir()}, finishedLogger(finished));
+    QTRY_VERIFY(*finished);
+    const DebuggerItem item = DebuggerItemManager::findByCommand(gdb);
+    QVERIFY(item);
+    QCOMPARE(item.engineType(), NoEngineType);
+}
+
+void DebuggerUnitTests::testDeviceDetectionKnownItemRemoved()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The fake debugger is a shell script.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath gdb = FilePath::fromString(dir.path()) / "gdb";
+    QVERIFY(writeFakeGdb(gdb, "GNU gdb (GDB) 12.1"));
+
+    const QScopeGuard cleanup([gdb] {
+        while (const DebuggerItem item = DebuggerItemManager::findByCommand(gdb))
+            DebuggerItemManager::deregisterDebugger(item.id());
+    });
+
+    const IDevice::Ptr device = DeviceManager::find(ProjectExplorer::Constants::DESKTOP_DEVICE_ID);
+    QVERIFY(device);
+    device->requestToolDetection({gdb.parentDir()}, {});
+    QTRY_VERIFY(DebuggerItemManager::findByCommand(gdb));
+
+    // The scan takes the item as known and up to date, so it has nothing to add
+    // once the item is gone.
+    const auto finished = std::make_shared<bool>(false);
+    device->requestToolDetection({gdb.parentDir()}, finishedLogger(finished));
+    DebuggerItemManager::deregisterDebugger(DebuggerItemManager::findByCommand(gdb).id());
+    QTRY_VERIFY(*finished);
+    QVERIFY(!DebuggerItemManager::findByCommand(gdb));
+}
+
+void DebuggerUnitTests::testDeviceDetectionDapForLinkedGdb()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The fake debugger is a shell script.");
+    if (!nativeDapDebuggersEnabled())
+        QSKIP("Needs QTC_ENABLE_NATIVE_DAP_DEBUGGERS=1.");
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath root = FilePath::fromString(dir.path());
+    const FilePath gdb = root / "real/gdb";
+    const FilePath link = root / "link/gdb";
+    QVERIFY(gdb.parentDir().ensureWritableDir());
+    QVERIFY(link.parentDir().ensureWritableDir());
+    QVERIFY(writeFakeGdb(gdb, "GNU gdb (GDB) 15.1"));
+    QVERIFY(QFile::link(gdb.path(), link.path()));
+
+    const QScopeGuard cleanup([gdb, link] {
+        for (const FilePath &command : {gdb, link}) {
+            while (const DebuggerItem item = DebuggerItemManager::findByCommand(command))
+                DebuggerItemManager::deregisterDebugger(item.id());
+        }
+    });
+
+    DebuggerItem linked;
+    linked.createId();
+    linked.setCommand(link);
+    linked.setEngineType(GdbEngineType);
+    linked.setVersion("15.1.0");
+    linked.setLastModified(gdb.lastModified());
+    linked.setUnexpandedDisplayName("Linked GDB");
+    DebuggerItemManager::registerDebugger(linked);
+
+    const auto dapCount = [gdb, link] {
+        return Utils::count(DebuggerItemManager::debuggers(),
+                            [gdb, link](const DebuggerItem &item) {
+            return item.engineType() == GdbDapEngineType
+                   && (item.command() == gdb || item.command() == link);
+        });
+    };
+
+    const IDevice::Ptr device = DeviceManager::find(ProjectExplorer::Constants::DESKTOP_DEVICE_ID);
+    QVERIFY(device);
+    device->requestToolDetection({gdb.parentDir()}, {});
+    QTRY_COMPARE(dapCount(), 1);
+
+    // The scan matches the found gdb to the item under the link again, and
+    // must recognize the DAP item it added for it.
+    const auto finished = std::make_shared<bool>(false);
+    device->requestToolDetection({gdb.parentDir()}, finishedLogger(finished));
+    QTRY_VERIFY(*finished);
+    QCOMPARE(dapCount(), 1);
 }
 
 void DebuggerUnitTests::testRegisterValue_data()

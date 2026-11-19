@@ -124,6 +124,10 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
         setupQnxDebugging();
         setupQnxQmlProfiler();
         setupQnxSdpEnvFileToolAspect();
+
+#ifdef WITH_TESTS
+        addTestCreator(createQnxDebuggerDetectionTest);
+#endif
     }
 
     void extensionsInitialized() final
