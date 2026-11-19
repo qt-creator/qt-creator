@@ -108,6 +108,10 @@ public:
     DiffEditorDocument *diffDocument() const;
 
     void setDiff(const QList<FileData> &diffFileList);
+    void setHighlightChangedCharacters(bool on)
+    {
+        m_controller.m_highlightChangedCharacters = on;
+    }
     void setCurrentDiffFileIndex(int diffFileIndex);
 
     SideDiffData diffData(DiffSide side) const;

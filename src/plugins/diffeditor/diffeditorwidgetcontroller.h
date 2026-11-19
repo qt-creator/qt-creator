@@ -70,6 +70,7 @@ public:
     QTextCharFormat m_spanLineFormat;
     std::array<QTextCharFormat, SideCount> m_lineFormat{};
     std::array<QTextCharFormat, SideCount> m_charFormat{};
+    bool m_highlightChangedCharacters = true;
 
 private:
     bool isInProgress() const;

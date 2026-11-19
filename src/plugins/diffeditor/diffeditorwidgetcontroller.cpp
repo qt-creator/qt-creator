@@ -397,7 +397,11 @@ DiffEditorInput::DiffEditorInput(DiffEditorWidgetController *controller)
     , m_chunkLineFormat(&controller->m_chunkLineFormat)
     , m_spanLineFormat(&controller->m_spanLineFormat)
     , m_lineFormat{&controller->m_lineFormat[LeftSide], &controller->m_lineFormat[RightSide]}
-    , m_charFormat{&controller->m_charFormat[LeftSide], &controller->m_charFormat[RightSide]}
-{ }
+{
+    // Without the highlighting, changed characters look like the rest of their line.
+    auto &charFormats = controller->m_highlightChangedCharacters ? controller->m_charFormat
+                                                                 : controller->m_lineFormat;
+    m_charFormat = {&charFormats[LeftSide], &charFormats[RightSide]};
+}
 
 } // namespace DiffEditor::Internal

@@ -78,6 +78,9 @@
 
     To only show text changes, select \uicontrol {Ignore Whitespace}.
 
+    To color changed lines evenly, without the other shade for the changed
+    text within them, clear \uicontrol {Character Changes}.
+
     To expand the context for the changes, set the number of unchanged lines to
     show in \uicontrol {Context lines}.
 

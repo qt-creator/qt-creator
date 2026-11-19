@@ -21,6 +21,7 @@
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <extensionsystem/iplugin.h>
@@ -665,6 +666,8 @@ private slots:
     void testInlineDiffGhostSigns();
     void testSideBySideChangeSigns();
     void testChangeSignsToggle();
+    void testHighlightChangedCharacters();
+    void testDuplicateKeepsHighlightChangedCharacters();
     void testOpenPatch_data();
     void testOpenPatch();
     void testFilterPatch_data();
@@ -1189,6 +1192,58 @@ void DiffEditor::Internal::DiffEditorPlugin::testChangeSignsToggle()
     QCOMPARE(TextEditor::displaySettings().markDiffChangeSigns(), previous);
     TextEditor::displaySettings().markDiffChangeSigns.setValue(!previous);
     QCOMPARE(action->isChecked(), !previous);
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testHighlightChangedCharacters()
+{
+    RowData row{TextLineData("old line"), TextLineData("new line")};
+    row.line[LeftSide].changedPositions.insert(0, 3);
+    row.line[RightSide].changedPositions.insert(0, 3);
+    ChunkData chunk;
+    chunk.rows = {row};
+
+    DiffEditorWidgetController controller(nullptr);
+    const auto usesCharFormat = [&controller, &chunk] {
+        const DiffEditorInput input(&controller);
+        UnifiedDiffData data;
+        DiffSelections selections;
+        int blockNumber = 0;
+        data.setChunk(input, chunk, false, &blockNumber, &selections);
+        for (const QList<DiffSelection> &line : std::as_const(selections)) {
+            for (const DiffSelection &selection : line) {
+                if (selection.format == &controller.m_charFormat[LeftSide]
+                    || selection.format == &controller.m_charFormat[RightSide]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    QVERIFY(usesCharFormat());
+    controller.m_highlightChangedCharacters = false;
+    QVERIFY(!usesCharFormat());
+}
+
+void DiffEditor::Internal::DiffEditorPlugin::testDuplicateKeepsHighlightChangedCharacters()
+{
+    IEditor *editor = EditorManager::openEditorWithContents(
+        Constants::DIFF_EDITOR_ID, nullptr, QByteArray("--- a/a.txt\n+++ b/a.txt\n"
+                                                     "@@ -1 +1 @@\n-old\n+new\n"));
+    QVERIFY(editor);
+    const QScopeGuard close([editor] { EditorManager::closeEditors({editor}, false); });
+    const char name[] = "DiffEditorCharacterChangesAction";
+    QAction *action = editor->toolBar()->findChild<QAction *>(name);
+    QVERIFY(action);
+    const bool previous = action->isChecked();
+    const QScopeGuard restore([action, previous] { action->setChecked(previous); });
+    action->setChecked(false);
+    ICore::settings()->setValue("DiffEditor/HighlightChangedCharacters", true);
+    IEditor *copy = editor->duplicate();
+    QVERIFY(copy);
+    const QScopeGuard closeCopy([copy] { EditorManager::closeEditors({copy}, false); });
+    QAction *copyAction = copy->toolBar()->findChild<QAction *>(name);
+    QVERIFY(copyAction);
+    QVERIFY(!copyAction->isChecked());
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testMakePatch_data()

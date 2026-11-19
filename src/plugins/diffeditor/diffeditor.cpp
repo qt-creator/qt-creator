@@ -54,6 +54,7 @@ static const char descriptionHeightKeyC[] = "DescriptionHeight";
 static const char horizontalScrollBarSynchronizationKeyC[] = "HorizontalScrollBarSynchronization";
 static const char contextLineCountKeyC[] = "ContextLineNumbers";
 static const char ignoreWhitespaceKeyC[] = "IgnoreWhitespace";
+static const char highlightChangedCharactersKeyC[] = "HighlightChangedCharacters";
 
 static const char diffViewKeyC[] = "DiffEditorType";
 
@@ -86,6 +87,7 @@ public:
     virtual void endOperation() = 0;
 
     virtual void setSync(bool) = 0;
+    virtual void setHighlightChangedCharacters(bool on) = 0;
 
 signals:
     void currentDiffFileIndexChanged(int index);
@@ -191,6 +193,12 @@ public:
             QTC_ASSERT(m_widget, return);
             m_widget->setHorizontalSync(sync);
         }
+    }
+
+    void setHighlightChangedCharacters(bool on) final
+    {
+        QTC_ASSERT(m_widget, return);
+        m_widget->setHighlightChangedCharacters(on);
     }
 
 private:
@@ -312,6 +320,7 @@ private:
     void foldAllHasChanged();
     void contextLineCountHasChanged(int lines);
     void ignoreWhitespaceHasChanged();
+    void highlightChangedCharactersHasChanged();
     void diffAlgorithmHasChanged();
     void prepareForReload();
     void reloadHasFinished(bool success);
@@ -349,6 +358,7 @@ private:
     QAction *m_toggleSyncAction = nullptr;
     QAction *m_whitespaceButtonAction = nullptr;
     QAction *m_signsButtonAction = nullptr;
+    QAction *m_characterChangesAction = nullptr;
     QComboBox *m_diffAlgorithmComboBox = nullptr;
     QAction *m_diffAlgorithmAction = nullptr;
     QAction *m_foldAllAction = nullptr;
@@ -451,6 +461,12 @@ DiffEditor::DiffEditor()
     m_signsButtonAction->setToolTip(Tr::tr("Mark added, removed, and whitespace-only lines with "
                                            "plus, minus, and dot signs, so changes can be told apart "
                                            "without relying on color."));
+    m_characterChangesAction = addAction({}, Tr::tr("Character Changes"), {}, {});
+    m_characterChangesAction->setObjectName("DiffEditorCharacterChangesAction"); // autotest
+    m_characterChangesAction->setCheckable(true);
+    m_characterChangesAction->setChecked(true);
+    m_characterChangesAction->setToolTip(
+        Tr::tr("Highlight the changed characters within changed lines."));
     m_diffAlgorithmComboBox = new QComboBox(m_toolBar);
     m_diffAlgorithmComboBox->setObjectName("DiffEditorAlgorithmComboBox"); // autotest
     populateDiffAlgorithms(m_diffAlgorithmComboBox);
@@ -478,6 +494,8 @@ DiffEditor::DiffEditor()
             this, &DiffEditor::foldAllHasChanged);
     connect(m_whitespaceButtonAction, &QAction::toggled,
             this, &DiffEditor::ignoreWhitespaceHasChanged);
+    connect(m_characterChangesAction, &QAction::toggled,
+            this, &DiffEditor::highlightChangedCharactersHasChanged);
     connect(m_signsButtonAction, &QAction::triggered, this, [](bool on) {
         TextEditor::displaySettings().markDiffChangeSigns.setValue(on);
         TextEditor::displaySettings().writeSettings();
@@ -553,6 +571,10 @@ IEditor *DiffEditor::duplicate()
     editor->setDocument(m_document);
     editor->m_sync = m_sync;
     editor->m_showDescription = m_showDescription;
+    const bool highlight = m_characterChangesAction->isChecked();
+    editor->m_characterChangesAction->setChecked(highlight);
+    for (IDiffView *v : std::as_const(editor->m_views))
+        v->setHighlightChangedCharacters(highlight);
 
     Id id = currentView()->id();
     IDiffView *view = Utils::findOr(editor->m_views, editor->m_views.at(0),
@@ -769,6 +791,20 @@ void DiffEditor::ignoreWhitespaceHasChanged()
     m_document->reload();
 }
 
+void DiffEditor::highlightChangedCharactersHasChanged()
+{
+    if (m_ignoreChanges.isLocked())
+        return;
+    const bool on = m_characterChangesAction->isChecked();
+    saveSetting(highlightChangedCharactersKeyC, on);
+    for (IDiffView *view : std::as_const(m_views))
+        view->setHighlightChangedCharacters(on);
+    if (m_document->state() != DiffEditorDocument::LoadOK)
+        return;
+    prepareForReload();
+    documentHasChanged();
+}
+
 void DiffEditor::diffAlgorithmHasChanged()
 {
     const auto algorithm = static_cast<Utils::Differ::DiffAlgorithm>(
@@ -885,12 +921,17 @@ IDiffView *DiffEditor::loadSettings()
     m_sync = s->value(horizontalScrollBarSynchronizationKeyC, true).toBool();
     m_document->setIgnoreWhitespace(s->value(ignoreWhitespaceKeyC, false).toBool());
     m_document->setContextLineCount(s->value(contextLineCountKeyC, 3).toInt());
+    const bool highlightChangedCharacters
+        = s->value(highlightChangedCharactersKeyC, true).toBool();
     Id id = Id::fromSetting(s->value(diffViewKeyC));
     s->endGroup();
     const Utils::Differ::DiffAlgorithm algorithm = readDiffAlgorithm();
     m_document->setDiffAlgorithm(algorithm);
     const QSignalBlocker blocker(m_diffAlgorithmComboBox);
     m_diffAlgorithmComboBox->setCurrentIndex(m_diffAlgorithmComboBox->findData(algorithm));
+    m_characterChangesAction->setChecked(highlightChangedCharacters);
+    for (IDiffView *v : std::as_const(m_views))
+        v->setHighlightChangedCharacters(highlightChangedCharacters);
 
     IDiffView *view = Utils::findOr(m_views, m_views.at(0),
                                     Utils::equal(&IDiffView::id, id));
