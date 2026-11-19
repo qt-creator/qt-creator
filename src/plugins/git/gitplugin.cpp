@@ -3997,7 +3997,7 @@ void GitTest::testDiffEditorBlameAnnotation()
     QTRY_VERIFY(([&] {
         for (TextMark *mark : workingTreeWidget->textDocument()->marks()) {
             if (mark->category().id == Id(Constants::TEXT_MARK_CATEGORY_BLAME)
-                && mark->lineAnnotation().contains("Not Committed Yet")) {
+                && mark->lineAnnotation() == "Modified locally") {
                 return true;
             }
         }
