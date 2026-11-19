@@ -1647,8 +1647,8 @@ class DumperBase():
             self.putDerefedPointer(value)
             return
 
-        displayFormat = self.currentItemFormat(typename)
         innerType = value.type.target()
+        displayFormat = self.currentItemFormat(typename, innerType.name)
 
         if innerType.name == 'void':
             #self.warn('VOID POINTER: %s' % displayFormat)
@@ -2529,16 +2529,19 @@ typename))
                             if pp > 1000:
                                 break
 
-    def currentItemFormat(self, typename=None):
+    def currentItemFormat(self, typename=None, pointeeTypename=None):
         displayFormat = self.formats.get(self.currentIName, DisplayFormat.Automatic)
         if typename is None:
             typename = self.currentType.value
         needle = None if typename is None else self.stripForFormat(typename)
         if displayFormat != DisplayFormat.Automatic:
             # Ignore a stored per-item format that was chosen for a different
-            # type than the item currently has (QTCREATORBUG-17221).
+            # type than the item currently has (QTCREATORBUG-17221). A pointer
+            # that was shown dereferenced had the format chosen for its pointee.
             setForType = self.formattypes.get(self.currentIName)
-            if setForType is not None and setForType != needle:
+            if setForType is not None and setForType != needle \
+                    and (pointeeTypename is None
+                         or setForType != self.stripForFormat(pointeeTypename)):
                 displayFormat = DisplayFormat.Automatic
         if displayFormat == DisplayFormat.Automatic and needle is not None:
             displayFormat = self.typeformats.get(needle, DisplayFormat.Automatic)

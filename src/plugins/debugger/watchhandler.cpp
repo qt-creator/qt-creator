@@ -756,12 +756,30 @@ static QString quoteUnprintable(const QString &str)
     return escapeUnprintable(str, theUnprintableBase);
 }
 
+// A pointer that was shown dereferenced had the format chosen for its pointee,
+// with or without the qualifiers, depending on the dumper.
+static bool isFormatTypeOfPointee(const QString &formatType, const WatchItem *item)
+{
+    if (!item->origaddr)
+        return false;
+    QString pointee = item->type.trimmed();
+    if (!pointee.endsWith('*'))
+        return false;
+    pointee.chop(1);
+    if (formatType == stripForFormat(pointee))
+        return true;
+    static const QRegularExpression qualifiers("\\b(const|volatile)\\b");
+    return formatType == stripForFormat(pointee.remove(qualifiers));
+}
+
 // The stored per-item format, honored only while the item still has the type
 // the format was chosen for. See QTCREATORBUG-17221.
 static int itemIndividualFormat(const WatchItem *item)
 {
     const auto it = theIndividualFormatTypes.constFind(item->iname);
-    if (it == theIndividualFormatTypes.constEnd() || it.value() != stripForFormat(item->type))
+    if (it == theIndividualFormatTypes.constEnd())
+        return AutomaticFormat;
+    if (it.value() != stripForFormat(item->type) && !isFormatTypeOfPointee(it.value(), item))
         return AutomaticFormat;
     return theIndividualFormats.value(item->iname, AutomaticFormat);
 }

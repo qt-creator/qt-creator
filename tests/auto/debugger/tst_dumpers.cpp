@@ -6673,6 +6673,21 @@ void tst_Dumpers::dumper_data()
                 + Check("nums.1", "[1]", "2", "int");
 
 
+    QTest::newRow("RawFormatOnPointer")
+            << Data("",
+
+                    "int i = 42;\n"
+                    "const int *p = &i;",
+
+                    "&i, &p")
+
+                + NoLldbEngine // FIXME: DumperOptions not handled yet.
+                // RawFormat, chosen while the pointer was shown dereferenced.
+                + DumperOptions("'formats':{'local.p':1},'formattypes':{'local.p':'int'}")
+
+                + Check("p", ValuePattern("0x[0-9a-f]+"), "const int *");
+
+
     QTest::newRow("ArrayQt")
             << Data("#include <QByteArray>\n"
                     "#include <QString>\n" + fooData,
