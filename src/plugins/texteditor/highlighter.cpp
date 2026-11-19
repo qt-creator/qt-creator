@@ -255,7 +255,7 @@ void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting:
     if (!isMarkdown && format.hasTextColor(defaultTheme)) {
         const QColor textColor = format.textColor(defaultTheme);
         if (format.hasBackgroundColor(defaultTheme)) {
-            const QColor backgroundColor = format.hasBackgroundColor(defaultTheme);
+            const QColor backgroundColor = format.backgroundColor(defaultTheme);
             if (StyleHelper::isReadableOn(backgroundColor, textColor)) {
                 qformat.setForeground(textColor);
                 qformat.setBackground(backgroundColor);
@@ -266,7 +266,7 @@ void Highlighter::applyFormat(int offset, int length, const KSyntaxHighlighting:
             qformat.setForeground(textColor);
         }
     } else if (!isMarkdown && format.hasBackgroundColor(defaultTheme)) {
-        const QColor backgroundColor = format.hasBackgroundColor(defaultTheme);
+        const QColor backgroundColor = format.backgroundColor(defaultTheme);
         if (StyleHelper::isReadableOn(backgroundColor, qformat.foreground().color()))
             qformat.setBackground(backgroundColor);
     }
