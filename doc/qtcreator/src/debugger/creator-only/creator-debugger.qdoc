@@ -650,6 +650,12 @@
             for storing debug information. You cannot use an empty path.
         \li In \uicontrol {Override server channel}, specify a
             communication channel to use, such as a serial line or custom port.
+            To set the speed of a serial line, go to \preferences >
+            \uicontrol Debugger > \uicontrol GDB and enter
+            \c {set serial baud <rate>} in
+            \uicontrol {Additional Startup Commands}. The commands in
+            \uicontrol {Init commands} run only after the connection is
+            established. That is too late to set the speed.
         \li In \uicontrol Recent, select a recent configuration to use.
         \li Select \uicontrol OK to start debugging.
 

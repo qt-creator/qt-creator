@@ -201,7 +201,9 @@ StartApplicationDialog::StartApplicationDialog()
             new QLabel(Tr::tr("Normally, the running server is identified by the IP of the "
                           "device in the kit and the server port selected above.\n"
                           "You can choose another communication channel here, such as "
-                          "a serial line or custom ip:port."));
+                          "a serial line or custom ip:port.\n"
+                          "To set the speed of a serial line, add \"set serial baud <rate>\" "
+                          "to Additional Startup Commands in the GDB preferences."));
 
     channelOverrideLabel = new QLabel(Tr::tr("Override server channel:"), this);
     channelOverrideEdit = new QLineEdit(this);
