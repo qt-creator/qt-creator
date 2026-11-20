@@ -201,6 +201,8 @@ inline constexpr char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
 // Device types
 inline constexpr char DESKTOP_DEVICE_TYPE[] = "Desktop";
 inline constexpr char BOOT2QT_DEVICE_TYPE[] = "QdbLinuxOsType";
+inline constexpr char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
+inline constexpr char PODMAN_DEVICE_TYPE[] = "PodmanDeviceType";
 
 // Process extra data, marking the processes a RunControl starts for the user, as opposed to
 // the ones Creator runs for itself.

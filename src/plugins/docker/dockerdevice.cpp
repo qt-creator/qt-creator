@@ -887,7 +887,7 @@ CommandLine DockerDevicePrivate::createCommandLine(const CreateCommandLineParams
 
     // Docker Desktop provides this name by itself, a plain Linux engine does not.
     // Podman always does, and refuses the mapping when it cannot determine the address.
-    if (m_containerSettings->typeId() == Constants::DOCKER_DEVICE_TYPE
+    if (m_containerSettings->typeId() == ProjectExplorer::Constants::DOCKER_DEVICE_TYPE
         && !mapsHostInternalName(p.extraArgs, m_containerSettings->binaryPath().osType())) {
         dockerCreate.addArg("--add-host=host.docker.internal:host-gateway");
     }

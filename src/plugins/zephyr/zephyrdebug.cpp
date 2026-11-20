@@ -523,7 +523,7 @@ static bool isRunning(const IDevicePtr &device, const QString &pid)
 
 void ZephyrDockerTest::initTestCase()
 {
-    IDeviceFactory *factory = IDeviceFactory::find("DockerDeviceType");
+    IDeviceFactory *factory = IDeviceFactory::find(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
     if (!factory) {
         m_skipReason = "Needs the Docker plugin (-load Docker).";
         return;

@@ -8,6 +8,8 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -49,7 +51,7 @@ DockerApi::~DockerApi()
 
 DockerApi *DockerApi::instance()
 {
-    return s_instances.value(Docker::Constants::DOCKER_DEVICE_TYPE);
+    return s_instances.value(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
 }
 
 DockerApi *DockerApi::instance(Utils::Id typeId)
@@ -173,7 +175,7 @@ std::optional<bool> DockerApi::dockerDaemonAvailable(bool async)
 
 std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 {
-    return isDockerDaemonAvailable(Docker::Constants::DOCKER_DEVICE_TYPE, async);
+    return isDockerDaemonAvailable(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE, async);
 }
 
 std::optional<bool> DockerApi::isDockerDaemonAvailable(Utils::Id typeId, bool async)

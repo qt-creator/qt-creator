@@ -59,7 +59,7 @@ ContainerToolSettings::ContainerToolSettings(
 ContainerToolSettings &dockerSettings()
 {
     static ContainerToolSettings s{
-        Constants::DOCKER_DEVICE_TYPE,
+        ProjectExplorer::Constants::DOCKER_DEVICE_TYPE,
         "docker",
         Tr::tr("Docker"),
         HostOsInfo::isWindowsHost()
@@ -72,7 +72,7 @@ ContainerToolSettings &dockerSettings()
 ContainerToolSettings &podmanSettings()
 {
     static ContainerToolSettings s{
-        Podman::Constants::PODMAN_DEVICE_TYPE,
+        ProjectExplorer::Constants::PODMAN_DEVICE_TYPE,
         "podman",
         Tr::tr("Podman"),
         HostOsInfo::isWindowsHost()

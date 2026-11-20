@@ -58,8 +58,8 @@ public:
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-        addSupportedDeviceType(Constants::DOCKER_DEVICE_TYPE);
-        addSupportedDeviceType(Podman::Constants::PODMAN_DEVICE_TYPE);
+        addSupportedDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
+        addSupportedDeviceType(ProjectExplorer::Constants::PODMAN_DEVICE_TYPE);
     }
 };
 

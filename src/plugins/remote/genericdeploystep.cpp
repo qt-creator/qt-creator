@@ -229,7 +229,9 @@ public:
         setSupportedDeviceTypes(
             {Remote::Constants::GenericLinuxOsType,
              Remote::Constants::GenericMacOsType,
-             Remote::Constants::GenericWindowsOsType});
+             Remote::Constants::GenericWindowsOsType,
+             ProjectExplorer::Constants::DOCKER_DEVICE_TYPE,
+             ProjectExplorer::Constants::PODMAN_DEVICE_TYPE});
     }
 };
 
