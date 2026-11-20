@@ -626,7 +626,8 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
                 // Update fullnamespace-type of the scxmldocument
                 if (m_tagType == Scxml) {
                     m_document->m_useFullNameSpace = m_editorInfo.value("fullnamespace", "false") == "true";
-                    m_document->m_idDelimiter = m_editorInfo.value("fullnamespacedelimiter", "::");
+                    m_document->m_idDelimiter = m_editorInfo.value(
+                        "fullnamespacedelimiter", Constants::C_SCXML_NAMESPACE_DELIMITER);
                 }
 
                 xml.readNext();

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "scxmldocument.h"
+#include "scxmleditorconstants.h"
 #include "scxmleditortr.h"
 #include "scxmlnamespace.h"
 #include "scxmltagutils.h"
@@ -39,7 +40,7 @@ ScxmlDocument::~ScxmlDocument()
 
 void ScxmlDocument::initVariables()
 {
-    m_idDelimiter = "::";
+    m_idDelimiter = Constants::C_SCXML_NAMESPACE_DELIMITER;
     m_undoStack = new QUndoStack(this);
     connect(m_undoStack, &QUndoStack::cleanChanged, this, &ScxmlDocument::documentChanged);
 }

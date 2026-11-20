@@ -22,6 +22,8 @@ inline constexpr char C_SCXMLTAG_TAGTYPE[] = "tagType";
 inline constexpr char C_SCXMLTAG_ACTIONTYPE[] = "actionType";
 inline constexpr char C_SCXMLTAG_PARENTTAG[] = "parentTag";
 
+inline constexpr char C_SCXML_NAMESPACE_DELIMITER[] = ".";
+
 inline constexpr char C_SCXML_EDITORINFO_COLORS[] = "colors";
 inline constexpr char C_SCXML_EDITORINFO_GEOMETRY[] = "geometry";
 inline constexpr char C_SCXML_EDITORINFO_SCENEGEOMETRY[] = "scenegeometry";

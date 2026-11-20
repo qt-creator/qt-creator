@@ -100,14 +100,12 @@ void StateItem::updateAttributes()
         // Check initial attribute
         QString strNewId = tagValue("id", true);
         if (!m_parallelState) {
-            QStringList NSIDs = strNewId.split(tag()->document()->nameSpaceDelimiter(), Qt::SkipEmptyParts);
-            if (!NSIDs.isEmpty()) {
-                NSIDs[NSIDs.count() - 1] = m_stateNameItem->toPlainText();
-                QString strOldId = NSIDs.join(tag()->document()->nameSpaceDelimiter());
-                ScxmlTag *parentTag = tag()->parentTag();
-                if (parentTag && !strOldId.isEmpty() && parentTag->attribute("initial") == strOldId)
-                    parentTag->setAttribute("initial", strNewId);
-            }
+            const QString oldName = m_stateNameItem->toPlainText();
+            const QString strOldId = tag()->document()->useFullNameSpace()
+                    ? tag()->stateNameSpace() + oldName : oldName;
+            ScxmlTag *parentTag = tag()->parentTag();
+            if (parentTag && !oldName.isEmpty() && parentTag->attribute("initial") == strOldId)
+                parentTag->setAttribute("initial", strNewId);
         }
 
         m_stateNameItem->setText(tagValue("id"));
