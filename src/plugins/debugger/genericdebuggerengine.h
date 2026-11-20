@@ -6,14 +6,18 @@
 #include "debuggerengine.h"
 #include "debuggerengineinterface.h"
 
+#include <functional>
 #include <memory>
 
 #include <QHash>
 #include <QMultiMap>
+#include <QPersistentModelIndex>
 #include <QPointer>
 #include <QSet>
 
 namespace Debugger::Internal {
+
+class ConsoleItem;
 
 class GenericDebuggerEngine final : public DebuggerEngine
 {
@@ -23,6 +27,10 @@ public:
 
 private:
     void setupEngine() final;
+    void setState(DebuggerState state, bool forced = false) final;
+    void updateConsoleContext();
+    bool answersConsoleInput() const;
+    void askToRetryConnection(const QString &message);
     void shutdownInferior() final;
     void shutdownEngine() final;
 
@@ -75,6 +83,8 @@ private:
     void detachDebugger() final;
     void resetInferior() final;
     void abortDebuggerProcess() final;
+    void quitDebugger() final;
+    bool companionPreventsActions() const final;
     void executeDebuggerCommand(const QString &command) final;
     void handleDebuggerCommandDone();
     void doUpdateLocals(const UpdateParameters &params) final;
@@ -82,6 +92,16 @@ private:
     bool showsStoppedState() const;
     void expandItem(const QString &iname) final;
     void refreshInspectorTree();
+    void insertInspectorItems(const GdbMi &items);
+    void clearInspectorTree();
+    void selectWatchData(const QString &iname) final;
+    void setInspectorToolsAvailable(bool available);
+    void handleInspectorObjectSelected(const QString &iname, const Utils::FilePath &file,
+                                       int line);
+    ConsoleItem *toConsoleItem(const GdbMi &data);
+    std::function<void(ConsoleItem *)> consoleFetch(qint64 handle);
+    void appendConsoleChildren(ConsoleItem *item, const GdbMi &children);
+    void handleConsoleItemFetched(quint64 requestId, const GdbMi &data);
 
     void handleBreakpointEvent(quint64 requestId, BreakpointOp op, bool ok, const GdbMi &data);
     void applyBkptData(const GdbMi &bkpt, const Breakpoint &bp);
@@ -114,6 +134,13 @@ private:
     QMultiMap<QString, Utils::FilePath> m_baseNameToFullName;
     quint64 m_nextBreakpointRequestId = 1;
     quint64 m_nextRefreshRequestId = 1;
+    // The console entries being expanded. The index tells whether one is still there.
+    struct PendingConsoleFetch
+    {
+        QPersistentModelIndex index;
+        ConsoleItem *item = nullptr;
+    };
+    QHash<quint64, PendingConsoleFetch> m_pendingConsoleFetches;
     // The frame limit of each stack fetch not answered yet, -1 for none.
     QHash<quint64, int> m_stackDepthLimits;
     // The stack fetches whose answer leaves the selected frame as it is, with its level.
@@ -156,6 +183,9 @@ private:
     QString m_breakpointStopMessage;
     QString m_breakpointStopThreadId;
     bool m_stopThreadsPending = true;
+    QAction *m_selectToolAction = nullptr;
+    bool m_inspectorToolsRegistered = false;
+    bool m_consoleInSelectedObject = false;
 
     friend class DebuggerUnitTests;
 };

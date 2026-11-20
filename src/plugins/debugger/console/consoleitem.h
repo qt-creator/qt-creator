@@ -47,6 +47,7 @@ public:
 
     bool canFetchMore() const override;
     void fetchMore() override;
+    void setFetch(const std::function<void(ConsoleItem *)> &doFetch);
 
 private:
     ItemType m_itemType;

@@ -382,6 +382,7 @@ void QmlDebugConnection::startLocalServer(const QString &fileName)
     if (!d->server->listen(fileName)) {
         qWarning("QmlDebugConnection: failed to listen on \"%s\": %s",
                  qPrintable(fileName), qPrintable(d->server->errorString()));
+        emit logError(d->server->errorString());
         emit connectionFailed();
     }
 }

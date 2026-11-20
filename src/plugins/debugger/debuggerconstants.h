@@ -115,7 +115,8 @@ enum class DebuggerExtraCapability : unsigned
     ExitMonitorAtClose   = 1u << 14, // Shutting a debug monitor down with the session.
     RunAsUser            = 1u << 15, // Running the debugger as somebody else.
     ContinueInsteadOfRun = 1u << 16, // Resuming a target that is loaded and stopped already.
-    ModuleSymbolState    = 1u << 17  // Answering whether a module has private symbols.
+    ModuleSymbolState    = 1u << 17, // Answering whether a module has private symbols.
+    ScriptConsole        = 1u << 18  // Evaluating the console's QML/JavaScript input.
 };
 Q_DECLARE_FLAGS(DebuggerExtraCapabilities, DebuggerExtraCapability)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DebuggerExtraCapabilities)

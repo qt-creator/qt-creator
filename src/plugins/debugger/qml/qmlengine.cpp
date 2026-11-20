@@ -7,6 +7,7 @@
 #include "qmlinspectoragent.h"
 #include "qmlv8debuggerclientconstants.h"
 #include "qmlengineutils.h"
+#include "qmlimpl.h"
 
 #include <debugger/breakhandler.h>
 #include <debugger/console/console.h>
@@ -14,6 +15,7 @@
 #include <debugger/debuggerinternalconstants.h>
 #include <debugger/debuggertooltipmanager.h>
 #include <debugger/debuggertr.h>
+#include <debugger/genericdebuggerengine.h>
 #include <debugger/sourcefileshandler.h>
 #include <debugger/stackhandler.h>
 #include <debugger/watchhandler.h>
@@ -2528,9 +2530,33 @@ FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
     return paths.isEmpty() ? FilePath() : paths.first();
 }
 
-DebuggerEngine *createQmlEngine()
+DebuggerEngine *createQmlEngine(const DebuggerRunParameters &rp, bool isCompanion)
 {
-    return new QmlEngine;
+    if (!DebuggerEngine::isUsingGenericDebugger())
+        return new QmlEngine;
+
+    QmlImplStartData startData;
+    const DebuggerStartMode startMode = rp.startMode();
+    if (isCompanion || startMode == AttachToQmlServer || startMode == AttachToRemoteServer
+        || startMode == AttachToRemoteProcess) {
+        startData.inferiorStartData = AttachToQmlServerData{rp.qmlServer()};
+    } else {
+        // The run parameters told the runtime where to serve the connection.
+        startData.inferiorStartData = rp.inferior();
+        startData.qmlServer = rp.qmlServer();
+    }
+    startData.companionRunsRuntime = isCompanion;
+    startData.runAsUser = rp.runAsUser();
+    startData.watchdogTimeout = std::chrono::seconds(settings().gdbWatchdogTimeout());
+    startData.logTimeStamps = settings().logTimeStamps();
+    startData.findFile = [rp](const QUrl &url) {
+        const FilePaths paths = rp.findQmlFile(url);
+        return paths.isEmpty() ? FilePath() : paths.first();
+    };
+    auto engine = new GenericDebuggerEngine("QML (QmlImpl)", new QmlImpl(startData));
+    // Companions recognize the QML engine by this.
+    engine->setObjectName("QmlEngine");
+    return engine;
 }
 
 } // Debugger::Internal

@@ -9,11 +9,16 @@
 #include "../debuggerconstants.h"
 #include "../debuggertr.h"
 
+#include <qmldebug/qdebugmessageclient.h>
+#include <qmldebug/qmldebugconstants.h>
 #include <qmldebug/qpacketprotocol.h>
 
+#include <utils/qmldebugcommandlinearguments.h>
 #include <utils/qtcassert.h>
+#include <utils/url.h>
 
 #include <QDateTime>
+#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -21,12 +26,112 @@
 #include <QTimer>
 #include <QUrl>
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 
 using namespace Utils;
 
 namespace Debugger::Internal {
+
+static std::pair<QString, QString> v8TypeAndValue(const QVariantMap &data, int stringLimit);
+static int v8ChildCount(const QVariantMap &data);
+
+static GdbMi consoleItem(const QString &type, const QString &text)
+{
+    GdbMi item;
+    item.m_type = GdbMi::Tuple;
+    item.addConst(QStringLiteral("type"), type);
+    item.addConst(QStringLiteral("text"), text);
+    return item;
+}
+
+static QString consoleItemType(QtMsgType type)
+{
+    switch (type) {
+    case QtDebugMsg:
+    case QtInfoMsg:
+        return QStringLiteral("debug");
+    case QtWarningMsg:
+        return QStringLiteral("warning");
+    case QtCriticalMsg:
+    case QtFatalMsg:
+        return QStringLiteral("error");
+    }
+    return {};
+}
+
+static void addConsoleChildren(GdbMi *item, const QList<GdbMi> &children)
+{
+    if (children.isEmpty())
+        return;
+    GdbMi list;
+    list.m_type = GdbMi::List;
+    list.m_name = QStringLiteral("children");
+    for (const GdbMi &child : children)
+        list.addChild(child);
+    item->addChild(list);
+}
+
+// What the inspector answers a query with, which is plain values, maps and lists.
+static GdbMi consoleItemFromValue(const QVariant &value, const QString &key = {})
+{
+    QList<GdbMi> children;
+    QString text;
+    if (value.typeId() == QMetaType::QVariantMap) {
+        text = key.isEmpty() ? QStringLiteral("Object") : key + " : Object";
+        const QVariantMap map = value.toMap();
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it)
+            children.append(consoleItemFromValue(it.value(), it.key()));
+    } else if (value.typeId() == QMetaType::QVariantList) {
+        text = key.isEmpty() ? QStringLiteral("List") : QString("[%1] : List").arg(key);
+        const QVariantList list = value.toList();
+        for (int i = 0, end = int(list.size()); i != end; ++i)
+            children.append(consoleItemFromValue(list.at(i), QString::number(i)));
+    } else if (value.canConvert(QMetaType(QMetaType::QString))) {
+        text = value.toString();
+    } else {
+        text = QStringLiteral("Unknown Value");
+    }
+    GdbMi item = consoleItem({}, text);
+    addConsoleChildren(&item, children);
+    return item;
+}
+
+// What the debug service answers an evaluation with. Properties come as
+// references into the reply's "refs", and are resolved one level deep.
+static GdbMi consoleItemFromV8(const QVariantMap &data, const QHash<int, QVariantMap> &refs,
+                               int depth = 0)
+{
+    const auto [type, value] = v8TypeAndValue(data, 0);
+    QString text = value == "{...}" ? type : value;
+    const QString name = data.value(QLatin1String(NAME)).toString();
+    if (!name.isEmpty())
+        text = name + ": " + text;
+
+    QList<GdbMi> children;
+    if (depth < 2) {
+        for (const QVariant &property : data.value(QLatin1String("properties")).toList()) {
+            QVariantMap propertyData = property.toMap();
+            const auto ref = propertyData.constFind(QLatin1String(REF));
+            if (ref != propertyData.cend()) {
+                const QVariantMap resolved = refs.value(ref->toInt());
+                for (auto it = resolved.cbegin(), end = resolved.cend(); it != end; ++it) {
+                    if (it.key() != QLatin1String(NAME))
+                        propertyData.insert(it.key(), it.value());
+                }
+            }
+            children.append(consoleItemFromV8(propertyData, refs, depth + 1));
+        }
+    }
+    GdbMi item = consoleItem({}, text);
+    addConsoleChildren(&item, children);
+    // What the answer did not resolve is looked up when the entry is expanded.
+    const QVariant handle = data.value(QLatin1String(REF), data.value(QLatin1String(HANDLE)));
+    if (children.isEmpty() && handle.isValid() && v8ChildCount(data) > 0)
+        item.addConst(QStringLiteral("handle"), QString::number(handle.toLongLong()));
+    return item;
+}
 
 // The debug service knows one exception break, which covers the caught ones as
 // well, so all three spellings of the request end up as the same one.
@@ -36,9 +141,10 @@ static bool isExceptionBreakpoint(BreakpointType type)
            || type == BreakpointAtCatch;
 }
 
-static DebuggerEngineSetupData qmlImplSetupData()
+static DebuggerEngineSetupData qmlImplSetupData(const QmlImplStartData &startData)
 {
     DebuggerEngineSetupData data;
+    data.needsRunningCompanion = startData.companionRunsRuntime;
     data.capabilities = AddWatcherCapability
                       | AddWatcherWhileRunningCapability
                       | BreakConditionCapability
@@ -51,6 +157,7 @@ static DebuggerEngineSetupData qmlImplSetupData()
     data.extraCapabilities = DebuggerExtraCapability::Detach
                            | DebuggerExtraCapability::RunAsUser
                            | DebuggerExtraCapability::RunCommandDeferral
+                           | DebuggerExtraCapability::ScriptConsole
                            | DebuggerExtraCapability::SourceFiles;
     data.startModes = DebuggerStartModeFlag::AttachToQmlServer
                     | DebuggerStartModeFlag::Launch;
@@ -81,7 +188,7 @@ private:
 };
 
 QmlImpl::QmlImpl(const QmlImplStartData &startData)
-    : DebuggerEngineInterface(qmlImplSetupData())
+    : DebuggerEngineInterface(qmlImplSetupData(startData))
     , m_startData(startData)
     , m_connection(this)
 {
@@ -94,8 +201,35 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
     });
     connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::newObject,
             this, &QmlImpl::handleObjectCreated);
+    connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::newState,
+            this, [this](QmlDebug::QmlDebugClient::State state) {
+        if (state == QmlDebug::QmlDebugClient::Enabled)
+            rebuildInspectorTree();
+    });
+    auto messageClient = new QmlDebug::QDebugMessageClient(&m_connection);
+    connect(messageClient, &QmlDebug::QDebugMessageClient::message, this,
+            [this](QtMsgType type, const QString &text, const QmlDebug::QDebugContextInfo &info) {
+        GdbMi item = consoleItem(consoleItemType(type), text);
+        if (!info.file.isEmpty()) {
+            item.addConst(QStringLiteral("file"), toLocalFile(info.file).toUrlishString());
+            item.addConst(QStringLiteral("line"), QString::number(info.line));
+        }
+        emit consoleItemReported(item);
+    });
     connect(m_engineClient, &QmlDebug::BaseEngineDebugClient::valueChanged,
             this, &QmlImpl::handlePropertyValueChanged);
+    m_toolsClient = new QmlDebug::QmlToolsClient(&m_connection);
+    connect(m_toolsClient, &QmlDebug::BaseToolsClient::newState,
+            this, [this](QmlDebug::QmlDebugClient::State state) {
+        emit inspectorToolsAvailable(state == QmlDebug::QmlDebugClient::Enabled);
+    });
+    connect(m_toolsClient, &QmlDebug::BaseToolsClient::currentObjectsChanged,
+            this, [this](const QList<int> &debugIds) {
+        if (!debugIds.isEmpty())
+            reportSelectedObject(debugIds.first());
+    });
+    connect(m_toolsClient, &QmlDebug::BaseToolsClient::reloaded,
+            this, &QmlImpl::rebuildInspectorTree);
     m_objectCreatedTimer = new QTimer(this);
     m_objectCreatedTimer->setInterval(100);
     m_objectCreatedTimer->setSingleShot(true);
@@ -120,24 +254,7 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
     connect(&m_inferiorProcess, &Process::readyReadStandardError, this, [this] {
         const QString output = m_inferiorProcess.readAllStandardError();
         emit message(output, AppError);
-        // The port was free when it was picked, but something else can take it
-        // before the runtime gets to listen on it. The runtime then keeps running
-        // without a debug server, so it is replaced by one on a new port.
-        if (m_isPortRelaunch || m_connection.isConnected()
-            || !output.contains("QML Debugger: Unable to listen to port")) {
-            return;
-        }
-        m_connection.close();
-        m_reconnectTimer.stop();
-        if (m_listenRetriesLeft-- > 0) {
-            m_isPortRelaunch = true;
-        } else {
-            emit message(QString("The Qml runtime could not listen on port %1.").arg(m_port),
-                         LogError);
-            m_shuttingDown = true;
-            emit inferiorEvent(InferiorEvent::EngineSetupFailed);
-        }
-        m_inferiorProcess.kill();
+        scanRuntimeOutput(output);
     });
     connect(&m_inferiorProcess, &Process::done, this, [this] {
         if (m_inferiorProcess.error() == ProcessError::FailedToStart) {
@@ -182,33 +299,47 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
     connect(&m_reconnectTimer, &QTimer::timeout, this, &QmlImpl::beginConnection);
 
     connect(&m_connection, &QmlDebug::QmlDebugConnection::connectionFailed, this, [this] {
-        if (m_isPortRelaunch || m_shuttingDown)
+        if (m_isPortRelaunch || m_shuttingDown || m_aborting)
             return;
         // A runtime started here waits for this end ("block") however long it
         // takes to come up, so it gets a generous deadline instead of a count.
         // One that never listens on the port (taken, or no QML debugging) still
-        // runs, and must not keep the setup waiting forever.
-        const bool retry = m_port != 0
-            ? m_inferiorProcess.state() != ProcessState::NotRunning
-                  && !m_connectDeadline.hasExpired()
-            : m_connectRetriesLeft-- > 0;
+        // runs, and must not keep the setup waiting forever. One the companion
+        // starts comes up whenever the companion lets it, and says so in its
+        // output if it never does. A local server that could not listen will
+        // not do better on a second attempt.
+        const bool launched = std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData);
+        const bool retry = m_server.scheme() != Utils::urlSocketScheme()
+            && (m_startData.companionRunsRuntime
+                || (launched ? m_inferiorProcess.state() != ProcessState::NotRunning
+                                   && !m_connectDeadline.hasExpired()
+                             : m_connectRetriesLeft-- > 0));
         if (retry) {
             m_reconnectTimer.start();
             return;
         }
-        const QString server = m_port != 0
-            ? QString("127.0.0.1:%1").arg(m_port)
-            : std::get<AttachToQmlServerData>(m_startData.inferiorStartData).server.authority();
+        const QString server = m_server.scheme() == Utils::urlSocketScheme() ? m_server.path()
+                                                                       : m_server.authority();
         emit message(QString("Gave up connecting to the Qml debug server at %1, the last "
                              "attempt failed with: %2").arg(server, m_lastConnectionError),
                      LogError);
-        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        emit connectionFailed(Tr::tr("Could not connect to the in-process QML debugger at %1.")
+                                  .arg(server));
     });
     connect(&m_connection, &QmlDebug::QmlDebugConnection::logError, this,
             [this](const QString &error) { m_lastConnectionError = error; });
     connect(&m_connection, &QmlDebug::QmlDebugConnection::disconnected, this, [this] {
         if (m_shuttingDown || m_isResetRestart || m_aborting)
             return;
+        // An application this session attached to closes the connection when
+        // it quits, and no process of ours reports that instead.
+        if (!std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)) {
+            emit message(Tr::tr("QML Debugger disconnected."), StatusBar);
+            m_inferiorRunning = false;
+            m_inferiorExited = true;
+            emit inferiorDone({0, InferiorExitStatus::Detached});
+            return;
+        }
         emit inferiorEvent(InferiorEvent::EngineIll);
     });
 }
@@ -224,12 +355,85 @@ void QmlImpl::start()
         launchInferior();
         return;
     }
+    m_server = std::get<AttachToQmlServerData>(m_startData.inferiorStartData).server;
     beginConnection();
+}
+
+void QmlImpl::retryConnection()
+{
+    m_connectRetriesLeft = 50;
+    m_connectDeadline.setRemainingTime(std::chrono::minutes(1));
+    beginConnection();
+}
+
+bool QmlImpl::picksOwnPort() const
+{
+    return std::holds_alternative<ProcessRunData>(m_startData.inferiorStartData)
+           && m_startData.qmlServer.isEmpty();
+}
+
+void QmlImpl::companionOutput(const QString &output)
+{
+    scanRuntimeOutput(output);
+}
+
+// What the runtime prints when its debug service does not come up. Nothing
+// would ever answer then, so that ends the setup instead of the retries.
+void QmlImpl::scanRuntimeOutput(const QString &output)
+{
+    if (m_isPortRelaunch || m_shuttingDown || m_aborting || m_connection.isConnected())
+        return;
+    const QStringList lines = output.split('\n');
+    for (const QString &line : lines) {
+        if (!line.contains(QLatin1String(QmlDebug::Constants::STR_IGNORING_DEBUGGER)))
+            continue;
+        m_connection.close();
+        m_reconnectTimer.stop();
+        reportRuntimeFailure(line.trimmed());
+        m_shuttingDown = true;
+        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+        if (m_inferiorProcess.isRunning())
+            m_inferiorProcess.kill();
+        return;
+    }
+    if (!output.contains(QLatin1String(QmlDebug::Constants::STR_UNABLE_TO_LISTEN)))
+        return;
+    m_connection.close();
+    m_reconnectTimer.stop();
+    // The port was free when it was picked, but something else can take it
+    // before the runtime gets to listen on it. The runtime then keeps running
+    // without a debug server, so it is replaced by one on a new port.
+    if (picksOwnPort() && m_listenRetriesLeft-- > 0) {
+        m_isPortRelaunch = true;
+    } else {
+        emit message(QString("The Qml runtime could not listen on %1.")
+                         .arg(m_server.toString()), LogError);
+        reportRuntimeFailure(Tr::tr("The QML runtime could not listen on %1.")
+                                 .arg(m_server.authority()));
+        m_shuttingDown = true;
+        emit inferiorEvent(InferiorEvent::EngineSetupFailed);
+    }
+    if (m_inferiorProcess.isRunning())
+        m_inferiorProcess.kill();
+}
+
+// A session that debugs more than QML goes on without it, so the user is told
+// in a way that cannot be missed. Otherwise the console says it.
+void QmlImpl::reportRuntimeFailure(const QString &reason)
+{
+    const QString error = Tr::tr("Could not connect to the in-process QML debugger. %1")
+                              .arg(reason);
+    emit message(error, LogError);
+    if (m_startData.companionRunsRuntime)
+        emit startFailed(Tr::tr("QML Debugger"), error, Key("QmlRuntimeFailed"));
+    else
+        emit consoleItemReported(consoleItem(QStringLiteral("warning"), error));
 }
 
 void QmlImpl::launchInferior()
 {
-    {
+    ProcessRunData runData = std::get<ProcessRunData>(m_startData.inferiorStartData);
+    if (picksOwnPort()) {
         // The runtime takes the port as a number, so a free one has to be
         // picked before it is started. It is handed over rather than kept, and
         // "block" makes the runtime wait for this end to arrive on it.
@@ -239,12 +443,15 @@ void QmlImpl::launchInferior()
             emit inferiorEvent(InferiorEvent::EngineSetupFailed);
             return;
         }
-        m_port = probe.serverPort();
+        const quint16 port = probe.serverPort();
+        m_server.setScheme(Utils::urlTcpScheme());
+        m_server.setHost("127.0.0.1");
+        m_server.setPort(port);
+        runData.command.addArg(
+            qmlDebugCommandLineArguments(QmlDebuggerServices, QString("port:%1").arg(port), true));
+    } else {
+        m_server = m_startData.qmlServer;
     }
-
-    ProcessRunData runData = std::get<ProcessRunData>(m_startData.inferiorStartData);
-    runData.command.addArg(QString("-qmljsdebugger=port:%1,block,services:V8Debugger,QmlDebugger")
-                               .arg(m_port));
     m_inferiorProcess.setRunData(runData);
     m_inferiorProcess.setRunAsUser(m_startData.runAsUser);
     m_connectDeadline.setRemainingTime(std::chrono::minutes(1));
@@ -255,14 +462,17 @@ void QmlImpl::launchInferior()
 
 void QmlImpl::beginConnection()
 {
-    if (m_isPortRelaunch)
+    if (m_isPortRelaunch || m_shuttingDown || m_aborting)
         return;
-    if (m_port != 0) {
-        m_connection.connectToHost("127.0.0.1", m_port);
+    // The runtime connects to Creator here, rather than the other way round.
+    if (m_server.scheme() == Utils::urlSocketScheme()) {
+        if (!m_connection.isListening())
+            m_connection.startLocalServer(m_server.path());
         return;
     }
-    const auto &qmlData = std::get<AttachToQmlServerData>(m_startData.inferiorStartData);
-    m_connection.connectToHost(qmlData.server.host(), quint16(qmlData.server.port()));
+    const QString host = m_server.host().isEmpty()
+        ? QHostAddress(QHostAddress::LocalHost).toString() : m_server.host();
+    m_connection.connectToHost(host, quint16(m_server.port()));
 }
 
 // What the runtime that has just been replaced left behind: none of it says
@@ -283,9 +493,11 @@ void QmlImpl::resetTransientState()
     m_serviceNumberByResponseId.clear();
     m_qmlEngines.clear();
     m_inameForDebugId.clear();
+    m_sourceForDebugId.clear();
     m_engineIdForDebugId.clear();
     m_objectWatches.clear();
     m_knownDelegateIds.clear();
+    m_validatedDelegateId = -1;
     m_deferredWatchers.reset();
 }
 
@@ -344,6 +556,10 @@ void QmlImpl::handleConnectHandshakeDone()
     runCommand({VERSION}, [this, isResetRestart](const QVariantMap &resp) {
         const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
         m_supportChangeBreakpoint = body.value("ChangeBreakpoint", false).toBool();
+        m_unpausedEvaluate = body.value("UnpausedEvaluate", false).toBool();
+        m_contextEvaluate = body.value("ContextEvaluate", false).toBool();
+        // Without unpaused evaluation, input goes to the selected object anyway.
+        emit consoleObjectContextReported(m_contextEvaluate || !m_unpausedEvaluate);
 
         if (isResetRestart) {
             // The fresh runtime knows none of the breakpoints, while the model knows
@@ -482,8 +698,6 @@ void QmlImpl::reportBreakpointHit(const QString &responseId, int hits)
     emit breakpointModified(list);
 }
 
-static std::pair<QString, QString> v8TypeAndValue(const QVariantMap &data, int stringLimit);
-
 // The service has no tracepoint of its own, so the captures are evaluated at
 // the stop the ordinary breakpoint behind it produced, and the message put
 // together once the last answer is in.
@@ -533,6 +747,17 @@ void QmlImpl::finishTracepointHit(const std::shared_ptr<TracepointHit> &hit)
     emit message(formatTracepointMessage(hit->pattern, hit->captures, hit->values,
                                          hit->expressions), LogMisc);
     hit->finished();
+}
+
+FilePath QmlImpl::toLocalFile(const QString &scriptName) const
+{
+    const QUrl url(scriptName);
+    if (m_startData.findFile) {
+        const FilePath found = m_startData.findFile(url);
+        if (!found.isEmpty())
+            return found;
+    }
+    return FilePath::fromUrl(url);
 }
 
 void QmlImpl::handleBreakEvent(const QVariantMap &response)
@@ -608,7 +833,7 @@ void QmlImpl::handleBreakEvent(const QVariantMap &response)
     }
 
     if (!scriptName.isEmpty())
-        emit locationChanged(FilePath::fromUrl(QUrl(scriptName)), lineNumber);
+        emit locationChanged(toLocalFile(scriptName), lineNumber);
     emit inferiorEvent(std::exchange(m_interruptRequested, false)
                        ? InferiorEvent::StopOk : InferiorEvent::SpontaneousStop);
 
@@ -634,7 +859,7 @@ void QmlImpl::handleExceptionEvent(const QVariantMap &response)
     const QString scriptName = script.value(QLatin1String(NAME)).toString();
     const int lineNumber = body.value(QLatin1String("sourceLine")).toInt() + 1;
     if (!scriptName.isEmpty())
-        emit locationChanged(FilePath::fromUrl(QUrl(scriptName)), lineNumber);
+        emit locationChanged(toLocalFile(scriptName), lineNumber);
 
     const QVariantMap exception = body.value(QLatin1String("exception")).toMap();
     const QString text = exception.value(QLatin1String("text")).toString();
@@ -1256,6 +1481,24 @@ GdbMi QmlImpl::emptyLocalsData()
     return all;
 }
 
+void QmlImpl::refreshConsoleItem(const RefreshRequest &request)
+{
+    const quint64 requestId = request.requestId;
+    const qint64 handle = request.handle;
+    DebuggerCommand cmd(LOOKUP);
+    cmd.arg(HANDLES, QList<int>{int(handle)});
+    runCommand(cmd, [this, requestId, handle](const QVariantMap &resp) {
+        const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
+        const QString key = QString::number(handle);
+        if (!resp.value(QLatin1String(SUCCESS)).toBool() || !body.contains(key)) {
+            emit refreshFailed(requestId, RefreshKind::ConsoleItem, {});
+            return;
+        }
+        emit refreshDataReceived(requestId, RefreshKind::ConsoleItem,
+                                 consoleItemFromV8(body.value(key).toMap(), {}));
+    });
+}
+
 void QmlImpl::refreshSourceFiles(const RefreshRequest &request)
 {
     const quint64 requestId = request.requestId;
@@ -1356,6 +1599,7 @@ void QmlImpl::appendObjectItems(const QmlDebug::ObjectReference &object,
 
     const QString iname = parentIname + '.' + QString::number(debugId);
     m_inameForDebugId.insert(debugId, iname);
+    m_sourceForDebugId.insert(debugId, object.source());
     m_engineIdForDebugId.insert(debugId, engineId);
     pending->seenDebugIds.insert(debugId);
 
@@ -1464,25 +1708,7 @@ void QmlImpl::refreshInspectorTree(const RefreshRequest &request)
                         break;
                     contexts.append(context.contexts());
                 }
-                for (auto it = m_knownDelegateIds.cbegin(), end = m_knownDelegateIds.cend();
-                     it != end; ++it) {
-                    if (it.value() != engineId || pending->seenDebugIds.contains(it.key()))
-                        continue;
-                    // Only the header: this runs after every burst of object
-                    // creations. Properties come on expansion.
-                    const int debugId = it.key();
-                    runInspectorLeg(m_engineClient->queryObjectHeader(debugId), pending, finishLeg,
-                                    [this, pending, finishLeg, iname, engineId, debugId]
-                                    (const QVariant &objectValue, const QByteArray &) {
-                        const auto object = qvariant_cast<QmlDebug::ObjectReference>(objectValue);
-                        // The application answers with nothing for a destroyed object.
-                        if (object.isValid())
-                            appendObjectItems(object, iname, engineId, pending, finishLeg);
-                        else
-                            m_knownDelegateIds.remove(debugId);
-                        finishLeg();
-                    });
-                }
+                appendParentlessObjects(iname, engineId, pending, finishLeg);
                 finishLeg();
             });
         }
@@ -1490,12 +1716,82 @@ void QmlImpl::refreshInspectorTree(const RefreshRequest &request)
     });
 }
 
+// Delegates have no parent, and there can be thousands of them. Keep them
+// below a collapsed item of their engine, and fetch them only when it is
+// expanded. Only the headers: properties come on expansion.
+void QmlImpl::appendParentlessObjects(const QString &engineIName, int engineId,
+                                      const std::shared_ptr<RefreshCollector> &pending,
+                                      const std::function<void()> &finishLeg)
+{
+    QList<int> debugIds;
+    for (auto it = m_knownDelegateIds.cbegin(), end = m_knownDelegateIds.cend(); it != end; ++it) {
+        if (it.value() == engineId && !pending->seenDebugIds.contains(it.key()))
+            debugIds.append(it.key());
+    }
+    if (debugIds.isEmpty())
+        return;
+
+    const QString iname = engineIName + ".[parentless]";
+    const auto itemAdded = std::make_shared<bool>(false);
+    const auto addItem = [pending, iname, itemAdded] {
+        if (std::exchange(*itemAdded, true))
+            return;
+        pending->items.addChild(watchItem(iname, Tr::tr("Other"), {}, {},
+                                         QStringLiteral("list"), 1));
+    };
+    const bool expanded = pending->expandedINames.contains(iname);
+    if (expanded) {
+        addItem();
+    } else {
+        // The protocol does not report destroyed objects, only the answer to
+        // a query for one tells. Check a bounded batch per rebuild, and show
+        // the item once one of them answers.
+        constexpr int BatchSize = 256;
+        std::sort(debugIds.begin(), debugIds.end());
+        const auto first = std::upper_bound(debugIds.begin(), debugIds.end(),
+                                            m_validatedDelegateId);
+        const qsizetype count = std::min<qsizetype>(debugIds.end() - first, BatchSize);
+        if (count < debugIds.size())
+            addItem();
+        debugIds = QList<int>(first, first + count);
+        m_validatedDelegateId = count < BatchSize ? -1 : debugIds.last();
+    }
+    for (const int debugId : std::as_const(debugIds)) {
+        runInspectorLeg(m_engineClient->queryObjectHeader(debugId), pending, finishLeg,
+                        [this, pending, finishLeg, iname, engineId, debugId, expanded, addItem]
+                        (const QVariant &objectValue, const QByteArray &) {
+            const auto object = qvariant_cast<QmlDebug::ObjectReference>(objectValue);
+            // The application answers with nothing for a destroyed object.
+            if (!object.isValid())
+                m_knownDelegateIds.remove(debugId);
+            else if (expanded)
+                appendObjectItems(object, iname, engineId, pending, finishLeg);
+            else
+                addItem();
+            finishLeg();
+        });
+    }
+}
+
 void QmlImpl::rebuildInspectorTree()
 {
+    if (!m_inspectorTreeShown)
+        return;
     RefreshRequest request;
     request.kind = RefreshKind::InspectorTree;
     request.expandedINames = m_expandedInspectorINames;
     refreshInspectorTree(request);
+}
+
+void QmlImpl::showInspectorTree(bool shown)
+{
+    if (shown == m_inspectorTreeShown)
+        return;
+    m_inspectorTreeShown = shown;
+    if (shown)
+        rebuildInspectorTree();
+    else
+        m_objectCreatedTimer->stop();
 }
 
 void QmlImpl::handleObjectCreated(int engineId, int objectId, int parentId)
@@ -1539,7 +1835,8 @@ void QmlImpl::queryObjectExpression(int debugId, const QString &expression)
                             : 0;
     const bool queried = runInspectorQuery(queryId, [this](const QVariant &value,
                                                            const QByteArray &) {
-        emit message(value.toString(), ConsoleOutput);
+        if (value.isValid())
+            emit consoleItemReported(consoleItemFromValue(value));
     });
     if (!queried) {
         emit message(Tr::tr("The application has to be stopped in a breakpoint in order to "
@@ -1555,6 +1852,10 @@ void QmlImpl::refresh(const RefreshRequest &request)
     }
     if (request.kind == RefreshKind::InspectorTree) {
         refreshInspectorTree(request);
+        return;
+    }
+    if (request.kind == RefreshKind::ConsoleItem) {
+        refreshConsoleItem(request);
         return;
     }
     if (request.kind == RefreshKind::SourceFiles) {
@@ -1595,14 +1896,12 @@ void QmlImpl::refresh(const RefreshRequest &request)
             frame.addConst(QLatin1String("level"),
                            QString::number(v8Frame.value(QLatin1String("index")).toInt()));
             frame.addConst(QLatin1String(FUNCTION), function);
-            // A frame names its script as a URL, which is what a stop reports too,
-            // and what the editor has to be handed to open the source.
+            // A frame names its script as a URL, which is what a stop reports too.
             const QVariant script = v8Frame.value(QLatin1String("script"));
             const QString scriptName = script.typeId() == QMetaType::QVariantMap
                                            ? script.toMap().value(QLatin1String(NAME)).toString()
                                            : script.toString();
-            frame.addConst(QLatin1String("file"),
-                           FilePath::fromUrl(QUrl(scriptName)).toUrlishString());
+            frame.addConst(QLatin1String("file"), toLocalFile(scriptName).toUrlishString());
             frame.addConst(QLatin1String(LINE),
                            QString::number(v8Frame.value(QLatin1String(LINE)).toInt() + 1));
             frame.addConst(QLatin1String("language"), QStringLiteral("js"));
@@ -1643,28 +1942,92 @@ void QmlImpl::selectThread(const QString &)
 {
 }
 
-void QmlImpl::executeDebuggerCommand(const QString &command, const WatchItemData &inspectorItem)
+void QmlImpl::selectInspectorItem(const QString &iname)
 {
-    if (m_inferiorRunning) {
-        if (!inspectorItem.isInspect || inspectorItem.id == -1) {
-            emit message(Tr::tr("The application has to be stopped in a breakpoint in order to "
-                                "evaluate expressions."), ConsoleOutput);
-            return;
-        }
-        queryObjectExpression(int(inspectorItem.id), command);
+    // The rows below an object stand for the object they belong to.
+    const qsizetype properties = iname.indexOf(".[properties]");
+    const int debugId = m_inameForDebugId.key(properties == -1 ? iname : iname.left(properties),
+                                              -1);
+    if (debugId == -1)
+        return;
+    m_toolsClient->selectObjects({debugId});
+    reportSelectedObject(debugId, iname);
+}
+
+// An object the tree has not fetched yet is looked up for its source alone.
+void QmlImpl::reportSelectedObject(int debugId, const QString &iname)
+{
+    const auto report = [this, debugId, iname](const QmlDebug::FileReference &source) {
+        const FilePath file = source.url().isEmpty() ? FilePath()
+                                                     : toLocalFile(source.url().toString());
+        emit inspectorObjectSelected(iname.isEmpty() ? m_inameForDebugId.value(debugId) : iname,
+                                     file, source.lineNumber());
+    };
+    if (m_sourceForDebugId.contains(debugId)) {
+        report(m_sourceForDebugId.value(debugId));
         return;
     }
+    runInspectorQuery(m_engineClient->queryObject(debugId),
+                      [report](const QVariant &value, const QByteArray &) {
+        report(qvariant_cast<QmlDebug::ObjectReference>(value).source());
+    });
+}
+
+void QmlImpl::setSelectTool(bool active)
+{
+    if (m_toolsClient->state() != QmlDebug::QmlDebugClient::Enabled)
+        return;
+    m_toolsClient->setDesignModeBehavior(active);
+    if (active)
+        m_toolsClient->changeToSelectTool();
+}
+
+void QmlImpl::setShowAppOnTop(bool onTop)
+{
+    if (m_toolsClient->state() == QmlDebug::QmlDebugClient::Enabled)
+        m_toolsClient->showAppOnTop(onTop);
+}
+
+void QmlImpl::executeDebuggerCommand(const QString &command, const WatchItemData &inspectorItem)
+{
+    const bool hasObject = inspectorItem.isInspect && inspectorItem.id != -1;
+    if (!m_inferiorRunning) {
+        evaluateForConsole(command, m_currentFrameIndex, {});
+    } else if (m_unpausedEvaluate) {
+        evaluateForConsole(command, {},
+                           hasObject && m_contextEvaluate ? std::optional(inspectorItem.id)
+                                                          : std::nullopt);
+    } else if (hasObject) {
+        queryObjectExpression(int(inspectorItem.id), command);
+    } else {
+        emit message(Tr::tr("The application has to be stopped in a breakpoint in order to "
+                            "evaluate expressions."), ConsoleOutput);
+    }
+}
+
+void QmlImpl::evaluateForConsole(const QString &expression, std::optional<int> frame,
+                                 std::optional<qint64> context)
+{
     DebuggerCommand cmd(EVALUATE);
-    cmd.arg(EXPRESSION, command);
-    cmd.arg(FRAME, m_currentFrameIndex);
+    cmd.arg(EXPRESSION, expression);
+    if (frame)
+        cmd.arg(FRAME, *frame);
+    if (context)
+        cmd.arg(CONTEXT, *context);
     runCommand(cmd, [this](const QVariantMap &resp) {
         const bool success = resp.value(QLatin1String(SUCCESS)).toBool();
         if (!success) {
-            emit message(resp.value(QLatin1String(MESSAGE)).toString(), LogError);
+            emit consoleItemReported(consoleItem(QStringLiteral("error"),
+                                                 resp.value(QLatin1String(MESSAGE)).toString()));
             return;
         }
-        const QVariantMap body = resp.value(QLatin1String(BODY)).toMap();
-        emit message(body.value(QLatin1String(VALUE)).toString(), ConsoleOutput);
+        QHash<int, QVariantMap> refs;
+        for (const QVariant &ref : resp.value(QLatin1String(REFS)).toList()) {
+            const QVariantMap refData = ref.toMap();
+            refs.insert(refData.value(QLatin1String(HANDLE)).toInt(), refData);
+        }
+        emit consoleItemReported(
+            consoleItemFromV8(resp.value(QLatin1String(BODY)).toMap(), refs));
         emit debuggerCommandDone();
     });
 }

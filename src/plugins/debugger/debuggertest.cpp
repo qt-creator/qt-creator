@@ -48,6 +48,7 @@
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
+#include "watchwindow.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -101,7 +102,10 @@
 #include <QEventLoop>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLabel>
+#include <QMessageBox>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QPlainTextEdit>
 #include <QRegularExpression>
 #include <QScopeGuard>
@@ -341,7 +345,6 @@ private slots:
     void testADebuggerCommandRereadsTheViews();
     void testASelectionMovingCommandIsNotUndoneByTheReread();
     void testTheDisassemblyMessageIsSaidOncePerStop();
-
     void testScratchEditorAdoptsSavedName();
     void testBreakpointUpdateAnnouncesItIsProceeding();
     void testInterpreterBreakpointStaysEnabled();
@@ -355,6 +358,15 @@ private slots:
     void testInterpreterBreakpointChangedDuringInsert();
     void testInterpreterBreakpointChangedAndDeletedDuringInsert();
     void testDeferredInterpreterBreakpointRemovedOnTheWay();
+    void testScriptConsoleEvaluatesThroughTheBackend();
+    void testScriptConsoleWaitsForAnAnsweringRuntime();
+    void testAFailedConnectionAsksWhetherToRetry();
+    void testConsoleEntryExpandsThroughTheBackend();
+    void testQuitDuringSetupAbortsTheBackend();
+    void testABackendOnACompanionsDebuggeeFollowsTheCompanion();
+    void testInspectorToolsGoThroughTheBackend();
+    void testInspectorTreeFollowsTheSettings();
+    void testConsoleChildrenFollowSortStructMembers();
     void testBreakpointFileNameSpelledAsOnDisk();
     void testUnresolvedLegacyLanguagesSurviveASave();
     void testLegacyQmlAndPythonKeepsBothLanguages();
@@ -4316,11 +4328,17 @@ enum class Report { Final, Deferred };
 class RecordingBackend : public DebuggerEngineInterface
 {
 public:
-    RecordingBackend() : DebuggerEngineInterface(setupData()) {}
+    explicit RecordingBackend(DebuggerExtraCapabilities extraCapabilities = {},
+                              bool needsRunningCompanion = false)
+        : DebuggerEngineInterface(setupData(extraCapabilities, needsRunningCompanion))
+    {}
 
-    static DebuggerEngineSetupData setupData()
+    static DebuggerEngineSetupData setupData(DebuggerExtraCapabilities extraCapabilities,
+                                             bool needsRunningCompanion)
     {
         DebuggerEngineSetupData data;
+        data.extraCapabilities = extraCapabilities;
+        data.needsRunningCompanion = needsRunningCompanion;
         data.startModes = DebuggerStartModeFlag::Launch;
         data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &) { return true; };
         return data;
@@ -4392,18 +4410,38 @@ public:
     QList<RefreshKind> refreshes;
 
     void start() override {}
+    void retryConnection() override { ++connectionRetries; }
+    int connectionRetries = 0;
     void shutdownInferior(ShutdownMode) override {}
     void shutdownEngine() override {}
-    void execute(const ExecutionRequest &) override {}
+    void execute(const ExecutionRequest &request) override { executed.append(request.command); }
+    QList<ExecutionCommand> executed;
+    void companionOutput(const QString &output) override { companionOutputs.append(output); }
+    QStringList companionOutputs;
+    void showInspectorTree(bool shown) override { inspectorTreeShown << shown; }
+    QList<bool> inspectorTreeShown;
+    void selectInspectorItem(const QString &iname) override { selectedInspectorItems << iname; }
+    QStringList selectedInspectorItems;
+    void setSelectTool(bool active) override { selectToolChanges << active; }
+    QList<bool> selectToolChanges;
+    void setShowAppOnTop(bool onTop) override { appOnTopChanges << onTop; }
+    QList<bool> appOnTopChanges;
     void refresh(const RefreshRequest &request) override
     {
         refreshes.append(request.kind);
         if (request.kind == RefreshKind::FullStack)
             lastStackRequest = request;
+        if (request.kind == RefreshKind::ConsoleItem)
+            lastConsoleItemRequest = request;
     }
     RefreshRequest lastStackRequest;
+    RefreshRequest lastConsoleItemRequest;
     void accessMemory(MemoryOp, quint64, quint64, quint64, const QByteArray &) override {}
-    void executeDebuggerCommand(const QString &, const WatchItemData &) override {}
+    void executeDebuggerCommand(const QString &command, const WatchItemData &) override
+    {
+        consoleCommands.append(command);
+    }
+    QStringList consoleCommands;
     void selectThread(const QString &threadId) override { selectedThreads.append(threadId); }
     QStringList selectedThreads;
     void activateFrame(int level) override { activatedFrames.append(level); }
@@ -4430,6 +4468,503 @@ static GlobalBreakpoint createInterpreterBreakpoint()
     params.textPosition = {10, -1};
     params.enabled = true;
     return BreakpointManager::createBreakpoint(params);
+}
+
+// A backend that evaluates script takes the console's QML input for as long as
+// its session lasts, and the label above the input names where it evaluates.
+void DebuggerUnitTests::testScriptConsoleEvaluatesThroughTheBackend()
+{
+    auto backend = new RecordingBackend(DebuggerExtraCapability::ScriptConsole);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+    BoolAspect &showTree = settings().showQmlObjectTree;
+    const QScopeGuard restoreShowTree([&showTree, shown = showTree()] {
+        showTree.setValue(shown);
+    });
+    showTree.setValue(true);
+
+    Console *console = debuggerConsole();
+    auto modeSelector = qobject_cast<QComboBox *>(console->toolBarWidgets().value(0));
+    auto contextLabel = qobject_cast<QLabel *>(console->toolBarWidgets().value(5));
+    QVERIFY(modeSelector);
+    QVERIFY(contextLabel);
+    const int originalMode = modeSelector->currentIndex();
+    const QScopeGuard restoreMode([modeSelector, originalMode] {
+        modeSelector->setCurrentIndex(originalMode);
+    });
+
+    engine->setupEngine();
+    modeSelector->setCurrentIndex(int(ConsoleMode::Qml));
+    QCOMPARE(console->mode(), ConsoleMode::Qml);
+    engine->setState(InferiorRunOk, true);
+    console->evaluate("6 * 7");
+    QCOMPARE(backend->consoleCommands, QStringList("6 * 7"));
+
+    StackFrame frame;
+    frame.level = "0";
+    frame.function = "onTriggered";
+    frame.usable = true;
+    engine->stackHandler()->setFrames({frame});
+    engine->setState(InferiorStopOk, true);
+    QCOMPARE(contextLabel->text(), QString("Context: onTriggered"));
+
+    GdbMi items;
+    items.m_type = GdbMi::List;
+    items.m_name = "data";
+    for (const auto &[iname, name, id] : {
+             std::tuple(QString("inspect.1"), QString("Engine"), 1),
+             std::tuple(QString("inspect.1.7"), QString("Item"), 7),
+             std::tuple(QString("inspect.1.7.[properties]"), QString("Properties"), 7),
+             std::tuple(QString("inspect.1.7.[properties].list"), QString("list"), 7),
+             std::tuple(QString("inspect.1.7.[properties].list.0"), QString("[0]"), 7),
+             std::tuple(QString("inspect.1.[parentless]"), QString("Other"), -1)}) {
+        GdbMi item;
+        item.m_type = GdbMi::Tuple;
+        item.addConst("iname", iname);
+        item.addConst("name", name);
+        if (id >= 0)
+            item.addConst("id", QString::number(id));
+        item.addConst("value", "1");
+        item.addConst("numchild", "0");
+        items.addChild(item);
+    }
+    GdbMi tree;
+    tree.m_type = GdbMi::Tuple;
+    tree.addChild(items);
+    emit backend->refreshDataReceived(0, RefreshKind::InspectorTree, tree);
+    WatchHandler *handler = engine->watchHandler();
+    QVERIFY(handler->findItem("inspect.1.7"));
+    engine->inspectorView()->setCurrentIndex(
+        handler->model()->indexForItem(handler->findItem("inspect.1.7")));
+    engine->setState(InferiorRunOk, true);
+    QCOMPARE(contextLabel->text(), QString("Context: Global QML Context"));
+    emit backend->consoleObjectContextReported(true);
+    QCOMPARE(contextLabel->text(), QString("Context: Item"));
+    const auto select = [engine, handler](const QString &iname) {
+        engine->inspectorView()->setCurrentIndex(
+            handler->model()->indexForItem(handler->findItem(iname)));
+    };
+    select("inspect.1.7.[properties].list.0");
+    QCOMPARE(contextLabel->text(), QString("Context: Item"));
+    select("inspect.1.[parentless]");
+    QCOMPARE(contextLabel->text(), QString("Context: Global QML Context"));
+    select("inspect.1.7");
+    emit backend->consoleObjectContextReported(false);
+    QCOMPARE(contextLabel->text(), QString("Context: Global QML Context"));
+
+    engine->setState(EngineShutdownRequested, true);
+    QCOMPARE(contextLabel->text(), QString());
+    engine->shutdownEngine();
+    console->evaluate("1");
+    QCOMPARE(backend->consoleCommands, QStringList("6 * 7"));
+    engine->setState(DebuggerFinished, true);
+}
+
+// The console's input waits until the runtime can answer: not while the
+// session sets up, and not while the companion has the runtime stopped.
+void DebuggerUnitTests::testScriptConsoleWaitsForAnAnsweringRuntime()
+{
+    auto backend = new RecordingBackend(DebuggerExtraCapability::ScriptConsole, true);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    auto companion = new GenericDebuggerEngine("test", new RecordingBackend);
+    const QScopeGuard deleteCompanion([companion] { delete companion; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+    engine->addCompanionEngine(companion);
+
+    Console *console = debuggerConsole();
+    auto modeSelector = qobject_cast<QComboBox *>(console->toolBarWidgets().value(0));
+    QVERIFY(modeSelector);
+    const int originalMode = modeSelector->currentIndex();
+    const QScopeGuard restoreMode([modeSelector, originalMode] {
+        modeSelector->setCurrentIndex(originalMode);
+    });
+
+    engine->start();
+    QCOMPARE(engine->state(), EngineSetupRequested);
+    modeSelector->setCurrentIndex(int(ConsoleMode::Qml));
+    QCOMPARE(console->mode(), ConsoleMode::Qml);
+    console->evaluate("1");
+    QVERIFY(backend->consoleCommands.isEmpty());
+
+    engine->setState(InferiorRunOk, true);
+    QVERIFY(companion->state() != InferiorRunOk);
+    console->evaluate("2");
+    QVERIFY(backend->consoleCommands.isEmpty());
+
+    // Expanding an entry asks the runtime as much as evaluating does.
+    GdbMi folded;
+    folded.m_type = GdbMi::Tuple;
+    folded.addConst("text", "one: Object");
+    folded.addConst("handle", "17");
+    TreeModel<> model;
+    ConsoleItem *item = engine->toConsoleItem(folded);
+    model.rootItem()->appendChild(item);
+    const QModelIndex index = model.indexForItem(item);
+    const auto expand = [&] {
+        model.fetchMore(index);
+        return backend->refreshes.count(RefreshKind::ConsoleItem);
+    };
+    QCOMPARE(expand(), 0);
+    QVERIFY(model.canFetchMore(index));
+
+    companion->setState(InferiorRunOk, true);
+    console->evaluate("3");
+    QCOMPARE(backend->consoleCommands, QStringList("3"));
+    QCOMPARE(expand(), 1);
+    engine->setState(DebuggerFinished, true);
+    companion->setState(DebuggerFinished, true);
+}
+
+// A stop while the backend is still setting up finishes the engine at once, so
+// the backend has to give up what it is bringing up, and what it says about
+// that afterwards must not finish the engine a second time.
+void DebuggerUnitTests::testQuitDuringSetupAbortsTheBackend()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+    engine->start();
+    QCOMPARE(engine->state(), EngineSetupRequested);
+
+    QSignalSpy finished(engine, &DebuggerEngine::engineFinished);
+    engine->quitDebugger();
+    QCOMPARE(engine->state(), DebuggerFinished);
+    QVERIFY2(backend->executed.contains(ExecutionCommand::Abort),
+             "the backend went on setting up after the session was stopped");
+
+    emit backend->inferiorEvent(InferiorEvent::EngineSetupFailed);
+    QCOMPARE(finished.count(), 1);
+}
+
+static QMessageBox *openRetryConnectionBox()
+{
+    const QWidgetList windows = QApplication::topLevelWidgets();
+    for (QWidget *window : windows) {
+        if (window->objectName() == "RetryConnectionBox" && window->isVisible())
+            return qobject_cast<QMessageBox *>(window);
+    }
+    return nullptr;
+}
+
+// A backend that could not connect leaves it to the user whether to try again,
+// and the setup stays open until they decide.
+void DebuggerUnitTests::testAFailedConnectionAsksWhetherToRetry()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+    engine->start();
+    QCOMPARE(engine->state(), EngineSetupRequested);
+
+    emit backend->connectionFailed("Nobody listens.");
+    QMessageBox *box = openRetryConnectionBox();
+    QVERIFY(box);
+    QVERIFY(box->text().contains("Nobody listens."));
+    box->button(QMessageBox::Retry)->click();
+    QCOMPARE(backend->connectionRetries, 1);
+    QCOMPARE(engine->state(), EngineSetupRequested);
+
+    emit backend->connectionFailed("Nobody listens.");
+    box = openRetryConnectionBox();
+    QVERIFY(box);
+    box->button(QMessageBox::Cancel)->click();
+    QCOMPARE(backend->connectionRetries, 1);
+    QCOMPARE(engine->state(), DebuggerFinished);
+
+    // A session stopped while the question is open does not connect again.
+    auto stoppedBackend = new RecordingBackend;
+    auto stopped = new GenericDebuggerEngine("test", stoppedBackend);
+    const QScopeGuard deleteStopped([stopped] { delete stopped; });
+    stopped->setRunParameters({});
+    stopped->setDevice({});
+    stopped->start();
+    emit stoppedBackend->connectionFailed("Nobody listens.");
+    box = openRetryConnectionBox();
+    QVERIFY(box);
+    stopped->quitDebugger();
+    box->button(QMessageBox::Retry)->click();
+    QCOMPARE(stoppedBackend->connectionRetries, 0);
+}
+
+// The debuggee is the companion's, so what it prints reaches the backend through
+// the companion, and nothing can be asked of it while the companion stops it.
+void DebuggerUnitTests::testABackendOnACompanionsDebuggeeFollowsTheCompanion()
+{
+    auto backend = new RecordingBackend({}, true);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    auto companion = new GenericDebuggerEngine("test", new RecordingBackend);
+    const QScopeGuard deleteCompanion([companion] { delete companion; });
+    auto plainBackend = new RecordingBackend;
+    auto plain = new GenericDebuggerEngine("test", plainBackend);
+    const QScopeGuard deletePlain([plain] { delete plain; });
+    for (GenericDebuggerEngine *e : {engine, plain}) {
+        e->setRunParameters({});
+        e->setDevice({});
+        e->addCompanionEngine(companion);
+        e->start();
+    }
+
+    emit companion->postMessageRequested("QML Debugger: Ignoring", StdErrFormat, true);
+    QCOMPARE(backend->companionOutputs, QStringList("QML Debugger: Ignoring"));
+    QVERIFY(plainBackend->companionOutputs.isEmpty());
+
+    QVERIFY(companion->state() != InferiorRunOk);
+    QVERIFY(engine->companionPreventsActions());
+    QVERIFY(!plain->companionPreventsActions());
+}
+
+// The tools act on the running application only, and only while the backend
+// has them. What the application selects shows in the editor.
+void DebuggerUnitTests::testInspectorToolsGoThroughTheBackend()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setState(InferiorStopOk, true);
+    auto bystanderBackend = new RecordingBackend;
+    auto bystander = new GenericDebuggerEngine("test", bystanderBackend);
+    const QScopeGuard deleteBystander([bystander] { delete bystander; });
+    QAction *showAppOnTop = settings().showAppOnTop.action();
+    const bool wasOnTop = showAppOnTop->isChecked();
+    const QScopeGuard restoreOnTop([showAppOnTop, wasOnTop] {
+        showAppOnTop->setChecked(wasOnTop);
+    });
+    showAppOnTop->setChecked(true);
+
+    emit backend->inspectorToolsAvailable(true);
+    QCOMPARE(backend->appOnTopChanges, QList<bool>{true});
+    QVERIFY(engine->m_selectToolAction);
+    QVERIFY(!engine->m_selectToolAction->isEnabled());
+    engine->setState(InferiorRunOk, true);
+    QVERIFY(engine->m_selectToolAction->isEnabled());
+    QVERIFY(showAppOnTop->isEnabled());
+
+    engine->m_selectToolAction->trigger();
+    QCOMPARE(backend->selectToolChanges, QList<bool>{true});
+    showAppOnTop->trigger();
+    QCOMPARE(backend->appOnTopChanges, QList<bool>({true, false}));
+    QVERIFY(bystanderBackend->appOnTopChanges.isEmpty());
+
+    engine->selectWatchData("local.x");
+    engine->selectWatchData("inspect.1.7");
+    QCOMPARE(backend->selectedInspectorItems, QStringList("inspect.1.7"));
+
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const FilePath qmlFile = FilePath::fromString(dir.path()) / "Main.qml";
+    QVERIFY(qmlFile.writeFileContents("import QtQuick\nItem {\n    Item {}\n}\n"));
+    const QScopeGuard closeEditors([] { EditorManager::closeAllEditors(false); });
+    emit backend->inspectorObjectSelected("inspect.1.7", qmlFile, 3);
+    QVERIFY(EditorManager::currentDocument());
+    QCOMPARE(EditorManager::currentDocument()->filePath(), qmlFile);
+    QCOMPARE(EditorManager::currentEditor()->currentLine(), 3);
+    // A source that exists only on the device, or in its resources, opens nothing.
+    const FilePath missing = FilePath::fromString(dir.path()) / "Missing.qml";
+    emit backend->inspectorObjectSelected("inspect.1.7", missing, 1);
+    QVERIFY(!DocumentModel::documentForFilePath(missing));
+    QCOMPARE(EditorManager::currentDocument()->filePath(), qmlFile);
+
+    emit backend->inspectorToolsAvailable(false);
+    QVERIFY(!engine->m_selectToolAction->isEnabled());
+    showAppOnTop->trigger();
+    QCOMPARE(backend->appOnTopChanges, QList<bool>({true, false}));
+}
+
+void DebuggerUnitTests::testInspectorTreeFollowsTheSettings()
+{
+    BoolAspect &showTree = settings().showQmlObjectTree;
+    BoolAspect &sortMembers = settings().sortStructMembers;
+    const QScopeGuard restoreSettings([&, shown = showTree(), sorted = sortMembers()] {
+        showTree.setValue(shown);
+        sortMembers.setValue(sorted);
+    });
+    showTree.setValue(true);
+    sortMembers.setValue(true);
+
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setState(InferiorRunOk, true);
+    QCOMPARE(backend->inspectorTreeShown, QList<bool>{true});
+    // A backend that never filled the tree has nothing to sort.
+    auto bystanderBackend = new RecordingBackend;
+    auto bystander = new GenericDebuggerEngine("test", bystanderBackend);
+    const QScopeGuard deleteBystander([bystander] { delete bystander; });
+    bystander->setRunParameters({});
+    bystander->setState(InferiorRunOk, true);
+
+    GdbMi items;
+    items.m_type = GdbMi::List;
+    items.m_name = "data";
+    const auto addItem = [&items](const QString &iname, const QString &name) {
+        GdbMi item;
+        item.m_type = GdbMi::Tuple;
+        item.addConst("iname", iname);
+        item.addConst("name", name);
+        item.addConst("value", "1");
+        item.addConst("numchild", "0");
+        items.addChild(item);
+    };
+    addItem("inspect.1", "Engine");
+    addItem("inspect.1.7", "Item");
+    addItem("inspect.1.7.[properties]", "Properties");
+    addItem("inspect.1.7.[properties].width", "width");
+    addItem("inspect.1.7.[properties].height", "height");
+    GdbMi tree;
+    tree.m_type = GdbMi::Tuple;
+    tree.addChild(items);
+    WatchHandler *handler = engine->watchHandler();
+    const auto propertyNames = [handler] {
+        QStringList names;
+        if (const WatchItem *properties = handler->findItem("inspect.1.7.[properties]")) {
+            properties->forFirstLevelChildren([&names](const WatchItem *item) {
+                names << item->name;
+            });
+        }
+        return names;
+    };
+    const auto treeRequests = [backend] {
+        return backend->refreshes.count(RefreshKind::InspectorTree);
+    };
+
+    emit backend->refreshDataReceived(0, RefreshKind::InspectorTree, tree);
+    QCOMPARE(propertyNames(), QStringList({"height", "width"}));
+
+    sortMembers.setValue(false);
+    QCOMPARE(treeRequests(), 1);
+    QCOMPARE(bystanderBackend->refreshes.count(RefreshKind::InspectorTree), 0);
+    emit backend->refreshDataReceived(0, RefreshKind::InspectorTree, tree);
+    QCOMPARE(propertyNames(), QStringList({"width", "height"}));
+
+    showTree.setValue(false);
+    QCOMPARE(backend->inspectorTreeShown, QList<bool>({true, false}));
+    QCOMPARE(handler->findItem("inspect")->childCount(), 0);
+    emit backend->refreshDataReceived(0, RefreshKind::InspectorTree, tree);
+    QCOMPARE(handler->findItem("inspect")->childCount(), 0);
+    sortMembers.setValue(true);
+    QCOMPARE(treeRequests(), 1);
+
+    showTree.setValue(true);
+    QCOMPARE(backend->inspectorTreeShown, QList<bool>({true, false, true}));
+}
+
+// An entry whose children the backend did not send fetches them when it is
+// expanded, but only while the session that printed it is alive.
+void DebuggerUnitTests::testConsoleEntryExpandsThroughTheBackend()
+{
+    auto backend = new RecordingBackend(DebuggerExtraCapability::ScriptConsole);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setState(InferiorStopOk, true);
+
+    GdbMi folded;
+    folded.m_type = GdbMi::Tuple;
+    folded.addConst("text", "one: Object");
+    folded.addConst("handle", "17");
+    GdbMi child;
+    child.m_type = GdbMi::Tuple;
+    child.addConst("text", "two: 2");
+    GdbMi children;
+    children.m_type = GdbMi::List;
+    children.m_name = "children";
+    children.addChild(child);
+    GdbMi answer;
+    answer.m_type = GdbMi::Tuple;
+    answer.addConst("text", "Object");
+    answer.addChild(children);
+
+    TreeModel<> model;
+    ConsoleItem *item = engine->toConsoleItem(folded);
+    model.rootItem()->appendChild(item);
+    const QModelIndex index = model.indexForItem(item);
+    QVERIFY(model.canFetchMore(index));
+    model.fetchMore(index);
+    QCOMPARE(backend->lastConsoleItemRequest.handle, 17);
+    emit backend->refreshDataReceived(backend->lastConsoleItemRequest.requestId,
+                                      RefreshKind::ConsoleItem, answer);
+    QCOMPARE(item->childCount(), 1);
+    QCOMPARE(static_cast<ConsoleItem *>(item->childAt(0))->expression(), QString("two: 2"));
+
+    ConsoleItem *afterSession = engine->toConsoleItem(folded);
+    model.rootItem()->appendChild(afterSession);
+    ConsoleItem *afterEngine = engine->toConsoleItem(folded);
+    model.rootItem()->appendChild(afterEngine);
+    const quint64 lastRequestId = backend->lastConsoleItemRequest.requestId;
+    engine->setState(DebuggerFinished, true);
+    model.fetchMore(model.indexForItem(afterSession));
+    QCOMPARE(backend->lastConsoleItemRequest.requestId, lastRequestId);
+
+    deleteEngine.dismiss();
+    delete engine;
+    model.fetchMore(model.indexForItem(afterEngine));
+    QCOMPARE(afterEngine->childCount(), 0);
+}
+
+void DebuggerUnitTests::testConsoleChildrenFollowSortStructMembers()
+{
+    BoolAspect &sortMembers = settings().sortStructMembers;
+    const QScopeGuard restoreSorting([&, sorted = sortMembers()] {
+        sortMembers.setValue(sorted);
+    });
+    auto backend = new RecordingBackend(DebuggerExtraCapability::ScriptConsole);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setState(InferiorStopOk, true);
+
+    GdbMi children;
+    children.m_type = GdbMi::List;
+    children.m_name = "children";
+    for (const QString &text : {QString("b: 2"), QString("a: 1")}) {
+        GdbMi child;
+        child.m_type = GdbMi::Tuple;
+        child.addConst("text", text);
+        children.addChild(child);
+    }
+    GdbMi object;
+    object.m_type = GdbMi::Tuple;
+    object.addConst("text", "Object");
+    object.addChild(children);
+    const auto childTexts = [](const ConsoleItem *item) {
+        QStringList texts;
+        for (int row = 0; row < item->childCount(); ++row)
+            texts << static_cast<ConsoleItem *>(item->childAt(row))->expression();
+        return texts;
+    };
+
+    TreeModel<> model;
+    sortMembers.setValue(false);
+    ConsoleItem *unsorted = engine->toConsoleItem(object);
+    model.rootItem()->appendChild(unsorted);
+    QCOMPARE(childTexts(unsorted), QStringList({"b: 2", "a: 1"}));
+
+    sortMembers.setValue(true);
+    ConsoleItem *sorted = engine->toConsoleItem(object);
+    model.rootItem()->appendChild(sorted);
+    QCOMPARE(childTexts(sorted), QStringList({"a: 1", "b: 2"}));
+
+    GdbMi folded;
+    folded.m_type = GdbMi::Tuple;
+    folded.addConst("text", "Object");
+    folded.addConst("handle", "17");
+    ConsoleItem *fetched = engine->toConsoleItem(folded);
+    model.rootItem()->appendChild(fetched);
+    model.fetchMore(model.indexForItem(fetched));
+    emit backend->refreshDataReceived(backend->lastConsoleItemRequest.requestId,
+                                      RefreshKind::ConsoleItem, object);
+    QCOMPARE(childTexts(fetched), QStringList({"a: 1", "b: 2"}));
 }
 
 // The service spells an enabled breakpoint "1", gdb spells it "y". Read as gdb
@@ -9368,6 +9903,8 @@ static std::optional<int> inspectedProperty(DebuggerEngine *engine, const QStrin
 
 void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
 {
+    if (DebuggerEngine::isUsingGenericDebugger())
+        QSKIP("The generic debugger has no QmlInspectorAgent to check.");
     Kit *kit = kitWithAQt();
     if (!kit)
         QSKIP("This test needs a kit with a Qt to run qml from.");
@@ -9591,6 +10128,8 @@ Window {
 
 void DebuggerUnitTests::testInspectorDefersManyDelegates()
 {
+    if (DebuggerEngine::isUsingGenericDebugger())
+        QSKIP("The generic debugger has no QmlInspectorAgent to check.");
     Kit *kit = kitWithAQt();
     if (!kit)
         QSKIP("This test needs a kit with a Qt to run qml from.");

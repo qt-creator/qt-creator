@@ -111,6 +111,6 @@ private:
     QmlEnginePrivate *d;
 };
 
-DebuggerEngine *createQmlEngine();
+DebuggerEngine *createQmlEngine(const DebuggerRunParameters &rp, bool isCompanion);
 
 } // Debugger::Internal

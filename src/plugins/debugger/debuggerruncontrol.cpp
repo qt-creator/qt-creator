@@ -655,7 +655,7 @@ static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
     // the separate QML engine must not be created; it would otherwise own
     // the QML frames and handle stepping over the QML debug protocol.
     if (rp.isQmlDebugging() && !rp.isNativeMixedDebugging())
-        engines << createQmlEngine();
+        engines << createQmlEngine(rp, !engines.isEmpty());
 
     if (engines.isEmpty()) {
         QString msg = noEngineMessage();

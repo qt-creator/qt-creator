@@ -63,6 +63,7 @@ enum class RefreshKind {
     FullBacktrace,
     InspectorTree,
     ModuleSymbolState,
+    ConsoleItem,
 };
 
 // What the dumpers need to know about the user's display preferences. All of it
@@ -120,6 +121,9 @@ public:
     // How many frames a stack refresh may report. -1 asks for all of them, which
     // is what the user's "Reload Full Stack" means.
     int stackDepthLimit = -1;
+    // The console entry a ConsoleItem refresh expands, by the "handle" the
+    // backend put on it.
+    qint64 handle = -1;
 };
 
 enum class BreakpointOp { Insert, Remove, Update, EnableSub };
@@ -309,6 +313,9 @@ public:
     DebuggerStartModes startModes;
     ToolTipHandling toolTipHandling = ToolTipHandling::IfStoppedInferiorAndCppEditor;
     bool validatesRunParameters = true;
+    // The debuggee is run by a companion engine and does not answer while
+    // that one has it stopped.
+    bool needsRunningCompanion = false;
 };
 
 class DEBUGGER_EXPORT DebuggerEngineInterface : public QObject
@@ -366,6 +373,17 @@ signals:
     // covers. Empty where the backend named none.
     void stopReasonReported(const QString &reason);
 
+    // An entry for the script console: "type" is "debug", "warning", "error"
+    // or empty for a plain result, "text" is what the line shows, "file" and
+    // "line" are optional, and "children" holds entries of the same shape.
+    // An entry with a "handle" has children that a ConsoleItem refresh for
+    // that handle fetches. The answer is an entry whose children are those.
+    void consoleItemReported(const GdbMi &item);
+
+    // Whether console input given while the inferior runs is evaluated in the
+    // object selected in the inspector. Until this is reported, it is not.
+    void consoleObjectContextReported(bool inSelectedObject);
+
     // A console command is through and left the inferior stopped, with
     // whatever it changed there for the views to read again.
     void debuggerCommandDone();
@@ -386,8 +404,20 @@ signals:
     void startFailed(const QString &title, const QString &message,
                      const Utils::Key &settingsKey);
 
+    // The backend gave up connecting to the debugger it talks to. The setup
+    // stays open until retryConnection() is called or the setup fails.
+    void connectionFailed(const QString &message);
+
     void interruptTerminalRequested();
     void kickoffTerminalProcessRequested();
+
+    // Whether the tools that act on the running application from the
+    // inspector, like selecting the object under a click, can be used.
+    void inspectorToolsAvailable(bool available);
+    // An object the inspector selected, in the application or in answer to
+    // selectInspectorItem(). The iname is empty for an object the inspector
+    // tree does not show, the file is empty when its source is not known.
+    void inspectorObjectSelected(const QString &iname, const Utils::FilePath &file, int line);
 
 protected:
     explicit DebuggerEngineInterface(const DebuggerEngineSetupData &setupData)
@@ -396,6 +426,9 @@ protected:
 
 private:
     virtual void start() = 0;
+
+    // Tries the connection again after connectionFailed().
+    virtual void retryConnection() {}
 
     virtual void shutdownInferior(ShutdownMode mode) = 0;
 
@@ -407,6 +440,19 @@ private:
     // Whether the registers it reports are those of the selected frame, as
     // the debugger reconstructs them, rather than the current CPU state.
     virtual std::optional<bool> registersFollowSelectedFrame() const { return {}; }
+
+    // What the debuggee printed, for a backend whose debuggee a companion
+    // engine runs.
+    virtual void companionOutput(const QString &output) { Q_UNUSED(output) }
+
+    // Whether the inspector tree is shown. A backend that has one keeps it
+    // up to date by itself only while it is.
+    virtual void showInspectorTree(bool shown) { Q_UNUSED(shown) }
+
+    // The inspector tools, for a backend that reports them available.
+    virtual void selectInspectorItem(const QString &iname) { Q_UNUSED(iname) }
+    virtual void setSelectTool(bool active) { Q_UNUSED(active) }
+    virtual void setShowAppOnTop(bool onTop) { Q_UNUSED(onTop) }
 
     virtual void changeBreakpoint(const BreakpointChangeRequest &request) = 0;
 

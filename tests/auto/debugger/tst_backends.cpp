@@ -23,6 +23,7 @@
 #include <utils/qtcprocess.h>
 #include <utils/result.h>
 #include <utils/temporarydirectory.h>
+#include <utils/url.h>
 
 #include <chrono>
 #include <csignal>
@@ -2542,6 +2543,16 @@ private slots:
     void reportsTheStackOfASelectedThread();
     void mapsTheReportedSourcePath_data() { addBackendRows(); }
     void mapsTheReportedSourcePath();
+    void mapsAQmlScriptUrlToAProjectFile_data() { addBackendRows(); }
+    void mapsAQmlScriptUrlToAProjectFile();
+    void printsAnEvaluatedQmlObjectAsATree_data() { addBackendRows(); }
+    void printsAnEvaluatedQmlObjectAsATree();
+    void forwardsQmlConsoleMessages_data() { addBackendRows(); }
+    void forwardsQmlConsoleMessages();
+    void evaluatesWhileTheQmlApplicationRuns_data() { addBackendRows(); }
+    void evaluatesWhileTheQmlApplicationRuns();
+    void expandsAnEvaluatedQmlObjectOnDemand_data() { addBackendRows(); }
+    void expandsAnEvaluatedQmlObjectOnDemand();
     void keepsALocationItCannotShowToItself_data() { addBackendRows(); }
     void keepsALocationItCannotShowToItself();
     void keepsALocationWhoseSourceIsGoneToItself_data() { addBackendRows(); }
@@ -2562,6 +2573,18 @@ private slots:
     void explainsWhyLldbDidNotStart();
     void relaunchesAQmlRuntimeThatCannotListen_data() { addBackendRows(); }
     void relaunchesAQmlRuntimeThatCannotListen();
+    void givesUpOnAnApplicationWithoutQmlDebugging_data() { addBackendRows(); }
+    void givesUpOnAnApplicationWithoutQmlDebugging();
+    void launchesAQmlRuntimeAtTheServerItNames_data() { addBackendRows(); }
+    void launchesAQmlRuntimeAtTheServerItNames();
+    void givesUpOnACompanionsRuntimeWithoutQmlDebugging_data() { addBackendRows(); }
+    void givesUpOnACompanionsRuntimeWithoutQmlDebugging();
+    void explainsAQmlConnectionItGaveUpOn_data() { addBackendRows(); }
+    void explainsAQmlConnectionItGaveUpOn();
+    void listensForAQmlRuntimeThatConnectsBack_data() { addBackendRows(); }
+    void listensForAQmlRuntimeThatConnectsBack();
+    void selectsAnInspectorObjectInTheApplication_data() { addBackendRows(); }
+    void selectsAnInspectorObjectInTheApplication();
     void reportsAFailedLldbDetach_data() { addBackendRows(); }
     void reportsAFailedLldbDetach();
     void launchesWithTheSymbolFile_data() { addBackendRows(); }
@@ -2589,12 +2612,16 @@ private slots:
 
     void attachesToQmlServerAndStopsAtBreakpoint_data() { addBackendRows(); }
     void attachesToQmlServerAndStopsAtBreakpoint();
+    void endsAQmlAttachWhenTheApplicationQuits_data() { addBackendRows(); }
+    void endsAQmlAttachWhenTheApplicationQuits();
     void insertsBreakpointAtJavaScriptThrowAndStopsAtIt_data() { addBackendRows(); }
     void insertsBreakpointAtJavaScriptThrowAndStopsAtIt();
     void insertsABreakOnAQmlSignalEmit_data() { addBackendRows(); }
     void insertsABreakOnAQmlSignalEmit();
     void reportsInspectorObjectTree_data() { addBackendRows(); }
     void reportsInspectorObjectTree();
+    void fillsTheInspectorTreeOnlyWhileItIsShown_data() { addBackendRows(); }
+    void fillsTheInspectorTreeOnlyWhileItIsShown();
 
 private:
     void addBackendRows();
@@ -18475,6 +18502,241 @@ void tst_backends::mapsTheReportedSourcePath()
     engine->shutdownEngine();
 }
 
+// The runtime names a script by its resource URL. A stop and the frames have
+// to name the project file instead, which is the one the editor can open.
+void tst_backends::mapsAQmlScriptUrlToAProjectFile()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend is handed a file finder.");
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    const FilePath projectFile = FilePath::fromUserInput(BACKENDS_TEST_SOURCE_DIR)
+                                 / testData.source.fileName();
+    QVERIFY(projectFile.isFile());
+
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = ProcessRunData{{testData.executable, {}}, {},
+                                                Environment::systemEnvironment()},
+            .findFile = [projectFile](const QUrl &url) -> FilePath {
+                if (url.scheme() == "qrc" && url.fileName() == projectFile.fileName())
+                    return projectFile;
+                return {};
+            }}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp, bool ok, const GdbMi &) {
+        insertResults[requestId] = ok;
+    });
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, testData](InferiorEvent event) {
+        if (event == InferiorEvent::EngineSetupOk) {
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = 350;
+            request.params.type = BreakpointByFileAndLine;
+            request.params.fileName = testData.source;
+            request.params.textPosition.line = testData.breakpointLine;
+            request.params.enabled = true;
+            engine->changeBreakpoint(request);
+        }
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(350)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY2(insertResults.value(350), "the breakpoint was never inserted");
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
+
+    QCOMPARE(debuggerBackend->stoppedFile(), projectFile);
+
+    QHash<int, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        responses[int(kind)] = data;
+    });
+    RefreshRequest stackRequest;
+    stackRequest.kind = RefreshKind::FullStack;
+    stackRequest.requestId = 351;
+    engine->refresh(stackRequest);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    const GdbMi frames = responses.value(int(RefreshKind::FullStack))["stack"]["frames"];
+    QVERIFY(frames.childCount() > 0);
+    QCOMPARE(FilePath::fromUserInput(frames.childAt(0)["file"].data()), projectFile);
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// An object typed into the console is shown with its members to expand, as the
+// locals view shows it, not as the one word its value converts to.
+void tst_backends::printsAnEvaluatedQmlObjectAsATree()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend reports console entries.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<GdbMi> items;
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&items](const GdbMi &item) { items.append(item); });
+    engine->executeDebuggerCommand("nested", {});
+    QTRY_VERIFY_WITH_TIMEOUT(!items.isEmpty(), s_timeout);
+
+    QCOMPARE(items.first()["text"].data(), QString("object"));
+    QStringList children;
+    for (const GdbMi &child : items.first()["children"])
+        children.append(child["text"].data());
+    QVERIFY2(children.contains("alpha: 1") && children.contains("beta: \"two\""),
+             qPrintable(items.first().toString()));
+
+    // Sorting the members is the engine's, by the user's setting.
+    items.clear();
+    engine->executeDebuggerCommand("({b: 2, a: 1})", {});
+    QTRY_VERIFY_WITH_TIMEOUT(!items.isEmpty(), s_timeout);
+    children.clear();
+    for (const GdbMi &child : items.first()["children"])
+        children.append(child["text"].data());
+    QCOMPARE(children, QStringList({"b: 2", "a: 1"}));
+
+    items.clear();
+    engine->executeDebuggerCommand("noSuchName", {});
+    QTRY_VERIFY_WITH_TIMEOUT(!items.isEmpty(), s_timeout);
+    QCOMPARE(items.first()["type"].data(), QString("error"));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// What the application writes with console.log() and friends belongs in the
+// console, with its severity and the place it came from.
+void tst_backends::forwardsQmlConsoleMessages()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend reports console entries.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<GdbMi> items;
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&items](const GdbMi &item) { items.append(item); });
+    engine->start();
+
+    const auto warning = [&items] {
+        return Utils::findOrDefault(items, [](const GdbMi &item) {
+            return item["text"].data() == "recursing";
+        });
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(warning().isValid(), s_qmlStartupTimeout);
+    const GdbMi item = warning();
+    QCOMPARE(item["type"].data(), QString("warning"));
+    QVERIFY2(item["file"].data().endsWith("qmlserver_inferior.qml"), qPrintable(item.toString()));
+    QVERIFY(item["line"].toInt() > 0);
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// The console answers while the application runs, not only at a breakpoint.
+void tst_backends::evaluatesWhileTheQmlApplicationRuns()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend reports console entries.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<GdbMi> items;
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&items](const GdbMi &item) { items.append(item); });
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                             s_qmlStartupTimeout);
+
+    const auto answer = [&items] {
+        return Utils::findOrDefault(items, [](const GdbMi &item) {
+            return item["text"].data() == "42";
+        });
+    };
+    engine->executeDebuggerCommand("6 * 7", {});
+    QTRY_VERIFY_WITH_TIMEOUT(answer().isValid(), s_timeout);
+    QCOMPARE(answer()["type"].data(), QString());
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// What one answer leaves unresolved is fetched when the entry is expanded.
+void tst_backends::expandsAnEvaluatedQmlObjectOnDemand()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend reports console entries.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<GdbMi> items;
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&items](const GdbMi &item) { items.append(item); });
+    engine->executeDebuggerCommand("({ one: { two: { three: 3 } } })", {});
+    QTRY_VERIFY_WITH_TIMEOUT(!items.isEmpty(), s_timeout);
+
+    GdbMi folded;
+    for (const GdbMi &child : items.first()["children"]) {
+        if (child["text"].data().startsWith("one"))
+            folded = child;
+    }
+    QVERIFY2(folded["handle"].isValid(), qPrintable(items.first().toString()));
+
+    RefreshRequest request;
+    request.kind = RefreshKind::ConsoleItem;
+    request.requestId = 4711;
+    request.handle = folded["handle"].data().toLongLong();
+    GdbMi answer;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&answer](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (requestId == 4711 && kind == RefreshKind::ConsoleItem)
+            answer = data;
+    });
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(answer.isValid(), s_timeout);
+
+    QStringList children;
+    for (const GdbMi &child : answer["children"])
+        children.append(child["text"].data());
+    QVERIFY2(children.contains("two: object"), qPrintable(answer.toString()));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
 // A location the editor cannot open is not a location to go to: what the
 // debugger reports can name a file that is not on this machine.
 void tst_backends::keepsALocationItCannotShowToItself()
@@ -19072,6 +19334,320 @@ void tst_backends::relaunchesAQmlRuntimeThatCannotListen()
     engine->shutdownEngine();
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
                              s_timeout);
+}
+
+void tst_backends::givesUpOnAnApplicationWithoutQmlDebugging()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend starts a runtime that listens on a port.");
+    if (!HostOsInfo::isLinuxHost())
+        QSKIP("The stand-in runtime is a shell script.");
+
+    // What an application built without QML debugging says before it runs on.
+    const QString script = QString("echo 'QML Debugger: Ignoring \"-qmljsdebugger=port:1\". "
+                                   "Debugging has not been enabled.' >&2; exec sleep 600");
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = ProcessRunData{{"/bin/sh", {"-c", script}}, {},
+                                                Environment::systemEnvironment()}}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    QList<GdbMi> items;
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&items](const GdbMi &item) { items.append(item); });
+    int explanations = 0;
+    connect(engine, &DebuggerEngineInterface::startFailed, this,
+            [&explanations] { ++explanations; });
+
+    engine->start();
+    // Well within the minute a runtime that never listens is waited for.
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QCOMPARE(explanations, 0);
+    QCOMPARE(items.size(), 1);
+    QCOMPARE(items.constFirst()["type"].data(), QString("warning"));
+    QVERIFY2(items.constFirst()["text"].data().contains("Debugging has not been enabled"),
+             qPrintable(items.constFirst().toString()));
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+void tst_backends::launchesAQmlRuntimeAtTheServerItNames()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend starts a runtime that listens on a port.");
+    if (!HostOsInfo::isLinuxHost())
+        QSKIP("The stand-in runtime is a shell script.");
+
+    // The command line already tells the runtime where to listen. It gets no
+    // second port, and one it cannot listen on is not replaced.
+    TemporaryDirectory scratch("qml-port-named-XXXXXX");
+    const FilePath arguments = scratch.filePath("arguments");
+    const QString script = QString("printf '%s\\n' \"$@\" >> '%1'; "
+                                   "echo 'QML Debugger: Unable to listen to port 4711.' >&2; "
+                                   "exec sleep 600").arg(arguments.path());
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = ProcessRunData{
+                {"/bin/sh", {"-c", script, "sh", "-qmljsdebugger=port:4711,block"}}, {},
+                Environment::systemEnvironment()},
+            .qmlServer = QUrl("tcp://127.0.0.1:4711")}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    QCOMPARE(QString::fromUtf8(arguments.fileContents().value_or(QByteArray())),
+             QString("-qmljsdebugger=port:4711,block\n"));
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+void tst_backends::givesUpOnACompanionsRuntimeWithoutQmlDebugging()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend follows the output of a companion.");
+
+    quint16 port = 0;
+    {
+        QTcpServer probe;
+        QVERIFY(probe.listen(QHostAddress::LocalHost));
+        port = probe.serverPort();
+    }
+    QUrl server;
+    server.setHost("127.0.0.1");
+    server.setPort(port);
+    auto debuggerBackend = std::make_unique<DebuggerBackend>(
+        std::make_unique<QmlImpl>(QmlImplStartData{
+            .inferiorStartData = AttachToQmlServerData{server},
+            .companionRunsRuntime = true}));
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    QVERIFY(engine->setupData().needsRunningCompanion);
+    QStringList explanations;
+    connect(engine, &DebuggerEngineInterface::startFailed, this,
+            [&explanations](const QString &, const QString &message, const Key &) {
+        explanations.append(message);
+    });
+    int consoleItems = 0;
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&consoleItems] { ++consoleItems; });
+
+    engine->start();
+    engine->companionOutput("QML Debugger: Ignoring \"-qmljsdebugger=port:1\". "
+                            "Debugging has not been enabled.\n");
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_timeout);
+    // The companion's session goes on, the user has to be told.
+    QCOMPARE(explanations.size(), 1);
+    QVERIFY2(explanations.constFirst().contains("Debugging has not been enabled"),
+             qPrintable(explanations.constFirst()));
+    QCOMPARE(consoleItems, 0);
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+void tst_backends::explainsAQmlConnectionItGaveUpOn()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer); !result)
+        QSKIP(qPrintable(result.error()));
+
+    // Nothing can listen under a name longer than both a Unix socket path and
+    // a Windows pipe name may be, and a local server that could not listen is
+    // not tried again.
+    TemporaryDirectory scratch("qml-socket-XXXXXX");
+    QUrl server;
+    server.setScheme(urlSocketScheme());
+    server.setPath(scratch.filePath(QString(300, 'x') + ".socket").path());
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToQmlServerData{server});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    QStringList explanations;
+    connect(engine, &DebuggerEngineInterface::connectionFailed, this,
+            [&explanations](const QString &message) { explanations.append(message); });
+
+    engine->start();
+    QTRY_COMPARE_WITH_TIMEOUT(explanations.size(), 1, s_timeout);
+    QVERIFY2(explanations.constFirst().contains(server.path()),
+             qPrintable(explanations.constFirst()));
+    // Whether to go on is the user's to decide.
+    QVERIFY(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed));
+
+    engine->retryConnection();
+    QTRY_COMPARE_WITH_TIMEOUT(explanations.size(), 2, s_timeout);
+    QVERIFY(!debuggerBackend->contains(InferiorEvent::EngineSetupFailed));
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+void tst_backends::listensForAQmlRuntimeThatConnectsBack()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer); !result)
+        QSKIP(qPrintable(result.error()));
+
+    // A socket path has at most 103 bytes on macOS, and its temporary
+    // directory alone takes about half of that.
+    TemporaryDirectory scratch("qs-XXXXXX");
+    const FilePath socket = scratch.filePath("s");
+    QUrl server;
+    server.setScheme(urlSocketScheme());
+    server.setPath(socket.path());
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToQmlServerData{server});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    QString failure;
+    connect(engine, &DebuggerEngineInterface::connectionFailed, this,
+            [&failure](const QString &message) { failure = message; });
+    QStringList errors;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&errors](const QString &text, int channel, int) {
+        if (channel == Debugger::LogError)
+            errors.append(text);
+    });
+    engine->start();
+
+    Process inferiorProcess;
+    inferiorProcess.setProcessChannelMode(ProcessChannelMode::MergedChannels);
+    inferiorProcess.setCommand({inferiorTestData(backend).executable,
+        {QString("-qmljsdebugger=file:%1,block,services:V8Debugger,QmlDebugger")
+             .arg(socket.path())}});
+    inferiorProcess.start();
+
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                             || !failure.isEmpty(),
+                             s_qmlStartupTimeout);
+    if (!failure.isEmpty()) {
+        // What each side said about it, as the CI log shows no warnings.
+        inferiorProcess.kill();
+        inferiorProcess.waitForFinished();
+        const QStringList report = {failure, errors.join('\n'), inferiorProcess.allOutput()};
+        QFAIL(qPrintable(report.join('\n')));
+    }
+    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+
+    engine->shutdownEngine();
+    inferiorProcess.kill();
+    inferiorProcess.waitForFinished();
+}
+
+void tst_backends::selectsAnInspectorObjectInTheApplication()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.inspectorObject.isEmpty())
+        QSKIP("inferior has no live object tree to inspect");
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer); !result)
+        QSKIP(qPrintable(result.error()));
+
+    quint16 port = 0;
+    {
+        QTcpServer probe;
+        QVERIFY(probe.listen(QHostAddress::LocalHost));
+        port = probe.serverPort();
+    }
+    Process inferiorProcess;
+    inferiorProcess.setCommand({testData.executable,
+        {QString("-qmljsdebugger=port:%1,block,services:V8Debugger,QmlDebugger,QmlInspector")
+             .arg(port)}});
+    inferiorProcess.start();
+    QVERIFY(inferiorProcess.waitForStarted());
+    const QScopeGuard killInferior([&inferiorProcess] {
+        inferiorProcess.kill();
+        inferiorProcess.waitForFinished();
+    });
+
+    QUrl server;
+    server.setHost("127.0.0.1");
+    server.setPort(port);
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToQmlServerData{server});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    bool toolsAvailable = false;
+    connect(engine, &DebuggerEngineInterface::inspectorToolsAvailable, this,
+            [&toolsAvailable](bool available) { toolsAvailable = available; });
+    QStringList selectedINames;
+    FilePath selectedFile;
+    int selectedLine = 0;
+    connect(engine, &DebuggerEngineInterface::inspectorObjectSelected, this,
+            [&](const QString &iname, const FilePath &file, int line) {
+        selectedINames.append(iname);
+        selectedFile = file;
+        selectedLine = line;
+    });
+    QString objectIName;
+    QString propertyIName;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&objectIName, &propertyIName, &testData](quint64, RefreshKind kind,
+                                                      const GdbMi &data) {
+        if (kind != RefreshKind::InspectorTree)
+            return;
+        for (const GdbMi &item : data["data"]) {
+            if (item["name"].data() == testData.inspectorObject)
+                objectIName = item["iname"].data();
+        }
+        for (const GdbMi &item : data["data"]) {
+            if (item["iname"].data().startsWith(objectIName + ".[properties]."))
+                propertyIName = item["iname"].data();
+        }
+    });
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
+    QTRY_VERIFY_WITH_TIMEOUT(toolsAvailable, s_timeout);
+
+    RefreshRequest request;
+    request.kind = RefreshKind::InspectorTree;
+    request.requestId = 300;
+    engine->refresh(request);
+    QTRY_VERIFY2_WITH_TIMEOUT(!objectIName.isEmpty(),
+                              "the object tree never reported the expected object", s_timeout);
+
+    engine->selectInspectorItem(objectIName);
+    QTRY_VERIFY_WITH_TIMEOUT(!selectedINames.isEmpty(), s_timeout);
+    QCOMPARE(selectedINames.first(), objectIName);
+    QCOMPARE(selectedFile.suffix(), QString("qml"));
+    QVERIFY(selectedLine > 0);
+
+    // A property row stands for its object, and stays the row shown selected.
+    request.requestId = 301;
+    request.expandedINames = {objectIName};
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(!propertyIName.isEmpty(), s_timeout);
+    const int objectLine = selectedLine;
+    selectedFile.clear();
+    engine->selectInspectorItem(propertyIName);
+    QTRY_COMPARE_WITH_TIMEOUT(selectedINames.size(), 2, s_timeout);
+    QCOMPARE(selectedINames.last(), propertyIName);
+    QCOMPARE(selectedFile.suffix(), QString("qml"));
+    QCOMPARE(selectedLine, objectLine);
+
+    engine->shutdownEngine();
 }
 
 void tst_backends::reportsAFailedLldbDetach()
@@ -19913,6 +20489,48 @@ void tst_backends::attachesToQmlServerAndStopsAtBreakpoint()
     inferiorProcess.waitForFinished();
 }
 
+// The session only attached, so an application that quits ends it the normal
+// way rather than as a debugger in trouble.
+void tst_backends::endsAQmlAttachWhenTheApplicationQuits()
+{
+    QFETCH(Backend, backend);
+
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer); !result)
+        QSKIP(qPrintable(result.error()));
+
+    Process inferiorProcess;
+    const quint16 port = startQmlServer(inferiorProcess, inferiorTestData(backend).executable);
+    QVERIFY2(port != 0, "could not start the Qml inferior/reserve a port for it");
+
+    QUrl server;
+    server.setHost("127.0.0.1");
+    server.setPort(port);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToQmlServerData{server});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+
+    debuggerBackend->clearEvents();
+    inferiorProcess.kill();
+    inferiorProcess.waitForFinished();
+    QTRY_VERIFY_WITH_TIMEOUT(!debuggerBackend->inferiorResults().isEmpty()
+                             || debuggerBackend->contains(InferiorEvent::EngineIll), s_timeout);
+    QVERIFY(!debuggerBackend->contains(InferiorEvent::EngineIll));
+    QCOMPARE(debuggerBackend->inferiorResults().constFirst().exitStatus,
+             InferiorExitStatus::Detached);
+
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
 void tst_backends::insertsBreakpointAtJavaScriptThrowAndStopsAtIt()
 {
     QFETCH(Backend, backend);
@@ -20046,6 +20664,85 @@ void tst_backends::insertsABreakOnAQmlSignalEmit()
     inferiorProcess.waitForFinished();
 }
 
+void tst_backends::fillsTheInspectorTreeOnlyWhileItIsShown()
+{
+    QFETCH(Backend, backend);
+
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.inspectorObject.isEmpty())
+        QSKIP("inferior has no live object tree to inspect");
+    if (auto result = checkStartMode(backend, DebuggerStartModeFlag::AttachToQmlServer); !result)
+        QSKIP(qPrintable(result.error()));
+
+    Process inferiorProcess;
+    const quint16 port = startQmlServer(inferiorProcess, testData.executable);
+    QVERIFY2(port != 0, "could not start the Qml inferior/reserve a port for it");
+
+    QUrl server;
+    server.setHost("127.0.0.1");
+    server.setPort(port);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createAttachEngine(backend,
+        AttachToQmlServerData{server});
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QList<std::pair<quint64, GdbMi>> trees;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&trees](quint64 requestId, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::InspectorTree)
+            trees.append({requestId, data});
+    });
+    // Counts the trees that show the object, either those nobody asked for
+    // or those answering a request.
+    const auto treesShowingTheObject = [&trees, &testData](bool requested) {
+        int count = 0;
+        for (const auto &[id, tree] : trees) {
+            if ((id != 0) != requested)
+                continue;
+            for (const GdbMi &item : tree["data"]) {
+                if (item["name"].data() == testData.inspectorObject) {
+                    ++count;
+                    break;
+                }
+            }
+        }
+        return count;
+    };
+
+    engine->showInspectorTree(false);
+    engine->start();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
+                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
+                             s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
+
+    // A request answered with the object went out after the inspector service
+    // came up, and so after any tree the backend would have fetched by itself.
+    quint64 nextRequestId = 300;
+    QTRY_VERIFY_WITH_TIMEOUT([&] {
+        if (treesShowingTheObject(true) > 0)
+            return true;
+        const auto answered = std::count_if(trees.cbegin(), trees.cend(),
+                                            [](const auto &tree) { return tree.first != 0; });
+        if (answered == qsizetype(nextRequestId - 300)) {
+            RefreshRequest request;
+            request.kind = RefreshKind::InspectorTree;
+            request.requestId = nextRequestId++;
+            engine->refresh(request);
+        }
+        return false;
+    }(), s_timeout);
+    QCOMPARE(treesShowingTheObject(false), 0);
+
+    engine->showInspectorTree(true);
+    QTRY_VERIFY_WITH_TIMEOUT(treesShowingTheObject(false) > 0, s_timeout);
+
+    inferiorProcess.kill();
+    inferiorProcess.waitForFinished();
+}
+
 void tst_backends::reportsInspectorObjectTree()
 {
     QFETCH(Backend, backend);
@@ -20108,6 +20805,9 @@ void tst_backends::reportsInspectorObjectTree()
         return found;
     };
 
+    QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(0, testData.inspectorObject).isEmpty(),
+                              "the object tree was not filled once connected", s_timeout);
+
     RefreshRequest request;
     request.kind = RefreshKind::InspectorTree;
     request.requestId = 300;
@@ -20144,11 +20844,8 @@ void tst_backends::reportsInspectorObjectTree()
                               s_timeout);
 
     QStringList consoleResults;
-    connect(engine, &DebuggerEngineInterface::message, this,
-            [&consoleResults](const QString &text, int channel, int) {
-        if (channel == Debugger::ConsoleOutput)
-            consoleResults.append(text);
-    });
+    connect(engine, &DebuggerEngineInterface::consoleItemReported, this,
+            [&consoleResults](const GdbMi &item) { consoleResults.append(item["text"].data()); });
     engine->executeDebuggerCommand(testData.inspectorPropertyExpression, assignTarget);
     QTRY_VERIFY2_WITH_TIMEOUT(consoleResults.contains(newValue),
                               qPrintable("evaluating against the Inspector object reported: "
@@ -20157,21 +20854,32 @@ void tst_backends::reportsInspectorObjectTree()
     if (testData.inspectorOrphanObject.isEmpty())
         return;
     const QString engineIName = objectIName.left(objectIName.indexOf('.', strlen("inspect.")));
+    const QString parentlessIName = engineIName + ".[parentless]";
+    // There can be thousands of objects without a parent, delegates for one.
+    // They wait below an item of their own until that is expanded.
     request.requestId = 302;
     engine->refresh(request);
-    QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(302, testData.inspectorOrphanObject).isEmpty(),
-                              "a parentless object never reached the tree", s_timeout);
-    const QString orphanIName = inameFor(302, testData.inspectorOrphanObject);
-    QCOMPARE(orphanIName.count('.'), engineIName.count('.') + 1);
+    QTRY_VERIFY2_WITH_TIMEOUT(itemFor(302, parentlessIName).isValid(),
+                              "no item for the parentless objects", s_timeout);
+    QVERIFY2(inameFor(302, testData.inspectorOrphanObject).isEmpty(),
+             "a parentless object was fetched below a collapsed item");
 
-    // Parentless objects are fetched again on every rebuild, so their
-    // properties must wait for the expansion like everyone else's.
-    QVERIFY2(inameFor(302, testData.inspectorOrphanProperty).isEmpty(),
-             "a collapsed parentless object reported its properties anyway");
     request.requestId = 303;
-    request.expandedINames = {objectIName, orphanIName};
+    request.expandedINames = {objectIName, parentlessIName};
     engine->refresh(request);
-    QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(303, testData.inspectorOrphanProperty).isEmpty(),
+    QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(303, testData.inspectorOrphanObject).isEmpty(),
+                              "a parentless object never reached the tree", s_timeout);
+    const QString orphanIName = inameFor(303, testData.inspectorOrphanObject);
+    QCOMPARE(orphanIName.count('.'), parentlessIName.count('.') + 1);
+    QVERIFY2(orphanIName.startsWith(parentlessIName + '.'), qPrintable("iname: " + orphanIName));
+
+    // Their properties must wait for the expansion like everyone else's.
+    QVERIFY2(inameFor(303, testData.inspectorOrphanProperty).isEmpty(),
+             "a collapsed parentless object reported its properties anyway");
+    request.requestId = 304;
+    request.expandedINames = {objectIName, parentlessIName, orphanIName};
+    engine->refresh(request);
+    QTRY_VERIFY2_WITH_TIMEOUT(!inameFor(304, testData.inspectorOrphanProperty).isEmpty(),
                               "expanding a parentless object never reported its properties",
                               s_timeout);
 

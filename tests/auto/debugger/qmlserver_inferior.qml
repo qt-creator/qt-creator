@@ -42,7 +42,7 @@ QtObject {
         interval: 3500
         running: true
         repeat: true
-        onTriggered: root.recurse(45)
+        onTriggered: { console.warn("recursing"); root.recurse(45) }
     }
 
     function throwsError() {

@@ -3,6 +3,8 @@
 
 #include "consoleitem.h"
 
+#include <utility>
+
 namespace Debugger::Internal {
 
 static QString addZeroWidthSpace(QString text)
@@ -130,18 +132,20 @@ bool ConsoleItem::canFetchMore() const
 
 void ConsoleItem::fetchMore()
 {
-    if (m_doFetch) {
-        m_doFetch(this);
-        m_doFetch = std::function<void(ConsoleItem *)>();
-    }
+    // A fetch that cannot be served yet puts itself back.
+    if (m_doFetch)
+        std::exchange(m_doFetch, {})(this);
 
     for (TreeItem *child : *this) {
         auto item = static_cast<ConsoleItem*>(child);
-        if (item->m_doFetch) {
-            item->m_doFetch(item);
-            item->m_doFetch = m_doFetch;
-        }
+        if (item->m_doFetch)
+            std::exchange(item->m_doFetch, {})(item);
     }
+}
+
+void ConsoleItem::setFetch(const std::function<void(ConsoleItem *)> &doFetch)
+{
+    m_doFetch = doFetch;
 }
 
 QString ConsoleItem::expression() const

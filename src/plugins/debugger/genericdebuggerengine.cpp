@@ -20,6 +20,14 @@
 #include "watchhandler.h"
 #include "watchwindow.h"
 
+#include "console/console.h"
+#include "console/consoleitem.h"
+
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/helpmanager.h>
+#include <coreplugin/icore.h>
+
 #include <cppeditor/cppmodelmanager.h>
 #include <qtsupport/qtversionmanager.h>
 #include <projectexplorer/taskhub.h>
@@ -30,6 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/widgets.h>
 
+#include <QGuiApplication>
 #include <QMessageBox>
 
 #include <optional>
@@ -37,6 +46,71 @@
 using namespace Utils;
 
 namespace Debugger::Internal {
+
+ConsoleItem *GenericDebuggerEngine::toConsoleItem(const GdbMi &data)
+{
+    const QString type = data["type"].data();
+    const ConsoleItem::ItemType itemType = type == "debug"     ? ConsoleItem::DebugType
+                                           : type == "warning" ? ConsoleItem::WarningType
+                                           : type == "error"   ? ConsoleItem::ErrorType
+                                                               : ConsoleItem::DefaultType;
+    if (const GdbMi handle = data["handle"]; handle.isValid()) {
+        return new ConsoleItem(itemType, data["text"].data(),
+                               consoleFetch(handle.data().toLongLong()));
+    }
+    const GdbMi line = data["line"];
+    auto item = new ConsoleItem(itemType, data["text"].data(), data["file"].data(),
+                                line.isValid() ? line.toInt() : -1);
+    appendConsoleChildren(item, data["children"]);
+    return item;
+}
+
+std::function<void(ConsoleItem *)> GenericDebuggerEngine::consoleFetch(qint64 handle)
+{
+    return [engine = QPointer(this), handle](ConsoleItem *item) {
+        // The console outlives the session that printed the entry, and the
+        // next session makes it expandable again.
+        if (!engine)
+            return;
+        // Refused silently: expanding a level fetches every child at once.
+        if (!engine->answersConsoleInput()) {
+            item->setFetch(engine->consoleFetch(handle));
+            return;
+        }
+        RefreshRequest request;
+        request.kind = RefreshKind::ConsoleItem;
+        request.requestId = engine->m_nextRefreshRequestId++;
+        request.handle = handle;
+        engine->m_pendingConsoleFetches.insert(request.requestId,
+                                               PendingConsoleFetch{item->index(), item});
+        engine->m_backend->refresh(request);
+    };
+}
+
+// Sorted before they are attached: sorting attached children would move
+// rows the console view has cached indices for.
+void GenericDebuggerEngine::appendConsoleChildren(ConsoleItem *item, const GdbMi &children)
+{
+    QList<ConsoleItem *> items;
+    for (const GdbMi &child : children)
+        items.append(toConsoleItem(child));
+    if (settings().sortStructMembers()) {
+        std::stable_sort(items.begin(), items.end(), [](ConsoleItem *a, ConsoleItem *b) {
+            return a->text() < b->text();
+        });
+    }
+    for (ConsoleItem *child : std::as_const(items))
+        item->appendChild(child);
+}
+
+void GenericDebuggerEngine::handleConsoleItemFetched(quint64 requestId, const GdbMi &data)
+{
+    const PendingConsoleFetch fetch = m_pendingConsoleFetches.take(requestId);
+    // The console may have been cleared while the answer was on its way.
+    if (!fetch.index.isValid())
+        return;
+    appendConsoleChildren(fetch.item, data["children"]);
+}
 
 static QString stopSignal(const ProjectExplorer::Abi &abi)
 {
@@ -112,6 +186,13 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         if (!file.isReadableFile())
             return;
         gotoLocation(Location(file, lineNumber));
+    });
+    connect(m_backend.get(), &DebuggerEngineInterface::consoleItemReported, this,
+            [this](const GdbMi &item) { debuggerConsole()->printItem(toConsoleItem(item)); });
+    connect(m_backend.get(), &DebuggerEngineInterface::consoleObjectContextReported, this,
+            [this](bool inSelectedObject) {
+        m_consoleInSelectedObject = inSelectedObject;
+        updateConsoleContext();
     });
     connect(m_backend.get(), &DebuggerEngineInterface::threadEvent, this,
             [this](ThreadEvent event, const GdbMi &data) {
@@ -213,8 +294,14 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         showMessage(message, LogError);
         CheckableMessageBox::information(title, message, settingsKey);
     });
+    connect(m_backend.get(), &DebuggerEngineInterface::connectionFailed,
+            this, &GenericDebuggerEngine::askToRetryConnection);
     connect(m_backend.get(), &DebuggerEngineInterface::refreshFailed,
-            this, [](quint64, RefreshKind kind, const FilePath &path) {
+            this, [this](quint64 requestId, RefreshKind kind, const FilePath &path) {
+        if (kind == RefreshKind::ConsoleItem) {
+            m_pendingConsoleFetches.remove(requestId);
+            return;
+        }
         QTC_ASSERT(kind == RefreshKind::ModuleSymbols, return);
         AsynchronousMessageBox::critical(Tr::tr("Cannot Read Symbols"),
             Tr::tr("Cannot read symbols for module \"%1\".").arg(path.toUserOutput()));
@@ -232,9 +319,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
                 reportMissingQtSymbols(data["module"].data());
             break;
         case RefreshKind::InspectorTree:
-            watchHandler()->insertItems(data["data"]);
-            watchHandler()->updateLocalsWindow();
-            watchHandler()->reexpandItems();
+            if (settings().showQmlObjectTree())
+                insertInspectorItems(data["data"]);
             break;
         case RefreshKind::FullBacktrace:
             if (!data.data().isEmpty())
@@ -353,6 +439,9 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         case RefreshKind::DebuggingHelpers:
             watchHandler()->addDumpers(data["dumpers"]);
             break;
+        case RefreshKind::ConsoleItem:
+            handleConsoleItemFetched(requestId, data);
+            break;
         default:
             break;
         }
@@ -413,6 +502,9 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
     });
     connect(m_backend.get(), &DebuggerEngineInterface::inferiorEvent, this,
             [this](InferiorEvent event) {
+        // What a backend that was given up on during its setup still says.
+        if (state() == DebuggerFinished)
+            return;
         switch (event) {
         case InferiorEvent::RunOk:
             m_attachStopUnread = false;
@@ -477,7 +569,29 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         }
     });
 
+    connect(m_backend.get(), &DebuggerEngineInterface::inspectorToolsAvailable,
+            this, &GenericDebuggerEngine::setInspectorToolsAvailable);
+    connect(m_backend.get(), &DebuggerEngineInterface::inspectorObjectSelected,
+            this, &GenericDebuggerEngine::handleInspectorObjectSelected);
+    connect(settings().showAppOnTop.action(), &QAction::triggered, this, [this](bool checked) {
+        if (m_inspectorToolsRegistered)
+            m_backend->setShowAppOnTop(checked);
+    });
+
     DebuggerSettings &s = settings();
+    m_backend->showInspectorTree(s.showQmlObjectTree());
+    connect(&s.showQmlObjectTree, &BaseAspect::changed, this, [this] {
+        const bool shown = settings().showQmlObjectTree();
+        if (!shown)
+            clearInspectorTree();
+        m_backend->showInspectorTree(shown);
+    });
+    connect(&s.sortStructMembers, &BaseAspect::changed, this, [this] {
+        // Only a backend that filled the inspector tree has one to sort.
+        const WatchItem *root = watchHandler()->findItem("inspect");
+        if (root && root->childCount() > 0)
+            refreshInspectorTree();
+    });
     for (BoolAspect *aspect : {&s.useDebuggingHelpers, &s.autoDerefPointers, &s.useDynamicType,
                                &s.allowInferiorCalls}) {
         connect(aspect, &BaseAspect::changed, this, [this] {
@@ -493,6 +607,62 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
 GenericDebuggerEngine::~GenericDebuggerEngine()
 {
     m_backend->disconnect();
+    setInspectorToolsAvailable(false);
+}
+
+static const Core::Context &inspectorToolsContext()
+{
+    static const Core::Context context("Debugger.QmlInspector");
+    return context;
+}
+
+void GenericDebuggerEngine::setInspectorToolsAvailable(bool available)
+{
+    if (available == m_inspectorToolsRegistered)
+        return;
+    m_inspectorToolsRegistered = available;
+    QAction *showAppOnTopAction = settings().showAppOnTop.action();
+    if (!available) {
+        m_selectToolAction->setEnabled(false);
+        showAppOnTopAction->setEnabled(false);
+        Core::ActionManager::unregisterAction(m_selectToolAction, Constants::QML_SELECTTOOL);
+        Core::ActionManager::unregisterAction(showAppOnTopAction, Constants::QML_SHOW_APP_ON_TOP);
+        Core::ICore::removeAdditionalContext(inspectorToolsContext());
+        return;
+    }
+    if (!m_selectToolAction) {
+        m_selectToolAction = new QAction(this);
+        m_selectToolAction->setObjectName("QML Select Action");
+        m_selectToolAction->setCheckable(true);
+        connect(m_selectToolAction, &QAction::triggered, this, [this](bool checked) {
+            m_backend->setSelectTool(checked);
+        });
+    }
+    showAppOnTopAction->setCheckable(true);
+    Core::ICore::addAdditionalContext(inspectorToolsContext());
+    Core::ActionManager::registerAction(m_selectToolAction, Constants::QML_SELECTTOOL,
+                                        inspectorToolsContext());
+    Core::ActionManager::registerAction(showAppOnTopAction, Constants::QML_SHOW_APP_ON_TOP,
+                                        inspectorToolsContext());
+    m_selectToolAction->setEnabled(state() == InferiorRunOk);
+    showAppOnTopAction->setEnabled(state() == InferiorRunOk);
+    if (showAppOnTopAction->isChecked())
+        m_backend->setShowAppOnTop(true);
+}
+
+void GenericDebuggerEngine::selectWatchData(const QString &iname)
+{
+    if (iname.startsWith("inspect."))
+        m_backend->selectInspectorItem(iname);
+}
+
+void GenericDebuggerEngine::handleInspectorObjectSelected(const QString &iname,
+                                                          const FilePath &file, int line)
+{
+    if (file.isReadableFile())
+        Core::EditorManager::openEditorAt({file, line});
+    if (!iname.isEmpty())
+        watchHandler()->setCurrentItem(iname);
 }
 
 void GenericDebuggerEngine::setupEngine()
@@ -506,7 +676,104 @@ void GenericDebuggerEngine::setupEngine()
                    "consider clearing that entry to avoid this warning.")
                 .arg(script.toUserOutput()));
     }
+    if (m_backend->hasExtraCapability(DebuggerExtraCapability::ScriptConsole)) {
+        debuggerConsole()->setScriptEvaluator(this, [this](const QString &expression) {
+            if (!answersConsoleInput()) {
+                debuggerConsole()->printItem(
+                    ConsoleItem::ErrorType, Tr::tr("The debugger cannot evaluate expressions now."));
+                return;
+            }
+            executeDebuggerCommand(expression);
+        });
+        connect(stackHandler(), &StackHandler::stackChanged,
+                this, &GenericDebuggerEngine::updateConsoleContext);
+        connect(stackHandler(), &StackHandler::currentIndexChanged,
+                this, &GenericDebuggerEngine::updateConsoleContext);
+        if (WatchTreeView *view = inspectorView()) {
+            connect(view, &WatchTreeView::currentIndexChanged,
+                    this, &GenericDebuggerEngine::updateConsoleContext);
+        }
+    }
+    if (m_backend->setupData().needsRunningCompanion) {
+        for (DebuggerEngine *companion : companionEngines()) {
+            connect(companion, &DebuggerEngine::postMessageRequested,
+                    this, [this](const QString &output) { m_backend->companionOutput(output); });
+        }
+    }
     m_backend->start();
+}
+
+void GenericDebuggerEngine::setState(DebuggerState state, bool forced)
+{
+    DebuggerEngine::setState(state, forced);
+    updateConsoleContext();
+    if (m_inspectorToolsRegistered) {
+        m_selectToolAction->setEnabled(state == InferiorRunOk);
+        settings().showAppOnTop.action()->setEnabled(state == InferiorRunOk);
+    }
+}
+
+// Input the runtime cannot answer would only wake the watchdog.
+bool GenericDebuggerEngine::answersConsoleInput() const
+{
+    return (state() == InferiorRunOk || state() == InferiorStopOk) && !companionPreventsActions();
+}
+
+// Names what the console evaluates its input in: the selected frame while
+// stopped, the object selected in the inspector while running.
+void GenericDebuggerEngine::updateConsoleContext()
+{
+    if (!m_backend->hasExtraCapability(DebuggerExtraCapability::ScriptConsole))
+        return;
+
+    QString context;
+    switch (state()) {
+    case InferiorStopOk:
+        context = stackHandler()->currentFrame().function;
+        break;
+    case InferiorRunOk:
+        if (WatchTreeView *view = inspectorView(); view && m_consoleInSelectedObject) {
+            const WatchItem *item = watchHandler()->watchItem(view->currentIndex());
+            // A property names the object it belongs to, at any depth.
+            while (item && item->parent() && item->parent()->id == item->id)
+                item = item->parent();
+            if (item && item->id != WatchItem::InvalidId)
+                context = item->name;
+        }
+        break;
+    default:
+        debuggerConsole()->setContext(QString());
+        return;
+    }
+    debuggerConsole()->setContext(Tr::tr("Context:") + ' '
+                                  + (context.isEmpty() ? Tr::tr("Global QML Context") : context));
+}
+
+void GenericDebuggerEngine::askToRetryConnection(const QString &message)
+{
+    showMessage(message, LogError);
+    auto box = new QMessageBox(Core::ICore::dialogParent());
+    box->setAttribute(Qt::WA_DeleteOnClose);
+    box->setIcon(QMessageBox::Critical);
+    box->setObjectName("RetryConnectionBox");
+    box->setWindowTitle(QGuiApplication::applicationDisplayName());
+    box->setText(message + QLatin1Char('\n') + Tr::tr("Do you want to retry?"));
+    box->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel | QMessageBox::Help);
+    box->setDefaultButton(QMessageBox::Retry);
+    connect(box, &QDialog::finished, this, [this](int result) {
+        // The user can end the session while the question is open.
+        if (state() != EngineSetupRequested)
+            return;
+        if (result == QMessageBox::Retry) {
+            m_backend->retryConnection();
+            return;
+        }
+        if (result == QMessageBox::Help)
+            Core::HelpManager::showHelpUrl(
+                "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html");
+        notifyEngineSetupFailed();
+    });
+    box->show();
 }
 
 void GenericDebuggerEngine::shutdownInferior()
@@ -517,6 +784,7 @@ void GenericDebuggerEngine::shutdownInferior()
 
 void GenericDebuggerEngine::shutdownEngine()
 {
+    debuggerConsole()->setScriptEvaluator(this, ScriptEvaluator());
     m_backend->shutdownEngine();
 }
 
@@ -1518,6 +1786,24 @@ void GenericDebuggerEngine::abortDebuggerProcess()
     m_backend->execute({ExecutionCommand::Abort});
 }
 
+void GenericDebuggerEngine::quitDebugger()
+{
+    const bool settingUp = state() == EngineSetupRequested;
+    DebuggerEngine::quitDebugger();
+    // That gave up on the setup, while the backend can still be bringing up
+    // what it needs, and a debuggee with it.
+    if (settingUp)
+        m_backend->execute({ExecutionCommand::Abort});
+}
+
+bool GenericDebuggerEngine::companionPreventsActions() const
+{
+    if (!m_backend->setupData().needsRunningCompanion)
+        return DebuggerEngine::companionPreventsActions();
+    const DebuggerEngine *companion = companionEngines().value(0);
+    return companion && companion->state() != InferiorRunOk;
+}
+
 void GenericDebuggerEngine::executeDebuggerCommand(const QString &command)
 {
     WatchItemData inspectorItem;
@@ -1555,6 +1841,36 @@ void GenericDebuggerEngine::expandItem(const QString &iname)
         return;
     }
     refreshInspectorTree();
+}
+
+void GenericDebuggerEngine::insertInspectorItems(const GdbMi &items)
+{
+    WatchHandler *handler = watchHandler();
+    handler->insertItems(items);
+    if (settings().sortStructMembers()) {
+        for (const GdbMi &item : items) {
+            const QString iname = item["iname"].data();
+            if (!iname.endsWith(".[properties]"))
+                continue;
+            if (WatchItem *properties = handler->findItem(iname)) {
+                properties->sortChildren([](const WatchItem *a, const WatchItem *b) {
+                    return a->name < b->name;
+                });
+            }
+        }
+    }
+    handler->updateLocalsWindow();
+    handler->reexpandItems();
+}
+
+void GenericDebuggerEngine::clearInspectorTree()
+{
+    WatchHandler *handler = watchHandler();
+    if (WatchItem *root = handler->findItem("inspect")) {
+        while (root->childCount() > 0)
+            handler->removeItemByIName(root->childAt(0)->iname);
+    }
+    handler->updateLocalsWindow();
 }
 
 void GenericDebuggerEngine::refreshInspectorTree()
