@@ -472,7 +472,9 @@ QVariant ConnectableItem::itemChange(GraphicsItemChange change, const QVariant &
     case ItemSelectedHasChanged: {
         if (value.toBool()) {
             createCorners();
-            SceneUtils::moveTop(this, static_cast<GraphicsScene*>(scene()));
+            const auto graphicsScene = static_cast<GraphicsScene *>(scene());
+            for (BaseItem *item = this; item; item = item->parentBaseItem())
+                SceneUtils::moveTop(item, graphicsScene);
         } else
             removeCorners();
         break;
