@@ -25,6 +25,8 @@
 #include <QThread>
 #include <QTimer>
 
+#include <algorithm>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -84,6 +86,9 @@ public:
     //! there is some massive operation ongoing so temporary we should wait
     bool disableCodeParser = false;
 
+    // The Class View widgets currently shown
+    int visibleWidgetCount = 0;
+
     void cancelScheduledUpdate();
     void resetParser();
     ParserTreeItem::ConstPtr findItemByRoot(const QStandardItem *item, bool skipRoot = false) const;
@@ -116,6 +121,10 @@ void ManagerPrivate::resetParser()
 ParserTreeItem::ConstPtr ManagerPrivate::findItemByRoot(const QStandardItem *item, bool skipRoot) const
 {
     if (!item)
+        return ParserTreeItem::ConstPtr();
+
+    // The pane was just shown and the parser has not answered yet.
+    if (!m_root)
         return ParserTreeItem::ConstPtr();
 
     // go item by item to the root
@@ -342,6 +351,13 @@ void Manager::setState(bool state)
 
 void Manager::onWidgetVisibilityIsChanged(bool visibility)
 {
+    // The parser builds trees only while a widget is shown. Before the requests below.
+    d->visibleWidgetCount = std::max(0, d->visibleWidgetCount + (visibility ? 1 : -1));
+    const bool enabled = d->visibleWidgetCount > 0;
+    QMetaObject::invokeMethod(d->m_parser, [this, enabled] {
+        d->m_parser->setEnabled(enabled);
+    }, Qt::QueuedConnection);
+
     // activate data handling - when 1st time 'Class View' will be open
     if (!visibility)
         return;

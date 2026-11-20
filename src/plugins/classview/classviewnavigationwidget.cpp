@@ -88,7 +88,12 @@ NavigationWidget::NavigationWidget(QWidget *parent) :
             this, &NavigationWidget::onDataUpdate);
 }
 
-NavigationWidget::~NavigationWidget() = default;
+NavigationWidget::~NavigationWidget()
+{
+    // A widget deleted while shown gets no hide event.
+    if (isVisible())
+        emit visibilityChanged(false);
+}
 
 void NavigationWidget::hideEvent(QHideEvent *event)
 {
