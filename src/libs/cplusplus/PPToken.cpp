@@ -27,11 +27,20 @@ int ByteArrayRef::count(char ch) const
     return num;
 }
 
-void PPToken::squeezeSource()
+void PPToken::squeezeSource(QSet<QByteArray> *sharedSources)
 {
     if (hasSource()) {
-        m_src = m_src.mid(byteOffset, f.bytes);
-        m_src.squeeze();
+        if (sharedSources) {
+            const QByteArray text = QByteArray::fromRawData(m_src.constData() + byteOffset,
+                                                            f.bytes);
+            auto it = sharedSources->constFind(text);
+            if (it == sharedSources->constEnd())
+                it = sharedSources->insert(QByteArray(text.constData(), text.size()));
+            m_src = *it;
+        } else {
+            m_src = m_src.mid(byteOffset, f.bytes);
+            m_src.squeeze();
+        }
         m_originalOffset = byteOffset;
         byteOffset = 0;
         utf16charOffset = 0;

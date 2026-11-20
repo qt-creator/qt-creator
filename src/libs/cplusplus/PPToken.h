@@ -7,6 +7,7 @@
 #include <cplusplus/Token.h>
 
 #include <QByteArray>
+#include <QSet>
 
 namespace CPlusPlus {
 
@@ -100,7 +101,9 @@ public:
     bool hasSource() const
     { return !m_src.isEmpty(); }
 
-    void squeezeSource();
+    // Keeps only the token's own text. With sharedSources, tokens with the same text
+    // share it.
+    void squeezeSource(QSet<QByteArray> *sharedSources = nullptr);
 
     const char *bufferStart() const
     { return m_src.constData(); }

@@ -34,6 +34,7 @@
 #include <QBitArray>
 #include <QByteArray>
 #include <QPair>
+#include <QSet>
 
 #include <functional>
 
@@ -247,6 +248,8 @@ private:
     Client *m_client;
     Environment *m_env;
     QByteArray m_scratchBuffer;
+    // The texts of the tokens of the macro definitions: most of them repeat
+    QSet<QByteArray> m_macroTokenTexts;
     CancelChecker m_cancelChecker;
     Utils::Guard m_includeDepthGuard;
 

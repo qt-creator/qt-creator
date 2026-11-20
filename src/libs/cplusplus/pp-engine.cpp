@@ -1984,8 +1984,9 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         for (int i = 0; i < bodySize; ++i) {
             PPToken &t = bodyTokens[i];
             if (t.hasSource())
-                t.squeezeSource();
+                t.squeezeSource(&m_macroTokenTexts);
         }
+        bodyTokens.squeeze();
         macro.setDefinition(bodyText, bodyTokens);
     }
 
