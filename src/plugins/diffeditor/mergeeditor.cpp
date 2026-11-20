@@ -46,13 +46,15 @@
 #include <QPainter>
 #include <QPointer>
 #include <QScopedValueRollback>
+#include <QScrollBar>
+#include <QSet>
+#include <QStringView>
 #include <QSplitter>
+#include <QStyle>
 #include <QTextBlock>
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QTextFragment>
-#include <QScrollBar>
-#include <QStyle>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
@@ -61,6 +63,8 @@
 
 #include <algorithm>
 #include <optional>
+#include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -79,6 +83,7 @@ namespace {
 
 constexpr qsizetype MaxMergeTextLength = 8 * 1000 * 1000;
 constexpr qint64 MaxMergeFileSize = 32 * 1000 * 1000;
+constexpr qsizetype MaxConflictPreviewLength = 2000;
 
 class MergeEditorDocument final : public IDocument
 {
@@ -493,11 +498,105 @@ QHash<QString, QPointer<MergeEditor>> &editorRegistryById()
     return registry;
 }
 
+// Each pass considers one contiguous edit per side.
+template<typename Sequence>
+struct MergeEdit
+{
+    qsizetype start;
+    qsizetype end;
+    Sequence replacement;
+};
+
+template<typename Sequence>
+static std::optional<MergeEdit<Sequence>> findMergeEdit(const Sequence &base, const Sequence &side)
+{
+    const qsizetype commonLength = qMin(base.size(), side.size());
+    qsizetype prefix = 0;
+    while (prefix < commonLength && base.at(prefix) == side.at(prefix))
+        ++prefix;
+    if (prefix == base.size() && prefix == side.size())
+        return {};
+    qsizetype suffix = 0;
+    while (suffix < commonLength
+           && base.at(base.size() - suffix - 1) == side.at(side.size() - suffix - 1)) {
+        ++suffix;
+    }
+    // Overlap means an insertion or deletion can slide over repeated text.
+    if (prefix + suffix > commonLength)
+        return {};
+
+    const qsizetype baseEnd = base.size() - suffix;
+    const qsizetype sideEnd = side.size() - suffix;
+    if constexpr (std::is_same_v<Sequence, QStringView>) {
+        const auto splitsSurrogate = [](QStringView text, qsizetype position) {
+            return position > 0 && position < text.size() && text.at(position).isLowSurrogate();
+        };
+        if (splitsSurrogate(base, prefix) || splitsSurrogate(base, baseEnd)
+            || splitsSurrogate(side, prefix) || splitsSurrogate(side, sideEnd)) {
+            return {};
+        }
+    }
+    return MergeEdit<Sequence>{prefix, baseEnd, side.sliced(prefix, sideEnd - prefix)};
+}
+
+template<typename Result, typename Sequence>
+static Result combineDisjointEdits(const Sequence &base, const Sequence &ours, const Sequence &theirs)
+{
+    const auto current = findMergeEdit(base, ours);
+    const auto incoming = findMergeEdit(base, theirs);
+    if (!current || !incoming)
+        return {};
+    const auto &[first, second] = current->start <= incoming->start
+        ? std::tie(*current, *incoming) : std::tie(*incoming, *current);
+    if (first.end > second.start
+        || (first.end == second.start
+            && (first.start == first.end || second.start == second.end))) {
+        return {};
+    }
+
+    if constexpr (std::is_same_v<Sequence, QStringView>) {
+        // A common character inside an identifier or number doesn't separate two edits.
+        const QStringView gap = base.sliced(first.end, second.start - first.end);
+        const auto isSeparator = [](QChar c) {
+            return c.isSpace() || QStringView(u",;()[]{}").contains(c);
+        };
+        if (std::none_of(gap.begin(), gap.end(), isSeparator))
+            return {};
+    }
+
+    Result combined;
+    combined += base.sliced(0, first.start);
+    combined += first.replacement;
+    combined += base.sliced(first.end, second.start - first.end);
+    combined += second.replacement;
+    combined += base.sliced(second.end, base.size() - second.end);
+    return combined;
+}
+
+static QString combinedConflict(const QStringList &baseLines, const MergeConflict &conflict)
+{
+    const QStringList lines = combineDisjointEdits<QStringList>(baseLines, conflict.ours,
+                                                               conflict.theirs);
+    QString combined;
+    if (!lines.isEmpty()) {
+        combined = lines.join('\n');
+    } else {
+        const QString base = baseLines.join('\n');
+        const QString ours = conflict.ours.join('\n');
+        const QString theirs = conflict.theirs.join('\n');
+        combined = combineDisjointEdits<QString>(
+            QStringView(base), QStringView(ours), QStringView(theirs));
+    }
+    return combined.size() <= MaxConflictPreviewLength ? combined : QString();
+}
+
 struct InitialMergeData
 {
     MergeModel model;
     TextDiff ours;
     TextDiff theirs;
+    QHash<int, int> regionConflictIds;
+    QHash<int, QString> combinedConflicts;
 };
 
 struct MergeDecorations
@@ -510,7 +609,7 @@ struct MergeDecorations
 class MergeEditor final : public IEditor
 {
 public:
-    enum class TakeChoice { Base, Ours, Theirs, OursThenTheirs, TheirsThenOurs };
+    enum class TakeChoice { Base, Ours, Theirs, OursThenTheirs, TheirsThenOurs, Combined };
 
     MergeEditor(const MergeInput &input, const QString &title)
         : m_input(input)
@@ -806,11 +905,13 @@ private:
 
         m_initializing = true;
         using namespace QtTaskTree;
-        const auto setup = [base = *m_base, ours = *m_ours, theirs = *m_theirs]
+        const auto setup = [base = *m_base, ours = *m_ours, theirs = *m_theirs,
+                            conflicts = m_parsed.conflicts]
             (Utils::Async<InitialMergeData> &async) {
             async.setConcurrentCallData(
                 [](QPromise<InitialMergeData> &promise, const MergeSnapshot &base,
-                   const MergeSnapshot &ours, const MergeSnapshot &theirs) {
+                   const MergeSnapshot &ours, const MergeSnapshot &theirs,
+                   const QList<MergeConflict> &conflicts) {
                     const QFuture<void> future(promise.future());
                     InitialMergeData data;
                     data.model = computeMergeModel(base, ours, theirs, false, future);
@@ -820,9 +921,79 @@ private:
                     if (promise.isCanceled())
                         return;
                     data.theirs = computeTextDiff(base.text, theirs.text, Utils::Differ::Default, future);
+                    const bool sameFinalNewline = data.model.baseEndsWithNewline
+                        == data.model.oursEndsWithNewline
+                        && data.model.baseEndsWithNewline == data.model.theirsEndsWithNewline;
+                    const auto conflictKey = [](const QStringList &ours,
+                                                const QStringList &theirs) {
+                        return std::pair{qHashRange(ours.cbegin(), ours.cend()),
+                                         qHashRange(theirs.cbegin(), theirs.cend())};
+                    };
+                    QHash<std::pair<size_t, size_t>, QList<int>> conflictIds;
+                    for (int id = 0; id < conflicts.size(); ++id) {
+                        if (future.isCanceled())
+                            return;
+                        const MergeConflict &conflict = conflicts.at(id);
+                        conflictIds[conflictKey(conflict.ours, conflict.theirs)].append(id);
+                    }
+                    QSet<int> matchedConflicts;
+                    for (const MergeRegion &region : std::as_const(data.model.regions)) {
+                        if (region.kind != MergeRegionKind::Conflict
+                            && region.kind != MergeRegionKind::AutoMerged) {
+                            continue;
+                        }
+                        if (future.isCanceled())
+                            return;
+                        int match = -1;
+                        const auto candidates = conflictIds.constFind(
+                            conflictKey(region.oursLines, region.theirsLines));
+                        if (candidates == conflictIds.cend())
+                            continue;
+                        for (int id : *candidates) {
+                            if (future.isCanceled())
+                                return;
+                            const MergeConflict &conflict = conflicts.at(id);
+                            if (conflict.ours != region.oursLines
+                                || conflict.theirs != region.theirsLines) {
+                                continue;
+                            }
+                            if (match != -1) {
+                                match = -1;
+                                break;
+                            }
+                            match = id;
+                        }
+                        if (match == -1)
+                            continue;
+                        if (region.kind == MergeRegionKind::Conflict)
+                            data.regionConflictIds.insert(region.id, match);
+                        if (matchedConflicts.contains(match)) {
+                            data.combinedConflicts.remove(match);
+                            continue;
+                        }
+                        matchedConflicts.insert(match);
+                        const MergeConflict &conflict = conflicts.at(match);
+                        if (!sameFinalNewline || conflict.base)
+                            continue;
+                        const QString combined = combinedConflict(region.baseLines, conflict);
+                        if (!combined.isEmpty())
+                            data.combinedConflicts.insert(match, combined);
+                    }
+                    if (sameFinalNewline) {
+                        for (int id = 0; id < conflicts.size(); ++id) {
+                            if (future.isCanceled())
+                                return;
+                            const MergeConflict &conflict = conflicts.at(id);
+                            if (!conflict.base)
+                                continue;
+                            const QString combined = combinedConflict(*conflict.base, conflict);
+                            if (!combined.isEmpty())
+                                data.combinedConflicts.insert(id, combined);
+                        }
+                    }
                     if (!promise.isCanceled())
                         promise.addResult(data);
-                }, base, ours, theirs);
+                }, base, ours, theirs, conflicts);
         };
         const auto done = [guard = QPointer<MergeEditor>(this)](
                               const Utils::Async<InitialMergeData> &async) {
@@ -838,23 +1009,10 @@ private:
     void initialize(const InitialMergeData &data)
     {
         m_model = data.model;
-        for (const MergeRegion &region : std::as_const(m_model.regions)) {
-            if (region.kind != MergeRegionKind::Conflict)
-                continue;
-            int match = -1;
-            for (int id = 0; id < m_parsed.conflicts.size(); ++id) {
-                const MergeConflict &conflict = m_parsed.conflicts.at(id);
-                if (conflict.ours == region.oursLines && conflict.theirs == region.theirsLines) {
-                    if (match != -1) {
-                        match = -1;
-                        break;
-                    }
-                    match = id;
-                }
-            }
-            if (match != -1)
-                m_regionConflictIds.insert(region.id, match);
-        }
+        m_regionConflictIds = data.regionConflictIds;
+        m_combinedConflicts = data.combinedConflicts;
+        if (!m_combinedConflicts.isEmpty())
+            m_controlIds.clear();
 
         setupSide(m_oursLayout, &m_oursDocument, &m_oursWidget, *m_ours, data.ours, false);
         setupSide(m_theirsLayout, &m_theirsDocument, &m_theirsWidget, *m_theirs, data.theirs, true);
@@ -982,7 +1140,8 @@ private:
                 button->setCursor(Qt::PointingHandCursor);
                 button->setObjectName(QString("MergeEditor.Conflict.%1.%2").arg(id).arg(name));
                 button->setAccessibleName(Tr::tr("%1 for conflict %2").arg(text).arg(id + 1));
-                button->setToolTip("<pre>" + preview.join('\n').left(2000).toHtmlEscaped() + "</pre>");
+                button->setToolTip("<pre>"
+                    + preview.join('\n').left(MaxConflictPreviewLength).toHtmlEscaped() + "</pre>");
                 connect(button, &QToolButton::clicked, this, [this, id, choice] {
                     takeConflictId(id, choice);
                 });
@@ -993,6 +1152,11 @@ private:
             button(Tr::tr("Use Incoming"), "Incoming", TakeChoice::Theirs, input.theirs);
             button(Tr::tr("Use Both"), "Both", TakeChoice::OursThenTheirs,
                    input.ours + input.theirs);
+            const auto combined = m_combinedConflicts.constFind(conflict.id);
+            if (combined != m_combinedConflicts.cend()) {
+                button(Tr::tr("Combine Changes"), "Combine", TakeChoice::Combined,
+                       combined->split('\n'));
+            }
             layout->addStretch();
             row->setEnabled(m_model.computed && !m_markingResolved);
             m_controlRows.append(row);
@@ -1745,6 +1909,11 @@ private:
             if (!region.base)
                 return;
             replacement = *region.base;
+        } else if (choice == TakeChoice::Combined) {
+            const auto combined = m_combinedConflicts.constFind(m_resultConflicts.at(conflictIndex).id);
+            if (combined == m_combinedConflicts.cend())
+                return;
+            replacement = combined->split('\n');
         } else if (choice == TakeChoice::OursThenTheirs) {
             replacement = region.ours;
             replacement.append(region.theirs);
@@ -1776,6 +1945,7 @@ private:
         QString text = replacement.join('\n');
         bool selectedSideEndsWithNewline = false;
         switch (choice) {
+        case TakeChoice::Combined:
         case TakeChoice::Base:
             selectedSideEndsWithNewline = m_base && m_base->text.endsWith('\n');
             break;
@@ -1929,6 +2099,7 @@ private:
     ParsedMergeResult m_parsed;
     QList<ResultConflict> m_resultConflicts;
     QHash<int, int> m_regionConflictIds;
+    QHash<int, QString> m_combinedConflicts;
     bool m_malformedPlaceholder = false;
     QList<TextMark *> m_resolvedMarks;
     QList<int> m_navigationLines;
@@ -2157,6 +2328,8 @@ class MergeEditorTest final : public QObject
 
 private slots:
     void testMergeEditorConflictIdentity();
+    void testCombineChanges_data();
+    void testCombineChanges();
     void testMergeEditorNavigation_data();
     void testMergeEditorNavigation();
     void testMergeEditorScrollingAndCollapse();
@@ -2168,6 +2341,115 @@ private slots:
     void testEditedPlaceholderCannotBeSaved();
     void testStructuralConflictCannotBeMarkedResolved();
 };
+
+void MergeEditorTest::testCombineChanges_data()
+{
+    QTest::addColumn<QString>("base");
+    QTest::addColumn<QString>("current");
+    QTest::addColumn<QString>("incoming");
+    QTest::addColumn<QString>("combined");
+    QTest::addColumn<bool>("diff3");
+    QTest::newRow("separate-arguments")
+        << QString("connectTo(host, 80, 1000);") << QString("connectTo(host, 443, 1000);")
+        << QString("connectTo(host, 80, 5000);") << QString("connectTo(host, 443, 5000);")
+        << false;
+    QTest::newRow("insertion-and-edit")
+        << QString("send(oldTarget, 1000);") << QString("send(newTarget, 1000);")
+        << QString("// Keep the connection open.\nsend(oldTarget, 5000);")
+        << QString() << true; // Incoming has two edits separated by unchanged text.
+    QTest::newRow("adjacent-lines")
+        << QString("send(oldTarget,\n     1000);") << QString("send(newTarget,\n     1000);")
+        << QString("send(oldTarget,\n     5000);") << QString("send(newTarget,\n     5000);")
+        << false;
+    QTest::newRow("diff3")
+        << QString("send(oldTarget,\n     1000);") << QString("send(newTarget,\n     1000);")
+        << QString("send(oldTarget,\n     5000);") << QString("send(newTarget,\n     5000);")
+        << true;
+    QTest::newRow("qdoc-disjoint-lines")
+        << QString("    to open the CMakeLists.txt file for the current run configuration\n"
+                   "    in the editor. This is the same build target as when you select\n"
+                   "    \\uicontrol Build > \\uicontrol {Build for Run Configuration}.")
+        << QString("    to open the CMakeLists.txt file for the current run configuration\n"
+                   "    in the editor. This is the same build target as when you go to\n"
+                   "    \\uicontrol Build and select \\uicontrol {Build for Run Configuration}.")
+        << QString("    to open the \\c CMakeLists.txt file for the current run configuration\n"
+                   "    in the editor. This is the same build target as when you select\n"
+                   "    \\uicontrol Build > \\uicontrol {Build for Run Configuration}.")
+        << QString("    to open the \\c CMakeLists.txt file for the current run configuration\n"
+                   "    in the editor. This is the same build target as when you go to\n"
+                   "    \\uicontrol Build and select \\uicontrol {Build for Run Configuration}.")
+        << true;
+    QTest::newRow("overlap")
+        << QString("listen(80);") << QString("listen(443);") << QString("listen(8080);")
+        << QString() << false;
+    QTest::newRow("same-number")
+        << QString("x = 10;") << QString("x = 20;") << QString("x = 13;")
+        << QString() << false;
+    QTest::newRow("same-identifier")
+        << QString("fooBar") << QString("fooBaz") << QString("fozBar")
+        << QString() << false;
+    QTest::newRow("same-version")
+        << QString("1.10") << QString("2.10") << QString("1.20")
+        << QString() << false;
+    QTest::newRow("same-exponent")
+        << QString("x = 1e-10;") << QString("x = 2e-10;") << QString("x = 1e-20;")
+        << QString() << false;
+    QTest::newRow("ambiguous-deletion")
+        << QString("int list[] = {1, 1, 2};") << QString("int list[] = {1, 2};")
+        << QString("int list[] = {1, 1, 3};") << QString() << true;
+}
+
+void MergeEditorTest::testCombineChanges()
+{
+    QFETCH(QString, base);
+    QFETCH(QString, current);
+    QFETCH(QString, incoming);
+    QFETCH(QString, combined);
+    QFETCH(bool, diff3);
+
+    const QString markers = "<<<<<<< HEAD\n" + current + '\n'
+        + (diff3 ? "||||||| BASE\n" + base + '\n' : QString())
+        + "=======\n" + incoming + "\n>>>>>>> topic\n";
+    TextDocumentPtr source(new TextDocument("merge-combine-test"));
+    QVERIFY(source->setPlainText(markers));
+    MergeInput input;
+    input.resultDocument = source;
+    const auto snapshot = [](const QString &text) {
+        return [text](const MergeInput::SnapshotCallback &callback) {
+            callback(MergeSnapshot{true, text + '\n', "test"});
+        };
+    };
+    input.fetchBase = snapshot(base);
+    input.fetchOurs = snapshot(current);
+    input.fetchTheirs = snapshot(incoming);
+    IEditor *editor = openMergeEditor(input, "merge-combine-test");
+    QVERIFY(editor);
+    const auto cleanup = qScopeGuard([editor] {
+        EditorManager::closeDocuments({editor->document()}, false);
+    });
+    auto result = editor->widget()->findChild<TextEditorWidget *>("MergeEditor.Result");
+    QVERIFY(result);
+    const auto findButton = [result](const QString &name) {
+        return Utils::findOrDefault(result->findChildren<QToolButton *>(name),
+                                    [](QToolButton *button) { return button->isVisible(); });
+    };
+    QTRY_VERIFY(findButton("MergeEditor.Conflict.0.Current"));
+    QTRY_VERIFY(findButton("MergeEditor.Conflict.0.Current")->isEnabled());
+    auto *combine = findButton("MergeEditor.Conflict.0.Combine");
+    if (combined.isEmpty()) {
+        QVERIFY(!combine);
+        return;
+    }
+    QVERIFY(combine);
+    QVERIFY(combine->toolTip().contains(combined.toHtmlEscaped()));
+    const QString unresolved = result->toPlainText();
+    combine->click();
+    QCOMPARE(result->toPlainText(), combined + '\n');
+    QCOMPARE(source->plainText(), markers);
+    result->undo();
+    QCOMPARE(result->toPlainText(), unresolved);
+    QTRY_VERIFY(findButton("MergeEditor.Conflict.0.Combine"));
+}
 
 void MergeEditorTest::testMergeEditorConflictIdentity()
 {
