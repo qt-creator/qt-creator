@@ -673,7 +673,8 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
             }
         } else {
             for (Symbol *s = scope->find(operatorNameId); s; s = s->next()) {
-                if (!s->name() || !s->type()->asFunctionType())
+                const OperatorNameId *op = s->name() ? s->name()->asOperatorNameId() : nullptr;
+                if (!op || op->kind() != operatorNameId || !s->type()->asFunctionType())
                     continue;
                 findDeclarationOfSymbol(s, functionType, typeMatch, argumentCountMatch, nameMatch);
             }

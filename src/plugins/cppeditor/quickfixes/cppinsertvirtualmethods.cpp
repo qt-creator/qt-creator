@@ -636,8 +636,13 @@ public:
                     Symbol *symbol = opName ? m_classAST->symbol->find(opName->kind())
                                             : m_classAST->symbol->find(funcName->identifier());
                     for (; symbol; symbol = symbol->next()) {
-                        if (!opName && (!symbol->name()
-                                        || !funcName->identifier()->match(symbol->identifier()))) {
+                        if (opName) {
+                            const OperatorNameId *symbolOp
+                                = symbol->name() ? symbol->name()->asOperatorNameId() : nullptr;
+                            if (!symbolOp || symbolOp->kind() != opName->kind())
+                                continue;
+                        } else if (!symbol->name()
+                                   || !funcName->identifier()->match(symbol->identifier())) {
                             continue;
                         }
                         if (symbol->type().match(func->type())) {

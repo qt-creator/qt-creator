@@ -76,11 +76,19 @@ private:
     /// Returns the hash value for the given Symbol.
     unsigned hashValue(Symbol *symbol) const;
 
+    /// Returns the first symbol of the chain of the given hash code.
+    Symbol *chain(unsigned hashCode) const;
+
     /// Updates the hash table.
     void rehash();
 
 private:
     enum { DefaultInitialSize = 4 };
+    // Most tables, such as those of the arguments of a function, have a few
+    // symbols, and no hash table: the one chain of such a table has all of its
+    // symbols, the latest first. The callers compare the names of the symbols of
+    // a chain, as they do in a bucket of the hash table.
+    enum { MaxUnhashedSize = 8 };
 
     Scope *_owner;
     Symbol **_symbols;
@@ -124,22 +132,35 @@ void SymbolTable::enterSymbol(Symbol *symbol)
     symbol->_enclosingScope = _owner;
     _symbols[_symbolCount] = symbol;
 
-    if (_symbolCount * 5 >= _hashSize * 3)
+    if (! _hash) {
+        if (_symbolCount >= MaxUnhashedSize) {
+            rehash();
+        } else {
+            symbol->_next = _symbolCount > 0 ? _symbols[_symbolCount - 1] : nullptr;
+        }
+    } else if (_symbolCount * 5 >= _hashSize * 3) {
         rehash();
-    else {
+    } else {
         const unsigned h = hashValue(symbol);
         symbol->_next = _hash[h];
         _hash[h] = symbol;
     }
 }
 
+Symbol *SymbolTable::chain(unsigned hashCode) const
+{
+    if (_hash)
+        return _hash[hashCode % _hashSize];
+    // A symbol may get its name, and so its hash code, after it was entered.
+    return _symbolCount >= 0 ? _symbols[_symbolCount] : nullptr;
+}
+
 Symbol *SymbolTable::lookat(const Identifier *id) const
 {
-    if (! _hash || ! id)
+    if (! id)
         return nullptr;
 
-    const unsigned h = id->hashCode() % _hashSize;
-    Symbol *symbol = _hash[h];
+    Symbol *symbol = chain(id->hashCode());
     for (; symbol; symbol = symbol->_next) {
         const Name *identity = symbol->unqualifiedName();
         if (! identity) {
@@ -165,11 +186,7 @@ Symbol *SymbolTable::lookat(const Identifier *id) const
 
 Symbol *SymbolTable::lookat(OperatorNameId::Kind operatorId) const
 {
-    if (! _hash)
-        return nullptr;
-
-    const unsigned h = operatorId % _hashSize;
-    Symbol *symbol = _hash[h];
+    Symbol *symbol = chain(unsigned(operatorId));
     for (; symbol; symbol = symbol->_next) {
         if (const Name *identity = symbol->unqualifiedName()) {
             if (const OperatorNameId *op = identity->asOperatorNameId()) {
@@ -183,10 +200,7 @@ Symbol *SymbolTable::lookat(OperatorNameId::Kind operatorId) const
 
 Symbol *SymbolTable::lookat(const ConversionNameId *convId) const
 {
-    if (!_hash)
-        return nullptr;
-
-    Symbol *symbol = _hash[0]; // See Symbol::HashCode
+    Symbol *symbol = chain(0); // See Symbol::HashCode
     for (; symbol; symbol = symbol->_next) {
         if (const Name *identity = symbol->unqualifiedName()) {
             if (const ConversionNameId * const id = identity->asConversionNameId()) {
@@ -203,7 +217,7 @@ void SymbolTable::rehash()
     _hashSize <<= 1;
 
     if (! _hashSize)
-        _hashSize = DefaultInitialSize;
+        _hashSize = 2 * MaxUnhashedSize;
 
     _hash = reinterpret_cast<Symbol **>(realloc(_hash, sizeof(Symbol *) * _hashSize));
     std::memset(_hash, 0, sizeof(Symbol *) * _hashSize);

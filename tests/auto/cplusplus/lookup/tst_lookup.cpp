@@ -81,6 +81,8 @@ private slots:
 
     void minimalname_data();
     void minimalname();
+
+    void renamedSymbolKeepsEarlierOnes();
 };
 
 void tst_Lookup::base_class_defined_1()
@@ -664,6 +666,32 @@ void tst_Lookup::minimalname()
     Overview oo;
     const QString minimalNameAsString = NamePrettyPrinter(&oo)(minimalName);
     QCOMPARE(minimalNameAsString, QString::fromUtf8("std::string"));
+}
+
+// The anonymous struct of a typedef gets its name after it was entered in its scope. The
+// struct of the same name that precedes it must still be found.
+void tst_Lookup::renamedSymbolKeepsEarlierOnes()
+{
+    Document::Ptr doc = Document::create("renamedSymbolKeepsEarlierOnes");
+    doc->setUtf8Source("struct Foo { int x; };\n"
+                       "typedef struct { int y; } Foo;\n");
+    doc->parse();
+    doc->check();
+
+    Namespace *global = doc->globalNamespace();
+    QVERIFY(global);
+    const Identifier *foo = doc->control()->identifier("Foo");
+    QVERIFY(foo);
+    bool foundNamed = false;
+    for (Symbol *symbol = global->find(foo); symbol; symbol = symbol->next()) {
+        if (const Class *klass = symbol->asClass()) {
+            if (klass->memberCount() == 1 && klass->memberAt(0)->identifier()
+                && QByteArray(klass->memberAt(0)->identifier()->chars()) == "x") {
+                foundNamed = true;
+            }
+        }
+    }
+    QVERIFY(foundNamed);
 }
 
 QTEST_APPLESS_MAIN(tst_Lookup)
