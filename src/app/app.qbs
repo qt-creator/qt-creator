@@ -22,6 +22,13 @@ QtcProduct {
         files: ["../../dist/installer/mac/Qt Creator.entitlements"]
     }
 
+    // Merged into the manifest that the linker generates, as in the CMake build
+    Group {
+        name: "Windows manifest"
+        condition: qbs.toolchain.contains("msvc")
+        files: ["qtcreator.manifest"]
+    }
+
     Properties {
         condition: qbs.targetOS.contains("windows")
         consoleApplication: qbs.debugInformation

@@ -47,6 +47,12 @@ extend_qtc_executable(qtcreator
   DEFINES QTC_SHOW_BUILD_DATE
 )
 
+# The linker merges the manifest into the one that it generates
+extend_qtc_executable(qtcreator
+  CONDITION MSVC
+  SOURCES qtcreator.manifest
+)
+
 if (NOT TARGET qtcreator)
   return()
 endif()
