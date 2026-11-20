@@ -230,7 +230,8 @@ void GraphicsScene::copy()
 void GraphicsScene::checkPaste()
 {
     const QMimeData *mimeData = QGuiApplication::clipboard()->mimeData();
-    const QString copiedTagTypes = QLatin1String(mimeData->data("StateChartEditor/CopiedTagTypes"));
+    const QString copiedTagTypes = mimeData
+        ? QLatin1String(mimeData->data("StateChartEditor/CopiedTagTypes")) : QString();
 
     emit pasteAvailable(TagUtils::checkPaste(copiedTagTypes, m_document->currentTag()));
 }
@@ -238,6 +239,8 @@ void GraphicsScene::checkPaste()
 void GraphicsScene::paste(const QPointF &targetPos)
 {
     const QMimeData *mimeData = QGuiApplication::clipboard()->mimeData();
+    if (!mimeData)
+        return;
 
     QPointF startPos(targetPos);
 
