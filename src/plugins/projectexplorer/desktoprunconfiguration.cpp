@@ -3,7 +3,11 @@
 
 #include "desktoprunconfiguration.h"
 
+#include "buildconfiguration.h"
+#include "buildstep.h"
+#include "buildsteplist.h"
 #include "buildsystem.h"
+#include "deployconfiguration.h"
 #include "deploymentdata.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
@@ -16,6 +20,7 @@
 #include <qbsprojectmanager/qbsprojectmanagerconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 #include <gnprojectmanager/gnpluginconstants.h>
+#include <utils/algorithm.h>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -44,6 +49,20 @@ static void applyTargetArguments(ArgumentsAspect *arguments,
         arguments->setArguments(fromTarget);
     else if (arguments->unexpandedArguments() == fromLastTarget)
         arguments->setArguments({});
+}
+
+/*!
+    Returns the executable to start on a remote run device: \a deployedApp,
+    unless the device can start \a appInBuildDir directly and nothing would
+    put the file at its deployed location, as \a hasDeploySteps tells.
+*/
+static FilePath executableOnRunDevice(const FilePath &appInBuildDir,
+                                      const FilePath &deployedApp,
+                                      bool hasDeploySteps)
+{
+    if (!hasDeploySteps && appInBuildDir.isSameDevice(deployedApp))
+        return appInBuildDir;
+    return deployedApp;
 }
 
 class DesktopRunConfiguration : public RunConfiguration
@@ -91,12 +110,36 @@ public:
         });
 
         setUpdater([this] { updateTargetInformation(); });
+
+        const auto watchDeploySteps = [this](DeployConfiguration *dc) {
+            const auto updateIfActive = [this, dc] {
+                if (dc == buildConfiguration()->activeDeployConfiguration())
+                    update();
+            };
+            const auto watchStep = [this, updateIfActive](BuildStep *step) {
+                connect(step, &BuildStep::stepEnabledChanged, this, updateIfActive);
+            };
+            for (BuildStep *step : dc->stepList()->steps())
+                watchStep(step);
+            connect(dc->stepList(), &BuildStepList::stepInserted, this,
+                    [dc, watchStep, updateIfActive](int position) {
+                        watchStep(dc->stepList()->at(position));
+                        updateIfActive();
+                    });
+            connect(dc->stepList(), &BuildStepList::stepRemoved, this, updateIfActive);
+        };
+        for (DeployConfiguration *dc : bc->deployConfigurations())
+            watchDeploySteps(dc);
+        connect(bc, &BuildConfiguration::addedDeployConfiguration, this, watchDeploySteps);
+        connect(bc, &BuildConfiguration::activeDeployConfigurationChanged,
+                this, &RunConfiguration::update);
     }
 
 private:
     void updateTargetInformation();
 
     FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
+    bool hasDeploySteps() const;
 
     // What the build target put into the arguments field on the last update,
     // so that a later target naming none can clear it again. Saved with the
@@ -167,11 +210,19 @@ FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetI
         return appInBuildDir;
 
     const IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit());
-    if (runDevice && !runDevice->rootPath().isLocal())
-        return runDevice->filePath(deployedAppFilePath);
+    if (runDevice && !runDevice->rootPath().isLocal()) {
+        return executableOnRunDevice(
+            appInBuildDir, runDevice->filePath(deployedAppFilePath), hasDeploySteps());
+    }
 
     const FilePath appInLocalInstallDir = deploymentData.localInstallRoot() / deployedAppFilePath;
     return appInLocalInstallDir.exists() ? appInLocalInstallDir : appInBuildDir;
+}
+
+bool DesktopRunConfiguration::hasDeploySteps() const
+{
+    const DeployConfiguration *dc = buildConfiguration()->activeDeployConfiguration();
+    return dc && Utils::anyOf(dc->stepList()->steps(), &BuildStep::stepEnabled);
 }
 
 // Factory
@@ -250,6 +301,23 @@ private slots:
         QCOMPARE(arguments.unexpandedArguments(), ofTheUser);
         applyTargetArguments(&arguments, {}, arguments.arguments());
         QCOMPARE(arguments.unexpandedArguments(), ofTheUser);
+    }
+
+    void testExecutableOnRunDevice()
+    {
+        const FilePath inBuildDir = FilePath::fromString("docker://image/src/build/app");
+        const FilePath deployed = FilePath::fromString("docker://image/tmp/bin/app");
+        const FilePath onOtherDevice = FilePath::fromString("/src/build/app");
+
+        // A container that builds where it runs starts the build result.
+        QCOMPARE(executableOnRunDevice(inBuildDir, deployed, false), inBuildDir);
+
+        // A deploy step puts the file where it is deployed.
+        QCOMPARE(executableOnRunDevice(inBuildDir, deployed, true), deployed);
+
+        // A device that cannot see the build directory has to get a copy.
+        QCOMPARE(executableOnRunDevice(onOtherDevice, deployed, false), deployed);
+        QCOMPARE(executableOnRunDevice(onOtherDevice, deployed, true), deployed);
     }
 };
 
