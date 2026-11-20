@@ -134,6 +134,8 @@ void setupClangdConfigFile()
     }
 }
 
+const int maxFallbackWorkerThreads = 4;
+
 static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils::FilePath &jsonDbDir)
 {
     QString indexingOption = "--background-index";
@@ -153,8 +155,14 @@ static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils:
                             limitResults,
                             "--limit-references=0",
                             "--clang-tidy=0"}};
-    if (settings.workerThreadLimit != 0)
-        cmd.addArg("-j=" + QString::number(settings.workerThreadLimit));
+    // clangd commits the stack of each of its workers, 8 MB on Windows, and by default it
+    // has one per core. The fallback client only parses the few files that are in no project.
+    const bool isFallbackClient = !bc && jsonDbDir.isEmpty();
+    const int workerThreadLimit = settings.workerThreadLimit == 0 && isFallbackClient
+                                      ? maxFallbackWorkerThreads
+                                      : settings.workerThreadLimit;
+    if (workerThreadLimit != 0)
+        cmd.addArg("-j=" + QString::number(workerThreadLimit));
     if (indexingEnabled) {
         cmd.addArg("--background-index-priority="
                    + ClangdSettings::priorityToString(settings.indexingPriority));
