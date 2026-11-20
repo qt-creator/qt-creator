@@ -164,9 +164,9 @@ QList<BaseChange> changesFrom(const MergeSnapshot &baseSnapshot,
 
     if (changes.isEmpty() && baseSnapshot.exists != sideSnapshot.exists) {
         if (baseSnapshot.exists)
-            changes.append({0, int(baseLines.size()), {}});
+            changes.append(BaseChange{0, int(baseLines.size()), {}});
         else
-            changes.append({0, 0, sideLines});
+            changes.append(BaseChange{0, 0, sideLines});
     }
 
     return changes;
