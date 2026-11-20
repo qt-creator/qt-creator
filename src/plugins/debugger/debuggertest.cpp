@@ -323,6 +323,7 @@ private slots:
     void testDisassemblyLinksToItsSource();
     void testMissingSourceMessage();
     void testASkippedTopFrameNamesItsMissingSource();
+    void testAStackWithoutSourcesIsFetchedInFull();
     void testSkippedMachineryFramesStaySilent();
     void testAnEmptiedStackHasNoCurrentFrame();
     void testAFailedRunRestoresOnlyAPendingReset();
@@ -8036,6 +8037,28 @@ void DebuggerUnitTests::testASkippedTopFrameNamesItsMissingSource()
     const int said = mentions();
     engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
     QCOMPARE(mentions(), said);
+}
+
+void DebuggerUnitTests::testAStackWithoutSourcesIsFetchedInFull()
+{
+    auto backend = new RecordingBackend;
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard cleanup([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setState(InferiorStopOk, true);
+
+    QStringList frames;
+    for (int i = 0; i < settings().maximalStackDepth(); ++i)
+        frames.append(QString(R"({level="%1",function="f%1",usable="0"})").arg(i));
+
+    // The whole stack has no frame with source either: nothing more to look for.
+    engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), true);
+    QVERIFY(!backend->refreshes.contains(RefreshKind::FullStack));
+
+    // The caller with source can be below the frames that were fetched.
+    engine->stackHandler()->setFramesAndCurrentIndex(stackReply(frames), false);
+    QVERIFY(backend->refreshes.contains(RefreshKind::FullStack));
+    QVERIFY(backend->lastStackRequest.stackDepthLimit > settings().maximalStackDepth());
 }
 
 void DebuggerUnitTests::testSkippedMachineryFramesStaySilent()

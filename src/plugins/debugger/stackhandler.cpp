@@ -341,7 +341,9 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
     if (m_engine->operatesByInstruction())
         targetFrame = 0;
 
-    // If there is no frame with source, jump to frame #0.
+    // If there is no frame with source, jump to frame #0. A frame with source
+    // may still be further down than the stack that was fetched.
+    const bool sourceMayBeFurtherDown = targetFrame == -1 && canExpand;
     if (targetFrame == -1)
         targetFrame = 0;
 
@@ -354,6 +356,9 @@ void StackHandler::setFramesAndCurrentIndex(const GdbMi &frames, bool isFull)
     }
 
     setCurrentIndex(targetFrame);
+
+    if (sourceMayBeFurtherDown)
+        m_engine->activateFrame(stackRowCount() - 1);
 }
 
 void StackHandler::prependFrames(const StackFrames &frames)
