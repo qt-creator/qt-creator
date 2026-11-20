@@ -6,6 +6,7 @@
 #include "externaltestrun.h"
 #include "testcodeparser.h"
 #include "testoutputreader.h"
+#include "testresultspane.h"
 #include "testrunner.h"
 #include "testsettings.h"
 #include "testtreemodel.h"
@@ -36,6 +37,7 @@
 
 #include <utils/environment.h>
 
+#include <QApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
@@ -489,6 +491,11 @@ class ExternalTestRunTest : public QObject
 
 private slots:
     void testResultNesting();
+    void testFailuresAreExpanded();
+    void testFailuresAreExpandedAfterLateFinish();
+
+private:
+    void checkFailuresAreExpanded(bool finishAfterResultsShown);
 };
 
 void ExternalTestRunTest::testResultNesting()
@@ -515,6 +522,69 @@ void ExternalTestRunTest::testResultNesting()
     QVERIFY(results.at(0).isDirectParentOf(results.at(1), &needsIntermediate));
     // ...but an outcome takes nothing, or the tree would nest ever deeper.
     QVERIFY(!results.at(1).isDirectParentOf(results.at(0), &needsIntermediate));
+}
+
+static ResultsTreeView *resultsTreeView()
+{
+    for (QWidget *widget : QApplication::allWidgets()) {
+        if (auto view = qobject_cast<ResultsTreeView *>(widget))
+            return view;
+    }
+    return nullptr;
+}
+
+static QModelIndex findResult(const QAbstractItemModel *model, const QString &description,
+                              const QModelIndex &parent = {})
+{
+    for (int row = 0, count = model->rowCount(parent); row < count; ++row) {
+        const QModelIndex index = model->index(row, 0, parent);
+        if (index.data(Qt::DisplayRole).toString().contains(description))
+            return index;
+        const QModelIndex found = findResult(model, description, index);
+        if (found.isValid())
+            return found;
+    }
+    return {};
+}
+
+void ExternalTestRunTest::testFailuresAreExpanded()
+{
+    checkFailuresAreExpanded(false);
+}
+
+void ExternalTestRunTest::testFailuresAreExpandedAfterLateFinish()
+{
+    checkFailuresAreExpanded(true);
+}
+
+void ExternalTestRunTest::checkFailuresAreExpanded(bool finishAfterResultsShown)
+{
+    ResultsTreeView *view = resultsTreeView();
+    QVERIFY(view);
+    const QAbstractItemModel *model = view->model();
+
+    {
+        ExternalTestRun run("suite");
+        if (!run.isRunning())
+            QSKIP("Another test run is going on");
+        run.reportResult("passing", ResultType::TestStart);
+        run.reportResult("passing", ResultType::Pass, "passed check");
+        run.reportResult("failing", ResultType::TestStart);
+        run.reportResult("failing", ResultType::Fail, "failed check");
+        if (finishAfterResultsShown)
+            QTRY_VERIFY(findResult(model, "failed check").isValid());
+    }
+
+    QTRY_VERIFY(!TestRunner::instance()->isTestRunning());
+    QModelIndex failed;
+    QTRY_VERIFY((failed = findResult(model, "failed check")).isValid());
+    QTRY_VERIFY(view->isExpanded(failed.parent()));
+    for (QModelIndex index = failed.parent(); index.isValid(); index = index.parent())
+        QVERIFY(view->isExpanded(index));
+
+    const QModelIndex passed = findResult(model, "passed check");
+    QVERIFY(passed.isValid());
+    QVERIFY(!view->isExpanded(passed.parent()));
 }
 
 class QtTestUtilsTest : public QObject

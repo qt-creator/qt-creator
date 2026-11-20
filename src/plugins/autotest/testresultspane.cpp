@@ -287,6 +287,7 @@ void TestResultsPane::handleNextBuffered()
         m_bufferTimer.start();
     } else if (!m_testRunning) {
         createMarks();
+        expandFailures();
         updateMenuItemsEnabledState();
     }
 }
@@ -625,6 +626,8 @@ void TestResultsPane::onTestRunFinished()
         popup(IOutputPane::NoModeSwitch);
     }
     updateMenuItemsEnabledState();
+    if (!m_bufferTimer.isActive() && !m_pendingRunner.isRunning())
+        m_bufferTimer.start();
 }
 
 void TestResultsPane::onScrollBarRangeChanged(int, int max)
@@ -764,6 +767,28 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
         output.append(getWholeOutput(current));
     }
     return output;
+}
+
+static bool isFailure(ResultType type)
+{
+    return type == ResultType::Fail || type == ResultType::MessageFatal
+           || type == ResultType::UnexpectedPass;
+}
+
+bool TestResultsPane::expandFailures(const QModelIndex &parent)
+{
+    if (m_expandCollapse->isChecked())
+        return false;
+    bool found = false;
+    for (int row = 0, count = m_filterModel->rowCount(parent); row < count; ++row) {
+        const QModelIndex index = m_filterModel->index(row, 0, parent);
+        const bool failedBelow = m_filterModel->hasChildren(index) && expandFailures(index);
+        if (failedBelow || isFailure(m_filterModel->testResult(index).result())) {
+            m_treeView->expand(index);
+            found = true;
+        }
+    }
+    return found;
 }
 
 void TestResultsPane::createMarks(const QModelIndex &parent)
@@ -944,6 +969,7 @@ void TestResultsPane::handlePendingResultsSilently()
         if (value != -1)
             m_treeView->verticalScrollBar()->setValue(value);
         createMarks();
+        expandFailures();
         updateMenuItemsEnabledState();
     };
 

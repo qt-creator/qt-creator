@@ -114,6 +114,7 @@ private:
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 
     void createMarks(const QModelIndex &parent = QModelIndex());
+    bool expandFailures(const QModelIndex &parent = {});
     void clearMarks();
 
     void onSessionLoaded();
