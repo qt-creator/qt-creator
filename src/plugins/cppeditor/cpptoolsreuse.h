@@ -93,6 +93,9 @@ QList<Utils::Text::Range> CPPEDITOR_EXPORT symbolOccurrencesInDeclarationComment
 
 bool fileSizeExceedsLimit(const Utils::FilePath &filePath, int sizeLimitInMb);
 
+void CPPEDITOR_EXPORT insertIncludeDirective(const QString &include,
+                                             const QSharedPointer<CppRefactoringFile> &file);
+
 namespace Internal {
 void decorateCppEditor(TextEditor::TextEditorWidget *editor);
 } // namespace Internal

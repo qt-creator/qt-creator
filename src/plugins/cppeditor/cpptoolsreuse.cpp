@@ -12,7 +12,9 @@
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
+#include "cpprefactoringchanges.h"
 #include "quickfixes/cppquickfixassistant.h"
+#include "quickfixes/cppquickfixhelpers.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -574,6 +576,17 @@ QList<Text::Range> symbolOccurrencesInDeclarationComments(CppEditorWidget *edito
         ranges << symbolOccurrencesInText(*textDoc, tokenView, tokenStartPos, symbolName);
     }
     return ranges;
+}
+
+/*!
+    Adds \a include, given with its delimiters as in \c{<QWidget>}, to \a file
+    where the "Add #include" quick fix would put it.
+*/
+void insertIncludeDirective(const QString &include, const QSharedPointer<CppRefactoringFile> &file)
+{
+    ChangeSet changes;
+    Internal::insertNewIncludeDirective(include, file, file->cppDocument(), changes);
+    file->apply(changes);
 }
 
 namespace Internal {

@@ -15,6 +15,7 @@
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppindexqueries.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpprefactoringchanges.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/insertionpointlocator.h>
@@ -53,6 +54,7 @@
 #include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QHash>
 #include <QVersionNumber>
 #include <QUrl>
@@ -324,6 +326,68 @@ static void addDeclaration(const Snapshot &snapshot,
         tc.setPosition(pos, QTextCursor::KeepAnchor);
         editor->textDocument()->autoIndent(tc);
         tc.endEditBlock();
+    }
+}
+
+// A nested type like QDockWidget::DockWidgetFeatures needs its outer class.
+struct ParameterClass
+{
+    QString name;
+    bool usedAsQualifier = false;
+};
+
+static QList<ParameterClass> qtClassesInParameters(const QString &parameters)
+{
+    static const QRegularExpression qtClass("(?<!::)\\b(Q[A-Z]\\w*)(\\s*::)?");
+    QList<ParameterClass> classes;
+    for (auto it = qtClass.globalMatch(parameters); it.hasNext(); ) {
+        const QRegularExpressionMatch match = it.next();
+        const QString name = match.captured(1);
+        const bool qualifier = !match.captured(2).isEmpty();
+        const auto existing = std::find_if(classes.begin(), classes.end(),
+                                           [&name](const ParameterClass &c) {
+                                               return c.name == name;
+                                           });
+        if (existing == classes.end())
+            classes.append({name, qualifier});
+        else if (qualifier)
+            existing->usedAsQualifier = true;
+    }
+    return classes;
+}
+
+static void addIncludesForParameterTypes(const FilePath &headerFilePath,
+                                         const QString &parameters)
+{
+    const Snapshot snapshot = CppEditor::CppModelManager::snapshot();
+    const Document::Ptr headerDoc = snapshot.document(headerFilePath);
+    if (!headerDoc)
+        return;
+    const LookupContext context(headerDoc, snapshot);
+    CppEditor::CppRefactoringChanges refactoring(snapshot);
+    const CppEditor::CppRefactoringFilePtr file = refactoring.cppFile(headerFilePath);
+    const auto hasDirectiveFor = [&file](const QString &className) {
+        // The parsed document lags behind an include inserted a moment ago.
+        const QRegularExpression directive("^\\s*#\\s*include\\s*[<\"]"
+                                           + QRegularExpression::escape(className) + "[>\"]",
+                                           QRegularExpression::MultilineOption);
+        return file->document()->toPlainText().contains(directive);
+    };
+    for (const ParameterClass &parameterClass : qtClassesInParameters(parameters)) {
+        if (hasDirectiveFor(parameterClass.name))
+            continue;
+        const QByteArray name = parameterClass.name.toUtf8();
+        const Identifier id(name.constData(), name.size());
+        const ClassOrNamespace *binding
+            = context.lookupType(&id, headerDoc->globalNamespace());
+        // A forward declaration does not do for the outer class of a nested type.
+        const bool known = binding
+                           && (!parameterClass.usedAsQualifier
+                               || Utils::anyOf(binding->symbols(), [](Symbol *symbol) {
+                                      return symbol->asClass();
+                                  }));
+        if (!known)
+            CppEditor::insertIncludeDirective('<' + parameterClass.name + '>', file);
     }
 }
 
@@ -754,6 +818,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         declFilePath = declDoc->filePath();
         getParsedDocument(declFilePath, workingCopy, docTable);
         addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
+        addIncludesForParameterTypes(declFilePath, signalParams);
 
         // Re-load C++ documents.
         FilePaths filePaths;

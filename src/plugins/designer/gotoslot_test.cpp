@@ -238,6 +238,7 @@ class GoToSlotTest final : public QObject
 private slots:
     void test_gotoslot();
     void test_gotoslot_data();
+    void test_gotoslot_includesParameterTypes();
 };
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
@@ -348,6 +349,58 @@ void GoToSlotTest::test_gotoslot_data()
     QTest::newRow("definedInOtherForm")
         << withoutProjectFiles << FilePaths() << FilePaths({testDataDir / "form.cpp"}) << true
         << connectVia("ui->");
+}
+
+/// Check: The header gets includes for the Qt classes in the slot's parameters that it
+/// does not see yet, including the outer class of a nested type.
+void GoToSlotTest::test_gotoslot_includesParameterTypes()
+{
+    const bool savedAutoSave = Core::Internal::systemSettings().autoSaveAfterRefactoring.value();
+    Core::Internal::systemSettings().autoSaveAfterRefactoring.setValue(false);
+    const bool savedPmf = designerSettings().generatePointerToMemberConnections.value();
+    designerSettings().generatePointerToMemberConnections.setValue(false);
+    const QScopeGuard restore([savedAutoSave, savedPmf] {
+        Core::Internal::systemSettings().autoSaveAfterRefactoring.setValue(savedAutoSave);
+        designerSettings().generatePointerToMemberConnections.setValue(savedPmf);
+    });
+
+    const FilePath dir = FilePath::fromUserInput(
+        SRCDIR "/../../../tests/designer/gotoslot_includeParameterTypes");
+    const FilePath cppFile = dir / "form.cpp";
+    const FilePath hFile = dir / "form.h";
+    const FilePath uiFile = dir.parentDir() / "gotoslot_withoutProject/form.ui";
+
+    CppEditor::Tests::TestCase testCase;
+    QVERIFY(testCase.succeededSoFar());
+    TextEditor::BaseTextEditor *hEditor = nullptr;
+    for (const FilePath &file : {cppFile, hFile, uiFile}) {
+        IEditor *editor = EditorManager::openEditor(file);
+        QVERIFY(editor);
+        testCase.closeEditorAtEndOfTestCase(editor);
+        if (file == hFile)
+            hEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    }
+    QVERIFY(hEditor);
+    CppModelManager::updateSourceFiles({dir / "qtypes.h"}).waitForFinished();
+    QCOMPARE(CppEditor::Tests::TestCase::waitForFilesInGlobalSnapshot(
+                 {cppFile, hFile, dir / "qtypes.h"}).size(),
+             3);
+
+    QDesignerIntegrationInterface *integration = designerEditor()->integration();
+    QVERIFY(integration);
+    integration->emitNavigateToSlot(
+        "pushButton",
+        "toggled(QAbstractButton*,QListWidgetItem*,QDockWidget::DockWidgetFeatures)",
+        {"button", "item", "features"});
+    integration->emitNavigateToSlot("pushButton", "clicked(QAbstractButton*)", {"other"});
+
+    const QString hText = hEditor->textDocument()->plainText();
+    QVERIFY2(hText.contains("on_pushButton_toggled("), qPrintable(hText));
+    QVERIFY2(hText.contains("#include <QAbstractButton>\n"), qPrintable(hText));
+    QVERIFY2(hText.contains("#include <QDockWidget>\n"), qPrintable(hText));
+    QCOMPARE(hText.count("#include <QAbstractButton>"), 1);
+    QVERIFY2(!hText.contains("#include <QListWidgetItem>"), qPrintable(hText));
+    QVERIFY2(!hText.contains("DockWidgetFeatures>"), qPrintable(hText));
 }
 
 QObject *createGoToSlotTest()
