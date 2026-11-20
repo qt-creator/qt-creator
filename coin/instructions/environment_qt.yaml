@@ -1,0 +1,88 @@
+# Currently used Qt version for packaging
+type: Group
+instructions:
+  - type: EnvironmentVariable
+    variableName: QTC_QT_VERSION
+    variableValue: "6.12.0"
+  - type: EnvironmentVariable
+    variableName: QTC_QTWEBENGINE_DIR
+    variableValue: "qtwebengine"
+  - type: EnvironmentVariable
+    variableName: MACOSX_DEPLOYMENT_TARGET
+    variableValue: 14.4
+  - !include "{{qt-creator/qt-creator}}/qtmodules.yaml"
+  # Add qtwebengine for test coverage even though it is not part of packaging
+  - type: AppendToEnvironmentVariable
+    variableName: QTC_QT_MODULES
+    variableValue: " qtwebengine"
+  - type: Group
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: target.os
+          equals_value: Windows
+        - condition: property
+          property: target.arch
+          equals_value: X86_64
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_POSTFIX
+        variableValue: "-Windows-Windows_11_24H2-MSVC2022-Windows-Windows_11_24H2-X86_64.7z"
+  - type: Group
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: target.os
+          equals_value: Windows
+        - condition: property
+          property: target.arch
+          equals_value: AARCH64
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_POSTFIX
+        variableValue: "-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-AARCH64.7z"
+  - type: Group
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: target.os
+          equals_value: Linux
+        - condition: property
+          property: target.arch
+          equals_value: X86_64
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_POSTFIX
+        variableValue: "-Linux-RHEL_9_6-GCC-Linux-RHEL_9_6-X86_64.7z"
+      - type: EnvironmentVariable
+        variableName: QTC_ICU_URL
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Rhel8.6-x64.7z"
+  - type: Group
+    enable_if:
+      condition: and
+      conditions:
+        - condition: property
+          property: target.os
+          equals_value: Linux
+        - condition: property
+          property: target.arch
+          equals_value: AARCH64
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_POSTFIX
+        variableValue: "-Linux-Ubuntu_24_04-GCC-Linux-Ubuntu_24_04-AARCH64.7z"
+      - type: EnvironmentVariable
+        variableName: QTC_ICU_URL
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Debian11.6-aarch64.7z"
+  - type: Group
+    enable_if:
+      condition: property
+      property: target.os
+      equals_value: MacOS
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_QT_POSTFIX
+        variableValue: "-MacOS-MacOS_26-Clang-MacOS-MacOS_26-X86_64-ARM64.7z"

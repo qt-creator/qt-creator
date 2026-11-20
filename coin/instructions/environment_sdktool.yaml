@@ -1,0 +1,28 @@
+type: Group
+instructions:
+  - type: EnvironmentVariable
+    variableName: SDKTOOL_MACOSX_DEPLOYMENT_TARGET
+    variableValue: 11.0
+  - type: EnvironmentVariable
+    variableName: QTC_SDKTOOL_QT_BASE_URL
+    variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.7.2/release_content/src/submodules/qtbase-everywhere-src-6.7.2"
+  - type: Group
+    enable_if:
+      condition: property
+      property: target.os
+      equals_value: Windows
+    instructions:
+      - type: EnvironmentVariable
+        variableName: QTC_SDKTOOL_QT_EXT
+        variableValue: ".zip"
+      # unset MAKEFLAGS, which interferes with running jom for the Qt build for sdktool
+      - type: EnvironmentVariable
+        variableName: MAKEFLAGS
+        variableValue: ""
+  - type: EnvironmentVariable
+    variableName: QTC_SDKTOOL_QT_EXT
+    variableValue: ".tar.xz"
+    enable_if:
+      condition: property
+      property: target.os
+      in_values: [Linux, MacOS]
