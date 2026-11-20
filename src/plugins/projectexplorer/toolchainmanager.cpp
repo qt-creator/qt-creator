@@ -120,6 +120,39 @@ ToolchainManager *ToolchainManager::instance()
     return m_instance;
 }
 
+static void detectDeviceToolchains(
+    const ToolDetectionRequest &request, const std::function<void()> &done)
+{
+    const ToolDetectionLogger &logger = request.logger;
+    ToolchainDetector detector(ToolchainManager::toolchains(), request.device, request.searchPaths);
+    Toolchains toRegister;
+    for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
+        for (Toolchain * const tc : f->autoDetect(detector)) {
+            if (!ToolchainManager::toolchains().contains(tc)) {
+                toRegister << tc;
+                tc->setDetectionSource(request.source);
+            } else if (!tc->isValid() && tc->refreshValid()) {
+                emit m_instance->toolchainUpdated(tc);
+            }
+        }
+    }
+    if (logger) {
+        if (toRegister.isEmpty())
+            logger.logItem(Tr::tr("No new toolchains found."));
+        for (const Toolchain *tc : std::as_const(toRegister))
+            logger.logItem(Tr::tr("Found toolchain: %1").arg(tc->displayName()));
+    }
+    ToolchainManager::registerToolchains(toRegister);
+
+    // Kits are created when the detection ends. Some toolchains are not complete yet
+    // (MSVC knows its compiler only after the vcvars environment was captured).
+    // These keep the detection open, so that the kits wait for them.
+    for (Toolchain * const tc : std::as_const(toRegister))
+        tc->holdToolDetection(request.device, request.token);
+
+    done();
+}
+
 void ToolchainManager::restoreToolchains()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolchainManager::restoreToolChains");
@@ -132,35 +165,7 @@ void ToolchainManager::restoreToolchains()
     emit m_instance->toolchainsLoaded();
 
     DeviceManager::addToolDetector(m_instance, Tr::tr("Searching for toolchains..."),
-                                   [](const ToolDetectionRequest &request,
-                                      const std::function<void()> &done) {
-        const ToolDetectionLogger &logger = request.logger;
-        ToolchainDetector detector(m_instance->toolchains(), request.device, request.searchPaths);
-        Toolchains toRegister;
-        for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
-            for (Toolchain * const tc : f->autoDetect(detector)) {
-                if (!m_instance->toolchains().contains(tc)) {
-                    toRegister << tc;
-                    tc->setDetectionSource(request.source);
-                }
-            }
-        }
-        if (logger) {
-            if (toRegister.isEmpty())
-                logger.logItem(Tr::tr("No new toolchains found."));
-            for (const Toolchain *tc : std::as_const(toRegister))
-                logger.logItem(Tr::tr("Found toolchain: %1").arg(tc->displayName()));
-        }
-        registerToolchains(toRegister);
-
-        // A toolchain that is not fully known yet - MSVC learns its compiler only once its
-        // vcvars environment capture has run - keeps this detection open, so the kits, created
-        // when the last detection task is deregistered, wait for it.
-        for (Toolchain * const tc : std::as_const(toRegister))
-            tc->holdToolDetection(request.device, request.token);
-
-        done();
-    });
+                                   &detectDeviceToolchains);
 
     connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, m_instance, [](Id deviceId) {
         // A device changed, e.g. reconnected. Retry toolchains on it that were invalid, so
@@ -540,11 +545,13 @@ bool ToolchainManager::isBetterToolchain(
 #ifdef WITH_TESTS
 namespace Internal {
 
+static Id validityTestTypeId() { return "ProjectExplorer.ToolChain.ValidityTest"; }
+
 class ValidityTestToolchain : public Toolchain
 {
 public:
     ValidityTestToolchain()
-        : Toolchain("ProjectExplorer.ToolChain.ValidityTest")
+        : Toolchain(validityTestTypeId())
     {
         setLanguage(Constants::CXX_LANGUAGE_ID);
         setTypeDisplayName("Validity Test Toolchain");
@@ -608,6 +615,66 @@ private slots:
 
         QVERIFY(tc->isValid());
         QCOMPARE(updates, 1);
+    }
+
+    void testRevalidateOnRedetection()
+    {
+        class ValidityTestFactory final : public ToolchainFactory
+        {
+        public:
+            ValidityTestFactory() { setSupportedToolchainType(validityTestTypeId()); }
+            Toolchains autoDetect(const ToolchainDetector &detector) const override
+            {
+                return Utils::filtered(detector.alreadyKnown, [](const Toolchain *tc) {
+                    return tc->typeId() == validityTestTypeId();
+                });
+            }
+            std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+                const ToolchainBundle &) const override
+            {
+                return nullptr;
+            }
+        };
+
+        const IDevice::ConstPtr desktop = DeviceManager::defaultDesktopDevice();
+        QVERIFY(desktop);
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const FilePath compiler
+            = FilePath::fromString(dir.path())
+                  .pathAppended(HostOsInfo::withExecutableSuffix("fake-compiler"));
+
+        auto tc = new ValidityTestToolchain;
+        const QScopeGuard cleanup([tc] { ToolchainManager::deregisterToolchains({tc}); });
+        tc->setCompilerCommand(compiler);
+        QVERIFY(!tc->isValid());
+        QVERIFY(ToolchainManager::registerToolchains({tc}).isEmpty());
+
+        int updates = 0;
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
+                tc, [tc, &updates](Toolchain *updated) {
+            if (updated == tc)
+                ++updates;
+        });
+
+        QVERIFY(compiler.writeFileContents({}));
+        QVERIFY(compiler.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
+        QVERIFY(!tc->isValid());
+
+        const ValidityTestFactory factory;
+        bool done = false;
+        const ToolDetectionRequest request{
+            std::const_pointer_cast<IDevice>(desktop), 0, {compiler.parentDir()},
+            DetectionSource::forDevice(desktop), {}};
+        detectDeviceToolchains(request, [&done] { done = true; });
+
+        QVERIFY(done);
+        QVERIFY(tc->isValid());
+        QCOMPARE(updates, 1);
+        QCOMPARE(ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId,
+                                                           validityTestTypeId())),
+                 Toolchains{tc});
     }
 
     void testRecoveredReplacesRedetected()
