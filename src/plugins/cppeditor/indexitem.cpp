@@ -12,7 +12,8 @@ IndexItem::Ptr IndexItem::create(const QString &symbolName, const QString &symbo
                                  const QString &fileName, int line, int column,
                                  Utils::CodeModelIcon::Type iconType, bool isFunctionDefinition)
 {
-    Ptr ptr(new IndexItem);
+    // One allocation for the item and the reference counts.
+    Ptr ptr = Ptr::create(PrivateTag());
 
     ptr->m_symbolName = symbolName;
     ptr->m_symbolType = symbolType;
@@ -29,7 +30,7 @@ IndexItem::Ptr IndexItem::create(const QString &symbolName, const QString &symbo
 
 IndexItem::Ptr IndexItem::create(const QString &fileName, int sizeHint)
 {
-    Ptr ptr(new IndexItem);
+    Ptr ptr = Ptr::create(PrivateTag());
 
     ptr->m_filePath = FilePath::fromString(fileName);
     ptr->m_type = Declaration;

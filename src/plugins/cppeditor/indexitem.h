@@ -20,9 +20,12 @@ class CPPEDITOR_EXPORT IndexItem
 {
     Q_DISABLE_COPY(IndexItem)
 
-    IndexItem() = default;
+    // Only create() can make one, but QSharedPointer::create() calls the constructor.
+    struct PrivateTag { explicit PrivateTag() = default; };
 
 public:
+    explicit IndexItem(PrivateTag) {}
+
     enum ItemType {
         Enum        = 1 << 0,
         Class       = 1 << 1,
