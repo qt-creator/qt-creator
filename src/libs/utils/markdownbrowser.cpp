@@ -424,6 +424,9 @@ public:
                 };
 
             auto onLocalDone = [localIterator, this](const Async<EntryPointer> &async) {
+                if (!async.isResultAvailable())
+                    return;
+
                 EntryPointer result = async.result();
                 if (result)
                     m_imageHandler.set(localIterator->toString(), std::move(result));
