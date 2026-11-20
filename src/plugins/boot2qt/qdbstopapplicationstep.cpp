@@ -49,7 +49,7 @@ private:
 
 bool QdbStopApplicationStep::keepRunningApplication() const
 {
-    const RunConfiguration *rc = BuildManager::runConfigurationForDeploy();
+    const RunConfiguration *rc = BuildManager::runConfigurationForDeploy(this);
     if (!rc)
         rc = buildConfiguration()->activeRunConfiguration();
     if (!rc)
