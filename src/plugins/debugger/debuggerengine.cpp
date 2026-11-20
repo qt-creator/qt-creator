@@ -1321,11 +1321,11 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addToolBarAction(&m_continueAction);
     m_perspective->addToolBarAction(&m_interruptAction);
 
-    m_perspective->addToolBarAction(&m_exitAction);
     m_perspective->addToolBarAction(&m_stepOverAction);
     m_perspective->addToolBarAction(&m_stepIntoAction);
     m_perspective->addToolBarAction(&m_stepOutAction);
     m_perspective->addToolBarAction(&m_resetAction);
+    m_perspective->addToolBarAction(&m_exitAction);
     m_perspective->addToolBarAction(&m_operateByInstructionAction);
 
     connect(&m_detachAction, &QAction::triggered, m_engine, &DebuggerEngine::handleExecDetach);
