@@ -329,13 +329,42 @@ void Document::appendMacro(const Macro &macro)
     _definedMacros.append(macro);
 }
 
+static bool isSameMacro(const Macro &m1, const Macro &m2)
+{
+    return m1.bytesOffset() == m2.bytesOffset()
+           && m1.line() == m2.line()
+           && m1.fileRevision() == m2.fileRevision()
+           && m1.utf16CharOffset() == m2.utf16CharOffset()
+           && m1.length() == m2.length()
+           && m1.isHidden() == m2.isHidden()
+           && m1.isFunctionLike() == m2.isFunctionLike()
+           && m1.isVariadic() == m2.isVariadic()
+           && m1.name() == m2.name()
+           && m1.filePath() == m2.filePath()
+           && m1.definitionText() == m2.definitionText();
+}
+
 void Document::addMacroUse(const Macro &macro,
                            int bytesOffset, int bytesLength,
                            int utf16charsOffset, int utf16charLength,
                            int beginLine,
                            const QList<MacroArgumentReference> &actuals)
 {
-    MacroUse use(macro,
+    const std::pair<QByteArray, unsigned> key(macro.name(), macro.bytesOffset());
+    std::shared_ptr<const Macro> sharedMacro;
+    for (auto it = _usedMacros.constFind(key); it != _usedMacros.constEnd() && it.key() == key;
+         ++it) {
+        if (isSameMacro(**it, macro)) {
+            sharedMacro = *it;
+            break;
+        }
+    }
+    if (!sharedMacro) {
+        sharedMacro = std::make_shared<const Macro>(macro);
+        _usedMacros.insert(key, sharedMacro);
+    }
+
+    MacroUse use(sharedMacro,
                  bytesOffset, bytesOffset + bytesLength,
                  utf16charsOffset, utf16charsOffset + utf16charLength,
                  beginLine);
@@ -703,6 +732,15 @@ void Document::check(CheckMode mode)
 void Document::keepSourceAndAST()
 {
     _keepSourceAndASTCount.ref();
+}
+
+void Document::finishPreprocessing()
+{
+    _usedMacros.clear();
+    _definedMacros.squeeze();
+    _macroUses.squeeze();
+    _undefinedMacroUses.squeeze();
+    _skippedBlocks.squeeze();
 }
 
 void Document::releaseSourceAndAST()

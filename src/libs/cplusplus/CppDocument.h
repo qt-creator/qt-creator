@@ -16,6 +16,7 @@
 #include <QSet>
 #include <QSharedPointer>
 
+#include <memory>
 #include <optional>
 
 namespace CPlusPlus {
@@ -260,12 +261,13 @@ public:
     };
 
     class MacroUse: public Block {
-        Macro _macro;
+        // Shared by the uses of the same macro: a document has many more uses than macros
+        std::shared_ptr<const Macro> _macro;
         QList<Block> _arguments;
         int _beginLine;
 
     public:
-        inline MacroUse(const Macro &macro,
+        inline MacroUse(const std::shared_ptr<const Macro> &macro,
                         int bytesBegin, int bytesEnd,
                         int utf16charsBegin, int utf16charsEnd,
                         int beginLine)
@@ -275,10 +277,10 @@ public:
         { }
 
         const Macro &macro() const
-        { return _macro; }
+        { return *_macro; }
 
         bool isFunctionLike() const
-        { return _macro.isFunctionLike(); }
+        { return _macro->isFunctionLike(); }
 
         const QList<Block> &arguments() const
         { return _arguments; }
@@ -349,6 +351,10 @@ public:
     void keepSourceAndAST();
     void releaseSourceAndAST();
 
+    // Releases what was only needed while the document was preprocessed. To be called
+    // when that is done, before the document is shared.
+    void finishPreprocessing();
+
     CheckMode checkMode() const
     { return static_cast<CheckMode>(_checkMode); }
 
@@ -367,6 +373,8 @@ private:
     QList<Block> _skippedBlocks;
     QList<MacroUse> _macroUses;
     QList<UndefinedMacroUse> _undefinedMacroUses;
+    // The macros of _macroUses, by name and offset, while preprocessing
+    QMultiHash<std::pair<QByteArray, unsigned>, std::shared_ptr<const Macro>> _usedMacros;
 
      /// the macro name of the include guard, if there is one.
     QByteArray _includeGuardMacroName;

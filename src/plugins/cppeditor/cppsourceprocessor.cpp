@@ -476,6 +476,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
 
     const Document::Ptr previousDocument = switchCurrentDocument(document);
     const QByteArray preprocessedCode = m_preprocess.run(absoluteFilePath, contents);
+    document->finishPreprocessing();
 //    {
 //        QByteArray b(preprocessedCode); b.replace("\n", "<<<\n");
 //        qDebug("Preprocessed code for \"%s\": [[%s]]", fileName.toUtf8().constData(), b.constData());

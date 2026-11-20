@@ -46,6 +46,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     }
 
     const QByteArray preprocessed = _preproc.run(filePath, source);
+    _currentDoc->finishPreprocessing();
 //    qDebug("FastPreprocessor::run for %s produced [[%s]]", fileName.toUtf8().constData(), preprocessed.constData());
     std::swap(newDoc, _currentDoc);
     return preprocessed;
