@@ -25,7 +25,6 @@
 #include "Token.h"
 #include "DiagnosticClient.h"
 #include <cstdio>
-#include <unordered_map>
 #include <vector>
 
 QT_BEGIN_NAMESPACE
@@ -185,12 +184,26 @@ private:
     std::vector<int> _lineOffsets;
     std::vector<PPLine> _ppLines;
 
-    // Offset and length. Note that in contrast to token offsets, this is a raw file offset
-    // with no preprocessor prefix.
-    std::unordered_map<int, std::pair<int, int>> _expansionPositions;
+    // The tokens of one macro expansion, with its offset and length. Note that in contrast
+    // to token offsets, this is a raw file offset with no preprocessor prefix.
+    // Sorted by token index. Large code bases expand millions of tokens, so there is one
+    // entry per expansion rather than one per token.
+    struct ExpansionRange {
+        int firstToken;
+        int lastToken;
+        int offset;
+        int length;
+    };
+    std::vector<ExpansionRange> _expansionRanges;
 
-    typedef std::unordered_map<unsigned, std::pair<int, int> > TokenLineColumn;
-    TokenLineColumn _expandedLineColumn;
+    // Line and column of the expanded tokens, sorted by the offset of the token.
+    struct ExpandedLineColumn {
+        unsigned offset;
+        int line;
+        int column;
+    };
+    std::vector<ExpandedLineColumn> _expandedLineColumn;
+    const ExpandedLineColumn *findExpandedLineColumn(unsigned offset) const;
     MemoryPool *_pool;
     AST *_ast;
     TranslationUnit *_previousTranslationUnit;

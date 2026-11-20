@@ -292,10 +292,12 @@ recognize:
         if (!lineColumn.empty() && lineColumnIdx < static_cast<int>(lineColumn.size())) {
             currentExpanded = true;
             const std::pair<int, int> &p = lineColumn[lineColumnIdx];
-            if (p.first)
-                _expandedLineColumn.insert(std::make_pair(tk.utf16charsBegin(), p));
-            else
+            if (p.first) {
+                _expandedLineColumn.push_back(
+                    {unsigned(tk.utf16charsBegin()), p.first, p.second});
+            } else {
                 currentGenerated = true;
+            }
 
             ++lineColumnIdx;
         }
@@ -307,7 +309,14 @@ recognize:
 
         if (currentExpanded) {
             QTC_ASSERT(macroOffset != -1 && macroLength != -1, continue);
-            _expansionPositions[int(_tokens->size()) - 1] = std::make_pair(macroOffset, macroLength);
+            const int tokenIndex = int(_tokens->size()) - 1;
+            if (!_expansionRanges.empty() && _expansionRanges.back().lastToken == tokenIndex - 1
+                && _expansionRanges.back().offset == macroOffset
+                && _expansionRanges.back().length == macroLength) {
+                _expansionRanges.back().lastToken = tokenIndex;
+            } else {
+                _expansionRanges.push_back({tokenIndex, tokenIndex, macroOffset, macroLength});
+            }
         }
     } while (tk.kind());
 
@@ -467,9 +476,27 @@ int TranslationUnit::getTokenEndPositionInDocument(const Token &token,
 std::pair<int, int> TranslationUnit::getExpansionPosition(int tokenIndex) const
 {
     QTC_ASSERT(tokenIndex < int(_tokens->size()) && tokenAt(tokenIndex).generated(), return {});
-    const auto it = _expansionPositions.find(tokenIndex);
-    QTC_ASSERT(it != _expansionPositions.end(), return {});
-    return it->second;
+    auto it = std::upper_bound(_expansionRanges.begin(), _expansionRanges.end(), tokenIndex,
+                               [](int index, const ExpansionRange &range) {
+                                   return index < range.firstToken;
+                               });
+    QTC_ASSERT(it != _expansionRanges.begin(), return {});
+    --it;
+    QTC_ASSERT(tokenIndex <= it->lastToken, return {});
+    return {it->offset, it->length};
+}
+
+const TranslationUnit::ExpandedLineColumn *TranslationUnit::findExpandedLineColumn(
+    unsigned offset) const
+{
+    const auto it = std::lower_bound(_expandedLineColumn.begin(), _expandedLineColumn.end(),
+                                     offset,
+                                     [](const ExpandedLineColumn &entry, unsigned offset) {
+                                         return entry.offset < offset;
+                                     });
+    if (it == _expandedLineColumn.end() || it->offset != offset)
+        return nullptr;
+    return &*it;
 }
 
 void TranslationUnit::getPosition(int utf16charOffset,
@@ -483,10 +510,9 @@ void TranslationUnit::getPosition(int utf16charOffset,
 
     // If this token is expanded we already have the information directly from the expansion
     // section header. Otherwise, we need to calculate it.
-    TokenLineColumn::const_iterator it = _expandedLineColumn.find(utf16charOffset);
-    if (it != _expandedLineColumn.end()) {
-        lineNumber = it->second.first;
-        columnNumber = it->second.second + 1;
+    if (const ExpandedLineColumn * const expanded = findExpandedLineColumn(utf16charOffset)) {
+        lineNumber = expanded->line;
+        columnNumber = expanded->column + 1;
         file = _fileId;
     } else {
         // Identify line within the entire translation unit.
@@ -594,13 +620,20 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(int tokenIndex)
     newGreater.byteOffset = tok.byteOffset + 1;
     newGreater.utf16charOffset = tok.utf16charOffset + 1;
 
-    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tok.bytesBegin());
+    const ExpandedLineColumn * const expanded = findExpandedLineColumn(tok.bytesBegin());
 
     _tokens->insert(_tokens->begin() + tokenIndex + 1, newGreater);
 
-    if (it != _expandedLineColumn.end()) {
-        const std::pair<unsigned, unsigned> newPosition(it->second.first, it->second.second + 1);
-        _expandedLineColumn.insert(std::make_pair(newGreater.bytesBegin(), newPosition));
+    if (expanded) {
+        const ExpandedLineColumn newEntry{unsigned(newGreater.bytesBegin()), expanded->line,
+                                          expanded->column + 1};
+        const auto pos = std::lower_bound(_expandedLineColumn.begin(), _expandedLineColumn.end(),
+                                          newEntry.offset,
+                                          [](const ExpandedLineColumn &entry, unsigned offset) {
+                                              return entry.offset < offset;
+                                          });
+        if (pos == _expandedLineColumn.end() || pos->offset != newEntry.offset)
+            _expandedLineColumn.insert(pos, newEntry);
     }
 
     return true;
@@ -612,6 +645,12 @@ void TranslationUnit::releaseTokensAndComments()
     _tokens = nullptr;
     delete _comments;
     _comments = nullptr;
+    // Token indexes mean nothing without the tokens
+    std::vector<ExpansionRange>().swap(_expansionRanges);
+    // The positions stay, for the symbols
+    _lineOffsets.shrink_to_fit();
+    _ppLines.shrink_to_fit();
+    _expandedLineColumn.shrink_to_fit();
 }
 
 void TranslationUnit::resetAST()
