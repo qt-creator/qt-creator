@@ -68,6 +68,9 @@ static constexpr std::chrono::seconds s_qmlStartupTimeout{15};
 // lldb loads the symbols of every library the inferior links before it is
 // ready, which takes about 7 s on a fully loaded macOS host.
 static constexpr std::chrono::seconds s_lldbStartupTimeout{15};
+// lldb builds the context for its first expression from the SDK modules, which
+// took 7.8 s on a loaded macOS host.
+static constexpr std::chrono::seconds s_lldbFirstExpressionTimeout{15};
 // Running a full Qt Quick process under a native debugger to its first C++
 // breakpoint includes loading the debug info of the whole Qt Quick stack.
 static constexpr std::chrono::seconds s_nativeQmlStartupTimeout{60};
@@ -193,6 +196,12 @@ static std::chrono::seconds startupTimeout(Backend backend)
     if (backend == Backend::Lldb)
         return s_lldbStartupTimeout;
     return s_timeout;
+}
+
+// For a refresh that evaluates a watched expression.
+static std::chrono::seconds watcherTimeout(Backend backend)
+{
+    return backend == Backend::Lldb ? s_lldbFirstExpressionTimeout : s_timeout;
 }
 
 Q_DECLARE_METATYPE(Backend)
@@ -5094,7 +5103,7 @@ void tst_backends::testAddWatcherCapability()
     request.watchers = watchers;
     engine->refresh(request);
 
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), watcherTimeout(backend));
     const GdbMi locals = responses.value(int(RefreshKind::Locals));
     const GdbMi watchItem = findItemByIName(locals, "watch.0");
     QVERIFY2(watchItem.isValid(),
@@ -5160,7 +5169,7 @@ void tst_backends::testAddWatcherWhileRunningCapability()
     QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop), s_timeout);
     QCOMPARE(debuggerBackend->stoppedLine(), inferiorTestData(backend).secondBreakpointLine);
 
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), watcherTimeout(backend));
     const QString locals = responses.value(int(RefreshKind::Locals)).toString();
     QVERIFY2(locals.contains("watch.0"), qPrintable("locals: " + locals));
     QVERIFY2(locals.contains("42"), qPrintable("locals: " + locals));
@@ -5198,7 +5207,8 @@ void tst_backends::testAutoDerefPointersCapability()
         request.autoDerefPointers = autoDerefPointers;
         responses.remove(int(RefreshKind::Locals));
         engine->refresh(request);
-        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)),
+                                 watcherTimeout(backend));
         result = responses.value(int(RefreshKind::Locals)).toString();
     };
 
@@ -9364,7 +9374,7 @@ void tst_backends::expandsWatchedContainerWhenExpanded()
     request.requestId = 130;
     request.watchers = watchers;
     engine->refresh(request);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::Locals)), watcherTimeout(backend));
     const GdbMi collapsed = responses.value(int(RefreshKind::Locals));
     QVERIFY2(findItemByIName(collapsed, "watch.0").isValid(),
              qPrintable("no watch.0 item in locals: " + collapsed.toString()));
