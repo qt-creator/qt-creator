@@ -11,6 +11,7 @@ Project {
         Depends { name: "qmlstack_inferior"; required: false }
         Depends { name: "qmlserver_inferior"; required: false }
         Depends { name: "qmlmix_inferior"; required: false }
+        Depends { name: "qtstring_inferior"; required: false }
 
         files: "tst_backends.cpp"
 
@@ -27,6 +28,9 @@ Project {
             }
             if (qmlmix_inferior.present) {
                 defines.push('QMLMIX_INFERIOR_EXECUTABLE="' +  destinationDirectory + '"');
+            }
+            if (qtstring_inferior.present) {
+                defines.push('QTSTRING_INFERIOR_EXECUTABLE="' + destinationDirectory + '"');
             }
             // Mirrors the qtcreatorcdbext product: msvc-only, and the bitness
             // suffix sits on the directory, not on the DLL.
@@ -45,5 +49,6 @@ Project {
         "qmlstack_inferior.qbs",
         "qmlserver_inferior.qbs",
         "qmlmix_inferior.qbs",
+        "qtstring_inferior.qbs",
     ]
 }

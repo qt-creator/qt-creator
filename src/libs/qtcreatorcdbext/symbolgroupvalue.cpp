@@ -538,10 +538,13 @@ SymbolGroupValue SymbolGroupValue::findMember(const SymbolGroupValue &start,
             return child;
     }
     // Recurse down base classes at the beginning that have class names
-    // as value.
+    // as value. Static members without storage have no value and may
+    // come first.
     for (unsigned i = 0; i < count; ++i) {
         const SymbolGroupValue child = start[i];
         const std::wstring value = child.value();
+        if (value.empty())
+            continue;
         if (value.compare(0, 6, L"class ") && value.compare(0, 7, L"struct ")) {
            break;
         } else {
@@ -3458,15 +3461,84 @@ static int assignQStringI(SymbolGroupNode  *n, const char *className,
     return 0;
 }
 
+/* Qt 6 variant: the string is a QArrayDataPointer {d, ptr, size}, and the
+ * header behind 'd' is {ref, flags, alloc}. The data are written in place if
+ * the string owns its buffer alone and the buffer is large enough. Anything
+ * else, including the read-only data of a literal, is 'QString::fill'ed
+ * first, which detaches and allocates. */
+template <typename string>
+static int assignQt6StringI(SymbolGroupNode *n, const char *className,
+                            const string &data,
+                            const SymbolGroupValueContext &ctx,
+                            std::string *callError)
+{
+    using CharType = typename string::value_type;
+    const SymbolGroupValue v(n, ctx);
+    // References show as pointers, and either one is assigned the string it points to.
+    const ULONG64 address = SymbolGroupValue::isPointerType(v.type()) ? v.pointerValue()
+                                                                       : v.address();
+    if (!address)
+        return 1;
+    CIDebugDataSpaces *ds = ctx.dataspaces;
+    const ULONG ptrSize = SymbolGroupValue::pointerSize();
+    const ULONG64 ptrAddress = address + ptrSize;
+    const ULONG64 sizeAddress = address + 2 * ptrSize;
+    const ULONG64 newSize = data.size();
+
+    const ULONG64 header = SymbolGroupValue::readPointerValue(ds, address);
+    bool fits = false;
+    if (header) {
+        const int ref = SymbolGroupValue::readIntValue(ds, header);
+        const ULONG64 alloc = SymbolGroupValue::readUnsignedValue(ds, header + 8, ptrSize);
+        const ULONG64 dataStart = header + 8 + ptrSize;
+        const ULONG64 ptr = SymbolGroupValue::readPointerValue(ds, ptrAddress);
+        const ULONG64 offset = ptr >= dataStart ? (ptr - dataStart) / sizeof(CharType) : alloc;
+        fits = ref == 1 && offset < alloc && newSize <= alloc - offset;
+    }
+    if (!fits) {
+        // Not 'resize', which is overloaded and so ambiguous to the debugger.
+        // ".call" does not take the 'this' argument of a member function.
+        const QtInfo &qtInfo = QtInfo::get(ctx);
+        std::ostringstream callStr;
+        callStr << qtInfo.prependQtCoreModule(std::string(className) + "::fill") << '('
+                << std::hex << std::showbase << address << ",0x20," << newSize << ')';
+        ULONG64 returnValue = 0;
+        if (!ExtensionContext::instance().callWithoutPrototype(callStr.str(), &returnValue,
+                                                               callError)) {
+            return 5;
+        }
+        if (newSize == 0)
+            return 0; // An empty string may have no buffer of its own to write to.
+    }
+
+    const ULONG64 ptr = SymbolGroupValue::readPointerValue(ds, ptrAddress);
+    if (!ptr)
+        return 9;
+    string terminated = data;
+    terminated.push_back(CharType(0));
+    if (!SymbolGroupValue::writeMemory(ds, ptr, (const unsigned char *)(terminated.c_str()),
+                                       ULONG(sizeof(CharType) * terminated.size()))) {
+        return 11;
+    }
+    if (!SymbolGroupValue::writeMemory(ds, sizeAddress, (const unsigned char *)(&newSize),
+                                       ptrSize)) {
+        return 17;
+    }
+    return 0;
+}
+
 // QString assignment
 static inline bool assignQString(SymbolGroupNode  *n,
                                  const std::string &value,
                                  const SymbolGroupValueContext &ctx,
                                  std::string *errorMessage)
 {
-    const int errorCode = assignQStringI(n, "QString", utf8ToUtf16(value), ctx);
+    std::string callError;
+    const int errorCode = QtInfo::get(ctx).version >= 6
+                              ? assignQt6StringI(n, "QString", utf8ToUtf16(value), ctx, &callError)
+                              : assignQStringI(n, "QString", utf8ToUtf16(value), ctx);
     if (errorCode) {
-        *errorMessage = msgAssignStringFailed(value, errorCode);
+        *errorMessage = callError.empty() ? msgAssignStringFailed(value, errorCode) : callError;
         return false;
     }
     return true;
@@ -3478,9 +3550,12 @@ static inline bool assignQByteArray(SymbolGroupNode  *n,
                                     const SymbolGroupValueContext &ctx,
                                     std::string *errorMessage)
 {
-    const int errorCode = assignQStringI(n, "QByteArray", value, ctx);
+    std::string callError;
+    const int errorCode = QtInfo::get(ctx).version >= 6
+                              ? assignQt6StringI(n, "QByteArray", value, ctx, &callError)
+                              : assignQStringI(n, "QByteArray", value, ctx);
     if (errorCode) {
-        *errorMessage = msgAssignStringFailed(value, errorCode);
+        *errorMessage = callError.empty() ? msgAssignStringFailed(value, errorCode) : callError;
         return false;
     }
     return true;
@@ -3490,7 +3565,8 @@ static inline bool assignQByteArray(SymbolGroupNode  *n,
 template <typename string>
 static inline int assignStdStringI(SymbolGroupNode *n, int type,
                                    const string &data,
-                                   const SymbolGroupValueContext &ctx)
+                                   const SymbolGroupValueContext &ctx,
+                                   int *capacity)
 {
     /* We do not reallocate and just write to the allocated buffer
      * (internal small buffer or _Ptr depending on reserved) provided sufficient
@@ -3500,23 +3576,16 @@ static inline int assignStdStringI(SymbolGroupNode *n, int type,
      * or an allocated array is used. */
 
     const SymbolGroupValue v(n, ctx);
-    SymbolGroupValue base = v;
-    SymbolGroupValue bx = base["_Bx"];
-    if (!bx) {
-        base = base[unsigned(0)];
-        bx = base["_Bx"];
-    }
-    if (!bx) {
-        base = base[unsigned(0)][unsigned(1)];
-        bx = base["_Bx"];
-    }
+    const SymbolGroupValue bx = SymbolGroupValue::findMember(v, "_Bx");
     if (!bx)
         return 24;
+    const SymbolGroupValue base = bx.parent();
     SymbolGroupValue size = base["_Mysize"];
     int reserved = base["_Myres"].intValue();
-    if (reserved < 0 || !size || !bx)
+    if (reserved < 0 || !size)
         return 42;
-    if (reserved <= (int)data.size())
+    *capacity = reserved;
+    if (reserved < (int)data.size())
         return 1; // Insufficient memory.
     // Copy data: 'Buf' array for small strings, else pointer 'Ptr'.
     const int bufSize = type == KT_StdString ? 16 : 8; // see basic_string.
@@ -3527,8 +3596,10 @@ static inline int assignStdStringI(SymbolGroupNode *n, int type,
     if (!SymbolGroupValue::writeMemory(v.context().dataspaces,
                                        address,
                                        (const unsigned char *)(data.c_str()),
-                                       ULONG(data.empty() ? 0 : sizeof(data.front()) * data.size())))
+                                       ULONG(sizeof(typename string::value_type)
+                                             * (data.size() + 1)))) {
         return 7;
+    }
     // Correct size
     if (!size.node()->assign(toString(data.size())))
         return 13;
@@ -3541,9 +3612,17 @@ static inline bool assignStdString(SymbolGroupNode  *n,
                                    const SymbolGroupValueContext &ctx,
                                    std::string *errorMessage)
 {
+    int capacity = 0;
     const int errorCode = type == KT_StdString
-                              ? assignStdStringI(n, type, value, ctx)
-                              : assignStdStringI(n, type, utf8ToUtf16(value), ctx);
+                              ? assignStdStringI(n, type, value, ctx, &capacity)
+                              : assignStdStringI(n, type, utf8ToUtf16(value), ctx, &capacity);
+    if (errorCode == 1) {
+        std::ostringstream estr;
+        estr << "Growing a standard string beyond its capacity of " << capacity
+             << " characters is not supported.";
+        *errorMessage = estr.str();
+        return false;
+    }
     if (errorCode) {
         *errorMessage = msgAssignStringFailed(value, errorCode);
         return false;

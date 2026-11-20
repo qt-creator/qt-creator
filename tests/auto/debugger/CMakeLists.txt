@@ -163,6 +163,13 @@ if (TARGET Qt::Quick)
     "QMLMIX_INFERIOR_EXECUTABLE=\"$<TARGET_FILE_DIR:qmlmix_inferior>\"")
 endif()
 
+qt_add_executable(qtstring_inferior qtstring_inferior.cpp)
+target_link_libraries(qtstring_inferior PRIVATE Qt::Core)
+# The locals have to survive for the debugger to assign to them.
+target_compile_options(qtstring_inferior PRIVATE $<IF:$<CXX_COMPILER_ID:MSVC>,/Od,-O0>)
+list(APPEND BACKENDS_TEST_DEFINES
+  "QTSTRING_INFERIOR_EXECUTABLE=\"$<TARGET_FILE_DIR:qtstring_inferior>\"")
+
 add_qtc_test(tst_debugger_backends
   TIMEOUT 0
   DEPENDS Qt::Network Utils Debugger

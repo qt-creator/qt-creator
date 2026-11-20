@@ -3628,8 +3628,11 @@ void CdbImpl::assignValueInDebugger(const WatchItemData &item, const QString &ex
     const QString target = byIName ? item.iname : QString("-e " + hex(expr));
     const QString assignment = "-h " + target + '=' + hex(value);
     DebuggerCommand cmd("assign", ExtensionCommand, [this](const DebuggerResponse &response) {
-        if (response.resultClass != ResultDone)
-            emit message("Assignment failed: " + response.data["msg"].data(), LogError);
+        if (response.resultClass != ResultDone) {
+            const QString reason = response.data["msg"].data();
+            emit message("Assignment failed: " + reason, LogError);
+            emit message(Tr::tr("Cannot assign the value: %1").arg(reason), StatusBar);
+        }
     });
     cmd.args = assignment;
     runCommand(cmd);

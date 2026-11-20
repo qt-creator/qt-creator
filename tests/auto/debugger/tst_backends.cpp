@@ -1343,18 +1343,18 @@ static bool debuggingHelpersChangeContainerOutput(Backend backend)
 // pass on: only a backend running the real dumpers has anything to pass it to.
 // Whether an assignment to a value the debugger cannot assign to by itself goes
 // through the dumpers, which is where the knowledge about such a type is.
-// gdb, lldb and the bridge put a string in through the dumpers, pdb through
-// python's own assignment: either way the value has to be encoded for the type
-// instead of evaluated as an expression.
+// gdb, lldb and the bridge put a string in through the dumpers, cdb through
+// its extension, pdb through python's own assignment: either way the value has
+// to be encoded for the type instead of evaluated as an expression.
 static bool encodesAStringAssignment(Backend backend)
 {
     switch (backend) {
     case Backend::Bridge:
+    case Backend::Cdb:
     case Backend::Gdb:
     case Backend::Lldb:
     case Backend::Pdb:
         return true;
-    case Backend::Cdb:
     case Backend::Qml:
     case Backend::Dap:
         break;
@@ -2347,6 +2347,10 @@ private slots:
     void assignsValueToLocalVariable();
     void assignsValueToAStringLocal_data() { addBackendRows(); }
     void assignsValueToAStringLocal();
+    void refusesToGrowAStringLocalBeyondItsCapacity_data() { addBackendRows(); }
+    void refusesToGrowAStringLocalBeyondItsCapacity();
+    void assignsValueToQtStringLocals_data() { addBackendRows(); }
+    void assignsValueToQtStringLocals();
     void shutsDownCleanly_data() { addBackendRows(); }
     void shutsDownCleanly();
     void shutsDownWhileTheInferiorRuns_data() { addBackendRows(); }
@@ -12627,6 +12631,156 @@ void tst_backends::assignsValueToAStringLocal()
     QVERIFY2(locals.contains("reassigned")
                  || locals.contains(encoded, Qt::CaseInsensitive),
              qPrintable("assigning a string local never took effect - locals: " + locals));
+}
+
+// cdb cannot reallocate a std::string, so a value that does not fit is refused,
+// and the user is told why instead of seeing the old value come back.
+void tst_backends::refusesToGrowAStringLocalBeyondItsCapacity()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Cdb)
+        QSKIP("Only cdb cannot grow a std::string.");
+    const InferiorTestData testData = inferiorTestData(backend);
+    if (testData.longStringLocal.isEmpty() || testData.longStringLocalType != "std::string")
+        QSKIP("This backend's inferior has no std::string local to assign to.");
+
+    Process helperInferior;
+    std::unique_ptr<DebuggerBackend> debuggerBackend = stopAtBreakpoint(backend, helperInferior);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QStringList statusMessages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&statusMessages](const QString &text, int channel, int) {
+        if (channel == Debugger::StatusBar)
+            statusMessages.append(text);
+    });
+
+    // The local holds 2000 characters, so its capacity is less than 4000.
+    WatchItemData item;
+    item.type = testData.longStringLocalType;
+    item.isLocal = true;
+    engine->assignValueInDebugger(item, testData.longStringLocal, QString(4000, 'x'));
+    QTRY_VERIFY_WITH_TIMEOUT(!statusMessages.isEmpty(), s_timeout);
+    QVERIFY2(statusMessages.constFirst().contains("capacity"),
+             qPrintable(statusMessages.constFirst()));
+}
+
+// cdb writes a Qt 6 string in place when it fits and is not shared. Anything
+// else goes through the inferior's own fill(), which detaches and reallocates.
+void tst_backends::assignsValueToQtStringLocals()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Cdb)
+        QSKIP("Only cdb assigns a Qt string through code of its own.");
+#ifndef QTSTRING_INFERIOR_EXECUTABLE
+    QSKIP("The Qt string inferior was not configured.");
+#else
+    const FilePath inferior = (FilePath::fromUserInput(QTSTRING_INFERIOR_EXECUTABLE)
+                               / "qtstring_inferior").withExecutableSuffix();
+    if (!inferior.isExecutableFile())
+        QSKIP(qPrintable("Qt string inferior not found at " + inferior.toUserOutput()));
+    const int line = qmlMarkerLine("qtstring_inferior.cpp", "// breakpoint line");
+    QVERIFY(line > 0);
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = createEngine(backend, {},
+        ProcessRunData{{inferior, {}}, {}, Environment::systemEnvironment()});
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    connect(engine, &DebuggerEngineInterface::inferiorEvent, debuggerBackend.get(),
+            [engine, line](InferiorEvent event) {
+        if (event == InferiorEvent::EngineSetupOk) {
+            BreakpointChangeRequest request;
+            request.op = BreakpointOp::Insert;
+            request.requestId = 1;
+            request.params.type = BreakpointByFileAndLine;
+            request.params.fileName = FilePath::fromUserInput(
+                QLatin1String(BACKENDS_TEST_SOURCE_DIR) + "/qtstring_inferior.cpp");
+            request.params.textPosition.line = line;
+            request.params.enabled = true;
+            engine->changeBreakpoint(request);
+        }
+    });
+    engine->start();
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop)
+                                  || debuggerBackend->contains(InferiorEvent::EngineSetupFailed)
+                                  || debuggerBackend->contains(InferiorEvent::EngineRunFailed),
+                              qPrintable(debuggerBackend->lastMessages()),
+                              startupTimeout(backend));
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+             qPrintable(debuggerBackend->lastMessages()));
+
+    QList<GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64, RefreshKind kind, const GdbMi &data) {
+        if (kind == RefreshKind::Locals)
+            responses.append(data);
+    });
+    QStringList statusMessages;
+    connect(engine, &DebuggerEngineInterface::message, this,
+            [&statusMessages](const QString &text, int channel, int) {
+        if (channel == Debugger::StatusBar)
+            statusMessages.append(text);
+    });
+    quint64 requestId = 70;
+    const auto fetchLocals = [&] {
+        const int had = responses.count();
+        RefreshRequest localsRequest;
+        localsRequest.kind = RefreshKind::Locals;
+        localsRequest.requestId = requestId++;
+        engine->refresh(localsRequest);
+        QTRY_VERIFY_WITH_TIMEOUT(responses.count() > had, s_timeout);
+    };
+    // The extension reports the characters of a QString as UTF-16 and those of a
+    // QByteArray as bytes, either in hex.
+    const auto showsValue = [&](const QString &value) {
+        const QString locals = responses.constLast().toString();
+        const QByteArray utf16(reinterpret_cast<const char *>(value.utf16()),
+                               value.size() * 2);
+        return locals.contains(value)
+               || locals.contains(QString::fromLatin1(value.toUtf8().toHex()), Qt::CaseInsensitive)
+               || locals.contains(QString::fromLatin1(utf16.toHex()), Qt::CaseInsensitive);
+    };
+
+    fetchLocals();
+    if (QTest::currentTestFailed())
+        return;
+
+    // A literal has no data of its own, so it goes through fill() too. A reference
+    // or a pointer is assigned the string it points to.
+    const QString longer = QString("grown").repeated(13);
+    const QString longerBytes = QString("bytes").repeated(13);
+    const QList<std::tuple<QString, QString, QString>> assignments = {
+        {"qstringLocal", "QString", "tiny"},
+        {"qstringLocal", "QString", longer},
+        {"literalLocal", "QString", "tiny"},
+        {"qbytearrayLocal", "QByteArray", "small"},
+        {"qbytearrayLocal", "QByteArray", longerBytes},
+        {"qbytearrayLocal", "QByteArray", ""},
+        {"qstringReference", "QString", "referenced"},
+        {"qstringReference", "QString", QString("reference").repeated(11)},
+        {"qbytearrayPointer", "QByteArray", "pointed"},
+        {"qbytearrayPointer", "QByteArray", QString("pointer").repeated(14)},
+    };
+    for (const auto &[local, type, value] : assignments) {
+        WatchItemData item;
+        item.type = type;
+        item.isLocal = true;
+        engine->assignValueInDebugger(item, local, value);
+        fetchLocals();
+        if (QTest::currentTestFailed())
+            return;
+        QVERIFY2(statusMessages.isEmpty(), qPrintable(statusMessages.join('\n')));
+        // Only the QByteArray is assigned an empty value, after it held the long one.
+        const bool tookEffect = value.isEmpty() ? !showsValue(longerBytes) : showsValue(value);
+        QVERIFY2(tookEffect,
+                 qPrintable(QString("assigning %1 characters to %2 never took effect - "
+                                    "locals: %3")
+                                .arg(value.size()).arg(local, responses.constLast().toString())));
+    }
+#endif
 }
 
 // A fetch the debugger refused leaves the view it feeds with nothing in it, so

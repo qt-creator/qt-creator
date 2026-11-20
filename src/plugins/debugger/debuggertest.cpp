@@ -2525,9 +2525,13 @@ void DebuggerUnitTests::testCdbImplAssignValue()
     QStringList written;
     QVERIFY(startCdbStandIn(cdb, &written));
     QStringList errors;
-    QObject::connect(&cdb, &CdbImpl::message, &cdb, [&errors](const QString &text, int channel) {
+    QStringList statusMessages;
+    QObject::connect(&cdb, &CdbImpl::message, &cdb,
+                     [&errors, &statusMessages](const QString &text, int channel) {
         if (channel == LogError)
             errors.append(text);
+        else if (channel == StatusBar)
+            statusMessages.append(text);
     });
 
     // Without Python a local is found by its iname, whatever expression the
@@ -2556,6 +2560,8 @@ void DebuggerUnitTests::testCdbImplAssignValue()
                             + "|0|assign|Cannot assign to a register variable.");
     QCOMPARE(errors.size(), 1);
     QVERIFY(errors.first().contains("register variable"));
+    QCOMPARE(statusMessages.size(), 1);
+    QVERIFY(statusMessages.first().contains("register variable"));
 
     cdb.m_shuttingDown = true;
     cdb.m_cdbProc.kill();
