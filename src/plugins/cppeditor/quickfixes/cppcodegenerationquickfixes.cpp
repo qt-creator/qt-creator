@@ -424,10 +424,10 @@ public:
     QString parameterName;
     QString defaultValue;
     bool init = true;
-    bool customValueType; // for the generation later
+    bool customValueType = false; // for the generation later
     Symbol *symbol; // for the right type later
     FullySpecifiedType type;
-    int numberOfMember; // first member, second member, ...
+    int numberOfMember = 0; // first member, second member, ...
 };
 
 class ConstructorParams : public QAbstractTableModel
