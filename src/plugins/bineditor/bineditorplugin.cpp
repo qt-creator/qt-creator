@@ -88,6 +88,7 @@ const char C_ENCODING_SETTING[] = "BinEditor/TextEncoding";
 const char C_BYTES_PER_GROUP[] = "BinEditor/BytesPerGroup";
 const char C_REVERSE_GROUP_BYTES[] = "BinEditor/ReverseGroupBytes";
 const char C_COLOR_BYTES[] = "BinEditor/ColorBytes";
+const char C_ADDRESSES_UPWARD[] = "BinEditor/AddressesIncreaseUpward";
 
 // How the bytes are displayed is global, so a change in one editor's context
 // menu has to reach the others.
@@ -104,6 +105,7 @@ public:
         m_bytesPerGroup = (saved == 2 || saved == 4 || saved == 8) ? saved : 1;
         m_reverseGroupBytes = ICore::settings()->value(C_REVERSE_GROUP_BYTES, false).toBool();
         m_colorBytes = ICore::settings()->value(C_COLOR_BYTES, true).toBool();
+        m_addressesUpward = ICore::settings()->value(C_ADDRESSES_UPWARD, false).toBool();
     }
 
     int bytesPerGroup() const { return m_bytesPerGroup; }
@@ -111,6 +113,7 @@ public:
     // group size again brings the choice back.
     bool reverseGroupBytes() const { return m_reverseGroupBytes; }
     bool colorBytes() const { return m_colorBytes; }
+    bool addressesUpward() const { return m_addressesUpward; }
 
     void setGrouping(int bytesPerGroup, bool reverseGroupBytes)
     {
@@ -130,6 +133,13 @@ public:
         emit changed();
     }
 
+    void setAddressesUpward(bool addressesUpward)
+    {
+        m_addressesUpward = addressesUpward;
+        ICore::settings()->setValueWithDefault(C_ADDRESSES_UPWARD, m_addressesUpward, false);
+        emit changed();
+    }
+
 signals:
     void changed();
 
@@ -137,6 +147,7 @@ private:
     int m_bytesPerGroup = 1;
     bool m_reverseGroupBytes = false;
     bool m_colorBytes = true;
+    bool m_addressesUpward = false;
 };
 
 static DisplaySettings &displaySettings()
@@ -350,6 +361,7 @@ public:
         m_bytesPerGroup = displaySettings().bytesPerGroup();
         m_reverseGroupBytes = m_bytesPerGroup > 1 && displaySettings().reverseGroupBytes();
         m_colorBytes = displaySettings().colorBytes();
+        m_addressesUpward = displaySettings().addressesUpward();
     }
 
     void aboutToReload() { m_savedCursorPosition = m_cursorPosition; }
@@ -388,12 +400,17 @@ public:
     int displayColumn(int column) const;
     QRect groupGapRect(int leftColumn, int x, int y) const;
     qint64 steppedCursorPosition(int step) const;
+    qint64 displayLine(qint64 line) const;
+    qint64 lineAtRow(qint64 row) const;
+    qint64 rowOfLine(qint64 line) const;
 
     std::shared_ptr<BinEditorDocument> m_doc;
     int m_bytesPerLine = 16;
     int m_bytesPerGroup = 1;          // hex display grouping (word size in bytes)
     bool m_reverseGroupBytes = false; // little-endian display order within a group
     bool m_colorBytes = true;         // give every byte a color of its own
+    bool m_addressesUpward = false;   // the last line on top, as a stack is drawn
+    bool m_settingUp = false;         // in init(), scrolling asks for no new range
     std::array<QColor, 16> m_leadingNibbleColors;
     QColor m_zeroByteColor;
     QColor m_fullByteColor;
@@ -621,7 +638,10 @@ void BinEditorWidget::init()
     horizontalScrollBar()->setPageStep(viewport()->width());
     verticalScrollBar()->setRange(0, m_numLines - m_numVisibleLines);
     verticalScrollBar()->setPageStep(m_numVisibleLines);
+    // Showing a stale cursor is no request for a new range.
+    m_settingUp = true;
     ensureCursorVisible();
+    m_settingUp = false;
 }
 
 void BinEditorDocument::addData(quint64 addr, const QByteArray &data)
@@ -918,12 +938,17 @@ void BinEditorDocument::setSizes(quint64 startAddr, qint64 range, int blockSize)
 void BinEditorWidget::scrollContentsBy(int dx, int dy)
 {
     viewport()->scroll(isRightToLeft() ? -dx : dx, dy * m_lineHeight);
+    if (m_settingUp)
+        return;
     const QScrollBar * const scrollBar = verticalScrollBar();
     const int scrollPos = scrollBar->value();
+    const quint64 endAddress = baseAddress() + documentSize();
+    const quint64 bottomAddress = m_addressesUpward ? baseAddress() : endAddress;
+    const quint64 topAddress = m_addressesUpward ? endAddress : baseAddress();
     if (dy <= 0 && scrollPos == scrollBar->maximum())
-        m_doc->requestNewRange(baseAddress() + documentSize());
+        m_doc->requestNewRange(bottomAddress);
     else if (dy >= 0 && scrollPos == scrollBar->minimum())
-        m_doc->requestNewRange(baseAddress());
+        m_doc->requestNewRange(topAddress);
 }
 
 void BinEditorWidget::changeEvent(QEvent *e)
@@ -1022,11 +1047,26 @@ qint64 BinEditorWidget::steppedCursorPosition(int step) const
     }
 }
 
+// Maps a line to its place counted from the top of the whole document, and
+// back: reversing the lines is its own inverse.
+qint64 BinEditorWidget::displayLine(qint64 line) const
+{
+    return m_addressesUpward ? m_numLines - 1 - line : line;
+}
+
+qint64 BinEditorWidget::lineAtRow(qint64 row) const
+{
+    return displayLine(verticalScrollBar()->value() + row);
+}
+
+qint64 BinEditorWidget::rowOfLine(qint64 line) const
+{
+    return displayLine(line) - verticalScrollBar()->value();
+}
+
 QRect BinEditorWidget::cursorRect() const
 {
-    int topLine = verticalScrollBar()->value();
-    int line = m_cursorPosition / m_bytesPerLine;
-    int y = (line - topLine) * m_lineHeight;
+    int y = rowOfLine(m_cursorPosition / m_bytesPerLine) * m_lineHeight;
     int xoffset = horizontalScrollBar()->value();
     int column = m_cursorPosition % m_bytesPerLine;
     int x = m_hexCursor
@@ -1058,8 +1098,7 @@ std::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEmpt
     if (!includeEmptyArea && x < 0)
         return std::nullopt;
     int column = columnFromHexX(qMax(0, x));
-    const qint64 topLine = verticalScrollBar()->value();
-    const qint64 line = topLine + pos.y() / m_lineHeight;
+    const qint64 line = lineAtRow(pos.y() / m_lineHeight);
 
     // "clear text" area
     const qint64 docSize = documentSize();
@@ -1079,7 +1118,7 @@ std::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEmpt
     }
 
     const qint64 bytePos = line * m_bytesPerLine + column;
-    if (!includeEmptyArea && bytePos >= docSize)
+    if (!includeEmptyArea && (bytePos < 0 || bytePos >= docSize))
         return std::nullopt;
     return qMin(docSize - 1, bytePos);
 }
@@ -1093,11 +1132,10 @@ bool BinEditorWidget::inTextArea(const QPoint &pos) const
 
 void BinEditorWidget::updateLines(qint64 fromPosition, qint64 toPosition)
 {
-    const qint64 topLine = verticalScrollBar()->value();
-    const qint64 firstLine = qMin(fromPosition, toPosition) / m_bytesPerLine;
-    const qint64 lastLine = qMax(fromPosition, toPosition) / m_bytesPerLine;
-    const int y = (firstLine - topLine) * m_lineHeight;
-    const int h = (lastLine - firstLine + 1 ) * m_lineHeight;
+    const qint64 fromRow = rowOfLine(fromPosition / m_bytesPerLine);
+    const qint64 toRow = rowOfLine(toPosition / m_bytesPerLine);
+    const int y = qMin(fromRow, toRow) * m_lineHeight;
+    const int h = (qAbs(toRow - fromRow) + 1) * m_lineHeight;
 
     viewport()->update(0, y, viewport()->width(), h);
 }
@@ -1381,7 +1419,8 @@ static void paintCursorBorder(QPainter *painter, const QRect &cursorRect)
 void BinEditorWidget::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
-    const int topLine = verticalScrollBar()->value();
+    // The lowest line in view, where the scan for search hits starts.
+    const qint64 firstLine = qMax(qint64(0), lineAtRow(m_addressesUpward ? m_numVisibleLines : 0));
     const int xoffset = horizontalScrollBar()->value();
     const int x1 = -xoffset + m_margin + m_labelWidth - m_charWidth/2 - 1;
     const int x2 = -xoffset + m_margin + m_labelWidth + hexAreaWidth() + m_charWidth/2;
@@ -1398,9 +1437,11 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
     qint64 matchLength = 0;
 
     QByteArray patternData, patternDataHex;
-    qint64 patternOffset = qMax(0, topLine * m_bytesPerLine - m_searchPattern.size());
+    qint64 patternOffset = qMax(qint64(0), firstLine * m_bytesPerLine - m_searchPattern.size());
     if (!m_searchPattern.isEmpty()) {
-        patternData = m_doc->dataMid(patternOffset, m_numVisibleLines * m_bytesPerLine + (topLine*m_bytesPerLine - patternOffset));
+        patternData = m_doc->dataMid(patternOffset,
+                                     (m_numVisibleLines + 1) * m_bytesPerLine
+                                         + (firstLine * m_bytesPerLine - patternOffset));
         patternDataHex = patternData;
         if (!m_caseSensitiveSearch)
             patternData = patternData.toLower();
@@ -1427,16 +1468,16 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
     const QFontMetrics &fm = painter.fontMetrics();
     const qint64 docSize = documentSize();
 
-    for (qint64 i = 0; i <= m_numVisibleLines; ++i) {
-        qint64 line = topLine + i;
-        if (line >= m_numLines)
-            break;
+    // In address order, as the scan for search hits only moves forward.
+    for (qint64 n = 0; n <= m_numVisibleLines; ++n) {
+        const qint64 i = m_addressesUpward ? m_numVisibleLines - n : n;
+        const qint64 line = lineAtRow(i);
+        if (line < 0 || line >= m_numLines)
+            continue;
 
         const quint64 lineAddress = baseAddress() + line * m_bytesPerLine;
         qint64 y = i * m_lineHeight + m_ascent;
-        if (y - m_ascent > e->rect().bottom())
-            break;
-        if (y + m_descent < e->rect().top())
+        if (y - m_ascent > e->rect().bottom() || y + m_descent < e->rect().top())
             continue;
 
         painter.drawText(-xoffset, i * m_lineHeight + m_ascent,
@@ -1675,10 +1716,11 @@ void BinEditorWidget::ensureCursorVisible()
     QRect cr = cursorRect();
     QRect vr = viewport()->rect();
     if (!vr.contains(cr)) {
+        const qint64 cursorLine = displayLine(m_cursorPosition / m_bytesPerLine);
         if (cr.top() < vr.top())
-            verticalScrollBar()->setValue(m_cursorPosition / m_bytesPerLine);
+            verticalScrollBar()->setValue(cursorLine);
         else if (cr.bottom() > vr.bottom())
-            verticalScrollBar()->setValue(m_cursorPosition / m_bytesPerLine - m_numVisibleLines + 1);
+            verticalScrollBar()->setValue(cursorLine - m_numVisibleLines + 1);
     }
 }
 
@@ -1770,15 +1812,21 @@ bool BinEditorWidget::event(QEvent *e)
             ensureCursorVisible();
             e->accept();
             return true;
+        case Qt::Key_Up:
         case Qt::Key_Down: {
+            const int towardEnd = m_addressesUpward ? Qt::Key_Up : Qt::Key_Down;
+            if (static_cast<QKeyEvent*>(e)->key() != towardEnd)
+                break;
             // Only a cursor that has nowhere left to go asks for the next
-            // range. One that is merely in a view scrolled to the bottom
-            // still moves down a line.
+            // range. One that is merely in a view scrolled to the end of the
+            // document still moves on a line.
             if (m_cursorPosition / m_bytesPerLine < (documentSize() - 1) / m_bytesPerLine)
                 break;
             const QScrollBar * const scrollBar = verticalScrollBar();
             const int maximum = scrollBar->maximum();
-            if (maximum && scrollBar->value() >= maximum - 1) {
+            const int distanceToEnd = m_addressesUpward ? scrollBar->value()
+                                                        : maximum - scrollBar->value();
+            if (maximum && distanceToEnd <= 1) {
                 m_doc->requestNewRange(baseAddress() + documentSize());
                 return true;
             }
@@ -2023,18 +2071,19 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     MoveMode moveMode = e->modifiers() & Qt::ShiftModifier ? KeepAnchor : MoveAnchor;
     bool ctrlPressed = e->modifiers() & Qt::ControlModifier;
+    const qint64 lineDown = m_addressesUpward ? -m_bytesPerLine : m_bytesPerLine;
     switch (e->key()) {
     case Qt::Key_Up:
         if (ctrlPressed)
             verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
         else
-            setCursorPosition(m_cursorPosition - m_bytesPerLine, moveMode);
+            setCursorPosition(m_cursorPosition - lineDown, moveMode);
         break;
     case Qt::Key_Down:
         if (ctrlPressed)
             verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
         else
-            setCursorPosition(m_cursorPosition + m_bytesPerLine, moveMode);
+            setCursorPosition(m_cursorPosition + lineDown, moveMode);
         break;
     case Qt::Key_Right:
         setCursorPosition(steppedCursorPosition(1), moveMode);
@@ -2044,11 +2093,12 @@ void BinEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_PageUp:
     case Qt::Key_PageDown: {
-        qint64 line = qMax(qint64(0), m_cursorPosition / m_bytesPerLine - verticalScrollBar()->value());
+        const qint64 row = qMax(qint64(0), rowOfLine(m_cursorPosition / m_bytesPerLine));
         verticalScrollBar()->triggerAction(e->key() == Qt::Key_PageUp ?
                                            QScrollBar::SliderPageStepSub : QScrollBar::SliderPageStepAdd);
         if (!ctrlPressed)
-            setCursorPosition((verticalScrollBar()->value() + line) * m_bytesPerLine + m_cursorPosition % m_bytesPerLine, moveMode);
+            setCursorPosition(lineAtRow(row) * m_bytesPerLine + m_cursorPosition % m_bytesPerLine,
+                              moveMode);
         break;
     }
     case Qt::Key_Home:
@@ -2300,6 +2350,11 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     colorAction->setChecked(m_colorBytes);
     contextMenu->addAction(colorAction);
 
+    auto upwardAction = new QAction(Tr::tr("Addresses Increase Upward"), contextMenu);
+    upwardAction->setCheckable(true);
+    upwardAction->setChecked(m_addressesUpward);
+    contextMenu->addAction(upwardAction);
+
     QAction *action = contextMenu->exec(event->globalPos());
     if (!contextMenu)
         return;
@@ -2326,6 +2381,8 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
         displaySettings().setGrouping(m_bytesPerGroup, reverseAction->isChecked());
     else if (action == colorAction)
         displaySettings().setColorBytes(colorAction->isChecked());
+    else if (action == upwardAction)
+        displaySettings().setAddressesUpward(upwardAction->isChecked());
     else if (action && action->actionGroup() == groupActions)
         displaySettings().setGrouping(action->data().toInt(), displaySettings().reverseGroupBytes());
     delete contextMenu;
@@ -2383,7 +2440,7 @@ QPoint BinEditorWidget::offsetToPos(qint64 offset) const
 {
     const int x = -horizontalScrollBar()->value() + m_margin + m_labelWidth
                   + hexColumnOffset(offset % m_bytesPerLine);
-    const int y = (offset / m_bytesPerLine  - verticalScrollBar()->value()) * m_lineHeight;
+    const int y = rowOfLine(offset / m_bytesPerLine) * m_lineHeight;
     return QPoint(x, y);
 }
 
@@ -3257,6 +3314,141 @@ private slots:
         QVERIFY(!widget.m_colorBytes);
         displaySettings().setColorBytes(true);
         QVERIFY(widget.m_colorBytes);
+    }
+
+    // With addresses increasing upward, as a stack is usually drawn, the
+    // painting, the hit test and the cursor keys all have to agree on it.
+    void testAddressesIncreaseUpward()
+    {
+        const bool savedUpward = displaySettings().addressesUpward();
+        const QScopeGuard restoreUpward([savedUpward] {
+            displaySettings().setAddressesUpward(savedUpward);
+        });
+        displaySettings().setAddressesUpward(false);
+
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(QByteArray(64, '\0')).has_value());
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+        QCOMPARE(widget.m_bytesPerLine, 16);
+        QVERIFY(widget.m_numVisibleLines > widget.m_numLines);
+
+        const auto rowCenter = [&widget](int row) {
+            return QPoint(widget.m_margin + widget.m_labelWidth + widget.hexColumnOffset(5),
+                          row * widget.m_lineHeight + widget.m_lineHeight / 2);
+        };
+        QCOMPARE(widget.posAt(rowCenter(0)), std::optional<qint64>(5));
+
+        displaySettings().setAddressesUpward(true);
+        QVERIFY(widget.m_addressesUpward);
+
+        // The empty line after the data is on top, the first one at the bottom.
+        const int bottomRow = widget.m_numLines - 1;
+        QCOMPARE(widget.posAt(rowCenter(bottomRow)), std::optional<qint64>(5));
+        QCOMPARE(widget.posAt(rowCenter(bottomRow - 3)), std::optional<qint64>(3 * 16 + 5));
+        QCOMPARE(widget.offsetToPos(5).y(), bottomRow * widget.m_lineHeight);
+        QCOMPARE(widget.posAt(rowCenter(bottomRow + 1), false), std::optional<qint64>());
+
+        widget.setCursorPosition(5);
+        QCOMPARE(widget.cursorRect().top(), bottomRow * widget.m_lineHeight);
+        widget.setCursorPosition(5 + 16, KeepAnchor);
+        const QColor highlight = widget.palette().highlight().color();
+        QCOMPARE(cellColor(widget, bottomRow, 6), highlight);
+        QCOMPARE(cellColor(widget, bottomRow - 1, 4), highlight);
+        QVERIFY(cellColor(widget, bottomRow - 2, 4) != highlight);
+
+        const auto keyPress = [&widget](int key) {
+            QKeyEvent event(QEvent::KeyPress, key, Qt::NoModifier);
+            QCoreApplication::sendEvent(&widget, &event);
+            return widget.m_cursorPosition;
+        };
+        widget.setCursorPosition(16 + 5);
+        QCOMPARE(keyPress(Qt::Key_Up), qint64(2 * 16 + 5));
+        QCOMPARE(keyPress(Qt::Key_Down), qint64(16 + 5));
+        QCOMPARE(keyPress(Qt::Key_Down), qint64(5));
+    }
+
+    // In a document taller than the view, the start of it is at the bottom.
+    void testAddressesIncreaseUpwardScrolls()
+    {
+        const bool savedUpward = displaySettings().addressesUpward();
+        const QScopeGuard restoreUpward([savedUpward] {
+            displaySettings().setAddressesUpward(savedUpward);
+        });
+        displaySettings().setAddressesUpward(true);
+
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(QByteArray(4096, '\0')).has_value());
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+        QScrollBar * const scrollBar = widget.verticalScrollBar();
+        QVERIFY(scrollBar->maximum() > 0);
+
+        widget.setCursorPosition(0);
+        QCOMPARE(scrollBar->value(), scrollBar->maximum());
+        QVERIFY(widget.viewport()->rect().contains(widget.cursorRect()));
+
+        widget.setCursorPosition(widget.documentSize() - 1);
+        QCOMPARE(widget.cursorRect().top(), 0);
+
+        // Paging up keeps the cursor in the row it was in, at higher addresses.
+        widget.setCursorPosition(0);
+        const int row = widget.cursorRect().top() / widget.m_lineHeight;
+        QKeyEvent pageUp(QEvent::KeyPress, Qt::Key_PageUp, Qt::NoModifier);
+        QCoreApplication::sendEvent(&widget, &pageUp);
+        QVERIFY(widget.m_cursorPosition > 0);
+        QCOMPARE(widget.cursorRect().top() / widget.m_lineHeight, row);
+    }
+
+    void testAddressesIncreaseUpwardSearch()
+    {
+        const bool savedUpward = displaySettings().addressesUpward();
+        const QScopeGuard restoreUpward([savedUpward] {
+            displaySettings().setAddressesUpward(savedUpward);
+        });
+        displaySettings().setAddressesUpward(true);
+
+        QByteArray data(4096, '\0');
+        data[4082] = '\x7f';
+        auto document = std::make_shared<BinEditorDocument>();
+        QVERIFY(document->setContents(data).has_value());
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        widget.init();
+        // Rendering lays out the scroll bars and so changes the visible lines.
+        cellColor(widget, 0, 0);
+        widget.init();
+        QScrollBar * const scrollBar = widget.verticalScrollBar();
+        QVERIFY(scrollBar->maximum() > 1);
+        scrollBar->setValue(1);
+
+        // Row 0 shows the line holding the byte, a full row in a view that is
+        // not scrolled to the end.
+        QCOMPARE(widget.lineAtRow(0), qint64(4082 / widget.m_bytesPerLine));
+        widget.highlightSearchResults(QByteArray("\x7f"));
+        QCOMPARE(cellColor(widget, 0, 4082 % widget.m_bytesPerLine), QColor(0xffef0b));
+    }
+
+    // A fresh view of a debugger memory range shows the address asked for.
+    void testAddressesIncreaseUpwardNewRange()
+    {
+        const bool savedUpward = displaySettings().addressesUpward();
+        const QScopeGuard restoreUpward([savedUpward] {
+            displaySettings().setAddressesUpward(savedUpward);
+        });
+        displaySettings().setAddressesUpward(true);
+
+        auto document = std::make_shared<BinEditorDocument>();
+        BinEditorWidget widget(document);
+        widget.resize(600, 200);
+        document->m_newRangeRequestHandler = [&document](quint64 address) {
+            document->setSizes(address, 0x100000, 1024);
+        };
+        constexpr quint64 address = 0x200000;
+        document->setSizes(address, 0x100000, 1024);
+        QCOMPARE(widget.baseAddress() + widget.m_cursorPosition, address);
     }
 };
 
