@@ -80,7 +80,9 @@ static FilePaths getExtraLibs(BuildConfiguration *bc, const QString &buildKey)
 
     const QStringList paths
         = bc->buildSystem()->extraData(buildKey, Constants::AndroidExtraLibs).toStringList();
-    FilePaths res = Utils::transform(paths, &FilePath::fromUserInput);
+    FilePaths res = Utils::transform(paths, [](const QString &path) {
+        return FilePath::fromUserInput(path).parentDir();
+    });
 
     FilePath::removeDuplicates(res);
     return res;
