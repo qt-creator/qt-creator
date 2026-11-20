@@ -19492,9 +19492,6 @@ void tst_backends::attachesToCoreFile()
 {
     QFETCH(Backend, backend);
 
-    if (HostOsInfo::isMacHost() && backend == Backend::Lldb)
-        QSKIP("This test fails on mac");
-
     if (backend == Backend::Cdb)
         QSKIP("This test is flaky");
 
