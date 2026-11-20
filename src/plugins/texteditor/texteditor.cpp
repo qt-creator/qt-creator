@@ -5042,10 +5042,12 @@ void TextEditorWidgetPrivate::updateTabSettingsButtonVisible()
 
 void TextEditorWidgetPrivate::reconfigure()
 {
-    m_document->setMimeType(
-        Utils::mimeTypeForFile(m_document->filePath(),
-                               MimeMatchMode::MatchDefaultAndRemote).name());
-    q->configureGenericHighlighter();
+    const QString mimeType = Utils::mimeTypeForFile(m_document->filePath(),
+                                                    MimeMatchMode::MatchDefaultAndRemote).name();
+    if (m_document->mimeType() == mimeType)
+        q->configureGenericHighlighter();
+    else
+        m_document->setMimeType(mimeType); // triggers configureGenericHighlighter()
 }
 
 void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Definitions &definitions,
@@ -5055,7 +5057,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Defin
     Id multiple(Constants::INFO_MULTIPLE_SYNTAX_DEFINITIONS);
     InfoBar *infoBar = m_document->infoBar();
 
-    if (definitions.isEmpty() && infoBar->canInfoBeAdded(missing)
+    if (definitions.isEmpty() && !fileName.isEmpty() && infoBar->canInfoBeAdded(missing)
         && !globalHighlighterSettings().skipUpdateCheck(fileName)) {
         InfoBarEntry info(missing,
                           Tr::tr("A highlight definition was not found for this file. "
@@ -13098,6 +13100,9 @@ void TextEditorWidget::setupGenericHighlighter()
 
     connect(textDocument(), &IDocument::filePathChanged,
             d.get(), &TextEditorWidgetPrivate::reconfigure);
+    connect(textDocument(), &IDocument::mimeTypeChanged, this, [this] {
+        configureGenericHighlighter();
+    });
 }
 
 //

@@ -16,6 +16,7 @@
 #include "textmark.h"
 #include "basefilefind.h"
 #include "basehoverhandler.h"
+#include "highlighter.h"
 #include "jsoneditor.h"
 #include "snippets/snippet.h"
 #include "snippets/snippetparser.h"
@@ -181,6 +182,8 @@ private slots:
     void testMoveLinesEndingInEmptyLine();
     void testMarkLeadingText();
     void testMainSelectionIsNoExtraSelection();
+    void testContentsMimeTypeFromTitle();
+    void testContentsWithoutDefinitionHasNoInfoBar();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -1524,6 +1527,49 @@ void TextEditorTest::testMainSelectionIsNoExtraSelection()
         TextEditorWidget::CursorSelection);
     QCOMPARE(selections.size(), 1);
     QCOMPARE(selections.first().cursor.selectedText(), QString("bar"));
+}
+
+static QString definitionName(const TextDocument *document)
+{
+    auto highlighter = qobject_cast<Highlighter *>(document->syntaxHighlighter());
+    return highlighter ? highlighter->definition().name() : QString();
+}
+
+void TextEditorTest::testContentsMimeTypeFromTitle()
+{
+    QString title = "page.html";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        {}, &title, "<html><body></body></html>");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([editor] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextDocument *document = baseEditor->textDocument();
+
+    QCOMPARE(document->mimeType(), QString("text/html"));
+    QCOMPARE(definitionName(document), QString("HTML"));
+    QVERIFY(!document->infoBar()->containsInfo(Constants::INFO_MISSING_SYNTAX_DEFINITION));
+
+    const std::unique_ptr<BaseTextEditor> duplicate(baseEditor->duplicate());
+    QVERIFY(duplicate);
+    QCOMPARE(document->mimeType(), QString("text/html"));
+    QCOMPARE(definitionName(document), QString("HTML"));
+    QVERIFY(!document->infoBar()->containsInfo(Constants::INFO_MISSING_SYNTAX_DEFINITION));
+}
+
+void TextEditorTest::testContentsWithoutDefinitionHasNoInfoBar()
+{
+    QString title = "Contents";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "contents");
+    QVERIFY(editor);
+    const QScopeGuard cleanup([editor] { Core::EditorManager::closeEditors({editor}, false); });
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextDocument *document = baseEditor->textDocument();
+
+    QCOMPARE(document->mimeType(), QString("text/plain"));
+    QVERIFY(!document->infoBar()->containsInfo(Constants::INFO_MISSING_SYNTAX_DEFINITION));
 }
 
 QObject *createTextEditorTest()

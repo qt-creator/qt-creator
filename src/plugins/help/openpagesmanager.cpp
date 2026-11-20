@@ -11,6 +11,11 @@
 #include "openpagesswitcher.h"
 #include "openpageswidget.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/idocument.h>
+
+#include <utils/plaintextedit/plaintextedit.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/widgets.h>
@@ -189,6 +194,20 @@ void OpenPagesManager::showTwicherOrSelectPage() const
     }
 }
 
+static void showSource(const QUrl &url)
+{
+    const LocalHelpManager::HelpData data = LocalHelpManager::helpData(url);
+    QString title = url.fileName();
+    IEditor *editor = EditorManager::openEditorWithContents(
+        {}, &title, data.data, "Help.Source." + url.toString(QUrl::RemoveFragment));
+    if (!editor)
+        return;
+    editor->document()->setTemporary(true);
+    auto textEdit = qobject_cast<Utils::PlainTextEdit *>(editor->widget());
+    if (QTC_GUARD(textEdit))
+        textEdit->setReadOnly(true);
+}
+
 void OpenPagesManager::openPagesContextMenu(const QPoint &point)
 {
     const QModelIndex &index = m_helpWidget->model()->index(m_comboBox->currentIndex(), 0);
@@ -196,10 +215,14 @@ void OpenPagesManager::openPagesContextMenu(const QPoint &point)
     if (fileName.isEmpty())
         return;
 
+    const QUrl url(fileName);
     QMenu menu;
-    menu.addAction(Tr::tr("Copy Full Path to Clipboard"));
-    if (menu.exec(m_comboBox->mapToGlobal(point)))
+    menu.addAction(Tr::tr("Copy Full Path to Clipboard"), this, [fileName] {
         Utils::setClipboardAndSelection(fileName);
+    });
+    if (url.scheme() == "qthelp")
+        menu.addAction(Tr::tr("Show Source"), this, [url] { showSource(url); });
+    menu.exec(m_comboBox->mapToGlobal(point));
 }
 
 } // Help::Internal

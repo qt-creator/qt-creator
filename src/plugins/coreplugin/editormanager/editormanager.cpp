@@ -4108,6 +4108,9 @@ static QString makeTitleUnique(QString *titlePattern)
     \a uniqueId is specified and an editor with that unique ID is found, it is
     re-used. Otherwise, a new editor with that unique ID is created.
 
+    If \a editorId is not valid, the editor type and the MIME type of the
+    document are determined from the title, as if it was a file name.
+
     Returns the new or re-used editor.
 
     \sa clearUniqueId()
@@ -4155,6 +4158,12 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     edt = EditorManagerPrivate::createEditor(factories.first(), filePath);
     if (!edt)
         return nullptr;
+    if (!editorId.isValid()) {
+        const MimeType mimeType
+            = Utils::mimeTypeForFile(filePath, Utils::MimeMatchMode::MatchExtension);
+        if (mimeType.isValid() && !mimeType.isDefault())
+            edt->document()->setMimeType(mimeType.name());
+    }
     if (!edt->document()->setContents(contents)) {
         delete edt;
         edt = nullptr;

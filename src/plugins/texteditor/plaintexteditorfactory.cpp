@@ -17,7 +17,8 @@ class PlainTextEditorWidget final : public TextEditorWidget
 public:
     void finalizeInitialization() final
     {
-        textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+        if (textDocument()->mimeType().isEmpty())
+            textDocument()->setMimeType(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
     }
 };
 
