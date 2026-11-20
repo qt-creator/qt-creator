@@ -8,6 +8,7 @@
 #include "modelsmanager.h"
 #include "uicontroller.h"
 #include "actionhandler.h"
+#include "classviewcontroller.h"
 
 #include <qmt/infrastructure/uid.h>
 #include <qmt/model/mdiagram.h>
@@ -51,6 +52,10 @@ void ModelEditorPlugin::initialize()
     d = new ModelEditorPluginPrivate;
 
     Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
+
+#ifdef WITH_TESTS
+    addTestCreator(createClassViewControllerTest);
+#endif
 }
 
 void ModelEditorPlugin::extensionsInitialized()

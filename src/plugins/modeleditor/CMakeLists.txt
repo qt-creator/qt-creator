@@ -1,6 +1,7 @@
 add_qtc_plugin(ModelEditor
   DEPENDS Modeling Qt::Core Qt::Gui Qt::Widgets
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer
+  PLUGIN_TEST_DEPENDS QmakeProjectManager
   SOURCES
     actionhandler.cpp actionhandler.h
     classviewcontroller.cpp classviewcontroller.h
@@ -41,4 +42,10 @@ qtc_add_resources(ModelEditor "resources"
     resources/wizards/modeling/model/wizard.json
     resources/wizards/modeling/scratch/file.qmodel
     resources/wizards/modeling/scratch/wizard.json
+)
+
+extend_qtc_plugin(ModelEditor
+  CONDITION WITH_TESTS
+  SOURCES
+    classviewcontroller_test.cpp
 )

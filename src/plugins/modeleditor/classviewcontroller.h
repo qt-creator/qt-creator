@@ -26,4 +26,8 @@ private:
     void appendClassDeclarationsFromSymbol(CPlusPlus::Symbol *symbol, int line, int column, QSet<QString> *classNames);
 };
 
+#ifdef WITH_TESTS
+QObject *createClassViewControllerTest();
+#endif
+
 } // namespace ModelEditor::Internal

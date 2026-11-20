@@ -13,6 +13,8 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "Modeling" }
 
+    pluginTestDepends: ["QmakeProjectManager"]
+
     Properties {
         condition: !Qt.svg.present
         cpp.defines: base.concat("QT_NO_SVG")
@@ -85,5 +87,9 @@ QtcPlugin {
             "wizards/modeling/scratch/file.qmodel",
             "wizards/modeling/scratch/wizard.json",
         ]
+    }
+
+    QtcTestFiles {
+        files: [ "classviewcontroller_test.cpp" ]
     }
 }
