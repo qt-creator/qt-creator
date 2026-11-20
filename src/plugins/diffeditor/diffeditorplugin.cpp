@@ -2898,7 +2898,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testClosedRangeComparison()
     QVERIFY(comparison->diffFiles().first().fileInfo[LeftSide].jumpToSource);
     QVERIFY(editor->document()->isModified());
     EditorManager::closeEditors({editor}, false);
-    QTRY_VERIFY(!comparison->diffFiles().first().fileInfo[LeftSide].jumpToSource);
+    QTRY_VERIFY(!comparison->diffFiles().isEmpty()
+                && !comparison->diffFiles().first().fileInfo[LeftSide].jumpToSource);
     QVERIFY(!comparison->diffFiles().first().fileInfo[RightSide].jumpToSource);
     QCOMPARE(comparison->diffFiles().first().fileInfo[LeftSide].firstLineNumber, 2);
 }
