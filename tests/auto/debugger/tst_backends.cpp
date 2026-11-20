@@ -1624,10 +1624,11 @@ public:
     explicit DebuggerBackend(std::unique_ptr<DebuggerEngineInterface> engine)
         : m_engine(std::move(engine))
     {
+        m_age.start();
         connect(m_engine.get(), &DebuggerEngineInterface::message, this,
                 [this](const QString &text, int channel, int) {
             qCDebug(engineLog, "engine: %s", qPrintable(text));
-            m_messages.append(text);
+            recordMessage(text);
             if (channel == Debugger::AppOutput)
                 m_appOutput.append(text);
         });
@@ -1639,7 +1640,10 @@ public:
             m_stoppedLine = lineNumber;
         });
         connect(m_engine.get(), &DebuggerEngineInterface::inferiorEvent, this,
-                [this](InferiorEvent event) { m_events.append(event); });
+                [this](InferiorEvent event) {
+            m_events.append(event);
+            recordMessage(QString("inferior event %1").arg(int(event)));
+        });
         connect(m_engine.get(), &DebuggerEngineInterface::inferiorDone, this,
                 [this](const InferiorResultData &resultData) { m_inferiorResults.append(resultData); });
         connect(m_engine.get(), &DebuggerEngineInterface::threadEvent, this,
@@ -1712,7 +1716,8 @@ public:
     const QStringList &progressMessages() const { return m_progressMessages; }
 
     // What a failed wait reports, as CI does not enable the engineLog category.
-    QString lastMessages(qsizetype count = 10) const
+    // Each line starts with the milliseconds since the engine was created.
+    QString lastMessages(qsizetype count = 15) const
     {
         return "Last engine messages:\n" + m_messages.sliced(qMax(0, m_messages.size() - count))
                                                    .join('\n');
@@ -1728,7 +1733,15 @@ public:
         return ids;
     }
 
+    qint64 age() const { return m_age.elapsed(); }
+
 private:
+    void recordMessage(const QString &text)
+    {
+        m_messages.append(QString("[%1 ms] %2").arg(m_age.elapsed()).arg(text));
+    }
+
+    QElapsedTimer m_age;
     QStringList m_messages;
     QStringList m_progressMessages;
     QList<QPair<ThreadEvent, QString>> m_threadEvents;
@@ -8219,10 +8232,19 @@ std::unique_ptr<DebuggerBackend> tst_backends::launchAndStopAtBreakpoint(Backend
     engine->start();
 
     [backendPtr = debuggerBackend.get(), backend] {
-        QTRY_VERIFY2_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::SpontaneousStop)
-                                      || backendPtr->contains(InferiorEvent::EngineSetupFailed)
-                                      || backendPtr->contains(InferiorEvent::EngineRunFailed),
-                                  qPrintable(backendPtr->lastMessages()), startupTimeout(backend));
+        const auto cameUp = [backendPtr] {
+            return backendPtr->contains(InferiorEvent::SpontaneousStop)
+                   || backendPtr->contains(InferiorEvent::EngineSetupFailed)
+                   || backendPtr->contains(InferiorEvent::EngineRunFailed);
+        };
+        if (!QTest::qWaitFor(cameUp, startupTimeout(backend))) {
+            // Still a failure, but whether the backend is slow or stuck is
+            // what tells the cause apart.
+            const QString outcome = QTest::qWaitFor(cameUp, s_warmUpTimeout)
+                ? QString("The backend came up only after %1 ms.").arg(backendPtr->age())
+                : QString("The backend did not come up within %1 ms.").arg(backendPtr->age());
+            QFAIL(qPrintable(outcome + '\n' + backendPtr->lastMessages()));
+        }
         QVERIFY2(backendPtr->contains(InferiorEvent::SpontaneousStop),
                  qPrintable(backendPtr->lastMessages()));
     }();
