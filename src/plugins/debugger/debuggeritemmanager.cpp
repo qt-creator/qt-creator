@@ -132,8 +132,19 @@ public:
     }
 
 private:
+    int findRowByCommand(const FilePath &command) const;
+
     PersistentSettingsWriter m_writer;
 };
+
+int DebuggerModel::findRowByCommand(const FilePath &command) const
+{
+    for (int i = 0; i < itemCount(); ++i) {
+        if (item(i).command().isSameExecutable(command))
+            return i;
+    }
+    return -1;
+}
 
 static DebuggerModel &debuggerModel()
 {
@@ -256,15 +267,37 @@ void DebuggerModel::autoDetectCdbDebuggers(const IDeviceConstPtr &device,
 
     const int oldCount = itemCount();
     for (const FilePath &cdb : std::as_const(cdbs)) {
-        if (DebuggerItemManager::findByCommand(cdb))
+        const int existingRow = findRowByCommand(cdb);
+        if (existingRow >= 0) {
+            DebuggerItem existingItem = item(existingRow);
+            if (cdb.lastModified() != existingItem.lastModified()) {
+                QString error;
+                existingItem.reinitializeFromFile(&error);
+                if (!error.isEmpty()) {
+                    if (logger)
+                        logger.logItem(error);
+                    continue;
+                }
+                if (isItemDirty(existingRow)) {
+                    setVolatileItem(existingRow, existingItem);
+                    notifyRowChanged(existingRow);
+                } else {
+                    resetItem(existingRow, existingItem);
+                }
+            }
             continue;
-        DebuggerItem item;
-        item.createId();
-        item.setDetectionSource(detectionSource);
-        item.setAbis(Abi::abisOfBinary(cdb));
-        item.setCommand(cdb);
-        item.setEngineType(CdbEngineType);
-        appendItem(item);
+        }
+        Result<DebuggerItem> item = makeAutoDetectedDebuggerItem(cdb, detectionSource);
+        if (!item) {
+            if (logger)
+                logger.logItem(item.error());
+            item = makeAutoDetectedDebuggerItem(
+                cdb,
+                {.engineType = CdbEngineType, .abis = Abi::abisOfBinary(cdb), .version = {}},
+                detectionSource);
+            item->setLastModified({});
+        }
+        appendItem(*item);
         if (logger)
             logger.logItem(Tr::tr("Found: \"%1\".").arg(cdb.toUserOutput()));
     }
@@ -377,13 +410,7 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
         logger.logTopLevel(Tr::tr("Searching for GDB and LLDB..."));
     const int oldCount = itemCount();
     for (const FilePath &command : std::as_const(suspects)) {
-        int existingRow = -1;
-        for (int i = 0; i < itemCount(); ++i) {
-            if (item(i).command().isSameExecutable(command)) {
-                existingRow = i;
-                break;
-            }
-        }
+        const int existingRow = findRowByCommand(command);
         if (existingRow >= 0) {
             DebuggerItem existingItem = item(existingRow);
             if (command.lastModified() != existingItem.lastModified()) {
