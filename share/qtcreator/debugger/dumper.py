@@ -2197,9 +2197,14 @@ class DumperBase():
             constructorCount, constructors,
             flags, signalCount) = self.split('I' * 14, dataPtr)
 
+        intsPerMethod = 6 if revision >= 9 else 5
+
+        def methodData(i):
+            return self.split('IIIII', dataPtr + 4 * (methods + i * intsPerMethod))
+
         largestStringIndex = -1
         for i in range(methodCount):
-            t = self.split('IIIII', dataPtr + 56 + i * 20)
+            t = methodData(i)
             if largestStringIndex < t[0]:
                 largestStringIndex = t[0]
 
@@ -2271,7 +2276,7 @@ class DumperBase():
                         putt('flags', flags)
                         putt('signalCount', signalCount)
                         for i in range(methodCount):
-                            t = self.split('IIIII', dataPtr + 56 + i * 20)
+                            t = methodData(i)
                             putt('method %d' % i, '%s %s %s %s %s' % t)
 
         if isQObject:
@@ -2309,7 +2314,7 @@ typename))
                                     with Children(self):
                                         j = -1
                                         for i in range(signalCount):
-                                            t = self.split('IIIII', dataPtr + 56 + 20 * i)
+                                            t = methodData(i)
                                             flags = t[4]
                                             if flags != 0x06:
                                                 continue
@@ -2439,7 +2444,7 @@ typename))
                 if self.isExpanded():
                     with Children(self):
                         for i in range(methodCount):
-                            t = self.split('IIIII', dataPtr + 56 + 20 * i)
+                            t = methodData(i)
                             name = self.metaString(metaObjectPtr, t[0], revision)
                             with SubItem(self, i):
                                 self.putValue(name)
