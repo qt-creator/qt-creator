@@ -1555,8 +1555,13 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                     GccToolchain::Clang));
     known.append(tcs);
 
-    if (detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        tcs.append(autoDetectSdkClangToolchain(known));
+    if (detector.device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        // The SDK clang can be in the PATH, too.
+        for (Toolchain * const tc : autoDetectSdkClangToolchain(known)) {
+            if (!tcs.contains(tc))
+                tcs.append(tc);
+        }
+    }
 
     result += tcs;
 
@@ -1663,10 +1668,13 @@ Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &kn
     if (!compilerPath)
         return {};
 
-    for (Toolchain * const existingTc : known) {
-        if (existingTc->compilerCommand() == *compilerPath)
-            return {};
-    }
+    // Return the known toolchains, one for each ABI, so that they count as detected again,
+    // and are not demoted.
+    const Toolchains existing = filtered(known, [&compilerPath](const Toolchain *tc) {
+        return tc->compilerCommand() == *compilerPath;
+    });
+    if (!existing.isEmpty())
+        return existing;
 
     return {autoDetectToolchain({*compilerPath, Constants::C_LANGUAGE_ID}, GccToolchain::Clang)};
 }
