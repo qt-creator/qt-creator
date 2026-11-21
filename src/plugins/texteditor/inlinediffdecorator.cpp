@@ -343,6 +343,7 @@ void InlineDiffDecorator::apply(const QList<GhostBlock> &ghosts, const QList<Cha
 
     layout->emitDocumentSizeChanged();
     layout->requestUpdate();
+    emit applied();
 }
 
 void InlineDiffDecorator::clear()

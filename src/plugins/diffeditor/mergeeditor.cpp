@@ -378,8 +378,9 @@ public:
         while (first.isValid() && !editorLayout()->isBlockVisibleInEditor(first))
             first = first.next();
         const int height = viewport()->height() / 2;
-        if (m_paddingAnchor.block() == first && m_paddingHeight == height)
+        if (!m_paddingOrderDirty && m_paddingAnchor.block() == first && m_paddingHeight == height)
             return;
+        m_paddingOrderDirty = false;
         const Utils::Id category("DiffEditor.MergeViewportPadding");
         editorLayout()->removeAllLayoutItems(category);
         m_paddingAnchor = first.isValid() ? QTextCursor(first) : QTextCursor();
@@ -391,6 +392,8 @@ public:
         editorLayout()->emitDocumentSizeChanged();
         editorLayout()->requestUpdate();
     }
+
+    void invalidateViewportPaddingOrder() { m_paddingOrderDirty = true; }
 
     int viewportPaddingForBlock(const QTextBlock &block) const
     {
@@ -480,6 +483,7 @@ private:
     ContextMenuHandler m_contextMenuHandler;
     QTextCursor m_paddingAnchor;
     int m_paddingHeight = -1;
+    bool m_paddingOrderDirty = false;
     int m_activeId = -1;
     int m_activeFirst = 1;
     int m_activeLast = 1;
@@ -681,6 +685,12 @@ public:
                 addConflictContextMenu(menu, cursor);
             });
         m_resultDecorator = new InlineDiffDecorator(m_resultWidget);
+        connect(m_resultDecorator, &InlineDiffDecorator::applied, m_resultWidget,
+                [result = m_resultWidget] {
+            // Keep newly prepended ghost rows below the centering padding.
+            result->invalidateViewportPaddingOrder();
+            result->updateViewportPadding();
+        });
 
         m_statusLabel->setText(Tr::tr("Fetching merge inputs..."));
         m_statusLabel->setWordWrap(true);
@@ -2335,6 +2345,7 @@ private slots:
     void testMergeEditorScrollingAndCollapse();
     void testExternalMergeFiles();
     void testMergeEditorActiveConflictAndResize();
+    void testMergeEditorPaddingAfterResolution();
     void testMergeEditorPartialSave();
     void testMergeEditorRejectsOversizedExternalChange();
     void testMergeEditorPreservesSelectedText();
@@ -2837,6 +2848,55 @@ void MergeEditorTest::testMergeEditorActiveConflictAndResize()
     QTRY_COMPARE(result->activeConflictId(), 0);
     QCOMPARE(ours->activeConflictId(), 0);
     QCOMPARE(theirs->activeConflictId(), 0);
+}
+
+void MergeEditorTest::testMergeEditorPaddingAfterResolution()
+{
+    TextDocumentPtr source(new TextDocument("merge-padding-test"));
+    QVERIFY(source->setPlainText("<<<<<<< HEAD\ncurrent\n=======\nincoming\n>>>>>>> topic\n"));
+    MergeInput input;
+    input.resultDocument = source;
+    const auto snapshot = [](const QString &text) {
+        return [text](const MergeInput::SnapshotCallback &callback) {
+            callback(MergeSnapshot{true, text, "test"});
+        };
+    };
+    input.fetchBase = snapshot("base\n");
+    input.fetchOurs = snapshot("current\n");
+    input.fetchTheirs = snapshot("incoming\n");
+    IEditor *editor = openMergeEditor(input, "merge-padding-test");
+    QVERIFY(editor);
+    const auto cleanup = qScopeGuard([editor] {
+        EditorManager::closeDocuments({editor->document()}, false);
+    });
+
+    auto *result = editor->widget()->findChild<TextEditorWidget *>("MergeEditor.Result");
+    QVERIFY(result);
+    const auto currentButton = [result] {
+        return Utils::findOrDefault(
+            result->findChildren<QToolButton *>("MergeEditor.Conflict.0.Current"),
+            [](QToolButton *button) { return button->isVisible() && button->isEnabled(); });
+    };
+    QTRY_VERIFY(currentButton());
+    currentButton()->click();
+    QCOMPARE(result->toPlainText(), QString("current\n"));
+    QTRY_VERIFY(Utils::anyOf(result->textDocument()->marks(), [](const TextMark *mark) {
+        return mark->category().id == Utils::Id("DiffEditor.ResolvedMergeHunk");
+    }));
+
+    const auto verifyPadding = [result] {
+        const QTextBlock block = result->document()->firstBlock();
+        const auto *layout = result->editorLayout();
+        QVERIFY(!layout->layoutItemsForCategory(block, inlineDiffGhostCategory()).isEmpty());
+        QCOMPARE(layout->layoutItems(block).first()->category(),
+                 Utils::Id("DiffEditor.MergeViewportPadding"));
+    };
+    verifyPadding();
+    emit result->textDocument()->fontSettingsChanged();
+    verifyPadding();
+    QEvent fontChange(QEvent::FontChange);
+    QCoreApplication::sendEvent(result, &fontChange);
+    verifyPadding();
 }
 
 void MergeEditorTest::testMergeEditorPartialSave()

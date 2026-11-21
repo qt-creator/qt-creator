@@ -81,6 +81,9 @@ public:
                const QList<Spacer> &spacers = {});
     void clear();
 
+signals:
+    void applied();
+
 private:
     bool eventFilter(QObject *object, QEvent *event) override;
     void clearGhostItems();
