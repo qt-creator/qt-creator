@@ -562,11 +562,28 @@ static QVariant findOrRegisterDebugger(
                                               .arg(preset.displayName.value_or(preset.name))
                                               .arg(debuggerPath.completeBaseName()));
         debugger.setDetectionSource(DetectionSource::Temporary);
-        QString errorMessage;
-        debugger.reinitializeFromFile(&errorMessage, &env);
-        if (!errorMessage.isEmpty())
-            qCWarning(cmInputLog()) << "Error reinitializing debugger"
-                                    << debuggerPath.toUserOutput() << "Error:" << errorMessage;
+        // Running a debugger to learn what it is takes a while. Learn it from a debugger
+        // with the same unchanged binary, e.g. a detected one, or one of another preset.
+        const QDateTime lastModified = debuggerPath.lastModified();
+        const QList<DebuggerItem> debuggers = DebuggerItemManager::debuggers();
+        const auto known = std::find_if(debuggers.begin(), debuggers.end(),
+                                        [&](const DebuggerItem &item) {
+                                            return item.command() == debuggerPath
+                                                   && item.engineType() != NoEngineType
+                                                   && item.lastModified() == lastModified;
+                                        });
+        if (known != debuggers.end()) {
+            debugger.setEngineType(known->engineType());
+            debugger.setVersion(known->version());
+            debugger.setAbis(known->abis());
+            debugger.setLastModified(lastModified);
+        } else {
+            QString errorMessage;
+            debugger.reinitializeFromFile(&errorMessage, &env);
+            if (!errorMessage.isEmpty())
+                qCWarning(cmInputLog()) << "Error reinitializing debugger"
+                                        << debuggerPath.toUserOutput() << "Error:" << errorMessage;
+        }
 
         return DebuggerItemManager::registerDebugger(debugger);
     } else {
