@@ -388,8 +388,14 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
             DebuggerItem existingItem = item(existingRow);
             if (command.lastModified() != existingItem.lastModified()) {
                 existingItem.reinitializeFromFile();
-                setVolatileItem(existingRow, existingItem);
-                notifyRowChanged(existingRow);
+                // Like a new item, the update takes effect and is saved without waiting for
+                // the settings page to be applied, unless the row has changes of its own.
+                if (isDirty(existingRow)) {
+                    setVolatileItem(existingRow, existingItem);
+                    notifyRowChanged(existingRow);
+                } else {
+                    resetItem(existingRow, existingItem);
+                }
             }
 
             if (nativeDapDebuggersEnabled()) {
