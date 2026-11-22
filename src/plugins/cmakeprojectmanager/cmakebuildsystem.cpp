@@ -4199,7 +4199,10 @@ void CMakeBuildSystem::wireUpConnections()
 
         // Build configuration has changed:
         qCDebug(cmakeBuildSystemLog) << "Requesting parse due to active target changed";
-        reparse(CMakeBuildSystem::REPARSE_DEFAULT);
+        // This is how an opened project gets parsed first, which shouldn't wait for the delay
+        // that lets later changes come together.
+        reparse(hasParsingData() ? CMakeBuildSystem::REPARSE_DEFAULT
+                                 : CMakeBuildSystem::REPARSE_URGENT);
     });
 
     connect(ProjectManager::instance(), &ProjectManager::currentBuildConfigurationChanged,
