@@ -28,6 +28,7 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/settingsdatabase.h>
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
@@ -46,6 +47,7 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QSettings>
+#include <QThread>
 #include <QVersionNumber>
 
 using namespace QtTaskTree;
@@ -330,6 +332,44 @@ static FilePath vswherePath(const FilePath &root)
     return windowsProgramFilesDir(root) / "Microsoft Visual Studio/Installer/vswhere.exe";
 }
 
+// Visual Studio 2015 and older register their installation directories here.
+static QString vs7RegistryKey()
+{
+#ifdef Q_OS_WIN64
+    return QStringLiteral(
+        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VS7");
+#else
+    return QStringLiteral(
+        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7");
+#endif
+}
+
+// The Visual Studio Installer rewrites the state of each installation that it adds or changes,
+// which is what vswhere lists, so that state tells whether what vswhere answered still holds.
+static QString vswhereInputSignature(const FilePath &vswhere)
+{
+    const QString programData = qtcEnvironmentVariable("ProgramData");
+    if (programData.isEmpty())
+        return {};
+    const FilePath instancesDir = FilePath::fromUserInput(programData)
+                                  / "Microsoft/VisualStudio/Packages/_Instances";
+    FilePaths instances = instancesDir.dirEntries(DirFilterFlag::Dirs
+                                                  | DirFilterFlag::NoDotAndDotDot);
+    Utils::sort(instances, &FilePath::fileName);
+    QStringList signature{vswhere.lastModified().toString(Qt::ISODateWithMs)};
+    // The legacy installations, which vswhere lists too, are not among the instances.
+    QSettings legacy(vs7RegistryKey(), QSettings::NativeFormat);
+    const QStringList legacyKeys = legacy.allKeys();
+    for (const QString &key : legacyKeys)
+        signature << key + '=' + legacy.value(key).toString();
+    for (const FilePath &instance : std::as_const(instances)) {
+        const FilePath state = instance / "state.json";
+        signature << instance.fileName() + '=' + state.lastModified().toString(Qt::ISODateWithMs)
+                         + '/' + QString::number(state.fileSize());
+    }
+    return signature.join(';');
+}
+
 // 'root' is the device root for remote detection; empty means the local host.
 static QList<VisualStudioInstallation> detectVisualStudioFromVswhere(const FilePath &root)
 {
@@ -337,19 +377,41 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVswhere(const FileP
     if (!vswhere.isExecutableFile())
         return {};
 
-    QList<VisualStudioInstallation> installations;
-    Process vsWhereProcess;
-    vsWhereProcess.setUtf8Codec();
-    vsWhereProcess.setCommand({vswhere,
-                        {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
-    // A device invocation goes over the (slower) device transport.
-    vsWhereProcess.runBlocking(root.isEmpty() ? 5s : 30s);
-    if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << vsWhereProcess.verboseExitMessage();
-        return installations;
+    // Running vswhere takes 80 ms, at each start, in the main thread. Keep its answer until the
+    // installations change.
+    const char cacheGroup[] = "MsvcToolchain/Vswhere";
+    const QString signature = root.isLocal() && QThread::isMainThread()
+                                  ? vswhereInputSignature(vswhere) : QString();
+    QString vswhereOutput;
+    if (!signature.isEmpty()) {
+        SettingsDatabase::beginGroup(cacheGroup);
+        if (SettingsDatabase::value("Signature").toString() == signature)
+            vswhereOutput = SettingsDatabase::value("Output").toString();
+        SettingsDatabase::endGroup();
     }
 
-    const QByteArray output = vsWhereProcess.cleanedStdOut().toUtf8();
+    QList<VisualStudioInstallation> installations;
+    if (vswhereOutput.isEmpty()) {
+        Process vsWhereProcess;
+        vsWhereProcess.setUtf8Codec();
+        vsWhereProcess.setCommand(
+            {vswhere, {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
+        // A device invocation goes over the (slower) device transport.
+        vsWhereProcess.runBlocking(root.isEmpty() ? 5s : 30s);
+        if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
+            qWarning() << vsWhereProcess.verboseExitMessage();
+            return installations;
+        }
+        vswhereOutput = vsWhereProcess.cleanedStdOut();
+        if (!signature.isEmpty()) {
+            SettingsDatabase::beginGroup(cacheGroup);
+            SettingsDatabase::setValue("Signature", signature);
+            SettingsDatabase::setValue("Output", vswhereOutput);
+            SettingsDatabase::endGroup();
+        }
+    }
+
+    const QByteArray output = vswhereOutput.toUtf8();
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(output, &error);
     if (error.error != QJsonParseError::NoError || doc.isNull()) {
@@ -408,14 +470,7 @@ static QList<VisualStudioInstallation> detectVisualStudioFromRegistry(const File
     if (!root.isLocal())
         return {}; // TODO: Implement remote registry access for remote detection.
     QList<VisualStudioInstallation> result;
-#ifdef Q_OS_WIN64
-    const QString keyRoot = QStringLiteral(
-        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\");
-#else
-    const QString keyRoot = QStringLiteral(
-        "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\");
-#endif
-    QSettings vsRegistry(keyRoot + QStringLiteral("VS7"), QSettings::NativeFormat);
+    QSettings vsRegistry(vs7RegistryKey(), QSettings::NativeFormat);
     QScopedPointer<QSettings> vcRegistry;
     const QStringList keys = vsRegistry.allKeys();
     for (const QString &vsName : keys) {
