@@ -10,12 +10,14 @@
 #include "headerpath.h"
 
 #include <functional>
+#include <memory>
 #include <optional>
 
 namespace ProjectExplorer {
 
 namespace Internal {
 class GccToolchainConfigWidget;
+using InstallDirCache = Cache<QPair<Utils::Environment, QStringList>, Utils::FilePath>;
 class GccToolchainFactory;
 
 const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
@@ -38,6 +40,7 @@ public:
 
     QString originalTargetTriple() const override;
     Utils::FilePath installDir() const override;
+    InstallDirRunner createInstallDirRunner() const override;
     QString version() const;
     Abis supportedAbis() const override;
 
@@ -143,6 +146,8 @@ private:
     mutable HeaderPaths m_headerPaths;
     mutable QString m_version;
     mutable Utils::FilePath m_installDir;
+    // What the compiler answered to the install dir runners, until it is reset.
+    mutable std::shared_ptr<Internal::InstallDirCache> m_installDirCache;
 
     friend class Internal::GccToolchainConfigWidget;
     friend class Internal::GccToolchainFactory;

@@ -56,6 +56,7 @@ class HeaderPathFilterTest : public QObject
 
 private slots:
     void testBuiltin();
+    void testInstallDirFromRunner();
     void testSystem();
     void testUser();
     void testNoProjectPathSet();

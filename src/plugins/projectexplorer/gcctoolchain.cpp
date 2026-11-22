@@ -12,6 +12,7 @@
 #include "projectexplorertr.h"
 #include "projectmacro.h"
 #include "toolchainconfigwidget.h"
+#include "toolchaincache.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
@@ -33,6 +34,7 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMutex>
 #include <QRegularExpression>
 #include <QTimer>
 
@@ -1016,6 +1018,7 @@ void GccToolchain::resetToolchain(const FilePath &path)
     m_supportedAbis = detectedAbis.supportedAbis;
     m_originalTargetTriple = detectedAbis.originalTargetTriple;
     m_installDir.clear();
+    m_installDirCache.reset();
 
     if (m_supportedAbis.isEmpty())
         setTargetAbiNoSignal(Abi());
@@ -1163,10 +1166,30 @@ QString GccToolchain::detectVersion() const
 
 FilePath GccToolchain::detectInstallDir() const
 {
+    return createInstallDirRunner()();
+}
+
+Toolchain::InstallDirRunner GccToolchain::createInstallDirRunner() const
+{
+    if (!m_installDir.isEmpty())
+        return [installDir = m_installDir] { return installDir; };
+
     Environment env = compilerCommand().deviceEnvironment();
     addToEnvironment(env);
-    return gccInstallDir(findLocalCompiler(compilerCommand(), env), env,
-                         filteredFlags(platformCodeGenFlags(), true));
+    if (!m_installDirCache)
+        m_installDirCache = std::make_shared<InstallDirCache>();
+    return [cache = m_installDirCache,
+            compiler = compilerCommand(),
+            env,
+            flags = filteredFlags(platformCodeGenFlags(), true)] {
+        // Each update of a project asks, but the compiler gives the same answer.
+        const auto key = std::make_pair(env, QStringList(compiler.toUrlishString()) + flags);
+        if (const std::optional<FilePath> cached = cache->check(key))
+            return *cached;
+        const FilePath installDir = gccInstallDir(findLocalCompiler(compiler, env), env, flags);
+        cache->insert(key, installDir);
+        return installDir;
+    };
 }
 
 // --------------------------------------------------------------------------
@@ -1934,6 +1957,8 @@ void GccToolchainConfigWidget::applyImpl()
             tc.setSupportedAbis(m_abiWidget->supportedAbis());
             tc.setTargetAbi(m_abiWidget->currentAbi());
         }
+        // A new compiler has its own install directory, not the one found for the old one.
+        tc.setInstallDir({});
         tc.setInstallDir(tc.detectInstallDir());
         tc.setOriginalTargetTriple(tc.detectSupportedAbis().originalTargetTriple);
         tc.setExplicitCodeModelTargetTriple(m_targetTripleWidget->explicitCodeModelTargetTriple());

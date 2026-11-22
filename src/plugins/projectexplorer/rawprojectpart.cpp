@@ -166,12 +166,12 @@ ToolchainInfo::ToolchainInfo(const Toolchain *toolChain,
         targetTriple = toolChain->effectiveCodeModelTargetTriple();
         targetTripleIsAuthoritative = !toolChain->explicitCodeModelTargetTriple().isEmpty();
         extraCodeModelFlags = toolChain->extraCodeModelFlags();
-        installDir = toolChain->installDir();
         compilerFilePath = toolChain->compilerCommand();
 
         // ...and save the potentially expensive operations for later so that
         // they can be run from a worker thread.
         this->sysRootPath = sysRootPath;
+        installDirRunner = toolChain->createInstallDirRunner();
         headerPathsRunner = toolChain->createBuiltInHeaderPathsRunner(env);
         macroInspectionRunner = toolChain->createMacroInspectionRunner();
     }

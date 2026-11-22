@@ -388,6 +388,11 @@ FilePath Toolchain::compilerCommand() const
     return d->m_compilerCommand;
 }
 
+Toolchain::InstallDirRunner Toolchain::createInstallDirRunner() const
+{
+    return [installDir = installDir()] { return installDir; };
+}
+
 void Toolchain::setCompilerCommand(const FilePath &command)
 {
     d->m_isValid.reset();

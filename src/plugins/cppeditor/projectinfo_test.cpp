@@ -545,6 +545,21 @@ void HeaderPathFilterTest::testBuiltin()
     QCOMPARE(t.filter->builtInHeaderPaths, (HeaderPaths{t.builtIn("/builtin_path")}));
 }
 
+// The fallback project part is made without the project updater, and has the runner only.
+void HeaderPathFilterTest::testInstallDirFromRunner()
+{
+    RawProjectPart rpp;
+    ToolchainInfo tcInfo;
+    tcInfo.installDirRunner = [] { return FilePath::fromString("/install_dir"); };
+    const ProjectPart::ConstPtr part = ProjectPart::create({}, rpp, {}, {}, {}, {}, {}, tcInfo);
+    QCOMPARE(part->toolchainInstallDir, FilePath::fromString("/install_dir"));
+
+    // The install dir of the info is used as it is.
+    tcInfo.installDir = FilePath::fromString("/other_dir");
+    const ProjectPart::ConstPtr other = ProjectPart::create({}, rpp, {}, {}, {}, {}, {}, tcInfo);
+    QCOMPARE(other->toolchainInstallDir, FilePath::fromString("/other_dir"));
+}
+
 void HeaderPathFilterTest::testSystem()
 {
     HeaderPathFilterTestHelper t;

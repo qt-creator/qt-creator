@@ -103,6 +103,14 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
     return headerPaths;
 }
 
+// A tool chain info that has not been asked for the install directory yet may run a compiler.
+static Utils::FilePath getInstallDir(const ToolchainInfo &tcInfo)
+{
+    if (!tcInfo.installDir.isEmpty() || !tcInfo.installDirRunner)
+        return tcInfo.installDir;
+    return tcInfo.installDirRunner();
+}
+
 static Toolchain::MacroInspectionReport getToolchainMacros(
         const RawProjectPartFlags &flags, const ToolchainInfo &tcInfo, Utils::Language language)
 {
@@ -176,7 +184,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
       toolchainTargetTriple(tcInfo.targetTriple),
       targetTripleIsAuthoritative(tcInfo.targetTripleIsAuthoritative),
       toolchainAbi(tcInfo.abi),
-      toolchainInstallDir(tcInfo.installDir),
+      toolchainInstallDir(getInstallDir(tcInfo)),
       compilerFilePath(tcInfo.compilerFilePath),
       warningFlags(flags.warningFlags),
       extraCodeModelFlags(tcInfo.extraCodeModelFlags + getExtraCodeModelFlags(rpp, files)),

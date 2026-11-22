@@ -23,7 +23,7 @@ public:
 
 protected:
     DetectedAbisResult detectSupportedAbis() const override;
-    Utils::FilePath detectInstallDir() const override;
+    InstallDirRunner createInstallDirRunner() const override;
 };
 
 void setupQnxToolchain();

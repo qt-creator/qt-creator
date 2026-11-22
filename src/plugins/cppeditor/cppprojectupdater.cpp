@@ -55,6 +55,11 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         ProjectUpdateInfo fullProjectUpdateInfo = projectUpdateInfo;
         if (fullProjectUpdateInfo.rppGenerator)
             fullProjectUpdateInfo.rawProjectParts = fullProjectUpdateInfo.rppGenerator();
+        for (ToolchainInfo *tcInfo : {&fullProjectUpdateInfo.cToolchainInfo,
+                                      &fullProjectUpdateInfo.cxxToolchainInfo}) {
+            if (tcInfo->installDirRunner)
+                tcInfo->installDir = tcInfo->installDirRunner();
+        }
         Internal::ProjectInfoGenerator generator(fullProjectUpdateInfo);
         promise.addResult(generator.generate(promise));
     };

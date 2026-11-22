@@ -150,10 +150,11 @@ public:
     Abi abi;
     QString targetTriple;
     Utils::FilePath compilerFilePath;
-    Utils::FilePath installDir;
+    Utils::FilePath installDir; // From installDirRunner.
     QStringList extraCodeModelFlags;
 
     Utils::FilePath sysRootPath; // For headerPathsRunner.
+    ProjectExplorer::Toolchain::InstallDirRunner installDirRunner;
     ProjectExplorer::Toolchain::BuiltInHeaderPathsRunner headerPathsRunner;
     ProjectExplorer::Toolchain::MacroInspectionRunner macroInspectionRunner;
 };

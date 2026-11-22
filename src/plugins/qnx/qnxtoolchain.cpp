@@ -192,13 +192,13 @@ bool QnxToolchain::operator ==(const Toolchain &other) const
     return sdpPath() == qnxTc->sdpPath() && cpuDir() == qnxTc->cpuDir();
 }
 
-FilePath QnxToolchain::detectInstallDir() const
+Toolchain::InstallDirRunner QnxToolchain::createInstallDirRunner() const
 {
     // qcc is a driver that expects input files; unlike gcc it does not treat
     // "-print-search-dirs" as a print-and-exit query and fails with "cc: no
     // files to process". The install dir is not needed for QNX, so skip the
     // query the base class would otherwise run (and soft-assert on).
-    return {};
+    return [] { return FilePath(); };
 }
 
 //---------------------------------------------------------------------------------
