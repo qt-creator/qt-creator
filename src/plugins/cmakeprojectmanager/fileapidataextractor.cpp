@@ -687,6 +687,16 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 {
     RawProjectParts rpps;
 
+    // The sources of a target are classified for each of its compile groups, and the
+    // classification looks up their MIME types.
+    QHash<FilePath, CppEditor::ProjectFile::Kind> sourceKinds;
+    const auto classify = [&sourceKinds](const FilePath &path) {
+        auto it = sourceKinds.constFind(path);
+        if (it == sourceKinds.constEnd())
+            it = sourceKinds.insert(path, CppEditor::ProjectFile::classify(path));
+        return *it;
+    };
+
     // Build a target ID -> TargetDetails lookup for INTERFACE library dependency resolution
     QHash<QString, const TargetDetails *> targetById;
     for (const TargetDetails &td : input.targetDetails)
@@ -801,7 +811,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                     if (si.isGenerated)
                         continue;
 
-                    const auto kind = CppEditor::ProjectFile::classify(si.path);
+                    const auto kind = classify(si.path);
                     const bool headerType = CppEditor::ProjectFile::isHeader(kind)
                                             && haveFileKindForLanguage(kind);
                     const bool sourceUnityType = hasUnitySources
@@ -935,7 +945,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             for (const SourceInfo &si : std::as_const(t.sources)) {
                 if (si.isGenerated)
                     continue;
-                const auto kind = CppEditor::ProjectFile::classify(si.path);
+                const auto kind = classify(si.path);
                 if (CppEditor::ProjectFile::isHeader(kind)
                     && (CppEditor::ProjectFile::isCxx(kind) || CppEditor::ProjectFile::isC(kind)
                         || kind == CppEditor::ProjectFile::AmbiguousHeader)) {
@@ -1563,22 +1573,24 @@ static void markCMakeModulesFromPrefixPathAsGenerated(
     const QSet<FilePath> externlPaths = [&result]() {
         QSet<FilePath> paths;
         for (const QByteArray var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
-            const QStringList pathList = result.cache.stringValueOf(var).split(";");
+            const QStringList pathList = result.cache.stringValueOf(var).split(';', Qt::SkipEmptyParts);
             for (const QString &path : pathList)
                 paths.insert(FilePath::fromUserInput(path));
         }
         return paths;
     }();
 
-    if (!result.rootProjectNode)
+    if (!result.rootProjectNode || externlPaths.isEmpty())
         return;
 
     result.rootProjectNode->forEachGenericNode(
         [&externlPaths, &sourceDir, &buildDir, &result](Node *node) {
+            // Node::path() looks at the file system.
+            const FilePath nodePath = node->path();
+            if (nodePath.isChildOf(sourceDir) || nodePath.isChildOf(buildDir))
+                return;
             for (const FilePath &path : externlPaths) {
-                const bool isExternal = !node->path().isChildOf(sourceDir)
-                                        && !node->path().isChildOf(buildDir);
-                if (node->path().isChildOf(path) && isExternal) {
+                if (nodePath.isChildOf(path)) {
                     setIsGenerated(result.cmakeFiles, node, true);
                     break;
                 }
