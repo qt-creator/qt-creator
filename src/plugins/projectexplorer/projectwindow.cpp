@@ -1670,6 +1670,14 @@ public:
 
     void updatePanel()
     {
+        // The panels are many widgets, which a session that opens its projects doesn't need
+        // until the window is shown.
+        if (!q->isVisible()) {
+            m_panelUpdatePending = true;
+            return;
+        }
+        m_panelUpdatePending = false;
+
         ProjectItem *projectItem = currentProjectItem();
         if (!projectItem)
             return;
@@ -1882,6 +1890,7 @@ public:
     BuildSystemOutputWindow *m_buildSystemOutput;
     CentralWidget *m_centralWidget;
     int m_panelUpdateCount = 0;
+    bool m_panelUpdatePending = false;
 };
 
 //
@@ -1932,6 +1941,8 @@ void ProjectWindow::hideEvent(QHideEvent *event)
 void ProjectWindow::showEvent(QShowEvent *event)
 {
     FancyMainWindow::showEvent(event);
+    if (d->m_panelUpdatePending)
+        d->updatePanel();
     loadPersistentSettings();
 }
 

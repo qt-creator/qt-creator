@@ -61,6 +61,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/modemanager.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
@@ -2865,6 +2866,36 @@ private slots:
         QVERIFY(project.vanishedTargets().isEmpty());
     }
 
+    void testPanelsAreCreatedWhenShown()
+    {
+        const Utils::Id previousMode = Core::ModeManager::currentModeId();
+        const auto restoreMode = qScopeGuard([previousMode] {
+            Core::ModeManager::activateMode(previousMode);
+        });
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+
+        Kit * const kit = KitManager::registerKit([](Kit *k) {
+            k->setUnexpandedDisplayName("Hidden Panel Kit");
+        });
+        QVERIFY(kit);
+        const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+        auto project = new TargetlessTestProject;
+        ProjectManager::addProject(project);
+        const auto removeProject = qScopeGuard([project] {
+            ProjectManager::removeProject(project);
+        });
+        ProjectManager::setStartupProject(project);
+
+        TestBuildConfiguration::configWidgets.clear();
+        QVERIFY(project->addTargetForKit(kit));
+        QVERIFY(TestBuildConfiguration::configWidgets.isEmpty());
+
+        Core::ModeManager::activateMode(Constants::MODE_SESSION);
+        QVERIFY(Utils::anyOf(TestBuildConfiguration::configWidgets,
+                             [](const QPointer<QWidget> &w) { return w; }));
+    }
+
 private:
     void addTargetWhileCreatingConfigWidget(const std::function<void(Project *)> &reenter)
     {
@@ -2881,6 +2912,15 @@ private:
         });
         ProjectManager::setStartupProject(project);
         QCOMPARE(ProjectManager::startupProject(), project);
+
+        // The panels are created while the project window is shown, and its mode is there only
+        // while there are projects.
+        const Utils::Id previousMode = Core::ModeManager::currentModeId();
+        const auto restoreMode = qScopeGuard([previousMode] {
+            Core::ModeManager::activateMode(previousMode);
+        });
+        Core::ModeManager::activateMode(Constants::MODE_SESSION);
+        QCOMPARE(Core::ModeManager::currentModeId(), Utils::Id(Constants::MODE_SESSION));
 
         bool reentered = false;
         TestBuildConfiguration::configWidgets.clear();
