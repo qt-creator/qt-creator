@@ -7,7 +7,9 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QPair>
+#include <QWaitCondition>
 
+#include <functional>
 #include <optional>
 
 namespace ProjectExplorer {
@@ -41,19 +43,36 @@ public:
 
     void insert(const K &key, const T &values)
     {
-        CacheItem runResults;
-        runResults.first = key;
-        runResults.second = values;
-
         QMutexLocker locker(&m_mutex);
-        if (!checkImpl(key)) {
-            if (m_cache.size() < Size) {
-                m_cache.push_back(runResults);
-            } else {
-                std::rotate(m_cache.begin(), std::next(m_cache.begin()), m_cache.end());
-                m_cache.back() = runResults;
+        insertImpl(key, values);
+    }
+
+    // The cached values of the key, or those that compute() returns. Threads that ask for a key
+    // that another thread is computing wait for its result instead of computing it again.
+    // What was being computed when the cache was invalidated is neither waited for nor kept.
+    T value(const K &key, const std::function<T()> &compute)
+    {
+        int generation;
+        {
+            QMutexLocker locker(&m_mutex);
+            while (true) {
+                if (std::optional<T> cached = checkImpl(key))
+                    return *cached;
+                if (!m_computing.contains(key))
+                    break;
+                m_computed.wait(&m_mutex);
             }
+            m_computing.append(key);
+            generation = m_generation;
         }
+        T values = compute();
+        QMutexLocker locker(&m_mutex);
+        if (generation == m_generation) {
+            m_computing.removeOne(key);
+            insertImpl(key, values);
+        }
+        m_computed.wakeAll();
+        return values;
     }
 
     std::optional<T> check(const K &key)
@@ -66,9 +85,24 @@ public:
     {
         QMutexLocker locker(&m_mutex);
         m_cache.clear();
+        m_computing.clear();
+        ++m_generation;
+        m_computed.wakeAll(); // The waiters compute for themselves.
     }
 
 private:
+    void insertImpl(const K &key, const T &values)
+    {
+        if (!checkImpl(key)) {
+            if (m_cache.size() < Size) {
+                m_cache.push_back({key, values});
+            } else {
+                std::rotate(m_cache.begin(), std::next(m_cache.begin()), m_cache.end());
+                m_cache.back() = {key, values};
+            }
+        }
+    }
+
     std::optional<T> checkImpl(const K &key)
     {
         auto it = std::stable_partition(m_cache.begin(), m_cache.end(), [&](const CacheItem &ci) {
@@ -83,6 +117,9 @@ private:
 
     QMutex m_mutex;
     QList<CacheItem> m_cache;
+    QList<K> m_computing;
+    int m_generation = 0;
+    QWaitCondition m_computed;
 };
 
 } // namespace ProjectExplorer

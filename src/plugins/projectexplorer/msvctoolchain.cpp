@@ -1414,17 +1414,10 @@ Toolchain::MacroInspectionRunner MsvcToolchain::createMacroInspectionRunner() co
             return hasFlagEffectOnMacros(arg);
         });
 
-        const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
-        if (cachedMacros)
-            return *cachedMacros;
-
-        const Macros macros = msvcPredefinedMacros(filteredFlags, env);
-
-        const auto report = MacroInspectionReport{macros,
-                                                  msvcLanguageVersion(filteredFlags, lang, macros)};
-        macroCache->insert(filteredFlags, report);
-
-        return report;
+        return macroCache->value(filteredFlags, [&] {
+            const Macros macros = msvcPredefinedMacros(filteredFlags, env);
+            return MacroInspectionReport{macros, msvcLanguageVersion(filteredFlags, lang, macros)};
+        });
     };
 }
 

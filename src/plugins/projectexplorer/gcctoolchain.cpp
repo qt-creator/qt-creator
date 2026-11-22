@@ -625,29 +625,26 @@ Toolchain::MacroInspectionRunner GccToolchain::createMacroInspectionRunner() con
         QStringList allFlags = platformCodeGenFlags + flags;  // add only cxxflags is empty?
         QStringList arguments = gccPredefinedMacrosOptions(lang) + filteredFlags(allFlags, true);
         arguments = reinterpretOptions(arguments);
-        const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(arguments);
-        if (cachedMacros)
-            return *cachedMacros;
+        return macroCache->value(arguments, [&] {
+            const Result<Macros> macroResult
+                = gccPredefinedMacros(findLocalCompiler(compilerCommand, env), arguments, env);
+            QTC_CHECK_RESULT(macroResult);
 
-        const Result<Macros> macroResult
-            = gccPredefinedMacros(findLocalCompiler(compilerCommand, env), arguments, env);
-        QTC_CHECK_RESULT(macroResult);
+            const auto macros = macroResult.value_or(Macros{});
 
-        const auto macros = macroResult.value_or(Macros{});
+            const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
 
-        const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
-        macroCache->insert(arguments, report);
+            qCDebug(gccLog) << "MacroInspectionReport for code model:";
+            qCDebug(gccLog) << "Language version:" << static_cast<int>(report.languageVersion);
+            for (const Macro &m : macros) {
+                qCDebug(gccLog) << compilerCommand.toUserOutput()
+                                << (lang == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
+                                << arguments.join(", ") << "]"
+                                << QString::fromUtf8(m.toByteArray());
+            }
 
-        qCDebug(gccLog) << "MacroInspectionReport for code model:";
-        qCDebug(gccLog) << "Language version:" << static_cast<int>(report.languageVersion);
-        for (const Macro &m : macros) {
-            qCDebug(gccLog) << compilerCommand.toUserOutput()
-                            << (lang == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
-                            << arguments.join(", ") << "]"
-                            << QString::fromUtf8(m.toByteArray());
-        }
-
-        return report;
+            return report;
+        });
     };
 }
 
@@ -804,24 +801,21 @@ static HeaderPaths builtInHeaderPaths(const Environment &env,
     if (!originalTargetTriple.isEmpty())
         arguments << "-target" << originalTargetTriple;
 
-    const std::optional<HeaderPaths> cachedPaths = headerCache->check({env, arguments});
-    if (cachedPaths)
-        return *cachedPaths;
+    return headerCache->value({env, arguments}, [&] {
+        HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
+                                           arguments,
+                                           env);
+        extraHeaderPathsFunction(paths);
 
-    HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
-                                       arguments,
-                                       env);
-    extraHeaderPathsFunction(paths);
-    headerCache->insert({env, arguments}, paths);
+        qCDebug(gccLog) << "Reporting header paths to code model:";
+        for (const HeaderPath &hp : std::as_const(paths)) {
+            qCDebug(gccLog) << compilerCommand.toUserOutput()
+                            << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
+                            << arguments.join(", ") << "]" << hp.path;
+        }
 
-    qCDebug(gccLog) << "Reporting header paths to code model:";
-    for (const HeaderPath &hp : std::as_const(paths)) {
-        qCDebug(gccLog) << compilerCommand.toUserOutput()
-                        << (languageId == Constants::CXX_LANGUAGE_ID ? ": C++ [" : ": C [")
-                        << arguments.join(", ") << "]" << hp.path;
-    }
-
-    return paths;
+        return paths;
+    });
 }
 
 Toolchain::BuiltInHeaderPathsRunner GccToolchain::createBuiltInHeaderPathsRunner(
