@@ -32,21 +32,22 @@
 #include <utils/guard.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QComboBox>
 #include <QDir>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QPointer>
 #include <QSignalBlocker>
 #include <QSpinBox>
 #include <QStackedWidget>
-#include <QStyle>
 #include <QTextBlock>
 #include <QTimer>
-#include <QToolBar>
 #include <QToolButton>
 
 static const char settingsGroupC[] = "DiffEditor";
@@ -335,6 +336,7 @@ private:
     void saveSetting(const Utils::Key &key, const QVariant &value) const;
     void updateEntryToolTip();
     void showDiffView(IDiffView *view);
+    void setActionVisible(const Utils::Key &id, QAction *action, bool visible);
     void updateDiffEditorSwitcher();
     void addView(IDiffView *view);
     IDiffView *currentView() const;
@@ -352,20 +354,17 @@ private:
     SideBySideView *m_sideBySideView = nullptr;
     QStackedWidget *m_stackedWidget = nullptr;
     QList<IDiffView *> m_views;
-    QToolBar *m_toolBar = nullptr;
+    Utils::StyledBar *m_toolBar = nullptr;
     QComboBox *m_entriesComboBox = nullptr;
     QSpinBox *m_contextSpinBox = nullptr;
-    QAction *m_contextSpinBoxAction = nullptr;
     QAction *m_toggleSyncAction = nullptr;
     QAction *m_whitespaceButtonAction = nullptr;
     QAction *m_signsButtonAction = nullptr;
     QAction *m_characterChangesAction = nullptr;
     QComboBox *m_diffAlgorithmComboBox = nullptr;
-    QAction *m_diffAlgorithmAction = nullptr;
     QAction *m_foldAllAction = nullptr;
     QAction *m_toggleDescriptionAction = nullptr;
     QAction *m_reloadAction = nullptr;
-    QAction *m_contextLabelAction = nullptr;
     QAction *m_viewSwitcherAction = nullptr;
     QPair<QString, QString> m_currentFileChunk;
     int m_currentViewIndex = -1;
@@ -375,6 +374,16 @@ private:
     bool m_sync = false;
     bool m_showDescription = true;
 };
+
+const char ENTRIES_ID[] = "Files";
+const char CONTEXT_LINES_ID[] = "ContextLines";
+const char OPTIONS_ID[] = "Options";
+const char DIFF_ALGORITHM_ID[] = "DiffAlgorithm";
+const char FOLD_ALL_ID[] = "FoldAll";
+const char DESCRIPTION_ID[] = "Description";
+const char RELOAD_ID[] = "Reload";
+const char SYNC_ID[] = "Sync";
+const char VIEW_SWITCHER_ID[] = "ViewSwitcher";
 
 static QString textWithShortcut(const QString &text, const QKeySequence &shortcut)
 {
@@ -417,10 +426,7 @@ DiffEditor::DiffEditor()
     setWidget(m_splitter);
 
     // Toolbar:
-    m_toolBar = new QToolBar;
-    m_toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    const int size = m_views.at(0)->widget()->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    m_toolBar->setIconSize(QSize(size, size));
+    m_toolBar = new StyledBar;
 
     m_entriesComboBox = new QComboBox;
     m_entriesComboBox->setMinimumContentsLength(20);
@@ -430,27 +436,39 @@ DiffEditor::DiffEditor()
     m_entriesComboBox->setSizePolicy(policy);
     connect(m_entriesComboBox, &QComboBox::currentIndexChanged,
             this, &DiffEditor::currentIndexChanged);
-    m_toolBar->addWidget(m_entriesComboBox);
+    m_toolBar->addItem(ENTRIES_ID, Tr::tr("Files"), m_entriesComboBox);
 
-    QLabel *contextLabel = new QLabel(m_toolBar);
+    auto contextWidget = new QWidget(m_toolBar);
+    auto contextLayout = new QHBoxLayout(contextWidget);
+    contextLayout->setContentsMargins(0, 0, 0, 0);
+    contextLayout->setSpacing(0);
+    QLabel *contextLabel = new QLabel(contextWidget);
     contextLabel->setText(Tr::tr("Context lines:"));
-    contextLabel->setContentsMargins(6, 0, 6, 0);
-    m_contextLabelAction = m_toolBar->addWidget(contextLabel);
-
-    auto addAction = [this](const QIcon &icon, const QString &text,
-                            const QString &macShortcut, const QString &nonMacShortcut) {
-        const QKeySequence shortcut = useMacShortcuts ? macShortcut : nonMacShortcut;
-        QAction *action = m_toolBar->addAction(icon, text);
-        action->setShortcut(shortcut);
-        action->setToolTip(textWithShortcut(text, shortcut));
-        return action;
-    };
-
-    m_contextSpinBox = new QSpinBox(m_toolBar);
+    const int horizontalPadding = StyleHelper::SpacingTokens::PaddingHS;
+    contextLabel->setContentsMargins(horizontalPadding, 0, horizontalPadding, 0);
+    contextLayout->addWidget(contextLabel);
+    m_contextSpinBox = new QSpinBox(contextWidget);
     m_contextSpinBox->setRange(1, 100);
     m_contextSpinBox->setFrame(false);
     m_contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
-    m_contextSpinBoxAction = m_toolBar->addWidget(m_contextSpinBox);
+    contextLayout->addWidget(m_contextSpinBox);
+    m_toolBar->addItem(CONTEXT_LINES_ID, Tr::tr("Context Lines"), contextWidget);
+
+    // The actions are added to the bar as well, so that their shortcuts keep
+    // working while the user hides their buttons.
+    auto addAction = [this](const Key &id, const QIcon &icon, const QString &text,
+                            const QString &displayName,
+                            const QString &macShortcut, const QString &nonMacShortcut) {
+        const QKeySequence shortcut = useMacShortcuts ? macShortcut : nonMacShortcut;
+        auto action = new QAction(icon, text, m_toolBar);
+        action->setShortcut(shortcut);
+        action->setToolTip(textWithShortcut(text, shortcut));
+        m_toolBar->addAction(action);
+        auto button = new QToolButton(m_toolBar);
+        button->setDefaultAction(action);
+        m_toolBar->addItem(id, displayName, button);
+        return action;
+    };
 
     auto optionsButton = new QToolButton(m_toolBar);
     optionsButton->setObjectName("DiffEditorOptionsButton");
@@ -461,12 +479,12 @@ DiffEditor::DiffEditor()
     auto optionsMenu = new QMenu(optionsButton);
     optionsMenu->setToolTipsVisible(true);
     optionsButton->setMenu(optionsMenu);
-    m_toolBar->addWidget(optionsButton);
+    m_toolBar->addItem(OPTIONS_ID, Tr::tr("Options"), optionsButton);
 
     m_whitespaceButtonAction = optionsMenu->addAction(Tr::tr("Ignore Whitespace"));
     m_whitespaceButtonAction->setShortcut(
         QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+I") : Tr::tr("Ctrl+Alt+I")));
-    optionsButton->addAction(m_whitespaceButtonAction);
+    m_toolBar->addAction(m_whitespaceButtonAction);
     m_whitespaceButtonAction->setCheckable(true);
     m_signsButtonAction = optionsMenu->addAction(Tr::tr("Show Change Signs"));
     m_signsButtonAction->setObjectName("DiffEditorChangeSignsAction"); // autotest
@@ -484,25 +502,33 @@ DiffEditor::DiffEditor()
     m_diffAlgorithmComboBox = new QComboBox(m_toolBar);
     m_diffAlgorithmComboBox->setObjectName("DiffEditorAlgorithmComboBox"); // autotest
     populateDiffAlgorithms(m_diffAlgorithmComboBox);
-    m_diffAlgorithmAction = m_toolBar->addWidget(m_diffAlgorithmComboBox);
+    m_toolBar->addItem(DIFF_ALGORITHM_ID, Tr::tr("Diff Algorithm"), m_diffAlgorithmComboBox);
 
-    m_foldAllAction = addAction(Utils::Icons::EXPAND_ALL_TOOLBAR.icon(), Tr::tr("Fold All"),
+    m_foldAllAction = addAction(FOLD_ALL_ID, Utils::Icons::EXPAND_ALL_TOOLBAR.icon(),
+                                Tr::tr("Fold All"), Tr::tr("Fold All"),
                                 Tr::tr("Ctrl+Meta+U"), Tr::tr("Ctrl+Alt+U"));
     m_foldAllAction->setCheckable(true);
 
-    m_toggleDescriptionAction = addAction(Icons::TOP_BAR.icon(), {},
+    m_toggleDescriptionAction = addAction(DESCRIPTION_ID, Icons::TOP_BAR.icon(), {},
+                                          Tr::tr("Show Change Description"),
                                           Tr::tr("Ctrl+Meta+D"), Tr::tr("Ctrl+Alt+D"));
     m_toggleDescriptionAction->setObjectName("DiffEditorToggleDescriptionAction"); // autotest
     m_toggleDescriptionAction->setCheckable(true);
 
-    m_reloadAction = addAction(Utils::Icons::RELOAD_TOOLBAR.icon(), Tr::tr("Reload Diff"),
+    m_reloadAction = addAction(RELOAD_ID, Utils::Icons::RELOAD_TOOLBAR.icon(),
+                               Tr::tr("Reload Diff"), Tr::tr("Reload Diff"),
                                Tr::tr("Ctrl+Meta+R"), Tr::tr("Ctrl+Alt+R"));
 
-    m_toggleSyncAction = addAction(Utils::Icons::LINK_TOOLBAR.icon(), {},
+    m_toggleSyncAction = addAction(SYNC_ID, Utils::Icons::LINK_TOOLBAR.icon(), {},
+                                   Tr::tr("Synchronize Horizontal Scroll Bars"),
                                    Tr::tr("Ctrl+Meta+S"), Tr::tr("Ctrl+Alt+S"));
     m_toggleSyncAction->setCheckable(true);
 
-    m_viewSwitcherAction = addAction({}, {}, Tr::tr("Ctrl+Meta+V"), Tr::tr("Ctrl+Alt+V"));
+    m_viewSwitcherAction = addAction(VIEW_SWITCHER_ID, {}, {}, Tr::tr("Switch View"),
+                                     Tr::tr("Ctrl+Meta+V"), Tr::tr("Ctrl+Alt+V"));
+
+    m_toolBar->setPermanentItems({ENTRIES_ID, VIEW_SWITCHER_ID});
+    m_toolBar->setSettingsKey("DiffEditor/ToolBar");
 
     connect(m_foldAllAction, &QAction::toggled,
             this, &DiffEditor::foldAllHasChanged);
@@ -761,7 +787,7 @@ void DiffEditor::updateDescription()
     m_toggleDescriptionAction->setChecked(m_showDescription);
     m_toggleDescriptionAction->setToolTip(actionText);
     m_toggleDescriptionAction->setText(actionText);
-    m_toggleDescriptionAction->setVisible(!description.isEmpty());
+    setActionVisible(DESCRIPTION_ID, m_toggleDescriptionAction, !description.isEmpty());
     m_toggleDescriptionAction->setEnabled(!description.isEmpty());
 }
 
@@ -891,10 +917,15 @@ void DiffEditor::documentStateChanged()
     const bool contextVisible = !m_document->isContextLineCountForced();
 
     m_whitespaceButtonAction->setVisible(canReload);
-    m_diffAlgorithmAction->setVisible(m_document->isDiffAlgorithmEnabled());
-    m_contextLabelAction->setVisible(canReload && contextVisible);
-    m_contextSpinBoxAction->setVisible(canReload && contextVisible);
-    m_reloadAction->setVisible(canReload);
+    m_toolBar->setItemVisible(DIFF_ALGORITHM_ID, m_document->isDiffAlgorithmEnabled());
+    m_toolBar->setItemVisible(CONTEXT_LINES_ID, canReload && contextVisible);
+    setActionVisible(RELOAD_ID, m_reloadAction, canReload);
+}
+
+void DiffEditor::setActionVisible(const Key &id, QAction *action, bool visible)
+{
+    action->setVisible(visible);
+    m_toolBar->setItemVisible(id, visible);
 }
 
 void DiffEditor::updateDiffEditorSwitcher()
@@ -1001,7 +1032,7 @@ void DiffEditor::setupView(IDiffView *view)
 
     {
         GuardLocker guard(m_ignoreChanges);
-        m_toggleSyncAction->setVisible(currentView()->supportsSync());
+        setActionVisible(SYNC_ID, m_toggleSyncAction, currentView()->supportsSync());
         m_toggleSyncAction->setToolTip(currentView()->syncToolTip());
         m_toggleSyncAction->setText(currentView()->syncToolTip());
         m_toggleSyncAction->setChecked(m_sync);
