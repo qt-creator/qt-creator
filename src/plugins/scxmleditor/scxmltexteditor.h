@@ -23,6 +23,11 @@ public:
         return nullptr;
     }
 
+    Utils::StyledBarItemGroup *toolBarItems() override
+    {
+        return nullptr;
+    }
+
     bool isDesignModePreferred() const override
     {
         return true;

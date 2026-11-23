@@ -20,6 +20,7 @@
 #include <utils/link.h>
 #include <utils/multitextcursor.h>
 #include <utils/plaintextedit/plaintextedit.h>
+#include <utils/storekey.h>
 #include <utils/textutils.h>
 #include <utils/theme/theme.h>
 #include <utils/uncommentselection.h>
@@ -154,6 +155,7 @@ public:
     QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
+    Utils::StyledBarItemGroup *toolBarItems() override;
 
     int currentLine() const override;
     int currentColumn() const override;
@@ -225,6 +227,7 @@ public:
     using PlainTextEdit::cursorRect;
     QRect cursorRect(int pos) const;
     void setCursorPosition(int pos);
+    Utils::StyledBarItemGroup *toolBarItems() const;
     QWidget *toolBarWidget() const;
     QToolBar *toolBar() const;
 
@@ -388,8 +391,11 @@ public:
     void clearRefactorMarkers(const Utils::Id &type);
 
     enum Side { Left, Right };
-    QAction *insertExtraToolBarWidget(Side side, QWidget *widget);
-    void insertExtraToolBarAction(Side side, QAction *action);
+    QAction *insertExtraToolBarWidget(Side side, const Utils::Key &id,
+                                      const QString &displayName, QWidget *widget);
+    void insertExtraToolBarAction(Side side, const Utils::Key &id, const QString &displayName,
+                                  QAction *action);
+    void removeExtraToolBarItem(const Utils::Key &id);
     void setToolbarOutline(QWidget* widget);
     const QWidget *toolbarOutlineWidget();
 

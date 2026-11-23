@@ -457,8 +457,10 @@ void DevContainerPlugin::onEditorCreated(Core::IEditor *editor, const FilePath &
         startDeviceForProject(project, instanceConfig);
     });
 
-    textEditorWidget
-        ->insertExtraToolBarAction(TextEditor::TextEditorWidget::Side::Left, restartAction);
+    textEditorWidget->insertExtraToolBarAction(TextEditor::TextEditorWidget::Side::Left,
+                                               "DevContainer.Restart",
+                                               Tr::tr("Restart Development Container"),
+                                               restartAction);
 }
 
 void DevContainerPlugin::startDeviceForProject(

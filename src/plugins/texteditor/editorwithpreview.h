@@ -52,7 +52,8 @@ public:
 protected:
     virtual void renderPreview() = 0;
 
-    QAction *insertEditorToolBarWidget(TextEditorWidget::Side side, QWidget *widget);
+    QAction *insertEditorToolBarWidget(TextEditorWidget::Side side, const Utils::Key &id,
+                                       const QString &displayName, QWidget *widget);
 
     TextDocumentPtr textDocumentPtr() const;
     TextEditorWidget *textEditorWidget() const;

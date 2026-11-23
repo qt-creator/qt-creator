@@ -32,7 +32,7 @@
 #include <QListView>
 #include <QPainter>
 #include <QMenu>
-#include <QToolBar>
+#include <QAction>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 
@@ -506,10 +506,12 @@ public:
             || path.isChildOf(Core::ICore::resourcePath("lua/scripts"))) {
             auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             TextEditor::TextEditorWidget *editorWidget = textEditor->editorWidget();
-            editorWidget->toolBar()
-                ->addAction(Utils::Icons::RUN_SMALL_TOOLBAR.icon(), Tr::tr("Run"), [path]() {
-                    runScript(path);
-                });
+            auto runAction = new QAction(Utils::Icons::RUN_SMALL_TOOLBAR.icon(), Tr::tr("Run"),
+                                         editorWidget);
+            connect(runAction, &QAction::triggered, [path] { runScript(path); });
+            editorWidget->insertExtraToolBarAction(TextEditor::TextEditorWidget::Right,
+                                                   "Lua.RunScript", Tr::tr("Run Script"),
+                                                   runAction);
         }
     }
 

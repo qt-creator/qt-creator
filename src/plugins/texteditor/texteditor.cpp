@@ -197,6 +197,13 @@ using TransformationMethod = QString(const QString &);
 using ListTransformationMethod = void(QStringList &);
 
 static constexpr char dropProperty[] = "dropProp";
+const char OUTLINE_ID[] = "TextEditor.Outline";
+const char STRETCH_ID[] = "TextEditor.Stretch";
+const char EDITOR_TOOLS_ID[] = "TextEditor.Tools";
+const char LINE_ENDING_ID[] = "TextEditor.LineEnding";
+const char ENCODING_ID[] = "TextEditor.Encoding";
+const char CURSOR_POSITION_ID[] = "TextEditor.CursorPosition";
+const char TAB_SETTINGS_ID[] = "TextEditor.TabSettings";
 static const Id decodingErrorScrollBarHighlight("TextEditor.DecodingErrorScrollBarHighlight");
 static constexpr qsizetype maximumDecodingErrorMarkers
     = TextFileFormat::MaximumDecodingErrorOffsets;
@@ -981,6 +988,14 @@ public:
     void slotSelectionChanged();
     void _q_animateUpdate(const QTextCursor &cursor, QPointF lastPos, QRectF rect);
     void updateCodeFoldingVisible();
+    void setupToolBar();
+    enum class ActionOwnership { Owned, External };
+    bool addExtraToolBarItem(const Key &before, const Key &id, const QString &displayName,
+                             QWidget *widget, QAction *action, ActionOwnership ownership);
+    void removeExtraToolBarItem(const Key &id);
+    void updateToolBarStretch();
+    void updateToolBarToolsVisible();
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void updateFileLineEndingVisible();
     void updateTabSettingsButtonVisible();
 
@@ -1014,19 +1029,27 @@ public:
 
 public:
     TextEditorWidget *q;
-    QWidget *m_toolBarWidget = nullptr;
+    Utils::StyledBarItemGroup *m_toolBarItems = nullptr;
+    Utils::StyledBar *m_toolBarWidget = nullptr;
     QToolBar *m_toolBar = nullptr;
-    QWidget *m_stretchWidget = nullptr;
-    QAction *m_stretchAction = nullptr;
-    QAction *m_toolbarOutlineAction = nullptr;
+    class ExtraToolBarItem
+    {
+    public:
+        Key id;
+        QPointer<QWidget> widget;
+        QPointer<QAction> action; // Its visibility is the one of the item.
+        ActionOwnership ownership = ActionOwnership::External;
+    };
+    QList<ExtraToolBarItem> m_extraToolBarItems;
+    KeyList m_leftToolBarItems;
+    KeyList m_expandingToolBarItems;
+    QPointer<QWidget> m_toolbarOutline;
     LineColumnButton *m_cursorPositionButton = nullptr;
     TabSettingsButton *m_tabSettingsButton = nullptr;
     QToolButton *m_fileEncodingButton = nullptr;
-    QAction *m_fileEncodingLabelAction = nullptr;
     TextEditorWidgetFind *m_find = nullptr;
 
     QToolButton *m_fileLineEnding = nullptr;
-    QAction *m_fileLineEndingAction = nullptr;
 
     uint m_optionalActionMask = OptionalActions::None;
     bool m_contentsChanged = false;
@@ -1421,36 +1444,22 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_extraArea = new TextEditExtraArea(q);
     m_extraArea->setMouseTracking(true);
 
-    auto toolBarLayout = new QHBoxLayout;
-    toolBarLayout->setContentsMargins(0, 0, 0, 0);
-    toolBarLayout->setSpacing(0);
-    m_toolBarWidget = new Utils::StyledBar;
-    m_toolBarWidget->setLayout(toolBarLayout);
-    m_stretchWidget = new QWidget;
-    m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_toolBarItems = new Utils::StyledBarItemGroup;
     m_toolBar = new QToolBar;
-    m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    m_stretchAction = m_toolBar->addWidget(m_stretchWidget);
-    m_toolBarWidget->layout()->addWidget(m_toolBar);
+    m_toolBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
     const int spacing = q->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
-    m_cursorPositionButton = new LineColumnButton(q);
-    m_cursorPositionButton->setContentsMargins(spacing, 0, spacing, 0);
-    m_toolBarWidget->layout()->addWidget(m_cursorPositionButton);
-
-    m_tabSettingsButton = new TabSettingsButton(q);
-    m_tabSettingsButton->setContentsMargins(spacing, 0, spacing, 0);
-    m_toolBarWidget->layout()->addWidget(m_tabSettingsButton);
-    updateTabSettingsButtonVisible();
-
     m_fileLineEnding = new QToolButton(q);
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
-    m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
-    updateFileLineEndingVisible();
 
     m_fileEncodingButton = new QToolButton;
     m_fileEncodingButton->setContentsMargins(spacing, 0, spacing, 0);
-    m_fileEncodingLabelAction = m_toolBar->addWidget(m_fileEncodingButton);
+
+    m_cursorPositionButton = new LineColumnButton(q);
+    m_cursorPositionButton->setContentsMargins(spacing, 0, spacing, 0);
+
+    m_tabSettingsButton = new TabSettingsButton(q);
+    m_tabSettingsButton->setContentsMargins(spacing, 0, spacing, 0);
 
     m_extraSelections.reserve(NExtraSelectionKinds);
 
@@ -1569,6 +1578,7 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     q->disconnect(documentLayout);
     q->disconnect(this);
     delete m_toolBarWidget;
+    delete m_toolBarItems;
     delete m_highlightScrollBarController;
     delete m_minimapController;
 }
@@ -1733,6 +1743,7 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
     // "Needed", as the creation below triggers ChildEvents that are
     // passed to this object's event() which uses 'd'.
     d = std::make_unique<Internal::TextEditorWidgetPrivate>(this);
+    d->setupToolBar();
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setLayoutDirection(Qt::LeftToRight);
     viewport()->setMouseTracking(true);
@@ -4786,7 +4797,7 @@ Text::Position TextEditorWidget::lineColumn() const
 
 void TextEditorWidget::setCursorPositionIndicatorVisible(bool visible)
 {
-    d->m_cursorPositionButton->setVisible(visible);
+    d->m_toolBarItems->setItemVisible(CURSOR_POSITION_ID, visible);
 }
 
 QRect TextEditorWidget::cursorRect(int pos) const
@@ -5102,14 +5113,112 @@ void TextEditorWidgetPrivate::updateCodeFoldingVisible()
     }
 }
 
+// A bar showing the items asks for their size hints, which the cursor position
+// button computes from the editor, so this must not run before q->d is set.
+void TextEditorWidgetPrivate::setupToolBar()
+{
+    m_toolBarItems->addStretch(STRETCH_ID);
+    m_toolBarItems->addItem(EDITOR_TOOLS_ID, Tr::tr("Editor Options"), m_toolBar);
+    m_toolBarItems->addItem(LINE_ENDING_ID, Tr::tr("Line Endings"), m_fileLineEnding);
+    m_toolBarItems->addItem(ENCODING_ID, Tr::tr("Text Encoding"), m_fileEncodingButton);
+    m_toolBarItems->addItem(CURSOR_POSITION_ID, Tr::tr("Cursor Position"),
+                            m_cursorPositionButton);
+    m_toolBarItems->addItem(TAB_SETTINGS_ID, Tr::tr("Tab Settings"), m_tabSettingsButton);
+    m_toolBar->installEventFilter(this);
+    updateToolBarToolsVisible();
+    updateFileLineEndingVisible();
+    updateTabSettingsButtonVisible();
+}
+
+bool TextEditorWidgetPrivate::addExtraToolBarItem(const Key &before, const Key &id,
+                                                  const QString &displayName, QWidget *widget,
+                                                  QAction *action, ActionOwnership ownership)
+{
+    QTC_ASSERT(!Utils::contains(m_extraToolBarItems, id, &ExtraToolBarItem::id)
+                   && !m_toolBarItems->itemIds().contains(id),
+               return false);
+    m_toolBarItems->insertItem(before, id, displayName, widget);
+    m_extraToolBarItems.append({id, widget, action, ownership});
+    const auto updateVisible = [this, id, action] {
+        m_toolBarItems->setItemVisible(id, action->isVisible());
+        updateToolBarStretch();
+    };
+    connect(action, &QAction::changed, this, updateVisible);
+    connect(action, &QObject::destroyed, this, [this, id] { removeExtraToolBarItem(id); });
+    updateVisible();
+    return true;
+}
+
+void TextEditorWidgetPrivate::removeExtraToolBarItem(const Key &id)
+{
+    const qsizetype index = Utils::indexOf(m_extraToolBarItems,
+                                           Utils::equal(&ExtraToolBarItem::id, id));
+    if (index < 0)
+        return;
+    const ExtraToolBarItem item = m_extraToolBarItems.takeAt(index);
+    m_leftToolBarItems.removeAll(id);
+    if (item.action) {
+        disconnect(item.action, nullptr, this, nullptr);
+        if (item.ownership == ActionOwnership::Owned)
+            delete item.action;
+    }
+    m_toolBarItems->removeItem(id);
+    updateToolBarStretch();
+}
+
+void TextEditorWidgetPrivate::updateToolBarStretch()
+{
+    const auto isExpanding = [](const ExtraToolBarItem &item) {
+        return item.widget
+               && (item.widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag);
+    };
+    // An expanding item takes the place of the stretch, so the user must not hide it.
+    const KeyList expandingItems = Utils::transform(Utils::filtered(m_extraToolBarItems,
+                                                                    isExpanding),
+                                                    &ExtraToolBarItem::id);
+    if (expandingItems != m_expandingToolBarItems) {
+        m_expandingToolBarItems = expandingItems;
+        m_toolBarItems->setPermanentItems(expandingItems);
+    }
+    const bool hasExpandingItem = Utils::anyOf(m_extraToolBarItems,
+                                               [isExpanding](const ExtraToolBarItem &item) {
+        return isExpanding(item) && item.action && item.action->isVisible();
+    });
+    m_toolBarItems->setItemVisible(STRETCH_ID, !hasExpandingItem);
+}
+
+void TextEditorWidgetPrivate::updateToolBarToolsVisible()
+{
+    m_toolBarItems->setItemVisible(EDITOR_TOOLS_ID,
+                                   Utils::anyOf(m_toolBar->actions(), &QAction::isVisible));
+}
+
+bool TextEditorWidgetPrivate::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == m_toolBar) {
+        switch (event->type()) {
+        case QEvent::ActionAdded:
+        case QEvent::ActionChanged:
+        case QEvent::ActionRemoved:
+            updateToolBarToolsVisible();
+            break;
+        default:
+            break;
+        }
+    }
+    return QObject::eventFilter(watched, event);
+}
+
 void TextEditorWidgetPrivate::updateFileLineEndingVisible()
 {
-    m_fileLineEndingAction->setVisible(m_displaySettings.m_displayFileLineEnding && !q->isReadOnly());
+    m_toolBarItems->setItemVisible(LINE_ENDING_ID, m_displaySettings.m_displayFileLineEnding
+                                                       && !q->isReadOnly());
 }
 
 void TextEditorWidgetPrivate::updateTabSettingsButtonVisible()
 {
-    m_tabSettingsButton->setVisible(m_displaySettings.m_displayTabSettings && !q->isReadOnly());
+    m_toolBarItems->setItemVisible(TAB_SETTINGS_ID, m_displaySettings.m_displayTabSettings
+                                                        && !q->isReadOnly());
 }
 
 void TextEditorWidgetPrivate::reconfigure()
@@ -11758,7 +11867,7 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettingsData &ds)
     setRevisionsVisible(ds.m_markTextChanges);
     setCenterOnScroll(ds.m_centerCursorOnScroll);
     setParenthesesMatchingEnabled(ds.m_highlightMatchingParentheses);
-    d->m_fileEncodingLabelAction->setVisible(ds.m_displayFileEncoding);
+    d->m_toolBarItems->setItemVisible(ENCODING_ID, ds.m_displayFileEncoding);
 
     const QTextOption::Flags currentOptionFlags = document()->defaultTextOption().flags();
     QTextOption::Flags optionFlags = currentOptionFlags;
@@ -12462,85 +12571,103 @@ IDocument *BaseTextEditor::document() const
 
 QWidget *BaseTextEditor::toolBar()
 {
-    return editorWidget()->toolBarWidget();
+    return nullptr;
 }
 
-QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
-                                                     QWidget *widget)
+Utils::StyledBarItemGroup *BaseTextEditor::toolBarItems()
 {
-    if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag)
-        d->m_stretchAction->setVisible(false);
-
-    if (side == Left) {
-        auto findLeftMostAction = [this](QAction *action) {
-            if (d->m_toolbarOutlineAction && action == d->m_toolbarOutlineAction)
-                return false;
-            return d->m_toolBar->widgetForAction(action) != nullptr;
-        };
-        QAction *before = Utils::findOr(d->m_toolBar->actions(),
-                                        d->m_fileEncodingLabelAction,
-                                        findLeftMostAction);
-        return d->m_toolBar->insertWidget(before, widget);
-    } else {
-        return d->m_toolBar->insertWidget(d->m_fileLineEndingAction, widget);
-    }
+    return editorWidget()->toolBarItems();
 }
 
-void TextEditorWidget::insertExtraToolBarAction(TextEditorWidget::Side side, QAction *action)
+/*!
+    Adds \a widget with the identifier \a id to the tool bar items of the
+    editor at \a side. The user sees it as \a displayName when configuring
+    the tool bar. The identifier must be unique among the items of all
+    editors.
+
+    Returns an action that shows or hides the widget. Deleting the action
+    removes the widget and deletes it. Returns \nullptr and leaves \a widget
+    to the caller if the editor already has an item with the identifier
+    \a id.
+
+    \sa removeExtraToolBarItem()
+*/
+QAction *TextEditorWidget::insertExtraToolBarWidget(Side side, const Key &id,
+                                                    const QString &displayName, QWidget *widget)
 {
-    if (side == Left) {
-        auto findLeftMostAction = [this](QAction *action) {
-            if (d->m_toolbarOutlineAction && action == d->m_toolbarOutlineAction)
-                return false;
-            return d->m_toolBar->widgetForAction(action) != nullptr;
-        };
-        QAction *before = Utils::findOr(d->m_toolBar->actions(),
-                                        d->m_fileEncodingLabelAction,
-                                        findLeftMostAction);
-        d->m_toolBar->insertAction(before, action);
-    } else {
-        d->m_toolBar->insertAction(d->m_fileLineEndingAction, action);
+    QTC_ASSERT(widget, return nullptr);
+    auto action = new QAction(d.get());
+    const Key before = side == Left ? d->m_leftToolBarItems.value(0, STRETCH_ID)
+                                    : Key(EDITOR_TOOLS_ID);
+    if (!d->addExtraToolBarItem(before, id, displayName, widget, action,
+                                TextEditorWidgetPrivate::ActionOwnership::Owned)) {
+        delete action;
+        return nullptr;
     }
+    if (side == Left)
+        d->m_leftToolBarItems.prepend(id);
+    return action;
+}
+
+/*!
+    Adds a button for \a action with the identifier \a id to the tool bar
+    items of the editor at \a side. The user sees it as \a displayName when
+    configuring the tool bar. The identifier must be unique among the items
+    of all editors.
+
+    The button is shown while \a action is visible. Deleting the action
+    removes the button.
+
+    \sa removeExtraToolBarItem()
+*/
+void TextEditorWidget::insertExtraToolBarAction(Side side, const Key &id,
+                                                const QString &displayName, QAction *action)
+{
+    QTC_ASSERT(action, return);
+    auto button = new QToolButton;
+    button->setDefaultAction(action);
+    const Key before = side == Left ? d->m_leftToolBarItems.value(0, STRETCH_ID)
+                                    : Key(EDITOR_TOOLS_ID);
+    if (!d->addExtraToolBarItem(before, id, displayName, button, action,
+                                TextEditorWidgetPrivate::ActionOwnership::External)) {
+        delete button;
+        return;
+    }
+    if (side == Left)
+        d->m_leftToolBarItems.prepend(id);
+}
+
+/*!
+    Removes the item \a id that was added with insertExtraToolBarWidget() or
+    insertExtraToolBarAction() and deletes its widget.
+*/
+void TextEditorWidget::removeExtraToolBarItem(const Key &id)
+{
+    d->removeExtraToolBarItem(id);
 }
 
 void TextEditorWidget::setToolbarOutline(QWidget *widget)
 {
-    if (d->m_toolbarOutlineAction) {
-        if (d->m_toolBar->widgetForAction(d->m_toolbarOutlineAction) == widget)
-            return;
-        d->m_toolBar->removeAction(d->m_toolbarOutlineAction);
-        delete d->m_toolbarOutlineAction;
-        d->m_toolbarOutlineAction = nullptr;
-    } else if (!widget) {
+    if (d->m_toolbarOutline == widget)
         return;
-    }
-
+    d->removeExtraToolBarItem(OUTLINE_ID);
+    d->m_toolbarOutline = nullptr;
     if (widget) {
-        if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag)
-            d->m_stretchAction->setVisible(false);
-
-        d->m_toolbarOutlineAction = insertExtraToolBarWidget(Left, widget);
-    } else {
-        // check for a widget with an expanding size policy otherwise re-enable the stretcher
-        for (auto action : d->m_toolBar->actions()) {
-            if (QWidget *toolbarWidget = d->m_toolBar->widgetForAction(action)) {
-                if (toolbarWidget->isVisible()
-                    && toolbarWidget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag) {
-                    d->m_stretchAction->setVisible(false);
-                    return;
-                }
-            }
+        auto action = new QAction(d.get());
+        if (d->addExtraToolBarItem(d->m_toolBarItems->itemIds().value(0), OUTLINE_ID,
+                                   Tr::tr("Outline"), widget, action,
+                                   TextEditorWidgetPrivate::ActionOwnership::Owned)) {
+            d->m_toolbarOutline = widget;
+        } else {
+            delete action;
         }
-        d->m_stretchAction->setVisible(true);
     }
-
-    emit toolbarOutlineChanged(widget);
+    emit toolbarOutlineChanged(d->m_toolbarOutline);
 }
 
 const QWidget *TextEditorWidget::toolbarOutlineWidget()
 {
-    return d->m_toolbarOutlineAction ? d->m_toolBar->widgetForAction(d->m_toolbarOutlineAction)
-                                     : nullptr;
+    return d->m_toolbarOutline;
 }
 
 void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)
@@ -12655,8 +12782,27 @@ void TextEditorWidget::setCursorPosition(int pos)
     setTextCursor(tc);
 }
 
+/*!
+    Returns the items that the editor adds to the tool bar above it.
+
+    \sa toolBarWidget()
+*/
+Utils::StyledBarItemGroup *TextEditorWidget::toolBarItems() const
+{
+    return d->m_toolBarItems;
+}
+
+/*!
+    Returns a tool bar showing the toolBarItems(), for editors that are not
+    shown in an editor view. Creating it takes the items from any other bar.
+*/
 QWidget *TextEditorWidget::toolBarWidget() const
 {
+    if (!d->m_toolBarWidget) {
+        d->m_toolBarWidget = new Utils::StyledBar;
+        d->m_toolBarWidget->setItemGroup(d->m_toolBarItems);
+        d->m_toolBarWidget->setSettingsKey("TextEditor/ToolBar");
+    }
     return d->m_toolBarWidget;
 }
 
@@ -13467,9 +13613,12 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
     textEditorWidget->finalizeInitialization();
 
     // Toolbar: Actions to show minimized info bars
-    document->minimizableInfoBars()->createShowInfoBarActions([textEditorWidget](QWidget *w) {
-        return textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left, w);
-    });
+    document->minimizableInfoBars()->createShowInfoBarActions(
+        [textEditorWidget](const Id &id, const QString &displayName, QWidget *w) {
+            return textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                              Key("TextEditor.InfoBar." + id.name()),
+                                                              displayName, w);
+        });
 
     editor->finalizeInitialization();
     return editor;

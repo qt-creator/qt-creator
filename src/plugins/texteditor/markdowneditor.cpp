@@ -85,27 +85,33 @@ public:
         textEditor->setupGenericHighlighter();
         textEditor->setMarksVisible(false);
 
-        QList<QToolButton *> markDownButtons;
+        struct MarkdownButton
+        {
+            Utils::Key id;
+            QString displayName;
+            QToolButton *button;
+        };
+        QList<MarkdownButton> markDownButtons;
         auto button = Command::createToolButtonWithShortcutToolTip(EMPHASIS_ACTION);
         button->defaultAction()->setIconText("i");
         button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerEmphasis);
-        markDownButtons.append(button);
+        markDownButtons.append({"Markdown.Emphasis", Tr::tr("Emphasis"), button});
         button = Command::createToolButtonWithShortcutToolTip(STRONG_ACTION);
         button->defaultAction()->setIconText("b");
         button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerStrong);
-        markDownButtons.append(button);
+        markDownButtons.append({"Markdown.Strong", Tr::tr("Strong"), button});
         button = Command::createToolButtonWithShortcutToolTip(INLINECODE_ACTION);
         button->defaultAction()->setIconText("`");
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerInlineCode);
-        markDownButtons.append(button);
+        markDownButtons.append({"Markdown.InlineCode", Tr::tr("Inline Code"), button});
         button = Command::createToolButtonWithShortcutToolTip(LINK_ACTION);
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
         connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
-        markDownButtons.append(button);
+        markDownButtons.append({"Markdown.Link", Tr::tr("Hyperlink"), button});
         for (auto it = markDownButtons.rbegin(); it != markDownButtons.rend(); ++it)
-            insertEditorToolBarWidget(TextEditorWidget::Left, *it);
+            insertEditorToolBarWidget(TextEditorWidget::Left, it->id, it->displayName, it->button);
     }
 
     BaseTextEditor *duplicate() override

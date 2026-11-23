@@ -22,6 +22,11 @@ QWidget *FormWindowEditor::toolBar()
     return nullptr;
 }
 
+Utils::StyledBarItemGroup *FormWindowEditor::toolBarItems()
+{
+    return nullptr;
+}
+
 QString FormWindowEditor::contents() const
 {
     return formWindowFile()->formWindowContents();

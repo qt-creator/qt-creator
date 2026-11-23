@@ -17,7 +17,6 @@
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
-#include <QToolBar>
 
 #include "sol/sol.hpp"
 
@@ -27,6 +26,19 @@ using namespace TextEditor;
 using namespace std::string_view_literals;
 
 namespace {
+
+Key toolBarItemId(const QString &pluginId, TextEditorWidget *editorWidget,
+                  const sol::optional<QString> &id)
+{
+    if (id)
+        return keyFromString(pluginId + '.' + *id);
+    // Number the items of each plugin per editor, so that a script that inserts
+    // them in the same order gets the same identifiers each time.
+    const QByteArray counter = "LuaToolBarItems." + pluginId.toUtf8();
+    const int number = editorWidget->property(counter).toInt() + 1;
+    editorWidget->setProperty(counter, number);
+    return keyFromString(pluginId + ".ToolBarItem" + QString::number(number));
+}
 
 template<typename Return, typename Argument>
 Return get_or_throw(const Argument &arg, const char *key)
@@ -452,14 +464,26 @@ void setupTextEditorModule()
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
             },
             "insertExtraToolBarWidget",
-            [](const TextEditorPtr &textEditor, TextEditorWidget::Side side, LayoutOrWidget widget) {
+            [pluginSpec](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               LayoutOrWidget widget,
+               sol::optional<QString> id,
+               sol::optional<QString> displayName) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
+                const Key key = toolBarItemId(pluginSpec->id, textEditor->editorWidget(), id);
+                textEditor->editorWidget()->insertExtraToolBarWidget(
+                    side, key, displayName.value_or(stringFromKey(key)), toWidget(widget));
             },
             "insertExtraToolBarAction",
-            [](const TextEditorPtr &textEditor, TextEditorWidget::Side side, QAction *action) {
+            [pluginSpec](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               QAction *action,
+               sol::optional<QString> id,
+               sol::optional<QString> displayName) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                textEditor->editorWidget()->insertExtraToolBarAction(side, action);
+                const Key key = toolBarItemId(pluginSpec->id, textEditor->editorWidget(), id);
+                textEditor->editorWidget()->insertExtraToolBarAction(
+                    side, key, displayName.value_or(stringFromKey(key)), action);
             },
             "setRefactorMarker",
             [pluginSpec, activeMarkers](

@@ -665,7 +665,8 @@ QComboBox *VcsBaseEditorWidgetPrivate::entriesComboBox()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_entriesComboBox->setSizePolicy(policy);
 
-    q->insertExtraToolBarWidget(TextEditorWidget::Left, m_entriesComboBox);
+    q->insertExtraToolBarWidget(TextEditorWidget::Left, "VcsBase.Entries", Tr::tr("Entries"),
+                                m_entriesComboBox);
     return m_entriesComboBox;
 }
 

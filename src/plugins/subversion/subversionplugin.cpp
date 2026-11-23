@@ -57,6 +57,7 @@
 
 #ifdef WITH_TESTS
 #include <texteditor/syntaxhighlighter.h>
+#include <utils/widgets.h>
 
 #include <QComboBox>
 #include <QTest>
@@ -1368,7 +1369,7 @@ void SubversionTest::testLogMessages()
     const QString first = "r5 | chris | 2025-01-28 11:13:28 +0100 (Tue, 28 Jan 2025) | 1 line";
     const QString last = "r4 | chris | 2025-01-28 11:11:46 +0100 (Tue, 28 Jan 2025) | 1 line";
     widget->setPlainText(separator + first + "\n\n" + message + "\n\n" + separator + last + '\n');
-    QComboBox *entries = editor->toolBar()->findChild<QComboBox *>();
+    auto entries = qobject_cast<QComboBox *>(editor->toolBarItems()->widget("VcsBase.Entries"));
     QVERIFY(entries);
     QCOMPARE(entries->count(), header ? 3 : 2);
     QCOMPARE(entries->itemText(0), QString("r5"));

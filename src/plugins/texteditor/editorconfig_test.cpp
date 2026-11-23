@@ -24,11 +24,11 @@
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/temporarydirectory.h>
+#include <utils/widgets.h>
 
 #include <QDir>
 #include <QScopeGuard>
 #include <QTest>
-#include <QToolBar>
 #include <QToolButton>
 
 #include <algorithm>
@@ -511,10 +511,12 @@ void EditorConfigTest::testSaveAsEncoding()
     QCOMPARE(document->lineTerminationMode(), TextFileFormat::CRLFLineTerminator);
     QCOMPARE(document->editorConfig().encoding.has_value(), fromEditorConfig);
 
-    const QToolBar *toolBar = textEditor->editorWidget()->toolBar();
+    const StyledBarItemGroup *toolBarItems = textEditor->editorWidget()->toolBarItems();
     QStringList labels;
-    for (const QToolButton *button : toolBar->findChildren<QToolButton *>())
-        labels << button->text();
+    for (const Key &id : toolBarItems->itemIds()) {
+        if (const auto button = qobject_cast<const QToolButton *>(toolBarItems->widget(id)))
+            labels << button->text();
+    }
     QVERIFY2(labels.contains("CRLF"), qPrintable(labels.join(", ")));
     QVERIFY2(labels.contains(document->encoding().displayName()), qPrintable(labels.join(", ")));
 }

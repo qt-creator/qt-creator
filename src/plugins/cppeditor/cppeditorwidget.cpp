@@ -502,6 +502,8 @@ void CppEditorWidget::finalizeInitialization()
     ParseContextModel &parseContextModel = cppEditorDocument()->parseContextModel();
     d->m_parseContextWidget = new ParseContextWidget(parseContextModel, this);
     d->m_parseContextAction = insertExtraToolBarWidget(TextEditorWidget::Left,
+                                                       "CppEditor.ParseContext",
+                                                       Tr::tr("Parse Context"),
                                                        d->m_parseContextWidget);
     d->m_parseContextAction->setVisible(false);
     connect(&parseContextModel, &ParseContextModel::updated,
@@ -522,7 +524,9 @@ void CppEditorWidget::finalizeInitialization()
     updatePreprocessorButtonTooltip();
     connect(d->m_preprocessorButton, &QAbstractButton::clicked,
             this, &CppEditorWidget::showPreProcessorWidget);
-    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
+    insertExtraToolBarWidget(TextEditorWidget::Left, "CppEditor.Preprocessor",
+                             Tr::tr("Additional Preprocessor Directives"),
+                             d->m_preprocessorButton);
 
     connect(this, &TextEditor::TextEditorWidget::toolbarOutlineChanged,
             this, &CppEditorWidget::handleOutlineChanged);

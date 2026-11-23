@@ -22,7 +22,8 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT MinimizableInfoBars : public QObject
 {
 public:
-    using ActionCreator = std::function<QAction *(QWidget *widget)>;
+    using ActionCreator
+        = std::function<QAction *(const Id &id, const QString &displayName, QWidget *widget)>;
 
 public:
     explicit MinimizableInfoBars(InfoBar &infoBar);

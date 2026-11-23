@@ -73,10 +73,14 @@ void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCr
 {
     QTC_ASSERT(actionCreator, return );
 
-    for (QAction *action : m_actions) {
+    for (auto it = m_actions.cbegin(); it != m_actions.cend(); ++it) {
+        QAction *action = it.value();
         auto *button = new QToolButton();
         button->setDefaultAction(action);
-        QAction *toolbarAction = actionCreator(button);
+        const InfoBarEntry entry = m_infoEntries.value(it.key());
+        const QString displayName = entry.title().isEmpty() ? entry.text() : entry.title();
+        QAction *toolbarAction = actionCreator(it.key(), displayName, button);
+        QTC_ASSERT(toolbarAction, continue);
         connect(action, &QAction::changed, toolbarAction, [action, toolbarAction] {
             toolbarAction->setVisible(action->isVisible());
         });

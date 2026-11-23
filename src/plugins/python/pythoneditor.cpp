@@ -104,7 +104,7 @@ PythonEditorWidget::PythonEditorWidget(QWidget *parent) : TextEditorWidget(paren
     menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL_IMPORT)->action());
     menu->addAction(
         Core::ActionManager::command(Constants::PYTHON_OPEN_REPL_IMPORT_TOPLEVEL)->action());
-    insertExtraToolBarWidget(TextEditorWidget::Left, replButton);
+    insertExtraToolBarWidget(TextEditorWidget::Left, "Python.Repl", Tr::tr("REPL"), replButton);
 }
 
 void PythonEditorWidget::finalizeInitialization()
@@ -126,7 +126,8 @@ void PythonEditorWidget::updateInterpretersSelector()
 {
     if (!m_interpreters) {
         m_interpreters = new QToolButton(this);
-        insertExtraToolBarWidget(TextEditorWidget::Left, m_interpreters);
+        insertExtraToolBarWidget(TextEditorWidget::Left, "Python.Interpreter",
+                                 Tr::tr("Python Interpreter"), m_interpreters);
         m_interpreters->setMenu(new QMenu(m_interpreters));
         m_interpreters->setPopupMode(QToolButton::InstantPopup);
         m_interpreters->setToolButtonStyle(Qt::ToolButtonTextOnly);

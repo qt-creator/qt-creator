@@ -248,7 +248,9 @@ function TextEditor:addEmbeddedWidget(widget, position) end
 ---Inserts a widget into toolbar.
 ---@param side TextEditor.Side The side where the widget should be added.
 ---@param widget Widget|Layout The widget to be added to the toolbar
-function TextEditor:insertExtraToolBarWidget(side, widget) end
+---@param id? string An identifier, unique within the plugin, that keeps the place the user gives the widget in the toolbar. Without it, the widgets of the plugin are numbered in the order they are inserted into the editor.
+---@param displayName? string The name of the widget when the user configures the toolbar.
+function TextEditor:insertExtraToolBarWidget(side, widget, id, displayName) end
 
 ---Adds an refactor marker in the text editor at given cursor position.
 ---@param icon Utils.Icon|FilePath|string Icon to be used. If specified icon is invalid the default QtCreator for markers is used.

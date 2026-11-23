@@ -27,6 +27,7 @@ public:
     ~FormWindowEditor() override;
 
     QWidget *toolBar() override;
+    Utils::StyledBarItemGroup *toolBarItems() override;
     bool isDesignModePreferred() const override;
 
     // For uic code model support

@@ -18,10 +18,10 @@
 #include <utils/qtcsettings.h>
 
 #include <QElapsedTimer>
+#include <QHBoxLayout>
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QTimer>
-#include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -107,9 +107,7 @@ public:
     QToolButton *m_toggleEditorVisible = nullptr;
     QToolButton *m_togglePreviewVisible = nullptr;
     QToolButton *m_swapViews = nullptr;
-    QAction *m_toggleEditorVisibleAction = nullptr;
-    QAction *m_togglePreviewVisibleAction = nullptr;
-    QAction *m_swapViewsAction = nullptr;
+    QHBoxLayout *m_viewButtonsLayout = nullptr;
     std::optional<QPoint> m_previewRestoreScrollPosition;
     QByteArray m_savedNavigationState;
     MirroredHighlight m_editorHighlight;
@@ -127,12 +125,10 @@ void EditorWithPreviewPrivate::setWidgetOrder(bool textEditorRight)
     m_splitter->insertWidget(0, left);
     m_splitter->insertWidget(1, right);
     // buttons
-    QAction *leftAction = textEditorRight ? m_togglePreviewVisibleAction
-                                          : m_toggleEditorVisibleAction;
-    QAction *rightAction = textEditorRight ? m_toggleEditorVisibleAction
-                                           : m_togglePreviewVisibleAction;
-    m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, leftAction);
-    m_textEditorWidget->toolBar()->insertAction(m_swapViewsAction, rightAction);
+    QToolButton *leftButton = textEditorRight ? m_togglePreviewVisible : m_toggleEditorVisible;
+    QToolButton *rightButton = textEditorRight ? m_toggleEditorVisible : m_togglePreviewVisible;
+    m_viewButtonsLayout->insertWidget(0, leftButton);
+    m_viewButtonsLayout->insertWidget(1, rightButton);
 }
 
 void EditorWithPreviewPrivate::viewToggled(QWidget *view,
@@ -319,14 +315,16 @@ EditorWithPreview::EditorWithPreview(
     d->m_swapViews = Command::createToolButtonWithShortcutToolTip(ids.swapViewsAction);
     d->m_swapViews->setEnabled(showEditor && showPreview);
 
-    d->m_swapViewsAction = textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right,
-                                                                      d->m_swapViews);
-    d->m_toggleEditorVisibleAction
-        = textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right,
-                                                     d->m_toggleEditorVisible);
-    d->m_togglePreviewVisibleAction
-        = textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right,
-                                                     d->m_togglePreviewVisible);
+    auto viewButtons = new QWidget;
+    d->m_viewButtonsLayout = new QHBoxLayout(viewButtons);
+    d->m_viewButtonsLayout->setContentsMargins(0, 0, 0, 0);
+    d->m_viewButtonsLayout->setSpacing(0);
+    d->m_viewButtonsLayout->addWidget(d->m_toggleEditorVisible);
+    d->m_viewButtonsLayout->addWidget(d->m_togglePreviewVisible);
+    d->m_viewButtonsLayout->addWidget(d->m_swapViews);
+    textEditorWidget->insertExtraToolBarWidget(TextEditorWidget::Right,
+                                               "TextEditor.PreviewViews",
+                                               Tr::tr("Editor and Preview"), viewButtons);
     d->setWidgetOrder(textEditorRight);
 
     connect(d->m_toggleEditorVisible, &QToolButton::toggled, this, [this](bool visible) {
@@ -545,13 +543,21 @@ bool EditorWithPreview::eventFilter(QObject *obj, QEvent *ev)
 }
 
 /*!
-    Inserts \a widget into the tool bar of the text editor at \a side. The
-    widget is only shown while the text editor is visible.
+    Inserts \a widget with the identifier \a id into the tool bar of the
+    text editor at \a side. The user sees it as \a displayName when
+    configuring the tool bar. The widget is only shown while the text editor
+    is visible.
+
+    \sa TextEditorWidget::insertExtraToolBarWidget()
 */
 QAction *EditorWithPreview::insertEditorToolBarWidget(TextEditorWidget::Side side,
+                                                      const Utils::Key &id,
+                                                      const QString &displayName,
                                                       QWidget *widget)
 {
-    QAction *action = d->m_textEditorWidget->insertExtraToolBarWidget(side, widget);
+    QAction *action = d->m_textEditorWidget->insertExtraToolBarWidget(side, id, displayName,
+                                                                      widget);
+    QTC_ASSERT(action, return nullptr);
     action->setVisible(d->m_toggleEditorVisible->isChecked());
     d->m_editorToolBarActions.append(action);
     return action;

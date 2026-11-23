@@ -36,7 +36,6 @@
 #include <QActionGroup>
 #include <QMenu>
 #include <QTextDocument>
-#include <QToolBar>
 
 #include <algorithm>
 
@@ -274,6 +273,7 @@ void updateCodeActionRefactoringMarker(
 }
 
 static const char clientExtrasName[] = "__qtcreator_client_extras__";
+static const char clientsItemId[] = "LanguageClient.Clients";
 
 class ClientExtras : public QObject
 {
@@ -321,15 +321,18 @@ void updateEditorToolBar(Core::IEditor *editor)
         } else if (!supportingClients.isEmpty()) {
             extras->m_popupAction->setText(msgNoLanguageClientSelected);
         } else {
-            widget->toolBar()->removeAction(extras->m_popupAction);
+            widget->removeExtraToolBarItem(clientsItemId);
             delete extras->m_popupAction;
         }
     } else if (client || !supportingClients.isEmpty()) {
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
                                          Utils::Theme::IconsBaseColor}}).icon();
         const QString name = client ? client->name() : msgNoLanguageClientSelected;
-        extras->m_popupAction = widget->toolBar()->addAction(
-                    icon, name, [widget, document = QPointer(document)] {
+        extras->m_popupAction = new QAction(icon, name, extras);
+        widget->insertExtraToolBarAction(TextEditorWidget::Right, clientsItemId,
+                                         Tr::tr("Language Client"), extras->m_popupAction);
+        QObject::connect(extras->m_popupAction, &QAction::triggered,
+                         widget, [widget, document = QPointer(document)] {
             auto menu = new QMenu(widget);
             menu->setAttribute(Qt::WA_DeleteOnClose);
             auto clientsGroup = new QActionGroup(menu);

@@ -49,7 +49,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QSet>
-#include <QToolBar>
+#include <QToolButton>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -274,7 +274,9 @@ void ClangToolsPlugin::registerAnalyzeActions()
         button->setIcon(icon);
         button->setToolTip(Tr::tr("Analyze File..."));
         button->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
-        widget->toolBar()->addWidget(button);
+        widget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Right,
+                                         "ClangTools.AnalyzeFile", Tr::tr("Analyze File"),
+                                         button);
         const auto toolsMenu = new QMenu(widget);
         button->setMenu(toolsMenu);
         for (const auto &toolInfo :

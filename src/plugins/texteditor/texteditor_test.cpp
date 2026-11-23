@@ -51,6 +51,7 @@
 #include <utils/qtcsettings.h>
 #include <utils/textfileformat.h>
 #include <utils/tooltip/tooltip.h>
+#include <utils/widgets.h>
 
 #include <QAction>
 #include <QApplication>
@@ -185,6 +186,8 @@ private slots:
     void testMainSelectionIsNoExtraSelection();
     void testContentsMimeTypeFromTitle();
     void testContentsWithoutDefinitionHasNoInfoBar();
+    void testToolBarRejectsDuplicateItems();
+    void testToolBarKeepsExpandingItemsShown();
 };
 
 void TextEditorTest::testIndentationClean_data()
@@ -1571,6 +1574,36 @@ void TextEditorTest::testContentsWithoutDefinitionHasNoInfoBar()
 
     QCOMPARE(document->mimeType(), QString("text/plain"));
     QVERIFY(!document->infoBar()->containsInfo(Constants::INFO_MISSING_SYNTAX_DEFINITION));
+}
+
+void TextEditorTest::testToolBarRejectsDuplicateItems()
+{
+    TextEditorWidget widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    auto first = new QWidget;
+    QVERIFY(widget.insertExtraToolBarWidget(TextEditorWidget::Left, "Test.Item", "Item", first));
+
+    const std::unique_ptr<QWidget> second = std::make_unique<QWidget>();
+    QVERIFY(!widget.insertExtraToolBarWidget(TextEditorWidget::Right, "Test.Item", "Item",
+                                             second.get()));
+    QCOMPARE(widget.toolBarItems()->itemIds().count("Test.Item"), 1);
+    QCOMPARE(widget.toolBarItems()->widget("Test.Item"), first);
+    QVERIFY(!second->parentWidget());
+}
+
+void TextEditorTest::testToolBarKeepsExpandingItemsShown()
+{
+    TextEditorWidget widget;
+    widget.setTextDocument(TextDocumentPtr(new TextDocument));
+    auto outline = new QWidget;
+    outline->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    widget.setToolbarOutline(outline);
+
+    Utils::StyledBar bar;
+    bar.setItemGroup(widget.toolBarItems());
+    bar.setHiddenItems({"TextEditor.Outline"});
+    QVERIFY(bar.hiddenItems().isEmpty());
+    QVERIFY(!outline->isHidden());
 }
 
 QObject *createTextEditorTest()

@@ -425,8 +425,10 @@ GlslEditorWidget::GlslEditorWidget()
     };
     updateVulkanToolTip();
 
-    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
-    insertExtraToolBarWidget(TextEditorWidget::Right, m_vulkanSupport);
+    insertExtraToolBarWidget(TextEditorWidget::Left, "GlslEditor.Outline", Tr::tr("Outline"),
+                             m_outlineCombo);
+    insertExtraToolBarWidget(TextEditorWidget::Right, "GlslEditor.VulkanSupport",
+                             Tr::tr("Vulkan Support"), m_vulkanSupport);
 
     connect(m_vulkanSupport, &QToolButton::clicked, this, [this, updateVulkanToolTip] {
         updateVulkanToolTip();
