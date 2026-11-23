@@ -164,7 +164,38 @@ private:
     QString m_lastPermanentStatusMessage;
 };
 
-namespace Internal { class StyledBarPrivate; }
+namespace Internal {
+class StyledBarItemGroupPrivate;
+class StyledBarPrivate;
+} // namespace Internal
+
+class QTCREATOR_UTILS_EXPORT StyledBarItemGroup : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit StyledBarItemGroup(QObject *parent = nullptr);
+    ~StyledBarItemGroup() override;
+
+    void addItem(const Key &id, const QString &displayName, QWidget *widget);
+    void insertItem(const Key &before, const Key &id, const QString &displayName,
+                    QWidget *widget);
+    void addStretch(const Key &id);
+    void removeItem(const Key &id);
+    void setItemVisible(const Key &id, bool visible);
+    void setPermanentItems(const KeyList &ids);
+
+    KeyList itemIds() const;
+    QWidget *widget(const Key &id) const;
+
+signals:
+    void changed();
+
+private:
+    friend class Internal::StyledBarPrivate;
+    friend class StyledBar;
+    Internal::StyledBarItemGroupPrivate *d;
+};
 
 class QTCREATOR_UTILS_EXPORT StyledBar : public QWidget
 {
@@ -185,6 +216,9 @@ public:
     void setPermanentItems(const KeyList &ids);
     void setItemVisible(const Key &id, bool visible);
     void setItemStretch(const Key &id, int stretch);
+
+    void setItemGroup(StyledBarItemGroup *group, const Key &before = {});
+    StyledBarItemGroup *itemGroup() const;
 
     void setItemOrder(const KeyList &ids);
     KeyList itemOrder() const;

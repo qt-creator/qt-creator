@@ -77,9 +77,20 @@ private slots:
     void sizeHintsAllowShrinking();
     void addingToBarWithForeignLayoutFails();
     void barWithoutItemsHasNoContextMenu();
+    void groupItemsAreShownInFrontOfAnchor();
+    void barFollowsGroupChanges();
+    void barPassesGroupItemVisibilityToGroup();
+    void groupStretchesHaveStretchIcon();
+    void absentGroupItemsKeepTheirPlace();
+    void barsWithSameKeyFollowEachOther();
+    void groupIsShownByOneBarAtATime();
+    void deletingBarKeepsGroupWidgets();
+    void deletingGroupRemovesItsItems();
+    void dialogOmitsItemsHiddenByCode();
 
 private:
     StyledBar *createBar(const KeyList &ids);
+    void fillGroup(StyledBarItemGroup *group, const KeyList &ids);
     KeyList layoutOrder() const;
     void triggerContextMenuAction(const QString &text);
     void customize(const std::function<void(QListWidget *)> &edit, bool accept);
@@ -113,6 +124,15 @@ StyledBar *tst_StyledBar::createBar(const KeyList &ids)
         bar->addItem(id, stringFromKey(id), widget);
     }
     return bar;
+}
+
+void tst_StyledBar::fillGroup(StyledBarItemGroup *group, const KeyList &ids)
+{
+    for (const Key &id : ids) {
+        auto widget = new QWidget;
+        m_widgets.insert(id, widget);
+        group->addItem(id, stringFromKey(id), widget);
+    }
 }
 
 void tst_StyledBar::init()
@@ -958,6 +978,207 @@ void tst_StyledBar::barWithoutItemsHasNoContextMenu()
     QApplication::sendEvent(&bar, &event);
     QVERIFY(!event.isAccepted());
     QVERIFY(!menuShown);
+}
+
+void tst_StyledBar::groupItemsAreShownInFrontOfAnchor()
+{
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X", "Y"});
+    QWidget *x = m_widgets.value("X");
+    QVERIFY(!x->isVisible());
+
+    m_bar->setItemGroup(&group, "C");
+    QCOMPARE(m_bar->itemGroup(), &group);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "X", "Y", "C", "D"}));
+    QCOMPARE(layoutOrder(), KeyList({"A", "B", "X", "Y", "C", "D"}));
+    QCOMPARE(x->parentWidget(), m_bar);
+    QVERIFY(x->isVisible());
+
+    m_bar->setItemGroup(nullptr);
+    QCOMPARE(m_bar->itemGroup(), nullptr);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "C", "D"}));
+    QCOMPARE(layoutOrder(), KeyList({"A", "B", "C", "D"}));
+    QVERIFY(x->parentWidget() != m_bar);
+    QVERIFY(!x->isVisible());
+}
+
+void tst_StyledBar::barFollowsGroupChanges()
+{
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    m_bar->setItemGroup(&group);
+
+    auto y = new QWidget;
+    m_widgets.insert("Y", y);
+    group.insertItem("X", "Y", "Y", y);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "C", "D", "Y", "X"}));
+    QVERIFY(y->isVisible());
+
+    group.setItemVisible("Y", false);
+    QVERIFY(!y->isVisible());
+    group.setItemVisible("Y", true);
+    QVERIFY(y->isVisible());
+
+    group.setPermanentItems({"Y"});
+    m_bar->setHiddenItems({"X", "Y"});
+    QCOMPARE(m_bar->hiddenItems(), KeyList({"X"}));
+
+    const QPointer<QWidget> guard(y);
+    group.removeItem("Y");
+    QVERIFY(!guard);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "C", "D", "X"}));
+}
+
+void tst_StyledBar::barPassesGroupItemVisibilityToGroup()
+{
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    m_bar->setItemGroup(&group);
+    QWidget *x = m_widgets.value("X");
+
+    m_bar->setItemVisible("X", false);
+    QVERIFY(!x->isVisible());
+    fillGroup(&group, {"Y"});
+    QVERIFY(!x->isVisible());
+
+    m_bar->setItemGroup(nullptr);
+    m_bar->setItemGroup(&group);
+    QVERIFY(!x->isVisible());
+    m_bar->setItemVisible("X", true);
+    QVERIFY(x->isVisible());
+}
+
+void tst_StyledBar::groupStretchesHaveStretchIcon()
+{
+    StyledBarItemGroup group;
+    group.addStretch("GroupStretch");
+    m_bar->setItemGroup(&group);
+    m_bar->addStretch("Stretch");
+
+    QList<QIcon> icons;
+    customize([&](QListWidget *list) {
+        for (int row = 0; row < list->count(); ++row) {
+            if (list->item(row)->text() == "Stretch")
+                icons.append(list->item(row)->icon());
+        }
+    }, false);
+    QCOMPARE(icons.size(), 2);
+    QVERIFY(!icons.at(0).isNull());
+    QVERIFY(!icons.at(1).isNull());
+}
+
+void tst_StyledBar::absentGroupItemsKeepTheirPlace()
+{
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X", "Y"});
+    m_bar->setItemGroup(&group);
+    m_bar->setItemOrder({"X", "A", "B", "Y", "C", "D"});
+    m_bar->setHiddenItems({"Y"});
+
+    m_bar->setItemGroup(nullptr);
+    m_bar->setItemOrder({"B", "A", "C", "D"});
+    m_bar->setHiddenItems({"C"});
+    QCOMPARE(m_bar->itemOrder(), KeyList({"B", "A", "C", "D"}));
+    QCOMPARE(m_bar->hiddenItems(), KeyList({"C"}));
+
+    m_bar->setItemGroup(&group);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"X", "B", "Y", "A", "C", "D"}));
+    QCOMPARE(m_bar->hiddenItems(), KeyList({"Y", "C"}));
+    QVERIFY(!m_widgets.value("Y")->isVisible());
+    QVERIFY(m_widgets.value("X")->isVisible());
+}
+
+void tst_StyledBar::barsWithSameKeyFollowEachOther()
+{
+    const Key key = "StyledBarSharedKeyTest";
+    m_bar->setSettingsKey(key);
+    std::unique_ptr<StyledBar> other(createBar({"A", "B", "C", "D"}));
+    other->setSettingsKey(key);
+
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    other->setItemGroup(&group);
+    other->setItemOrder({"D", "X", "C", "B", "A"});
+    QCOMPARE(m_bar->itemOrder(), KeyList({"D", "C", "B", "A"}));
+
+    m_bar->setHiddenItems({"B"});
+    QCOMPARE(other->hiddenItems(), KeyList({"B"}));
+    QCOMPARE(other->itemOrder(), KeyList({"D", "X", "C", "B", "A"}));
+
+    m_bar->resetItemConfiguration();
+    QCOMPARE(other->itemOrder(), KeyList({"A", "B", "C", "D", "X"}));
+    QCOMPARE(other->hiddenItems(), KeyList());
+}
+
+void tst_StyledBar::groupIsShownByOneBarAtATime()
+{
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    m_bar->setItemGroup(&group);
+
+    std::unique_ptr<StyledBar> other(createBar({"E"}));
+    other->setItemGroup(&group);
+    QCOMPARE(m_bar->itemGroup(), nullptr);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "C", "D"}));
+    QCOMPARE(other->itemOrder(), KeyList({"E", "X"}));
+    QCOMPARE(m_widgets.value("X")->parentWidget(), other.get());
+}
+
+void tst_StyledBar::deletingBarKeepsGroupWidgets()
+{
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    const QPointer<QWidget> x = m_widgets.value("X");
+    m_bar->setItemGroup(&group);
+
+    cleanup();
+    QVERIFY(x);
+    QCOMPARE(group.widget("X"), x.data());
+
+    init();
+    m_bar->setItemGroup(&group);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "C", "D", "X"}));
+}
+
+void tst_StyledBar::deletingGroupRemovesItsItems()
+{
+    auto group = std::make_unique<StyledBarItemGroup>();
+    fillGroup(group.get(), {"X"});
+    const QPointer<QWidget> x = m_widgets.value("X");
+    m_bar->setItemGroup(group.get());
+
+    group.reset();
+    QVERIFY(!x);
+    QCOMPARE(m_bar->itemGroup(), nullptr);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"A", "B", "C", "D"}));
+}
+
+void tst_StyledBar::dialogOmitsItemsHiddenByCode()
+{
+    m_bar->setHiddenItems({"C"});
+    m_bar->setItemVisible("B", false);
+    m_bar->setItemVisible("C", false);
+
+    bool edited = false;
+    customize([&](QListWidget *list) {
+        QListWidget *availableList = availableItems(list);
+        QVERIFY(availableList);
+        QCOMPARE(list->count(), 2);
+        QCOMPARE(list->item(0)->text(), "A");
+        QCOMPARE(list->item(1)->text(), "D");
+        QCOMPARE(availableList->count(), 3);
+        list->insertItem(0, list->takeItem(1));
+        edited = true;
+    }, true);
+    QVERIFY(edited);
+    QCOMPARE(m_bar->itemOrder(), KeyList({"D", "A", "B", "C"}));
+    QCOMPARE(m_bar->hiddenItems(), KeyList({"C"}));
+
+    m_bar->setItemVisible("B", true);
+    m_bar->setItemVisible("C", true);
+    QCOMPARE(layoutOrder(), KeyList({"D", "A", "B", "C"}));
+    QVERIFY(m_widgets.value("B")->isVisible());
+    QVERIFY(!m_widgets.value("C")->isVisible());
 }
 
 QTEST_MAIN(tst_StyledBar)

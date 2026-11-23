@@ -26,6 +26,7 @@
 #include <QDialogButtonBox>
 #include <qdrawutil.h>
 #include <QHBoxLayout>
+#include <QHash>
 #include <QHeaderView>
 #include <QHideEvent>
 #include <QKeyEvent>
@@ -642,7 +643,39 @@ public:
     bool visible = true;
     QIcon icon;
     int stretch = 0;
+    bool fromGroup = false;
 };
+
+class StyledBarGroupItem final
+{
+public:
+    Key id;
+    QString displayName;
+    QPointer<QWidget> widget;
+    bool visible = true;
+    bool stretch = false;
+};
+
+class StyledBarItemGroupPrivate final
+{
+public:
+    qsizetype indexOf(const Key &id) const
+    {
+        return Utils::indexOf(items, Utils::equal(&StyledBarGroupItem::id, id));
+    }
+
+    QList<StyledBarGroupItem> items;
+    KeyList permanentItems;
+    // Keeps the widgets while no bar shows the group. It is never shown.
+    QWidget holder;
+    QPointer<StyledBar> bar;
+};
+
+static QIcon iconOf(const QWidget *widget)
+{
+    const auto button = qobject_cast<const QAbstractButton *>(widget);
+    return button ? button->icon() : QIcon();
+}
 
 static void paintToolBarBackground(QWidget *widget)
 {
@@ -695,17 +728,24 @@ public:
     }
     bool isPermanent(const Key &id) const
     {
-        return permanentItems.contains(id) || stretchItems.contains(id) || isUserItem(id);
+        return permanentItems.contains(id) || groupPermanentItems.contains(id)
+               || stretchItems.contains(id) || isUserItem(id);
     }
     KeyList defaultOrder() const
     {
         return Utils::filtered(Utils::transform(items, &StyledBarItem::id),
                                [](const Key &id) { return !isUserItem(id); });
     }
+    void ensureLayout();
     bool addItem(const Key &id, const QString &displayName, QWidget *widget, const QIcon &icon);
+    void detachGroup();
+    void syncGroup();
     KeyList mergedOrder(const KeyList &ids) const;
+    KeyList mergedSavedOrder(const KeyList &ids) const;
     void syncUserItems(const KeyList &ids);
+    void updateConfiguration();
     void setConfiguration(const KeyList &newOrder, const KeyList &newHiddenItems);
+    void closeOverflow();
     void apply();
     void load();
     void save() const;
@@ -722,7 +762,8 @@ public:
     }
     bool staysInBar(const Key &id) const
     {
-        return permanentItems.contains(id) || stretchItems.contains(id);
+        return permanentItems.contains(id) || groupPermanentItems.contains(id)
+               || stretchItems.contains(id);
     }
     int fullWidth() const;
     int minimumWidth() const;
@@ -737,11 +778,24 @@ public:
     KeyList order;
     KeyList hiddenItems;
     KeyList permanentItems;
+    KeyList groupPermanentItems;
     KeyList stretchItems;
     KeyList layoutItems;
     KeyList overflowItems;
+    // The configuration as stored, including the items the bar does not have.
+    KeyList savedOrder;
+    KeyList savedHiddenItems;
     Key settingsKey;
+    QPointer<StyledBarItemGroup> group;
+    Key groupAnchor;
+    QMetaObject::Connection groupConnection;
 };
+
+static QList<StyledBarPrivate *> &styledBars()
+{
+    static QList<StyledBarPrivate *> bars;
+    return bars;
+}
 
 int StyledBarPrivate::fullWidth() const
 {
@@ -849,6 +903,30 @@ KeyList StyledBarPrivate::mergedOrder(const KeyList &ids) const
     return result;
 }
 
+// Keeps the identifiers of the items the bar does not have after the item they followed.
+KeyList StyledBarPrivate::mergedSavedOrder(const KeyList &ids) const
+{
+    KeyList leading;
+    QHash<Key, KeyList> following;
+    Key previous;
+    for (const Key &id : savedOrder) {
+        if (isKnown(id))
+            previous = id;
+        else if (isUserItem(id))
+            continue;
+        else if (previous.isEmpty())
+            leading.append(id);
+        else
+            following[previous].append(id);
+    }
+    KeyList result = leading;
+    for (const Key &id : mergedOrder(ids)) {
+        result.append(id);
+        result.append(following.value(id));
+    }
+    return result;
+}
+
 void StyledBarPrivate::syncUserItems(const KeyList &ids)
 {
     for (int i = items.size() - 1; i >= 0; --i) {
@@ -872,24 +950,40 @@ void StyledBarPrivate::syncUserItems(const KeyList &ids)
     }
 }
 
+void StyledBarPrivate::updateConfiguration()
+{
+    order = mergedOrder(savedOrder);
+    hiddenItems = Utils::filtered(savedHiddenItems, [this](const Key &id) {
+        return isKnown(id) && !isPermanent(id);
+    });
+}
+
 void StyledBarPrivate::setConfiguration(const KeyList &newOrder, const KeyList &newHiddenItems)
 {
     syncUserItems(newOrder);
-    order = mergedOrder(newOrder);
-    hiddenItems = Utils::filtered(newHiddenItems, [this](const Key &id) {
-        return isKnown(id) && !isPermanent(id);
-    });
+    savedOrder = mergedSavedOrder(newOrder);
+    savedHiddenItems = Utils::filtered(savedHiddenItems,
+                                       [this](const Key &id) { return !isKnown(id); })
+                       + Utils::filtered(newHiddenItems, [this](const Key &id) {
+                             return isKnown(id) && !isPermanent(id);
+                         });
+    updateConfiguration();
     apply();
+}
+
+void StyledBarPrivate::closeOverflow()
+{
+    if (StyledBarOverflowPopup *popup = overflowPopup) {
+        overflowPopup.clear();
+        popup->close();
+    }
 }
 
 void StyledBarPrivate::apply()
 {
     if (!layout)
         return;
-    if (StyledBarOverflowPopup *popup = overflowPopup) {
-        overflowPopup.clear();
-        popup->close();
-    }
+    closeOverflow();
     for (const StyledBarItem &barItem : std::as_const(items)) {
         if (barItem.widget)
             layout->removeWidget(barItem.widget);
@@ -908,8 +1002,11 @@ void StyledBarPrivate::load()
     if (settingsKey.isEmpty())
         return;
     QtcSettings &settings = userSettings();
-    setConfiguration(keysFromStrings(settings.value(settingsKey + "/Order").toStringList()),
-                     keysFromStrings(settings.value(settingsKey + "/Hidden").toStringList()));
+    savedOrder = keysFromStrings(settings.value(settingsKey + "/Order").toStringList());
+    savedHiddenItems = keysFromStrings(settings.value(settingsKey + "/Hidden").toStringList());
+    syncUserItems(savedOrder);
+    updateConfiguration();
+    apply();
 }
 
 void StyledBarPrivate::save() const
@@ -918,9 +1015,14 @@ void StyledBarPrivate::save() const
         return;
     QtcSettings &settings = userSettings();
     settings.setValueWithDefault(settingsKey + "/Order",
-                                 stringsFromKeys(order),
+                                 stringsFromKeys(savedOrder.isEmpty() ? defaultOrder()
+                                                                      : savedOrder),
                                  stringsFromKeys(defaultOrder()));
-    settings.setValueWithDefault(settingsKey + "/Hidden", stringsFromKeys(hiddenItems));
+    settings.setValueWithDefault(settingsKey + "/Hidden", stringsFromKeys(savedHiddenItems));
+    for (StyledBarPrivate *other : std::as_const(styledBars())) {
+        if (other != this && other->settingsKey == settingsKey)
+            other->load();
+    }
 }
 
 static bool isUserItemTemplate(const Key &id)
@@ -1282,18 +1384,22 @@ private:
         return isUserItem(id) || !d->isPermanent(id);
     }
 
+    // Items that the code hides are not offered, as the user could not see
+    // the effect of moving or hiding them. They keep their places.
+    bool isOffered(const Key &id) const { return m_d->item(id).visible; }
+
     void preview()
     {
         if (m_updating)
             return;
         KeyList order = idsOf(m_list);
-        const KeyList hidden = idsOf(m_availableList);
+        const KeyList hidden = idsOf(m_availableList) + m_hiddenNotOffered;
         int insertPosition = 0;
         for (const Key &id : std::as_const(m_d->order)) {
             const int index = order.indexOf(id);
             if (index >= 0)
                 insertPosition = index + 1;
-            else if (hidden.contains(id))
+            else if (hidden.contains(id) || !isOffered(id))
                 order.insert(insertPosition++, id);
         }
         m_d->setConfiguration(order, hidden);
@@ -1312,6 +1418,8 @@ private:
 
     void fill(const KeyList &order, const KeyList &hidden)
     {
+        m_hiddenNotOffered = Utils::filtered(hidden,
+                                             [this](const Key &id) { return !isOffered(id); });
         m_updating = true;
         m_list->clear();
         m_availableList->clear();
@@ -1322,6 +1430,8 @@ private:
         m_availableList->addItem(
             createListItem(USER_STRETCH_PREFIX, Tr::tr("Stretch"), stretchIcon()));
         for (const Key &id : order) {
+            if (!isOffered(id))
+                continue;
             QListWidget *list = hidden.contains(id) ? m_availableList : m_list;
             const StyledBarItem barItem = m_d->item(id);
             list->addItem(createListItem(id, barItem.displayName, barItem.icon));
@@ -1435,6 +1545,7 @@ private:
     StyledBarPrivate *m_d = nullptr;
     const KeyList m_savedOrder;
     const KeyList m_savedHiddenItems;
+    KeyList m_hiddenNotOffered;
     QListWidget *m_list = nullptr;
     QListWidget *m_availableList = nullptr;
     QtcIconButton *m_moveUpButton = nullptr;
@@ -1476,22 +1587,22 @@ StyledBar::StyledBar(QWidget *parent)
     StyleHelper::setPanelWidget(this);
     StyleHelper::setPanelWidgetSingleRow(this);
     setProperty(StyleHelper::C_LIGHT_COLORED, false);
+    Internal::styledBars().append(d);
 }
 
 StyledBar::~StyledBar()
 {
+    Internal::styledBars().removeOne(d);
     if (d->overflowPopup)
         d->overflowPopup->disarm();
+    d->detachGroup();
     delete d;
 }
 
-bool Internal::StyledBarPrivate::addItem(const Key &id, const QString &displayName,
-                                         QWidget *widget, const QIcon &icon)
+void Internal::StyledBarPrivate::ensureLayout()
 {
-    QTC_ASSERT(widget, return false);
-    QTC_ASSERT(!isKnown(id), return false);
     if (!layout) {
-        QTC_ASSERT(!q->layout(), return false);
+        QTC_ASSERT(!q->layout(), return);
         layout = new QHBoxLayout(q);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setSpacing(0);
@@ -1503,10 +1614,79 @@ bool Internal::StyledBarPrivate::addItem(const Key &id, const QString &displayNa
         extensionButton->hide();
         QObject::connect(extensionButton, &QToolButton::clicked, q, [this] { showOverflow(); });
     }
+}
+
+bool Internal::StyledBarPrivate::addItem(const Key &id, const QString &displayName,
+                                         QWidget *widget, const QIcon &icon)
+{
+    QTC_ASSERT(widget, return false);
+    QTC_ASSERT(!isKnown(id), return false);
+    ensureLayout();
+    if (!layout)
+        return false;
     items.append({id, displayName, widget, true, icon});
-    order = mergedOrder(order);
+    updateConfiguration();
     apply();
     return true;
+}
+
+// Gives the widgets of the group back to it.
+void Internal::StyledBarPrivate::detachGroup()
+{
+    StyledBarItemGroup *oldGroup = group;
+    if (!oldGroup)
+        return;
+    QObject::disconnect(groupConnection);
+    group.clear();
+    groupAnchor = {};
+    closeOverflow();
+    oldGroup->d->bar.clear();
+    for (const StyledBarGroupItem &groupItem : std::as_const(oldGroup->d->items)) {
+        if (!groupItem.widget)
+            continue;
+        if (layout)
+            layout->removeWidget(groupItem.widget);
+        groupItem.widget->setParent(&oldGroup->d->holder);
+    }
+}
+
+void Internal::StyledBarPrivate::syncGroup()
+{
+    closeOverflow();
+    for (qsizetype i = items.size() - 1; i >= 0; --i) {
+        const StyledBarItem barItem = items.at(i);
+        if (!barItem.fromGroup)
+            continue;
+        if (layout && barItem.widget)
+            layout->removeWidget(barItem.widget);
+        stretchItems.removeAll(barItem.id);
+        items.removeAt(i);
+    }
+    groupPermanentItems.clear();
+    if (group) {
+        ensureLayout();
+        qsizetype index = items.size();
+        if (!groupAnchor.isEmpty()) {
+            index = Utils::indexOf(items, Utils::equal(&StyledBarItem::id, groupAnchor));
+            QTC_ASSERT(index >= 0, index = items.size());
+        }
+        for (const StyledBarGroupItem &groupItem : std::as_const(group->d->items)) {
+            if (!groupItem.widget)
+                continue;
+            QTC_ASSERT(!isKnown(groupItem.id), continue);
+            groupItem.widget->setParent(q);
+            StyledBarItem barItem{groupItem.id, groupItem.displayName, groupItem.widget,
+                                  groupItem.visible,
+                                  groupItem.stretch ? stretchIcon() : iconOf(groupItem.widget)};
+            barItem.fromGroup = true;
+            items.insert(index++, barItem);
+            if (groupItem.stretch)
+                stretchItems.append(groupItem.id);
+        }
+        groupPermanentItems = group->d->permanentItems;
+    }
+    updateConfiguration();
+    apply();
 }
 
 /*!
@@ -1515,8 +1695,7 @@ bool Internal::StyledBarPrivate::addItem(const Key &id, const QString &displayNa
 */
 void StyledBar::addItem(const Key &id, const QString &displayName, QWidget *widget)
 {
-    const auto button = qobject_cast<QAbstractButton *>(widget);
-    d->addItem(id, displayName, widget, button ? button->icon() : QIcon());
+    d->addItem(id, displayName, widget, Internal::iconOf(widget));
 }
 
 /*!
@@ -1574,20 +1753,24 @@ void StyledBar::addSeparator(const Key &id)
 void StyledBar::setPermanentItems(const KeyList &ids)
 {
     d->permanentItems = ids;
-    d->hiddenItems = Utils::filtered(d->hiddenItems,
-                                     [this](const Key &id) { return !d->isPermanent(id); });
+    d->updateConfiguration();
     d->apply();
 }
 
 /*!
     Shows or hides the item \a id depending on \a visible. An item the user
-    has hidden stays hidden.
+    has hidden stays hidden. For an item of the group shown in the bar, this
+    is passed on to the group.
 */
 void StyledBar::setItemVisible(const Key &id, bool visible)
 {
     const auto it = std::find_if(d->items.begin(), d->items.end(),
                                  Utils::equal(&Internal::StyledBarItem::id, id));
     QTC_ASSERT(it != d->items.end(), return);
+    if (it->fromGroup && d->group) {
+        d->group->setItemVisible(id, visible);
+        return;
+    }
     if (it->visible == visible)
         return;
     it->visible = visible;
@@ -1597,17 +1780,57 @@ void StyledBar::setItemVisible(const Key &id, bool visible)
 /*!
     Sets the stretch factor of the item \a id to \a stretch. As in
     QBoxLayout, once an item has a stretch factor, extra space goes to the
-    items with one, in proportion to their factors.
+    items with one, in proportion to their factors. Items of a group cannot
+    have a stretch factor.
 */
 void StyledBar::setItemStretch(const Key &id, int stretch)
 {
     const auto it = std::find_if(d->items.begin(), d->items.end(),
                                  Utils::equal(&Internal::StyledBarItem::id, id));
     QTC_ASSERT(it != d->items.end(), return);
+    QTC_ASSERT(!it->fromGroup, return);
     if (it->stretch == stretch)
         return;
     it->stretch = stretch;
     d->apply();
+}
+
+/*!
+    Shows the items of \a group in the bar, in front of the item \a before,
+    or at the end if \a before is empty. The items of a group shown before
+    are removed from the bar. Pass \nullptr to only remove them.
+
+    The bar follows the items of the group as they are added, removed,
+    shown, or hidden. A group is shown by at most one bar at a time; showing
+    it in another bar removes it from this one.
+
+    The configuration of the user covers the items of all groups that were
+    shown in bars with the same settings key, so each item keeps its place
+    while it is absent.
+*/
+void StyledBar::setItemGroup(StyledBarItemGroup *group, const Key &before)
+{
+    if (d->group == group && d->groupAnchor == before)
+        return;
+    d->detachGroup();
+    if (group) {
+        if (StyledBar *otherBar = group->d->bar)
+            otherBar->setItemGroup(nullptr);
+        d->group = group;
+        d->groupAnchor = before;
+        group->d->bar = this;
+        d->groupConnection = connect(group, &StyledBarItemGroup::changed,
+                                     this, [this] { d->syncGroup(); });
+    }
+    d->syncGroup();
+}
+
+/*!
+    Returns the group whose items the bar shows, if any.
+*/
+StyledBarItemGroup *StyledBar::itemGroup() const
+{
+    return d->group;
 }
 
 /*!
@@ -1656,7 +1879,11 @@ KeyList StyledBar::hiddenItems() const
 */
 void StyledBar::resetItemConfiguration()
 {
-    d->setConfiguration(d->defaultOrder(), {});
+    d->savedOrder.clear();
+    d->savedHiddenItems.clear();
+    d->syncUserItems({});
+    d->updateConfiguration();
+    d->apply();
     d->save();
 }
 
@@ -1747,6 +1974,133 @@ void StyledBar::contextMenuEvent(QContextMenuEvent *event)
     connect(menu.addAction(Tr::tr("Reset Toolbar")), &QAction::triggered,
             this, &StyledBar::resetItemConfiguration);
     menu.exec(event->globalPos());
+}
+
+/*!
+    \class Utils::StyledBarItemGroup
+    \inmodule QtCreator
+
+    \brief The StyledBarItemGroup class holds items for a StyledBar that
+    does not own them.
+
+    Something that is shown in a bar it does not own, such as an editor in
+    the editor tool bar, provides its items in a group. The bar shows them
+    with StyledBar::setItemGroup() while it is current. The group owns the
+    widgets and keeps them while no bar shows it.
+
+    The identifiers of the items must be unique among all items that can
+    be shown in the same bar.
+*/
+
+StyledBarItemGroup::StyledBarItemGroup(QObject *parent)
+    : QObject(parent)
+    , d(new Internal::StyledBarItemGroupPrivate)
+{}
+
+StyledBarItemGroup::~StyledBarItemGroup()
+{
+    if (StyledBar *bar = d->bar)
+        bar->setItemGroup(nullptr);
+    delete d;
+}
+
+/*!
+    Adds \a widget with the identifier \a id to the end of the group. The
+    user sees it as \a displayName when configuring the bar.
+*/
+void StyledBarItemGroup::addItem(const Key &id, const QString &displayName, QWidget *widget)
+{
+    insertItem({}, id, displayName, widget);
+}
+
+/*!
+    Adds \a widget with the identifier \a id in front of the item \a before,
+    or to the end if \a before is empty. The user sees it as \a displayName
+    when configuring the bar.
+*/
+void StyledBarItemGroup::insertItem(const Key &before, const Key &id,
+                                    const QString &displayName, QWidget *widget)
+{
+    QTC_ASSERT(widget, return);
+    QTC_ASSERT(d->indexOf(id) < 0, return);
+    qsizetype index = d->items.size();
+    if (!before.isEmpty()) {
+        index = d->indexOf(before);
+        QTC_ASSERT(index >= 0, index = d->items.size());
+    }
+    widget->setParent(d->bar ? static_cast<QWidget *>(d->bar.data()) : &d->holder);
+    d->items.insert(index, {id, displayName, widget});
+    emit changed();
+}
+
+/*!
+    Adds a stretchable space with the identifier \a id to the end of the
+    group. The user can move it, but not hide it.
+*/
+void StyledBarItemGroup::addStretch(const Key &id)
+{
+    QTC_ASSERT(d->indexOf(id) < 0, return);
+    auto spacer = new QWidget(&d->holder);
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    Internal::StyledBarGroupItem item{id, Tr::tr("Stretch"), spacer};
+    item.stretch = true;
+    if (d->bar)
+        spacer->setParent(d->bar);
+    d->items.append(item);
+    emit changed();
+}
+
+/*!
+    Removes the item \a id from the group and deletes its widget.
+*/
+void StyledBarItemGroup::removeItem(const Key &id)
+{
+    const qsizetype index = d->indexOf(id);
+    QTC_ASSERT(index >= 0, return);
+    const QPointer<QWidget> widget = d->items.takeAt(index).widget;
+    d->permanentItems.removeAll(id);
+    emit changed();
+    delete widget;
+}
+
+/*!
+    Shows or hides the item \a id depending on \a visible. An item the user
+    has hidden stays hidden.
+*/
+void StyledBarItemGroup::setItemVisible(const Key &id, bool visible)
+{
+    const qsizetype index = d->indexOf(id);
+    QTC_ASSERT(index >= 0, return);
+    if (d->items.at(index).visible == visible)
+        return;
+    d->items[index].visible = visible;
+    emit changed();
+}
+
+/*!
+    Prevents the user from hiding the items with the identifiers \a ids.
+*/
+void StyledBarItemGroup::setPermanentItems(const KeyList &ids)
+{
+    d->permanentItems = ids;
+    emit changed();
+}
+
+/*!
+    Returns the identifiers of the items in their default order.
+*/
+KeyList StyledBarItemGroup::itemIds() const
+{
+    return Utils::transform(d->items, &Internal::StyledBarGroupItem::id);
+}
+
+/*!
+    Returns the widget of the item \a id, or \nullptr if there is none.
+*/
+QWidget *StyledBarItemGroup::widget(const Key &id) const
+{
+    const qsizetype index = d->indexOf(id);
+    return index >= 0 ? d->items.at(index).widget.data() : nullptr;
 }
 
 StyledSeparator::StyledSeparator(QWidget *parent)
