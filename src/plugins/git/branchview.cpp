@@ -1236,6 +1236,12 @@ void BranchViewTest::testModalRefresh_data()
 
 void BranchViewTest::testModalRefresh()
 {
+    // GuiTest drives the QWidget dialog, including on platforms with native message boxes.
+    const bool noNativeDialogs = QApplication::testAttribute(Qt::AA_DontUseNativeDialogs);
+    QApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
+    const QScopeGuard restoreDialogs([noNativeDialogs] {
+        QApplication::setAttribute(Qt::AA_DontUseNativeDialogs, noNativeDialogs);
+    });
     QFETCH(QString, operation);
     QTemporaryDir directory;
     QVERIFY(directory.isValid());
@@ -1277,9 +1283,11 @@ void BranchViewTest::testModalRefresh()
         QVERIFY(view.add());
         QVERIFY(*added);
     }
-    QSignalSpy started(model, &BranchModel::refreshStarted);
-    bool blocked = false;
-    const auto handled = GuiTest::onNextDialog([&](QWidget *widget) {
+    auto started = std::make_shared<QSignalSpy>(model, &BranchModel::refreshStarted);
+    auto blocked = std::make_shared<bool>(false);
+    const auto onDialog = [model = QPointer<BranchModel>(model), repository, operation,
+                           started, blocked](QWidget *widget) {
+        QVERIFY(model);
         auto dialog = qobject_cast<QDialog *>(widget);
         QVERIFY(dialog);
         if (operation == "remove")
@@ -1288,18 +1296,19 @@ void BranchViewTest::testModalRefresh()
             QCOMPARE(dialog->windowTitle(), QString("Checkout branch \"%1\"")
                                                .arg(operation == "add" ? QString("created")
                                                                          : QString("topic")));
-        const int before = started.count();
+        const int before = started->count();
         model->refresh(repository, BranchModel::ShowError::No, BranchModel::RefreshMode::Force);
-        blocked = started.count() == before;
+        *blocked = started->count() == before;
         dialog->reject();
-    });
+    };
+    const auto handled = GuiTest::onNextDialog(onDialog);
     if (operation == "remove")
         QVERIFY(view.remove());
     else if (operation == "checkout")
         view.checkout();
     QTRY_VERIFY(*handled);
-    QVERIFY(blocked);
-    QTRY_VERIFY(started.count() > 0);
+    QVERIFY(*blocked);
+    QTRY_VERIFY(started->count() > 0);
     QTRY_VERIFY(model->currentBranch().isValid());
     QCOMPARE(model->fullName(model->currentBranch()), QString("main"));
     if (operation == "add")
