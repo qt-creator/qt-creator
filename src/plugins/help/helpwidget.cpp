@@ -33,7 +33,6 @@
 
 #include <QComboBox>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QMenu>
 #include <QPrintDialog>
 #include <QPrinter>
@@ -156,6 +155,35 @@ static QString helpTargetActionToolTip(HelpWidget::WidgetStyle style)
     return helpTargetActionText(optionForStyle(style));
 }
 
+const char SWITCH_TO_HELP_ID[] = "SwitchToHelp";
+const char HOME_ID[] = "Home";
+const char BACK_ID[] = "Back";
+const char FORWARD_ID[] = "Forward";
+const char BOOKMARK_SEPARATOR_ID[] = "BookmarkSeparator";
+const char ADD_BOOKMARK_ID[] = "AddBookmark";
+const char OPEN_ONLINE_ID[] = "OpenOnline";
+const char HELP_TARGET_ID[] = "HelpTarget";
+const char PAGES_SEPARATOR_ID[] = "PagesSeparator";
+const char OPEN_PAGES_ID[] = "OpenPages";
+const char FILTER_ID[] = "Filter";
+const char STRETCH_ID[] = "Stretch";
+const char OPEN_ID[] = "Open";
+const char CLOSE_ID[] = "Close";
+
+static Utils::Key toolBarSettingsKey(HelpWidget::WidgetStyle style)
+{
+    switch (style) {
+    case HelpWidget::ModeWidget:
+        return "Help/ModeToolBar";
+    case HelpWidget::SideBarWidget:
+        return "Help/SideBarToolBar";
+    case HelpWidget::ExternalWindow:
+        return "Help/WindowToolBar";
+    }
+    QTC_CHECK(false);
+    return {};
+}
+
 static QMenu *createHelpTargetMenu(QWidget *parent)
 {
     auto menu = new QMenu(parent);
@@ -206,9 +234,6 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     hLayout->addWidget(m_sideBarSplitter);
 
     auto toolBar = new Utils::StyledBar();
-    auto layout = new QHBoxLayout(toolBar);
-    layout->setSpacing(0);
-    layout->setContentsMargins(0, 0, 0, 0);
 
     auto rightSide = new QWidget(this);
     m_sideBarSplitter->insertWidget(1, rightSide);
@@ -277,13 +302,15 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         connect(m_switchToHelp, &QAction::triggered, this, [this] {
             postRequestShowHelpUrl(Core::HelpManager::HelpModeAlways);
         });
-        layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_switchToHelp, cmd));
+        toolBar->addItem(SWITCH_TO_HELP_ID, Tr::tr("Open in Help Mode"),
+                         Core::Command::toolButtonWithAppendedShortcut(m_switchToHelp, cmd));
     }
 
     m_homeAction = new QAction(Utils::Icons::HOME_TOOLBAR.icon(), Tr::tr("Home"), this);
     cmd = Core::ActionManager::registerAction(m_homeAction, Constants::HELP_HOME, context);
     connect(m_homeAction, &QAction::triggered, this, &HelpWidget::goHome);
-    layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_homeAction, cmd));
+    toolBar->addItem(HOME_ID, Tr::tr("Home"),
+                     Core::Command::toolButtonWithAppendedShortcut(m_homeAction, cmd));
 
     m_backAction = new QAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Back"), toolBar);
     connect(m_backAction, &QAction::triggered, this, &HelpWidget::backward);
@@ -296,7 +323,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     button->setDefaultAction(m_backAction);
     cmd->augmentActionWithShortcutToolTip(m_backAction);
     button->setPopupMode(QToolButton::DelayedPopup);
-    layout->addWidget(button);
+    toolBar->addItem(BACK_ID, Tr::tr("Back"), button);
 
     m_forwardAction = new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Forward"), toolBar);
     connect(m_forwardAction, &QAction::triggered, this, &HelpWidget::forward);
@@ -309,7 +336,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     button->setDefaultAction(m_forwardAction);
     cmd->augmentActionWithShortcutToolTip(m_forwardAction);
     button->setPopupMode(QToolButton::DelayedPopup);
-    layout->addWidget(button);
+    toolBar->addItem(FORWARD_ID, Tr::tr("Forward"), button);
 
     m_addBookmarkAction = new QAction(Utils::Icons::BOOKMARK_TOOLBAR.icon(),
                                       Tr::tr("Add Bookmark"),
@@ -318,15 +345,17 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     cmd->setDefaultKeySequence(
         QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+M") : Tr::tr("Ctrl+M")));
     connect(m_addBookmarkAction, &QAction::triggered, this, &HelpWidget::addBookmark);
-    layout->addWidget(new Utils::StyledSeparator(toolBar));
-    layout->addWidget(Core::Command::toolButtonWithAppendedShortcut(m_addBookmarkAction, cmd));
+    toolBar->addSeparator(BOOKMARK_SEPARATOR_ID);
+    toolBar->addItem(ADD_BOOKMARK_ID, Tr::tr("Add Bookmark"),
+                     Core::Command::toolButtonWithAppendedShortcut(m_addBookmarkAction, cmd));
 
     m_openOnlineDocumentationAction = new QAction(Utils::Icons::ONLINE_TOOLBAR.icon(),
                                                   Tr::tr("Open Online Documentation..."),
                                                   this);
     cmd = Core::ActionManager::registerAction(m_openOnlineDocumentationAction, Constants::HELP_OPENONLINE, context);
     connect(m_openOnlineDocumentationAction, &QAction::triggered, this, &HelpWidget::openOnlineDocumentation);
-    layout->addWidget(
+    toolBar->addItem(
+        OPEN_ONLINE_ID, Tr::tr("Open Online Documentation"),
         Core::Command::toolButtonWithAppendedShortcut(m_openOnlineDocumentationAction, cmd));
 
     auto helpTargetAction = new QAction(Utils::Icons::LINK_TOOLBAR.icon(),
@@ -353,15 +382,17 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
                     helpTargetButton->showMenu();
                 }
             });
-    layout->addWidget(helpTargetButton);
+    toolBar->addItem(HELP_TARGET_ID, Tr::tr("Context Help Target"), helpTargetButton);
 
     if (supportsPages()) {
-        layout->addWidget(new Utils::StyledSeparator(toolBar));
-        layout->addWidget(m_openPagesManager->openPagesComboBox(), 10);
+        toolBar->addSeparator(PAGES_SEPARATOR_ID);
+        toolBar->addItem(OPEN_PAGES_ID, Tr::tr("Open Pages"),
+                         m_openPagesManager->openPagesComboBox());
+        toolBar->setItemStretch(OPEN_PAGES_ID, 10);
 
         m_filterComboBox = new QComboBox;
         m_filterComboBox->setMinimumContentsLength(15);
-        layout->addWidget(m_filterComboBox);
+        toolBar->addItem(FILTER_ID, Tr::tr("Filter"), m_filterComboBox);
         connect(&LocalHelpManager::helpEngine(), &QHelpEngine::setupFinished,
                 this, &HelpWidget::setupFilterCombo, Qt::QueuedConnection);
         connect(m_filterComboBox, &QComboBox::activated, this, &HelpWidget::filterDocumentation);
@@ -389,10 +420,8 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
                     &OpenPagesManager::gotoNextPage);
         }
     } else {
-        layout->addWidget(new QLabel(), 10);
+        toolBar->addStretch(STRETCH_ID);
     }
-
-    layout->addStretch();
 
     m_printAction = new QAction(this);
     Core::ActionManager::registerAction(m_printAction, Core::Constants::PRINT, context);
@@ -425,7 +454,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     openButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
     openButton->setPopupMode(QToolButton::InstantPopup);
     openButton->setProperty(Utils::StyleHelper::C_NO_ARROW, true);
-    layout->addWidget(openButton);
+    toolBar->addItem(OPEN_ID, Tr::tr("Open"), openButton);
     auto openMenu = new QMenu(openButton);
     openButton->setMenu(openMenu);
 
@@ -462,7 +491,9 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     });
     button = new QToolButton;
     button->setDefaultAction(m_closeAction);
-    layout->addWidget(button);
+    toolBar->addItem(CLOSE_ID, Tr::tr("Close"), button);
+    toolBar->setPermanentItems({OPEN_PAGES_ID, CLOSE_ID});
+    toolBar->setSettingsKey(toolBarSettingsKey(style));
 
     QAction *reload = openMenu->addAction(Tr::tr("Reload"));
     connect(reload, &QAction::triggered, this, [this] {

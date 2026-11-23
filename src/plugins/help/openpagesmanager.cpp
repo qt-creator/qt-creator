@@ -211,18 +211,20 @@ static void showSource(const QUrl &url)
 void OpenPagesManager::openPagesContextMenu(const QPoint &point)
 {
     const QModelIndex &index = m_helpWidget->model()->index(m_comboBox->currentIndex(), 0);
-    const QString &fileName = m_helpWidget->model()->data(index, Qt::ToolTipRole).toString();
-    if (fileName.isEmpty())
-        return;
+    const QString fileName = m_helpWidget->model()->data(index, Qt::ToolTipRole).toString();
 
     const QUrl url(fileName);
     QMenu menu;
-    menu.addAction(Tr::tr("Copy Full Path to Clipboard"), this, [fileName] {
-        Utils::setClipboardAndSelection(fileName);
-    });
+    if (!fileName.isEmpty()) {
+        menu.addAction(Tr::tr("Copy Full Path to Clipboard"), this, [fileName] {
+            Utils::setClipboardAndSelection(fileName);
+        });
+    }
     if (url.scheme() == "qthelp")
         menu.addAction(Tr::tr("Show Source"), this, [url] { showSource(url); });
-    menu.exec(m_comboBox->mapToGlobal(point));
+    Utils::StyledBar::addCustomizationActions(&menu, m_comboBox);
+    if (!menu.isEmpty())
+        menu.exec(m_comboBox->mapToGlobal(point));
 }
 
 } // Help::Internal
