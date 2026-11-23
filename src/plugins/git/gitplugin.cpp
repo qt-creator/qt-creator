@@ -2537,6 +2537,7 @@ private slots:
     void testAddFileHandler();
     void testMergeEditorFromFileLists_data();
     void testMergeEditorFromFileLists();
+    void testMergeEditorTextSwitching_data();
     void testMergeEditorTextSwitching();
     void testMergeEditorTextSwitchingAfterSourceClosed();
     void testMergeWithoutToolOpensMergeEditor_data();
@@ -5250,14 +5251,29 @@ void GitTest::testMergeEditorFromFileLists()
     }
 }
 
+void GitTest::testMergeEditorTextSwitching_data()
+{
+    QTest::addColumn<bool>("crlf");
+    QTest::newRow("LF") << false;
+    QTest::newRow("CRLF") << true;
+}
+
 void GitTest::testMergeEditorTextSwitching()
 {
+    QFETCH(bool, crlf);
     QTemporaryDir directory;
     QVERIFY(directory.isValid());
-    const FilePath repo = FilePath::fromString(directory.path());
+    const FilePath repo = FilePath::fromString(directory.path()).canonicalPath();
     createConflictedRepo(repo);
     const FilePath file = repo / "file.txt";
-    const QByteArray diskText = file.fileContents().value_or(QByteArray());
+    const auto contents = file.fileContents();
+    QVERIFY(contents);
+    QByteArray diskText = *contents;
+    diskText.replace("\r\n", "\n");
+    const QString editorText = QString::fromUtf8(diskText);
+    if (crlf)
+        diskText.replace("\n", "\r\n");
+    QVERIFY(file.writeFileContents(diskText));
     QList<QPointer<Core::IDocument>> opened;
     const auto cleanup = qScopeGuard([&opened, file] {
         for (const QPointer<Core::IDocument> &document : opened) {
@@ -5282,7 +5298,7 @@ void GitTest::testMergeEditorTextSwitching()
     auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
     QVERIFY(textEditor);
     QCOMPARE(textEditor->document()->filePath(), file);
-    QCOMPARE(textEditor->editorWidget()->toPlainText(), "from merge\n" + QString::fromUtf8(diskText));
+    QCOMPARE(textEditor->editorWidget()->toPlainText(), "from merge\n" + editorText);
     QVERIFY(textEditor->document()->isModified());
     QCOMPARE(textEditor->editorWidget()->textCursor().blockNumber(), 1);
     QCOMPARE(file.fileContents().value_or(QByteArray()), diskText);
