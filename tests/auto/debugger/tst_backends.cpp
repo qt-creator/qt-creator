@@ -15917,6 +15917,7 @@ void tst_backends::insertsQmlBreakpointAndStopsAtIt()
                               qPrintable("the resolved QML breakpoint never signaled a stop"
                                          " - last wire traffic:\n  " + wireTail(wire)),
                               s_timeout);
+    const QString wireUpToStop = wireTail(wire);
 
     // Getting there takes internal stops - the hook that resolves a pending
     // breakpoint, and the events the interpreter does not stop for. Each is

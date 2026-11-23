@@ -23,6 +23,7 @@
 
 #include <texteditor/editorwithpreview.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/spellchecksettings.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -196,16 +197,22 @@ public:
             }
             return C_TEXT;
         });
+        followSpellCheckSettings(this);
     }
 
 protected:
     void highlightBlock(const QString &text) override
     {
         int state = qMax(0, previousBlockState());
-        for (const MarkupToken &token : scanMarkupLine(text, &state))
+        const QList<MarkupToken> tokens = scanMarkupLine(text, &state);
+        for (const MarkupToken &token : tokens)
             setFormat(token.start, token.length, formatForCategory(int(token.span)));
         setCurrentBlockState(state);
         formatSpaces(text);
+
+        for (const TextRange &range : proseRanges(text, tokens))
+            addProseRange(range.start, range.length);
+        spellCheck(text);
     }
 };
 

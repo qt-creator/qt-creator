@@ -62,6 +62,8 @@ private slots:
     void editedSnippet();
     void markupSpans_data();
     void markupSpans();
+    void proseRanges_data();
+    void proseRanges();
     void corpus();
 };
 
@@ -798,6 +800,49 @@ void tst_QDoc::markupSpans()
     }
     QCOMPARE(found.join('|'), spans);
     QCOMPARE(state, stateAfter);
+}
+
+void tst_QDoc::proseRanges_data()
+{
+    QTest::addColumn<QString>("line");
+    QTest::addColumn<int>("state");
+    QTest::addColumn<QString>("prose");
+
+    QTest::newRow("plain") << "Some text." << 0 << "Some text.";
+    QTest::newRow("command") << "Some \\e text." << 0 << "Some | text.";
+    QTest::newRow("code word")
+        << "Returns \\c nullptr if \\a parent is not set." << 0
+        << "Returns | if | is not set.";
+    QTest::newRow("link") << "See \\l qmake for details." << 0 << "See | for details.";
+    QTest::newRow("braced argument") << "See \\l {Some Page} here." << 0 << "See | here.";
+    QTest::newRow("see also") << "\\sa foo(), bar()" << 0 << "";
+    QTest::newRow("escape") << "A \\\\c word" << 0 << "A \\\\c word";
+    QTest::newRow("brief") << "\\brief Some text." << 0 << " Some text.";
+    QTest::newRow("brief code word")
+        << "\\brief Returns \\c nullptr here." << 0 << " Returns | here.";
+    QTest::newRow("brief command")
+        << "\\brief Select \\uicontrol Run here." << 0 << " Select | Run here.";
+    QTest::newRow("title") << "\\title Some \\c qmake Title" << 0 << " Some | Title";
+    QTest::newRow("subtitle")
+        << "\\subtitle Some \\c qmake Subtitle" << 0 << " Some | Subtitle";
+    QTest::newRow("entity") << "\\class QWidget" << 0 << "";
+    QTest::newRow("comment") << "// a \\c nullptr comment" << 0 << "// a | comment";
+    QTest::newRow("comment delimiters") << "/*! Some text. */" << 0 << "/*! Some text. */";
+    QTest::newRow("code opens") << "Some \\code" << 0 << "Some ";
+    QTest::newRow("code body") << "    int x = \\c nullptr; // a comment" << 1 << "";
+    QTest::newRow("code closes") << "    int x; \\endcode" << 1 << "";
+}
+
+void tst_QDoc::proseRanges()
+{
+    QFETCH(QString, line);
+    QFETCH(int, state);
+    QFETCH(QString, prose);
+
+    QStringList found;
+    for (const TextRange &range : QDoc::Internal::proseRanges(line, scanMarkupLine(line, &state)))
+        found.append(line.mid(range.start, range.length));
+    QCOMPARE(found.join('|'), prose);
 }
 
 // Every documentation file of this repository has to render without crashing and
