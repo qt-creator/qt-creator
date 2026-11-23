@@ -1,6 +1,7 @@
 // Copyright (C) 2026 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <utils/algorithm.h>
 #include <utils/qtcsettings_p.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -87,12 +88,15 @@ private slots:
     void deletingBarKeepsGroupWidgets();
     void deletingGroupRemovesItsItems();
     void dialogOmitsItemsHiddenByCode();
+    void itemMenusOfferCustomization();
+    void customizationActionsFollowItems();
 
 private:
     StyledBar *createBar(const KeyList &ids);
     void fillGroup(StyledBarItemGroup *group, const KeyList &ids);
     KeyList layoutOrder() const;
     void triggerContextMenuAction(const QString &text);
+    QStringList itemContextMenu(QWidget *item, const QString &trigger);
     void customize(const std::function<void(QListWidget *)> &edit, bool accept);
 
     StyledBar *m_bar = nullptr;
@@ -262,6 +266,30 @@ void tst_StyledBar::triggerContextMenuAction(const QString &text)
     QContextMenuEvent event(QContextMenuEvent::Mouse, {}, m_bar->mapToGlobal(QPoint()));
     QApplication::sendEvent(m_bar, &event);
     QVERIFY(triggered);
+}
+
+// Returns the texts of the menu shown for item, after triggering the
+// action with the text given by trigger.
+QStringList tst_StyledBar::itemContextMenu(QWidget *item, const QString &trigger)
+{
+    QStringList texts;
+    QObject guard;
+    QTimer::singleShot(0, &guard, [&] {
+        auto menu = qobject_cast<QMenu *>(QApplication::activePopupWidget());
+        if (!menu)
+            return;
+        const QList<QAction *> actions = menu->actions();
+        for (QAction *action : actions) {
+            if (!action->isSeparator())
+                texts.append(action->text());
+            if (action->text() == trigger)
+                action->trigger();
+        }
+        menu->close();
+    });
+    QContextMenuEvent event(QContextMenuEvent::Mouse, {}, item->mapToGlobal(QPoint()));
+    QApplication::sendEvent(item, &event);
+    return texts;
 }
 
 void tst_StyledBar::customize(const std::function<void(QListWidget *)> &edit, bool accept)
@@ -1179,6 +1207,52 @@ void tst_StyledBar::dialogOmitsItemsHiddenByCode()
     QCOMPARE(layoutOrder(), KeyList({"D", "A", "B", "C"}));
     QVERIFY(m_widgets.value("B")->isVisible());
     QVERIFY(!m_widgets.value("C")->isVisible());
+}
+
+void tst_StyledBar::itemMenusOfferCustomization()
+{
+    const auto addActions = [](QWidget *widget) {
+        widget->setContextMenuPolicy(Qt::ActionsContextMenu);
+        widget->addAction(new QAction("Item Action", widget));
+    };
+    addActions(m_widgets.value("A"));
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    addActions(m_widgets.value("X"));
+    m_bar->setItemGroup(&group);
+    m_bar->setHiddenItems({"B"});
+
+    const QStringList expected{"Item Action", "Customize Toolbar...", "Reset Toolbar"};
+    QCOMPARE(itemContextMenu(m_widgets.value("X"), {}), expected);
+    QCOMPARE(itemContextMenu(m_widgets.value("A"), "Reset Toolbar"), expected);
+    QCOMPARE(m_bar->hiddenItems(), KeyList());
+}
+
+void tst_StyledBar::customizationActionsFollowItems()
+{
+    const auto menuTexts = [](const QWidget *item) {
+        QMenu menu;
+        menu.addAction("Item Action");
+        StyledBar::addCustomizationActions(&menu, item);
+        return Utils::transform(Utils::filtered(menu.actions(),
+                                                [](QAction *a) { return !a->isSeparator(); }),
+                                &QAction::text);
+    };
+    const QStringList withBar{"Item Action", "Customize Toolbar...", "Reset Toolbar"};
+    auto child = new QWidget(m_widgets.value("A"));
+    QCOMPARE(menuTexts(child), withBar);
+
+    StyledBarItemGroup group;
+    fillGroup(&group, {"X"});
+    QWidget *x = m_widgets.value("X");
+    QCOMPARE(menuTexts(x), QStringList{"Item Action"});
+    m_bar->setItemGroup(&group);
+    QCOMPARE(menuTexts(x), withBar);
+    m_bar->setItemGroup(nullptr);
+    QCOMPARE(menuTexts(x), QStringList{"Item Action"});
+
+    QWidget outside;
+    QCOMPARE(menuTexts(&outside), QStringList{"Item Action"});
 }
 
 QTEST_MAIN(tst_StyledBar)

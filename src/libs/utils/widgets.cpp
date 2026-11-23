@@ -746,6 +746,7 @@ public:
     void updateConfiguration();
     void setConfiguration(const KeyList &newOrder, const KeyList &newHiddenItems);
     void closeOverflow();
+    void addCustomizationActions(QMenu *menu);
     void apply();
     void load();
     void save() const;
@@ -1625,6 +1626,7 @@ bool Internal::StyledBarPrivate::addItem(const Key &id, const QString &displayNa
     if (!layout)
         return false;
     items.append({id, displayName, widget, true, icon});
+    widget->installEventFilter(q);
     updateConfiguration();
     apply();
     return true;
@@ -1646,6 +1648,7 @@ void Internal::StyledBarPrivate::detachGroup()
             continue;
         if (layout)
             layout->removeWidget(groupItem.widget);
+        groupItem.widget->removeEventFilter(q);
         groupItem.widget->setParent(&oldGroup->d->holder);
     }
 }
@@ -1675,6 +1678,7 @@ void Internal::StyledBarPrivate::syncGroup()
                 continue;
             QTC_ASSERT(!isKnown(groupItem.id), continue);
             groupItem.widget->setParent(q);
+            groupItem.widget->installEventFilter(q);
             StyledBarItem barItem{groupItem.id, groupItem.displayName, groupItem.widget,
                                   groupItem.visible,
                                   groupItem.stretch ? stretchIcon() : iconOf(groupItem.widget)};
@@ -1966,14 +1970,58 @@ void StyledBar::contextMenuEvent(QContextMenuEvent *event)
     }
 
     QMenu menu(this);
-    connect(menu.addAction(Tr::tr("Customize Toolbar...")), &QAction::triggered, this, [this] {
-        auto dialog = new Internal::StyledBarCustomizeDialog(this, d);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        dialog->open();
-    });
-    connect(menu.addAction(Tr::tr("Reset Toolbar")), &QAction::triggered,
-            this, &StyledBar::resetItemConfiguration);
+    d->addCustomizationActions(&menu);
     menu.exec(event->globalPos());
+}
+
+// Items with a menu of actions do not pass the event on to the bar, so
+// their menu gets the actions of the bar as well.
+bool StyledBar::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::ContextMenu) {
+        const auto widget = qobject_cast<QWidget *>(watched);
+        if (widget && widget->contextMenuPolicy() == Qt::ActionsContextMenu
+            && !widget->actions().isEmpty()) {
+            QMenu menu;
+            menu.addActions(widget->actions());
+            d->addCustomizationActions(&menu);
+            menu.exec(static_cast<QContextMenuEvent *>(event)->globalPos());
+            return true;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
+void Internal::StyledBarPrivate::addCustomizationActions(QMenu *menu)
+{
+    if (!menu->isEmpty())
+        menu->addSeparator();
+    QObject::connect(menu->addAction(Tr::tr("Customize Toolbar...")), &QAction::triggered, q,
+                     [this] {
+                         auto dialog = new StyledBarCustomizeDialog(q, this);
+                         dialog->setAttribute(Qt::WA_DeleteOnClose);
+                         dialog->open();
+                     });
+    QObject::connect(menu->addAction(Tr::tr("Reset Toolbar")), &QAction::triggered,
+                     q, &StyledBar::resetItemConfiguration);
+}
+
+/*!
+    Adds the actions that customize and reset the bar that shows \a item to
+    \a menu. Use this in the context menu of an item that does not pass the
+    context menu event on to the bar.
+*/
+void StyledBar::addCustomizationActions(QMenu *menu, const QWidget *item)
+{
+    QTC_ASSERT(menu, return);
+    for (const QWidget *widget = item; widget; widget = widget->parentWidget()) {
+        for (Internal::StyledBarPrivate *bar : std::as_const(Internal::styledBars())) {
+            if (bar->q == widget && !bar->items.isEmpty()) {
+                bar->addCustomizationActions(menu);
+                return;
+            }
+        }
+    }
 }
 
 /*!

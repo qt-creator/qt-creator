@@ -228,6 +228,8 @@ public:
 
     void setSettingsKey(const Key &key);
 
+    static void addCustomizationActions(QMenu *menu, const QWidget *item);
+
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
@@ -236,6 +238,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     Internal::StyledBarPrivate *d;
