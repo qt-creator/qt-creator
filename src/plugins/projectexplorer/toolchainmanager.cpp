@@ -24,10 +24,12 @@
 
 #ifdef WITH_TESTS
 #include "kit.h"
+#include "kitaspect.h"
 #include "kitmanager.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainkitaspect.h"
 
+#include <QComboBox>
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
@@ -727,6 +729,47 @@ private slots:
         QTRY_VERIFY(ToolchainKitAspect::toolchain(kit, cxx));
         QCOMPARE(ToolchainKitAspect::toolchainId(kit, cxx), saved->id());
         QCOMPARE(updates, 1);
+    }
+
+    void testKitAspectDropsDeregisteredToolchains()
+    {
+        const KitAspectFactory * const aspectFactory
+            = Utils::findOrDefault(KitAspectFactory::kitAspectFactories(), [](KitAspectFactory *f) {
+                  return f->id() == ToolchainKitAspect::id();
+              });
+        QVERIFY(aspectFactory);
+        ToolchainFactory * const tcFactory
+            = ToolchainFactory::factoryForType(Constants::GCC_TOOLCHAIN_TYPEID);
+        QVERIFY(tcFactory);
+
+        Kit kit;
+        const std::unique_ptr<KitAspect> aspect(aspectFactory->createKitAspect(&kit));
+        const auto itemCount = [&aspect] {
+            int count = 0;
+            for (const QComboBox * const comboBox : aspect->comboBoxes())
+                count += comboBox->count();
+            return count;
+        };
+        const int initialCount = itemCount();
+
+        QTemporaryDir dir;
+        QVERIFY(dir.isValid());
+        const Id bundleId = Id::generate();
+        Toolchains toolchains;
+        for (const Id language : {Id(Constants::C_LANGUAGE_ID), Id(Constants::CXX_LANGUAGE_ID)}) {
+            Toolchain * const tc = tcFactory->create();
+            QVERIFY(tc);
+            tc->setLanguage(language);
+            tc->setCompilerCommand(FilePath::fromString(dir.path()).pathAppended("fake-gcc"));
+            tc->setBundleId(bundleId);
+            toolchains << tc;
+        }
+        QVERIFY(ToolchainManager::registerToolchains(toolchains).isEmpty());
+        aspect->refresh();
+        QCOMPARE(itemCount(), initialCount + 1);
+
+        ToolchainManager::deregisterToolchains(toolchains);
+        QCOMPARE(itemCount(), initialCount);
     }
 };
 

@@ -4483,6 +4483,7 @@ void CdbImpl::reportStop(const GdbMi &stopData)
     m_inferiorRunning = false;
     m_inInternalStop = false;
     m_stopReported = true;
+    setNativeCallHookArmed(false);
     if (stoppedInArtificialThread(stopData)) {
         emit message(Tr::tr("Switching to main thread..."), LogMisc);
         runCommand({"~0 s", NoFlags});

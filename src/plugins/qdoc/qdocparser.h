@@ -296,4 +296,15 @@ public:
 // previous line left open and is updated; 0 is ordinary markup.
 QList<MarkupToken> scanMarkupLine(const QString &text, int *state);
 
+class TextRange
+{
+public:
+    int start = 0;
+    int length = 0;
+};
+
+// The parts of a line, split into tokens by scanMarkupLine(), that are prose to be
+// spell checked.
+QList<TextRange> proseRanges(const QString &text, const QList<MarkupToken> &tokens);
+
 } // namespace QDoc::Internal

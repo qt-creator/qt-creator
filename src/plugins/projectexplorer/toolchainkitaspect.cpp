@@ -119,7 +119,7 @@ public:
             addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
         }
 
-        connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
                 this, &KitAspect::refresh);
 
         setManagingPage(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);

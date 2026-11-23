@@ -7,6 +7,7 @@
 #include <QRegularExpression>
 #include <QSet>
 
+#include <algorithm>
 #include <optional>
 
 namespace QDoc::Internal {
@@ -203,6 +204,75 @@ QList<MarkupToken> scanMarkupLine(const QString &text, int *state)
             *state = verbatimBlocks().indexOf(command) + 1;
     }
     return tokens;
+}
+
+// The text for \brief, \title and \subtitle is prose to be spell checked.
+static bool namesProse(const QString &text, const MarkupToken &command)
+{
+    static const QSet<QString> commands = {"brief", "title", "subtitle"};
+    return command.span == MarkupSpan::Command
+           && commands.contains(text.mid(command.start + 1, command.length - 1));
+}
+
+// Commands whose unbraced argument is code or a name rather than prose: the next word,
+// or for \sa the rest of the line.
+static bool takesCodeWord(const QString &command)
+{
+    static const QSet<QString> commands = {"a", "c", "l", "p", "tt"};
+    return commands.contains(command);
+}
+
+QList<TextRange> proseRanges(const QString &text, const QList<MarkupToken> &tokens)
+{
+    // A later token overrides what an earlier one says about the same characters.
+    QList<bool> prose(text.size(), false);
+    for (int i = 0; i < tokens.size(); ++i) {
+        const MarkupToken &token = tokens.at(i);
+        const bool isProse = token.span == MarkupSpan::Body
+                             || token.span == MarkupSpan::Comment
+                             || (token.span == MarkupSpan::Entity && i > 0
+                                 && namesProse(text, tokens.at(i - 1)));
+        std::fill_n(prose.begin() + token.start, token.length, isProse);
+    }
+
+    // Neither a command nor what it takes as code is prose. The text of an entity is
+    // not split into tokens, so the commands in it are looked for in the text rather
+    // than among the tokens.
+    for (int i = 0; i < text.size(); ++i) {
+        if (text.at(i) != '\\')
+            continue;
+        int end = i + 1;
+        while (end < text.size() && isAsciiAlnum(text.at(end)))
+            ++end;
+        const QString command = text.mid(i + 1, end - i - 1);
+        if (command.isEmpty()) {
+            i = end; // An escape such as \\ or \{.
+            continue;
+        }
+        int last = end;
+        if (command == "sa") {
+            last = text.size();
+        } else if (takesCodeWord(command)) {
+            while (end < text.size() && text.at(end).isSpace())
+                ++end;
+            last = end;
+            while (last < text.size() && !text.at(last).isSpace())
+                ++last;
+        }
+        std::fill(prose.begin() + i, prose.begin() + last, false);
+        i = last - 1;
+    }
+
+    QList<TextRange> ranges;
+    for (int start = 0; start < prose.size();) {
+        int end = start;
+        while (end < prose.size() && prose.at(end) == prose.at(start))
+            ++end;
+        if (prose.at(start))
+            ranges.append({start, end - start});
+        start = end;
+    }
+    return ranges;
 }
 
 static QString deprecationMessage(const QString &command)
