@@ -24,6 +24,7 @@
 #include <QComboBox>
 #include <QDir>
 #include <QDrag>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
 #include <QMimeData>
@@ -31,7 +32,6 @@
 #include <QPointer>
 #include <QTimer>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 #include <QDebug>
 
@@ -40,6 +40,17 @@ enum {
 };
 
 namespace Core {
+
+const char BACK_ID[] = "Back";
+const char FORWARD_ID[] = "Forward";
+const char LOCK_ID[] = "Lock";
+const char DRAG_HANDLE_ID[] = "DragHandle";
+const char DOCUMENTS_ID[] = "Documents";
+const char CLOSE_DOCUMENT_ID[] = "CloseDocument";
+const char EDITOR_TOOLS_ID[] = "EditorTools";
+const char EXTRA_TOOLS_ID[] = "ExtraTools";
+const char SPLIT_ID[] = "Split";
+const char CLOSE_SPLIT_ID[] = "CloseSplit";
 
 class ButtonWithMenu : public QToolButton
 {
@@ -82,7 +93,7 @@ struct EditorToolBarPrivate
     QWidget *m_activeToolBar;
     QWidget *m_toolBarPlaceholder;
     QWidget *m_defaultToolBar;
-    QHBoxLayout *m_toplayout = nullptr;
+    QWidget *m_extraTools;
 
     QPoint m_dragStartPosition;
     QPointer<QWidget> m_focusBeforeListContextMenu;
@@ -111,6 +122,7 @@ EditorToolBarPrivate::EditorToolBarPrivate(EditorToolBar *q)
     , m_activeToolBar(nullptr)
     , m_toolBarPlaceholder(new QWidget(q))
     , m_defaultToolBar(new QWidget(q))
+    , m_extraTools(new QWidget(q))
     , m_isStandalone(false)
 {
 }
@@ -121,11 +133,10 @@ EditorToolBarPrivate::EditorToolBarPrivate(EditorToolBar *q)
 EditorToolBar::EditorToolBar(QWidget *parent) :
         Utils::StyledBar(parent), d(new EditorToolBarPrivate(this))
 {
-    auto toolBarLayout = new QHBoxLayout(this);
+    auto toolBarLayout = new QHBoxLayout(d->m_toolBarPlaceholder);
     toolBarLayout->setContentsMargins(0, 0, 0, 0);
     toolBarLayout->setSpacing(0);
     toolBarLayout->addWidget(d->m_defaultToolBar);
-    d->m_toolBarPlaceholder->setLayout(toolBarLayout);
     d->m_toolBarPlaceholder->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     d->m_defaultToolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -175,21 +186,31 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_closeSplitButton->setIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
-    auto toplayout = new QHBoxLayout(this);
-    toplayout->setSpacing(0);
-    toplayout->setContentsMargins(0, 0, 0, 0);
-    toplayout->addWidget(d->m_backButton);
-    toplayout->addWidget(d->m_forwardButton);
-    toplayout->addWidget(d->m_lockButton);
-    toplayout->addWidget(d->m_dragHandle);
-    toplayout->addWidget(d->m_editorList);
-    toplayout->addWidget(d->m_closeEditorButton);
-    toplayout->addWidget(d->m_toolBarPlaceholder, 1); // Custom toolbar stretches
-    toplayout->addWidget(d->m_splitButton);
-    toplayout->addWidget(d->m_closeSplitButton);
-    d->m_toplayout = toplayout;
+    auto extraToolsLayout = new QHBoxLayout(d->m_extraTools);
+    extraToolsLayout->setSpacing(0);
+    extraToolsLayout->setContentsMargins(0, 0, 0, 0);
 
-    setLayout(toplayout);
+    // The bar takes the icons it shows in the customization dialog from the buttons.
+    d->m_closeEditorButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
+    d->m_lockButton->setIcon(Utils::Icons::LOCKED_TOOLBAR.icon());
+    d->m_dragHandle->setIcon(Utils::FileIconProvider::icon(QFileIconProvider::File));
+
+    addItem(BACK_ID, Tr::tr("Go Back"), d->m_backButton);
+    addItem(FORWARD_ID, Tr::tr("Go Forward"), d->m_forwardButton);
+    addItem(LOCK_ID, Tr::tr("Read-Only Indicator"), d->m_lockButton);
+    addItem(DRAG_HANDLE_ID, Tr::tr("Drag Handle"), d->m_dragHandle);
+    addItem(DOCUMENTS_ID, Tr::tr("Open Documents"), d->m_editorList);
+    addItem(CLOSE_DOCUMENT_ID, Tr::tr("Close Document"), d->m_closeEditorButton);
+    addItem(EDITOR_TOOLS_ID, Tr::tr("Editor Tools"), d->m_toolBarPlaceholder);
+    setItemStretch(EDITOR_TOOLS_ID, 1); // Custom toolbar stretches
+    addItem(EXTRA_TOOLS_ID, Tr::tr("Additional Tools"), d->m_extraTools);
+    addItem(SPLIT_ID, Tr::tr("Split"), d->m_splitButton);
+    addItem(CLOSE_SPLIT_ID, Tr::tr("Remove Split"), d->m_closeSplitButton);
+    setItemVisible(EXTRA_TOOLS_ID, false);
+    setPermanentItems({DOCUMENTS_ID, EDITOR_TOOLS_ID});
+    setSettingsKey("Core/EditorToolBar");
+    d->m_lockButton->setIcon(QIcon());
+    d->m_dragHandle->setIcon(QIcon());
 
     // this signal is disconnected for standalone toolbars and replaced with
     // a private slot connection
@@ -197,6 +218,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(d->m_editorList, &QComboBox::customContextMenuRequested, this, [this](QPoint p) {
        QMenu menu;
        fillListContextMenu(&menu);
+       Utils::StyledBar::addCustomizationActions(&menu, d->m_editorList);
        menu.exec(d->m_editorList->mapToGlobal(p));
        if (d->m_focusBeforeListContextMenu && d->m_editorList->hasFocus())
            d->m_focusBeforeListContextMenu->setFocus();
@@ -256,6 +278,9 @@ void EditorToolBar::removeToolbarForEditor(IEditor *editor)
     QTC_ASSERT(editor, return);
     disconnect(editor->document(), &IDocument::changed, this, nullptr);
 
+    if (Utils::StyledBarItemGroup *group = editor->toolBarItems(); group && group == itemGroup())
+        setEditorItems(nullptr);
+
     QWidget *toolBar = editor->toolBar();
     if (toolBar != nullptr) {
         if (d->m_activeToolBar == toolBar) {
@@ -270,7 +295,7 @@ void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 
 void EditorToolBar::setCloseSplitEnabled(bool enable)
 {
-    d->m_closeSplitButton->setVisible(enable);
+    setItemVisible(CLOSE_SPLIT_ID, enable);
 }
 
 void EditorToolBar::setCloseSplitIcon(const QIcon &icon)
@@ -326,9 +351,8 @@ void EditorToolBar::addEditor(IEditor *editor)
 void EditorToolBar::addExtraWidget(QWidget *widget)
 {
     QTC_ASSERT(widget, return);
-    QTC_ASSERT(d->m_toplayout, return);
-    const int splitIndex = d->m_toplayout->indexOf(d->m_splitButton);
-    d->m_toplayout->insertWidget(splitIndex, widget);
+    d->m_extraTools->layout()->addWidget(widget);
+    setItemVisible(EXTRA_TOOLS_ID, true);
 }
 
 void EditorToolBar::addCenterToolBar(QWidget *toolBar)
@@ -351,6 +375,13 @@ void EditorToolBar::updateToolBar(QWidget *toolBar)
     d->m_activeToolBar = toolBar;
 }
 
+void EditorToolBar::setEditorItems(Utils::StyledBarItemGroup *group)
+{
+    if (group != itemGroup())
+        setItemGroup(group, EDITOR_TOOLS_ID);
+    setItemVisible(EDITOR_TOOLS_ID, !group);
+}
+
 void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
     d->m_isStandalone = flags & FlagsStandalone;
@@ -364,8 +395,8 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
                    this, &EditorToolBar::listSelectionActivated);
         connect(d->m_editorList, &QComboBox::activated,
                 this, &EditorToolBar::changeActiveEditor);
-        d->m_splitButton->setVisible(false);
-        d->m_closeSplitButton->setVisible(false);
+        setItemVisible(SPLIT_ID, false);
+        setItemVisible(CLOSE_SPLIT_ID, false);
     }
 }
 
@@ -383,8 +414,10 @@ void EditorToolBar::setCurrentEditor(IEditor *editor)
 
     // If we never added the toolbar from the editor,  we will never change
     // the editor, so there's no need to update the toolbar either.
-    if (!d->m_isStandalone)
+    if (!d->m_isStandalone) {
         updateToolBar(editor ? editor->toolBar() : nullptr);
+        setEditorItems(editor ? editor->toolBarItems() : nullptr);
+    }
 
     updateDocumentStatus(document);
 }
@@ -434,8 +467,8 @@ void EditorToolBar::setGoForwardMenu(QMenu *menu)
 
 void EditorToolBar::setDocumentDropdownVisible(bool visible)
 {
-    d->m_editorList->setVisible(visible);
-    d->m_closeEditorButton->setVisible(visible);
+    setItemVisible(DOCUMENTS_ID, visible);
+    setItemVisible(CLOSE_DOCUMENT_ID, visible);
 }
 
 void EditorToolBar::updateActionShortcuts()
@@ -541,8 +574,8 @@ void EditorToolBar::setNavigationVisible(bool isVisible)
 {
     d->m_goBackAction->setVisible(isVisible);
     d->m_goForwardAction->setVisible(isVisible);
-    d->m_backButton->setVisible(isVisible);
-    d->m_forwardButton->setVisible(isVisible);
+    setItemVisible(BACK_ID, isVisible);
+    setItemVisible(FORWARD_ID, isVisible);
 }
 
 } // Core

@@ -8,6 +8,8 @@
 
 #include <QMetaType>
 
+namespace Utils { class StyledBarItemGroup; }
+
 namespace Core {
 
 class IDocument;
@@ -34,6 +36,7 @@ public:
     virtual void gotoLine(int line, int column = 0, bool centerLine = true) { Q_UNUSED(line) Q_UNUSED(column) Q_UNUSED(centerLine) }
 
     virtual QWidget *toolBar() = 0;
+    virtual Utils::StyledBarItemGroup *toolBarItems() { return nullptr; }
 
     virtual bool isDesignModePreferred() const { return false; }
 

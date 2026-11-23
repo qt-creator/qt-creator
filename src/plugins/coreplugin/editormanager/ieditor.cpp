@@ -18,8 +18,8 @@
     editors can be opened for the same document. Multiple IEditor instances
     share ownership of the same IDocument instance in that case.
 
-    The IEditor::toolBar() is integrated into the toolbar above the editor
-    widget, next to the document drop down.
+    The IEditor::toolBarItems() or the IEditor::toolBar() are integrated into
+    the toolbar above the editor widget, next to the document drop down.
 
     \sa Core::IEditorFactory, Core::EditorManager
 */
@@ -109,6 +109,20 @@ namespace Core {
     The editor toolbar is located at the top of the editor view. The editor
     toolbar is context sensitive and shows items relevant to the document
     currently open in the editor.
+
+    \sa toolBarItems()
+*/
+
+/*!
+    \fn Utils::StyledBarItemGroup *IEditor::toolBarItems()
+
+    Returns the items that the editor adds to the toolbar at the top of the
+    editor view, or \c nullptr. The user can arrange and hide them together
+    with the other items of that toolbar. Their identifiers must be unique
+    among the items of all editors. The items should include a stretch.
+
+    If this returns a group, the toolbar does not show the toolBar() of the
+    editor. The default implementation returns \c nullptr.
 */
 
 /*!

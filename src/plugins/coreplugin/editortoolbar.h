@@ -95,6 +95,7 @@ private:
     void updateDocumentStatus(IDocument *document);
     void fillListContextMenu(QMenu *menu);
     void updateToolBar(QWidget *toolBar);
+    void setEditorItems(Utils::StyledBarItemGroup *group);
 
     EditorToolBarPrivate *d;
 };
