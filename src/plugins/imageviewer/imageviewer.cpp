@@ -23,12 +23,9 @@
 
 #include <QAction>
 #include <QDebug>
-#include <QHBoxLayout>
 #include <QImageReader>
 #include <QLabel>
 #include <QMenu>
-#include <QSpacerItem>
-#include <QToolBar>
 #include <QToolButton>
 
 using namespace Core;
@@ -72,7 +69,7 @@ private:
 
     std::shared_ptr<ImageViewerFile> m_file;
     ImageView *m_imageView;
-    QWidget *m_toolbar;
+    StyledBar *m_toolbar;
 
     QToolButton *m_shareButton;
     QAction *m_actionExportImage;
@@ -88,6 +85,23 @@ private:
     QLabel *m_labelImageSize;
     QLabel *m_labelInfo;
 };
+
+const char EXPORT_ID[] = "Export";
+const char ZOOM_SEPARATOR_ID[] = "ZoomSeparator";
+const char ORIGINAL_SIZE_ID[] = "OriginalSize";
+const char ZOOM_IN_ID[] = "ZoomIn";
+const char ZOOM_OUT_ID[] = "ZoomOut";
+const char PLAY_PAUSE_ID[] = "PlayPause";
+const char VIEW_SEPARATOR_ID[] = "ViewSeparator";
+const char BACKGROUND_ID[] = "Background";
+const char OUTLINE_ID[] = "Outline";
+const char FIT_TO_SCREEN_ID[] = "FitToScreen";
+const char SET_AS_DEFAULT_ID[] = "SetAsDefault";
+const char STRETCH_ID[] = "Stretch";
+const char IMAGE_SIZE_SEPARATOR_ID[] = "ImageSizeSeparator";
+const char IMAGE_SIZE_ID[] = "ImageSize";
+const char INFO_SEPARATOR_ID[] = "InfoSeparator";
+const char INFO_ID[] = "Info";
 
 /*!
     Tries to change the \a button icon to the icon specified by \a name
@@ -208,32 +222,28 @@ void ImageViewer::ctor()
     m_labelImageSize = new QLabel;
     m_labelInfo = new QLabel;
 
-    auto bar = new QToolBar;
-    bar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-    bar->addWidget(m_shareButton);
-    bar->addSeparator();
-    bar->addAction(m_actionOriginalSize);
-    bar->addAction(m_actionZoomIn);
-    bar->addAction(m_actionZoomOut);
-    bar->addAction(m_actionPlayPause);
-    bar->addAction(m_actionPlayPause);
-    bar->addSeparator();
-    bar->addAction(m_actionBackground);
-    bar->addAction(m_actionOutline);
-    bar->addAction(m_actionFitToScreen);
-    bar->addAction(setAsDefault);
-
-    auto horizontalLayout = new QHBoxLayout(m_toolbar);
-    horizontalLayout->setSpacing(0);
-    horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    horizontalLayout->addWidget(bar);
-    horizontalLayout->addItem(
-        new QSpacerItem(315, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    horizontalLayout->addWidget(new StyledSeparator);
-    horizontalLayout->addWidget(m_labelImageSize);
-    horizontalLayout->addWidget(new StyledSeparator);
-    horizontalLayout->addWidget(m_labelInfo);
+    const auto addButton = [this](const Key &id, const QString &displayName, QAction *action) {
+        auto button = new QToolButton(m_toolbar);
+        button->setDefaultAction(action);
+        m_toolbar->addItem(id, displayName, button);
+    };
+    m_toolbar->addItem(EXPORT_ID, Tr::tr("Export"), m_shareButton);
+    m_toolbar->addSeparator(ZOOM_SEPARATOR_ID);
+    addButton(ORIGINAL_SIZE_ID, Tr::tr("Original Size"), m_actionOriginalSize);
+    addButton(ZOOM_IN_ID, Tr::tr("Zoom In"), m_actionZoomIn);
+    addButton(ZOOM_OUT_ID, Tr::tr("Zoom Out"), m_actionZoomOut);
+    addButton(PLAY_PAUSE_ID, Tr::tr("Toggle Animation"), m_actionPlayPause);
+    m_toolbar->addSeparator(VIEW_SEPARATOR_ID);
+    addButton(BACKGROUND_ID, Tr::tr("Switch Background"), m_actionBackground);
+    addButton(OUTLINE_ID, Tr::tr("Switch Outline"), m_actionOutline);
+    addButton(FIT_TO_SCREEN_ID, Tr::tr("Fit to Screen"), m_actionFitToScreen);
+    addButton(SET_AS_DEFAULT_ID, Tr::tr("Set as Default"), setAsDefault);
+    m_toolbar->addStretch(STRETCH_ID);
+    m_toolbar->addSeparator(IMAGE_SIZE_SEPARATOR_ID);
+    m_toolbar->addItem(IMAGE_SIZE_ID, Tr::tr("Image Size"), m_labelImageSize);
+    m_toolbar->addSeparator(INFO_SEPARATOR_ID);
+    m_toolbar->addItem(INFO_ID, Tr::tr("Zoom Level"), m_labelInfo);
+    m_toolbar->setSettingsKey("ImageViewer/ToolBar");
 
     // connections
     connect(m_actionExportImage, &QAction::triggered, m_imageView, &ImageView::exportImage);
