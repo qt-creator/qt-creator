@@ -208,15 +208,43 @@ static IDevice::DeviceState getDeviceState(const QString &serial, IDevice::Machi
     return IDevice::DeviceDisconnected;
 }
 
-static void updateDeviceState(const IDevice::ConstPtr &device)
+// The properties can only be read from a device that accepted the debugging
+// authorization, so keep the old values if reading them fails.
+// Returns whether a property changed. The caller is responsible for announcing it.
+static bool updateHardwareDeviceProperties(const IDevice::Ptr &device, const QString &serial)
+{
+    bool changed = false;
+    const int sdk = AndroidConfig::getSDKVersion(serial);
+    if (sdk > 0 && device->extraData(Constants::AndroidSdk).toInt() != sdk) {
+        device->setExtraData(Constants::AndroidSdk, sdk);
+        changed = true;
+    }
+    const QStringList abis = AndroidConfig::getAbis(serial);
+    if (!abis.isEmpty() && device->extraData(Constants::AndroidCpuAbi).toStringList() != abis) {
+        device->setExtraData(Constants::AndroidCpuAbi, abis);
+        changed = true;
+    }
+    return changed;
+}
+
+static void updateDeviceState(const IDevice::Ptr &device)
 {
     const AndroidDevice *dev = static_cast<const AndroidDevice *>(device.get());
     const QString serial = dev->serialNumber();
     const Id id = dev->id();
-    if (!serial.isEmpty())
-        DeviceManager::setDeviceState(id, getDeviceState(serial, dev->machineType()));
-    else if (dev->machineType() == IDevice::Emulator)
+    if (!serial.isEmpty()) {
+        const IDevice::DeviceState state = getDeviceState(serial, dev->machineType());
+        const bool propertiesChanged = dev->machineType() == IDevice::Hardware
+                                       && state == IDevice::DeviceReadyToUse
+                                       && updateHardwareDeviceProperties(device, serial);
+        // setDeviceState() only announces if the state changes.
+        if (propertiesChanged && dev->deviceState() == state)
+            DeviceManager::announceDeviceUpdate(id);
+        else
+            DeviceManager::setDeviceState(id, state);
+    } else if (dev->machineType() == IDevice::Emulator) {
         DeviceManager::setDeviceState(id, IDevice::DeviceConnected);
+    }
 }
 
 static void setEmulatorArguments()
@@ -368,22 +396,19 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     formLayout->addRow(Tr::tr("Device name:"), new QLabel(dev->displayName()));
     formLayout->addRow(Tr::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 
-    const QString serialNumber = dev->serialNumber();
-    auto serialNumberLabel = new QLabel(serialNumber.isEmpty() ? Tr::tr("Unknown")
-                                                               : serialNumber);
+    const auto serialNumberLabel = new QLabel;
     formLayout->addRow(Tr::tr("Serial number:"), serialNumberLabel);
 
-    const QString abis = dev->supportedAbis().join(", ");
-    formLayout->addRow(Tr::tr("CPU architecture:"), new QLabel(abis));
+    const auto abisLabel = new QLabel;
+    formLayout->addRow(Tr::tr("CPU architecture:"), abisLabel);
 
-    const auto osString = QString("%1 (SDK %2)").arg(dev->androidVersion()).arg(dev->sdkLevel());
-    formLayout->addRow(Tr::tr("OS version:"), new QLabel(osString));
+    const auto osLabel = new QLabel;
+    formLayout->addRow(Tr::tr("OS version:"), osLabel);
 
+    QLabel *authorizedLabel = nullptr;
     if (dev->machineType() == IDevice::Hardware) {
-        const QString authorizedStr = dev->deviceState() == IDevice::DeviceReadyToUse
-                                          ? Tr::tr("Yes")
-                                          : Tr::tr("No");
-        formLayout->addRow(Tr::tr("Authorized:"), new QLabel(authorizedStr));
+        authorizedLabel = new QLabel;
+        formLayout->addRow(Tr::tr("Authorized:"), authorizedLabel);
     }
 
     if (dev->machineType() == IDevice::Emulator) {
@@ -395,14 +420,24 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
         formLayout->addRow(Tr::tr("OpenGL status:"), new QLabel(openGlStatus));
     }
 
-    // An emulator gets its serial once it is up, so refresh the label then.
-    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, serialNumberLabel,
-            [serialNumberLabel, dev](Id updatedId) {
-                if (updatedId != dev->id())
-                    return;
-                const QString serialNumber = dev->serialNumber();
-                serialNumberLabel->setText(serialNumber.isEmpty() ? Tr::tr("Unknown")
-                                                                  : serialNumber);
+    // An emulator gets its serial once it is up, and a hardware device reports
+    // its properties only once it is authorized, so refresh the labels then.
+    const auto updateLabels = [=] {
+        const QString serialNumber = dev->serialNumber();
+        serialNumberLabel->setText(serialNumber.isEmpty() ? Tr::tr("Unknown") : serialNumber);
+        abisLabel->setText(dev->supportedAbis().join(", "));
+        osLabel->setText(QString("%1 (SDK %2)").arg(dev->androidVersion()).arg(dev->sdkLevel()));
+        if (authorizedLabel) {
+            authorizedLabel->setText(dev->deviceState() == IDevice::DeviceReadyToUse
+                                         ? Tr::tr("Yes")
+                                         : Tr::tr("No"));
+        }
+    };
+    updateLabels();
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated, this,
+            [updateLabels, dev](Id updatedId) {
+                if (updatedId == dev->id())
+                    updateLabels();
             });
 
     installMarkSettingsDirtyTriggerRecursively(this);
@@ -1139,21 +1174,25 @@ static void handleDevicesListChange(const QString &event)
             dev = nullptr;
         }
         if (dev) {
+            if (state == IDevice::DeviceReadyToUse
+                && dev->deviceState() != IDevice::DeviceReadyToUse) {
+                updateHardwareDeviceProperties(dev, serial);
+            }
             dev->setDeviceState(state);
         } else {
-            AndroidDevice *newDev = new AndroidDevice();
+            AndroidDevice::Ptr newDev = std::make_shared<AndroidDevice>();
             newDev->setupId(IDevice::AutoDetected, id);
             newDev->setDisplayName(displayName);
             newDev->setMachineType(IDevice::Hardware);
             newDev->setDeviceState(state);
 
             newDev->updateSerialNumber(serial);
-            newDev->setExtraData(Constants::AndroidCpuAbi, AndroidConfig::getAbis(serial));
-            newDev->setExtraData(Constants::AndroidSdk, AndroidConfig::getSDKVersion(serial));
+            if (state == IDevice::DeviceReadyToUse)
+                updateHardwareDeviceProperties(newDev, serial);
 
             qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                     newDev->id().toString().toUtf8().data());
-            DeviceManager::addDevice(IDevice::Ptr(newDev));
+            DeviceManager::addDevice(newDev);
         }
         updateDeviceFileAccess(id);
     }
