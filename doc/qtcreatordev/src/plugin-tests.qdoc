@@ -60,7 +60,8 @@
 
     If you declared the test object in the source file, like in this example,
     also include the \c{.moc} file that is required for Qt's meta object
-    compiler:
+    compiler. The plugin class of the example is declared in the source file
+    as well, so the include is not guarded by \c{WITH_TESTS}:
 
     \snippet exampleplugin/example.cpp include moc
 

@@ -147,18 +147,18 @@
 
         \li Project file, used by CMake to generate build files and build the plugin.
     \row
-        \li \c {example_global.h}
-
-        \li Contains macro definitions that are useful when this plugin should export
-            symbols to other plugins.
-    \row
         \li \c {exampleconstants.h}
 
         \li Header defining constants used by the plugin code.
     \row
-        \li \c{example.h, example.cpp}
+        \li \c {exampletr.h}
 
-        \li C++ header and source files that define the plugin class that will be
+        \li Header defining the \c {Tr::tr()} function that is used for
+            translatable strings in the plugin code.
+    \row
+        \li \c{example.cpp}
+
+        \li C++ source file that defines the plugin class that will be
             instantiated and run by \QC's plugin manager.
     \row
         \li \c{build_cmake.yml}
@@ -214,7 +214,7 @@
     \c {QtCreator::}.
 
     In the \c {DEPENDS} sub-section, you need to specify libraries that your
-    plugin depends on. Use a Qt module name prefixed with \c {$\{QtX\}::}
+    plugin depends on. Use a Qt module name prefixed with \c {Qt::}
     to link to additional Qt modules. To link against additional \QC libraries,
     prefix their name with \c {QtCreator::}. In this subsection you also
     specify other libraries that your plugin depends on.
@@ -233,7 +233,7 @@
     short look at it here. For more information, see \l{Plugin Meta Data}.
 
     The wizard doesn't actually create a .json file directly, but instead a
-    \c {.json.in} file. qmake uses this to generate the actual plugin .json
+    \c {.json.in} file. CMake uses this to generate the actual plugin .json
     meta data file, replacing variables like \c {QTCREATOR_VERSION} with their
     actual values. Therefore you need to escape all backslashes and quotes in
     the \c {.json.in} file (i.e. you need to write \c {\} to get a backslash
@@ -258,22 +258,20 @@
 
     \section1 Plugin Class
 
-    The files \c {example.h} and \c {example.cpp} define the plugin
-    implementation of your little plugin. We'll concentrate on some highlights
-    here, and give pointers to more detailed information for the various parts.
+    The file \c {example.cpp} defines the plugin implementation of your little
+    plugin. We'll concentrate on some highlights here, and give pointers to
+    more detailed information for the various parts.
 
-    \section2 Header File
+    All the necessary header files from the plugin code itself, from the \c
+    Core plugin, and from Qt are included in the beginning of the file.
 
-    The header file \c {example.h} defines the interface of the plugin
-    class.
-
-    \snippet exampleplugin/example.h namespaces
+    \snippet exampleplugin/example.cpp namespaces
 
     The plugin is defined in a \c {Example::Internal} namespace, which conforms
     to the coding rules for \l{coding-rules-namespacing}{namespacing}
     in \QC sources.
 
-    \snippet exampleplugin/example.h base class
+    \snippet exampleplugin/example.cpp base class
 
     All \QC plugins must be derived from \l{ExtensionSystem::IPlugin} and
     are QObjects. The \c {Q_PLUGIN_METADATA} macro is necessary to create a
@@ -282,26 +280,9 @@
     \c FILE must point to the plugin's meta data file as described in
     \l{Plugin Meta Data}.
 
-    \snippet exampleplugin/example.h plugin functions
+    \snippet exampleplugin/example.cpp initialize
 
-    The base class defines basic functions that are called during the life cycle
-    of a plugin, which are here implemented for your new plugin. These functions
-    and their roles are described in detail in \l{Plugin Life Cycle}.
-
-    \snippet exampleplugin/example.h slot
-
-    The plugin has an additional custom slot, that is used to pop up a dialog
-    when the user chooses the menu item that this plugin adds.
-
-    \section2 Source File
-
-    The source file contains the actual implementation of the plugin, which
-    registers a new menu and menu item, and opens a message box when that item
-    is triggered.
-
-    All the necessary header files from the plugin code itself, from the \c
-    Core plugin, and from Qt are included in the beginning of the file. The
-    setup of the menu and menu item is done in the plugin's \c initialize
+    The setup of the menu and menu item is done in the plugin's \c initialize
     function, which is the first thing called after the plugin constructor. In
     that function, the plugin can be sure that the basic setup of plugin's that
     it depends on has been done, for example the Core plugin's \c ActionManager
@@ -310,19 +291,29 @@
     For more information about implementing the plugin interface, see the
     \l{ExtensionSystem::IPlugin} API documentation and \l{Plugin Life Cycle}.
 
-    \snippet exampleplugin/example.cpp add action
-
-    This part of the code creates a new \c QAction, registers it as a new
-    \c Command in the action manager, and connects it to the plugin's slot. The
-    action manager provides a central place where the user can assign and change
-    keyboard shortcuts, and manages cases where for example a menu item should
-    be directed to different plugins under different circumstances, as well as a
-    few other things.
-
     \snippet exampleplugin/example.cpp add menu
 
-    Here a new menu item is created, the created command added to it, and the
-    menu added to the \uicontrol Tools menu in the menu bar.
+    This part of the code creates a new menu and adds it to the
+    \uicontrol Tools menu in the menu bar. Text that is shown to the user is
+    marked for translation with \c {Tr::tr()}, which is defined in
+    \c {exampletr.h}.
+
+    \snippet exampleplugin/example.cpp add action
+
+    Here \l{Core::ActionBuilder} creates a new \c QAction, registers it as a
+    new \c Command in the action manager, adds it to the new menu, and
+    connects it to the plugin's \c triggerAction function. The action manager
+    provides a central place where the user can assign and change keyboard
+    shortcuts, and manages cases where for example a menu item should be
+    directed to different plugins under different circumstances, as well as a
+    few other things.
+
+    \snippet exampleplugin/example.cpp plugin functions
+
+    The base class defines further functions that are called during the life
+    cycle of a plugin, which are here implemented for your new plugin. These
+    functions and their roles are described in detail in
+    \l{Plugin Life Cycle}.
 
     \snippet exampleplugin/example.cpp slot implementation
 

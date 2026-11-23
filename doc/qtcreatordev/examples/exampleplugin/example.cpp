@@ -1,19 +1,20 @@
-#include "example.h"
-
 #include "exampleconstants.h"
 #include "examplefunctions.h"
+#include "exampletr.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <QAction>
-#include <QMessageBox>
 #include <QMainWindow>
 #include <QMenu>
+#include <QMessageBox>
 
 //! [test include]
 #ifdef WITH_TESTS
@@ -21,8 +22,11 @@
 #endif
 //! [test include]
 
-namespace Example {
-namespace Internal {
+using namespace Core;
+
+//! [namespaces]
+namespace Example::Internal {
+//! [namespaces]
 
 //! [plugin tests]
 #ifdef WITH_TESTS
@@ -40,76 +44,91 @@ private slots:
 #endif
 //! [plugin tests]
 
-ExamplePlugin::ExamplePlugin()
+//! [base class]
+class ExamplePlugin final : public ExtensionSystem::IPlugin
 {
-    // Create your members
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Example.json")
+//! [base class]
 
-ExamplePlugin::~ExamplePlugin()
-{
-    // Unregister objects from the plugin manager's object pool
-    // Delete members
-}
+public:
+    ExamplePlugin() = default;
 
-bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorString)
-{
-    // Register objects in the plugin manager's object pool
-    // Load settings
-    // Add actions to menus
-    // Connect to other plugins' signals
-    // In the initialize function, a plugin can be sure that the plugins it
-    // depends on have initialized their members.
+    ~ExamplePlugin() final
+    {
+        // Unregister objects from the plugin manager's object pool
+        // Other cleanup, if needed.
+    }
 
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+//! [initialize]
+    void initialize() final
+    {
+        // Set up this plugin's factories, if needed.
+        // Register objects in the plugin manager's object pool, if needed. (rare)
+        // Load settings
+        // Add actions to menus
+        // Connect to other plugins' signals
+        // In the initialize function, a plugin can be sure that the plugins it
+        // depends on have passed their initialize() phase.
+
+        // If you need access to command line arguments or to report errors, use the
+        //    Utils::Result<> IPlugin::initialize(const QStringList &arguments)
+        // overload.
+//! [initialize]
+
+//! [add menu]
+        ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
+        menu->menu()->setTitle(Tr::tr("Example"));
+        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+//! [add menu]
 
 //! [add action]
-    auto action = new QAction(tr("Example Action"), this);
-    Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
-                                                             Core::Context(Core::Constants::C_GLOBAL));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
-    connect(action, &QAction::triggered, this, &ExamplePlugin::triggerAction);
+        ActionBuilder(this, Constants::ACTION_ID)
+            .addToContainer(Constants::MENU_ID)
+            .setText(Tr::tr("Example Action"))
+            .setDefaultKeySequence(Tr::tr("Ctrl+Alt+Meta+A"))
+            .addOnTriggered(this, &ExamplePlugin::triggerAction);
 //! [add action]
-//! [add menu]
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(tr("Example"));
-    menu->addAction(cmd);
-    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-//! [add menu]
 
 //! [register tests]
 #ifdef WITH_TESTS
-    addTest<MyPluginTests>();
+        addTest<MyPluginTests>();
 #endif
-    //! [register tests]
-    return true;
-}
+//! [register tests]
+    }
 
-void ExamplePlugin::extensionsInitialized()
-{
-    // Retrieve objects from the plugin manager's object pool
-    // In the extensionsInitialized function, a plugin can be sure that all
-    // plugins that depend on it are completely initialized.
-}
+//! [plugin functions]
+    void extensionsInitialized() final
+    {
+        // Retrieve objects from the plugin manager's object pool, if needed. (rare)
+        // In the extensionsInitialized function, a plugin can be sure that all
+        // plugins that depend on it have passed their initialize() and
+        // extensionsInitialized() phase.
+    }
 
-ExtensionSystem::IPlugin::ShutdownFlag ExamplePlugin::aboutToShutdown()
-{
-    // Save settings
-    // Disconnect from signals that are not needed during shutdown
-    // Hide UI (if you add UI that is not in the main window directly)
-    return SynchronousShutdown;
-}
+    ShutdownFlag aboutToShutdown() final
+    {
+        // Save settings
+        // Disconnect from signals that are not needed during shutdown
+        // Hide UI (if you add UI that is not in the main window directly)
+        return SynchronousShutdown;
+    }
+//! [plugin functions]
 
 //! [slot implementation]
-void ExamplePlugin::triggerAction()
-{
-    QMessageBox::information(Core::ICore::mainWindow(),
-                             tr("Action Triggered"),
-                             tr("This is an action from Example."));
-}
+private:
+    void triggerAction()
+    {
+        QMessageBox::information(ICore::dialogParent(),
+                                 Tr::tr("Action Triggered"),
+                                 Tr::tr("This is an action from Example."));
+    }
 //! [slot implementation]
+};
 
-} // namespace Internal
+} // namespace Example::Internal
+
+namespace Example {
 
 //! [exported function]
 int addOne(int i)
@@ -121,7 +140,5 @@ int addOne(int i)
 } // namespace Example
 
 //! [include moc]
-#ifdef WITH_TESTS
 #include "example.moc"
-#endif
 //! [include moc]

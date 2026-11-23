@@ -3,12 +3,9 @@
 
 #pragma once
 
-namespace Example {
-namespace Constants {
+namespace Example::Constants {
 
 const char ACTION_ID[] = "Example.Action";
 const char MENU_ID[] = "Example.Menu";
 
-} // namespace Constants
-} // namespace Example
-
+} // namespace Example::Constants

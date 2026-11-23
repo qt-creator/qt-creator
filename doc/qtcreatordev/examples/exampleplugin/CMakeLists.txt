@@ -11,13 +11,14 @@ project(Example)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 #! [2]
 
 #! [3]
-find_package(QtCreator COMPONENTS Core REQUIRED)
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
-set(QtX Qt${QT_VERSION_MAJOR})
+find_package(QtCreator REQUIRED COMPONENTS Core)
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
 #! [3]
 
 #! [5]
@@ -29,7 +30,8 @@ option(WITH_TESTS "Builds with tests" NO)
 
 if(WITH_TESTS)
   # Look for QtTest
-  find_package(${QtX} REQUIRED COMPONENTS Test)
+  find_package(Qt6 REQUIRED COMPONENTS Test)
+
   # Tell CMake functions like add_qtc_plugin about the QtTest component.
   set(IMPLICIT_DEPENDS Qt::Test)
 
@@ -43,7 +45,7 @@ add_qtc_plugin(Example
   PLUGIN_DEPENDS
     QtCreator::Core
   DEPENDS
-    ${QtX}::Widgets
+    Qt::Widgets
     QtCreator::ExtensionSystem
     QtCreator::Utils
   SOURCES
@@ -51,10 +53,10 @@ add_qtc_plugin(Example
     .github/workflows/README.md
     README.md
     example.cpp
-    example.h
     example_global.h
     exampleconstants.h
     examplefunctions.h
+    exampletr.h
 )
 #! [4]
 
