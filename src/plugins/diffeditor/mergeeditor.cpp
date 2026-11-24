@@ -550,12 +550,19 @@ static Result combineDisjointEdits(const Sequence &base, const Sequence &ours, c
     const auto incoming = findMergeEdit(base, theirs);
     if (!current || !incoming)
         return {};
-    const auto &[first, second] = current->start <= incoming->start
+    const auto &[first, second] = std::tie(current->start, current->end)
+                                   <= std::tie(incoming->start, incoming->end)
         ? std::tie(*current, *incoming) : std::tie(*incoming, *current);
-    if (first.end > second.start
-        || (first.end == second.start
-            && (first.start == first.end || second.start == second.end))) {
+    if (first.end > second.start)
         return {};
+
+    const bool firstInserts = first.start == first.end;
+    const bool secondInserts = second.start == second.end;
+    if (first.end == second.start && (firstInserts || secondInserts)) {
+        // A whole-line insertion at an edit boundary has a clear position.
+        // Two insertions at the same position have no defined order.
+        if (!std::is_same_v<Sequence, QStringList> || (firstInserts && secondInserts))
+            return {};
     }
 
     if constexpr (std::is_same_v<Sequence, QStringView>) {
@@ -2425,6 +2432,31 @@ void MergeEditorTest::testCombineChanges_data()
     QTest::newRow("same-exponent")
         << QString("x = 1e-10;") << QString("x = 2e-10;") << QString("x = 1e-20;")
         << QString() << false;
+    QTest::newRow("insert-before-deleted-line")
+        << QString("this line is deleted in ours") << QString()
+        << QString("this line is added in incoming\nthis line is deleted in ours")
+        << QString("this line is added in incoming") << true;
+    QTest::newRow("insert-before-deleted-line-merge-style")
+        << QString("old line") << QString() << QString("new line\nold line")
+        << QString("new line") << false;
+    QTest::newRow("insert-after-deleted-line")
+        << QString("old line") << QString("old line\nnew line") << QString()
+        << QString("new line") << true;
+    QTest::newRow("insert-before-edited-line")
+        << QString("old line") << QString("edited line") << QString("new line\nold line")
+        << QString("new line\nedited line") << true;
+    QTest::newRow("insert-after-edited-line")
+        << QString("old line") << QString("old line\nnew line") << QString("edited line")
+        << QString("edited line\nnew line") << false;
+    QTest::newRow("delete-next-to-edited-line")
+        << QString("delete this\nold line") << QString("old line")
+        << QString("delete this\nedited line") << QString("edited line") << true;
+    QTest::newRow("both-insert-before-line")
+        << QString("old line") << QString("current line\nold line")
+        << QString("incoming line\nold line") << QString() << true;
+    QTest::newRow("insert-inside-deletion")
+        << QString("first deleted\nsecond deleted") << QString()
+        << QString("first deleted\nnew line\nsecond deleted") << QString() << true;
     QTest::newRow("ambiguous-deletion")
         << QString("int list[] = {1, 1, 2};") << QString("int list[] = {1, 2};")
         << QString("int list[] = {1, 1, 3};") << QString() << true;
@@ -2438,16 +2470,24 @@ void MergeEditorTest::testCombineChanges()
     QFETCH(QString, combined);
     QFETCH(bool, diff3);
 
-    const QString markers = "<<<<<<< HEAD\n" + current + '\n'
-        + (diff3 ? "||||||| BASE\n" + base + '\n' : QString())
-        + "=======\n" + incoming + "\n>>>>>>> topic\n";
+    // Add context for an empty side so the snapshots agree on the final newline.
+    const bool emptySide = current.isEmpty() || incoming.isEmpty();
+    const QString prefix = emptySide ? QString("this is the old text\n") : QString();
+    const QString suffix = emptySide ? QString("this continues the old text\n") : QString();
+    const auto lines = [](const QString &hunk) {
+        return hunk.isEmpty() ? QString() : QString(hunk + '\n');
+    };
+    const QString markers = prefix + "<<<<<<< HEAD\n" + lines(current)
+        + (diff3 ? "||||||| BASE\n" + lines(base) : QString())
+        + "=======\n" + lines(incoming) + ">>>>>>> topic\n" + suffix;
     TextDocumentPtr source(new TextDocument("merge-combine-test"));
     QVERIFY(source->setPlainText(markers));
     MergeInput input;
     input.resultDocument = source;
-    const auto snapshot = [](const QString &text) {
-        return [text](const MergeInput::SnapshotCallback &callback) {
-            callback(MergeSnapshot{true, text + '\n', "test"});
+    const auto snapshot = [&](const QString &text) {
+        return [contents = QString(prefix + lines(text) + suffix)](
+                   const MergeInput::SnapshotCallback &callback) {
+            callback(MergeSnapshot{true, contents, "test"});
         };
     };
     input.fetchBase = snapshot(base);
@@ -2475,7 +2515,7 @@ void MergeEditorTest::testCombineChanges()
     QVERIFY(combine->toolTip().contains(combined.toHtmlEscaped()));
     const QString unresolved = result->toPlainText();
     combine->click();
-    QCOMPARE(result->toPlainText(), combined + '\n');
+    QCOMPARE(result->toPlainText(), QString(prefix + combined + '\n' + suffix));
     QCOMPARE(source->plainText(), markers);
     result->undo();
     QCOMPARE(result->toPlainText(), unresolved);
