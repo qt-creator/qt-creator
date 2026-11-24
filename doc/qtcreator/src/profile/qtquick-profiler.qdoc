@@ -16,7 +16,7 @@
 
     \title Profile QML applications
 
-    With QML Profiler, you can find causes for typical performance problems
+    With QML Profiling, you can find causes for typical performance problems
     in your applications, such as slowness and unresponsive, stuttering user
     interfaces.
 
@@ -32,44 +32,38 @@
             must install Qt libraries on them.
 
             \endif
-        \li Go to \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
-            current application.
-            \image {qtcreator-qml-profiler-toolbar.webp} {QML Profiler}
-        \li Select
-            \inlineimage {icons/qtcreator-analyze-start-button.png} {Start QML Profiler analysis}
-            (\uicontrol Start) to start the application from QML Profiler.
+        \li Go to \uicontrol Profile to open the Profile mode. The start page
+            lists the profiling options.
+        \li In \uicontrol Backend, select \uicontrol {QML Profiling}.
+        \li In the target selector, select \uicontrol {Startup Project} to
+            profile the current project, or \uicontrol {Custom Executable}
+            to profile another application.
+        \li Select \uicontrol {Start Recording} to start the application and
+            collect data. To start the application without collecting data, select
+            \uicontrol {Start Paused}.
     \endlist
 
-    QML Profiler immediately begins to collect data, as indicated by
-    the time running in the \uicontrol Elapsed field.
+    While the application runs, the recording page shows the time that the
+    recording has been running. Select \uicontrol Pause to pause the data
+    collection without ending it, and \uicontrol Resume to continue.
 
-    \note If data collection does not start automatically, select
-    \inlineimage {icons/recordfill.png} {Enable Profiling}
-    (\uicontrol {Enable Profiling}).
-
-    Data is collected until you select
-    \inlineimage {icons/recordfill.png} {Disable Profiling}
-    (\uicontrol {Disable Profiling}).
-    Data collection takes time, so expect a delay before seeing data.
+    Select \uicontrol {Stop Recording} to stop and open the collected data in a
+    trace editor. Data collection takes time, so expect a delay before seeing
+    data.
 
     Do not use application commands to exit the application because data is
-    sent to QML Profiler when you select
-    \inlineimage {icons/recordfill.png} {Disable Profiling}. The application
+    sent to \QC when you select \uicontrol {Stop Recording}. The application
     stops in seconds. If you exit the application, the data is not sent.
 
-    Select \uicontrol {Disable Profiling} to disable the automatic start of the
-    data collection when an application is launched. Data collection starts when
-    you select the button again.
+    \image {qtcreator-qml-profiler-toolbar.webp} {Trace editor tabs and toolbar}
 
     \section1 Save and load data
 
-    To save all the collected data in the \c .qzt format, go to
-    \uicontrol Analyze > \uicontrol {QML Profiler Options} and select
-    \uicontrol {Save QML Trace}.
+    To view data that you saved earlier, select \uicontrol {Load Trace File} on
+    the start page, or open the file as you would open any other file. \QC
+    loads \c .qtd and \c .qzt files and shows them in the trace editor.
 
-    To view the saved data, select \uicontrol {Load QML Trace}.
-
-    You can also deliver \c .qzt files to others for examination
+    You can also deliver trace files to others for examination
     or load files that you receive from them.
 
     \section1 Flush data while profiling
@@ -78,14 +72,15 @@
     for each project.
 
     To set global preferences, go to \preferences >
-    \uicontrol Analyzer > \uicontrol {QML Profiler}.
+    \uicontrol Analyzer > \uicontrol {QML Profiling}.
 
-    To specify custom QML Profiler settings for a particular project:
+    \image {qml-profiler-settings.png} {QML Profiling preferences}
+
+    To specify custom QML Profiling settings for a particular project:
 
     \list 1
         \li Go to \uicontrol Projects > \uicontrol {Run Settings}.
-        \li In \uicontrol {QML Profiler Settings}, select \uicontrol Custom.
-            \image {qml-profiler-settings.png} {QML Profiler Settings}
+        \li In \uicontrol {QML Profiling Settings}, select \uicontrol Custom.
     \endlist
 
     You can set the following preferences:
@@ -114,6 +109,10 @@
             the profiling stops when one of the engines stops.
     \endtable
 
+    The \uicontrol {Target frame rate} and the \uicontrol Report settings
+    set the thresholds for the performance rating on the \uicontrol Dashboard
+    tab and for the entries on the \uicontrol Findings tab.
+
     To restore the global settings for the project, select
     \uicontrol {Restore Global}.
 
@@ -131,15 +130,15 @@
 
     \list 1
         \li Go to \uicontrol Analyze >
-            \uicontrol {QML Profiler (Attach to Waiting Application)}.
-            \image {qml-profiler-start-dialog.png} {Start QML Profiler dialog}
+            \uicontrol {QML Profiling (Attach to Waiting Application)}.
+            \image {qml-profiler-start-dialog.png} {Start QML Profiling dialog}
          \li In \uicontrol Kit, select the kit used to build the application.
          \li In \uicontrol Port, specify the port to listen to.
          \li Select \uicontrol OK.
     \endlist
 
     \if defined(qtcreator)
-    \sa {Profile}{How to: Profile}, {Profiling applications}, {QML Profiler}
+    \sa {Profile}{How to: Profile}, {Profiling applications}, {QML Profiling}
 
     \endif
 */
@@ -150,11 +149,11 @@
 
     \ingroup profiling-tools
 
-    \title QML Profiler
+    \title QML Profiling
 
     \brief Improve the performance of QML applications.
 
-    With QML Profiler, you can find causes for typical performance problems
+    With QML Profiling, you can find causes for typical performance problems
     in your applications, such as slowness and unresponsive, stuttering user
     interfaces. Typical causes include executing too much JavaScript in too few
     frames. All JavaScript must return before the GUI thread can proceed, and
@@ -165,7 +164,7 @@
 
     Triggering long-running C++ functions, such as paint methods and signal
     handlers, also takes time in the GUI thread, but is more difficult to see in
-    QML Profiler because it does not profile C++ code.
+    QML Profiling because it does not profile C++ code.
 
     To find excessive use of JavaScript, check the frame rate in animations and
     Scene Graph events, look for gaps, and check whether the application behaves
@@ -196,10 +195,26 @@
 
     \section1 Analyzing collected data
 
+    The trace editor has the following tabs:
+
+    \list
+        \li \uicontrol Dashboard shows a performance rating from 0 to 100 and the
+            factors that it is made of, such as UI responsiveness, frame
+            consistency, stutter prevention, and startup speed.
+        \li \uicontrol Timeline shows graphical representations of QML and
+            JavaScript execution and a condensed view of all recorded events.
+        \li \uicontrol {QML Flame Graph} and \uicontrol Statistics summarize
+            the events.
+        \li \uicontrol {Quick3D Frame} shows the Qt Quick 3D frames.
+        \li \uicontrol Findings lists likely performance problems that \QC
+            detected in the data. Select a finding to go to the cause in the
+            source code.
+    \endlist
+
     The \uicontrol Timeline view displays graphical representations of QML and
     JavaScript execution and a condensed view of all recorded events.
 
-    \image {qtcreator-qml-profiler.webp} {QML Profiler}
+    \image {qtcreator-qml-profiler.webp} {QML Profiling}
 
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and

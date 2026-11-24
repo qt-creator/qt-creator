@@ -30,7 +30,7 @@
     the \uicontrol Debug mode. Switch between tools by selecting them in the menu
     on the toolbar.
 
-    \image {qtcreator-performance-analyzer-toolbar.webp} {Performance Analyzer in Profile mode}
+    \image {qtcreator-performance-analyzer-toolbar.webp} {CPU Sampling in Profile mode}
 
     Drag the views to new positions on the screen. The size and position of
     views are saved for future sessions. Select \uicontrol View >

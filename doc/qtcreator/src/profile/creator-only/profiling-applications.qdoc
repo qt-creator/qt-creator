@@ -43,12 +43,12 @@
         \li Explore traces that third-party tools generate in Chrome Trace
             Format.
      \row
-        \li \l{Performance Analyzer}
+        \li \l{CPU Sampling}
         \li Any
         \li Analyze the CPU and memory usage of an application on Linux desktop
             and embedded devices.
     \row
-        \li \l{QML Profiler}
+        \li \l{QML Profiling}
         \li QML, JavaScript
         \li Find causes for typical performance problems in your applications,
             such as slowness and unresponsiveness.
@@ -60,7 +60,7 @@
     is especially useful when viewing large trace files that are difficult to
     visualize using the built-in trace-viewer (\c{chrome://tracing}).
 
-    Tracing information can tell you more about the data that \l{QML Profiler}
+    Tracing information can tell you more about the data that \l{QML Profiling}
     collects. For example, you can check why a trivial binding evaluation is
     taking so long. This might be caused by C++ being executed or the disk I/O
     being slow.
@@ -76,12 +76,12 @@
         \li \l{KDAB: Full Stack Tracing Part 1}
     \endlist
 
-   \section1 Using Performance Analyzer
+   \section1 Using CPU Sampling
 
-    On Linux, use Performance Analyzer to analyze the CPU and memory
+    On Linux, use CPU Sampling to analyze the CPU and memory
     usage of an application on Linux desktop and embedded devices.
 
-    Performance Analyzer uses the Perf tool bundled with the Linux kernel to
+    CPU Sampling uses the Perf tool bundled with the Linux kernel to
     take periodic snapshots of the call chain of an application and visualizes
     them in a timeline view or as a flame graph.
 
@@ -89,16 +89,16 @@
 
     \list
         \li \l{Analyze CPU usage}
-        \li \l{Performance Analyzer}
+        \li \l{CPU Sampling}
     \endlist
 
-    \section1 Using QML Profiler
+    \section1 Using QML Profiling
 
-    Use QML Profiler to inspect binding evaluations and signal handling when
+    Use QML Profiling to inspect binding evaluations and signal handling when
     running QML code. This helps you identify performance bottlenecks that are
     difficult to spot through code inspection alone.
 
-    QML Profiler records events, such as signal handling, binding evaluations,
+    QML Profiling records events, such as signal handling, binding evaluations,
     and JavaScript execution, and visualizes them in a timeline view. This
     is useful for diagnosing slowness and unresponsiveness.
 
@@ -106,7 +106,7 @@
 
     \list
         \li \l{Profile QML applications}
-        \li \l{QML Profiler}
+        \li \l{QML Profiling}
     \endlist
 
     \sa {Profile}{How to: Profile}

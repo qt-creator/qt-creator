@@ -34,7 +34,7 @@
     You can use the following tools:
 
     \list
-        \li QML Profiler
+        \li QML Profiling
         \li Perf
         \li Chrome Trace Format (CTF) visualizer
     \endlist
