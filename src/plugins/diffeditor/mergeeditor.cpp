@@ -795,14 +795,17 @@ public:
                     m_updateTimer.start();
                 });
         connect(m_resultWidget, &Utils::PlainTextEdit::cursorPositionChanged,
-                this, [this] { updateActions(); });
+                this, [this] {
+                    m_reviewingResolution = false;
+                    updateActions();
+                });
         connect(&m_updateTimer, &QTimer::timeout, this, &MergeEditor::updateResultState);
         m_updateTimer.setSingleShot(true);
         m_updateTimer.setInterval(150);
 
         m_recenterTimer.setSingleShot(true);
         connect(&m_recenterTimer, &QTimer::timeout, this, [this] {
-            if (isDraggingScrollBar())
+            if (m_reviewingResolution || isDraggingScrollBar())
                 return;
             if (!m_resultConflicts.isEmpty())
                 gotoHunk(m_resultConflicts.at(m_currentConflict).firstLine);
@@ -1044,7 +1047,8 @@ private:
                             continue;
                         const int id = m_regionConflictIds.value(region.id, -1);
                         for (int i = 0; i < m_resultConflicts.size(); ++i) {
-                            if (m_resultConflicts.at(i).id == id && i != m_currentConflict) {
+                            if (m_resultConflicts.at(i).id == id
+                                && (m_reviewingResolution || i != m_currentConflict)) {
                                 gotoHunk(m_resultConflicts.at(i).firstLine);
                                 return;
                             }
@@ -1217,7 +1221,9 @@ private:
             guard->m_resultRenderModel = async.result().renderModel;
             guard->applyResultDecorations(guard->m_resultRenderModel);
             guard->updateCollapsedLines();
-            if (guard->m_alignAfterUpdate) {
+            if (guard->m_reviewingResolution) {
+                guard->m_resultWidget->ensureCursorVisible();
+            } else if (guard->m_alignAfterUpdate) {
                 guard->m_alignAfterUpdate = false;
                 guard->alignSourceViews(guard->currentCursorLine());
                 guard->centerActiveConflictViews();
@@ -1703,7 +1709,8 @@ private:
             [cursorLine](const ResultConflict &conflict) {
                 return conflict.firstLine <= cursorLine && cursorLine <= conflict.lastLine;
             });
-        const bool hasCurrentConflict = m_model.computed && hasConflict && activeConflict != m_resultConflicts.cend();
+        const bool hasCurrentConflict = m_model.computed && !m_reviewingResolution
+            && activeConflict != m_resultConflicts.cend();
         if (hasCurrentConflict)
             m_currentConflict = int(activeConflict - m_resultConflicts.cbegin());
         m_oursAction->setEnabled(hasCurrentConflict);
@@ -1739,6 +1746,9 @@ private:
                         ? Tr::tr("All conflicts resolved. Review and mark resolved to stage.")
                         : Tr::tr("All conflicts resolved. Save the result to continue."));
                 }
+            } else if (m_reviewingResolution) {
+                m_statusLabel->setText(Tr::tr("%n unresolved conflict(s)", nullptr,
+                                             m_resultConflicts.size()));
             } else {
                 m_statusLabel->setText(Tr::tr("Conflict %1 of %2 - %n unresolved conflict(s)",
                                              nullptr, m_resultConflicts.size())
@@ -1755,7 +1765,7 @@ private:
             return;
         int id = -1;
         int line = 1;
-        if (!m_resultConflicts.isEmpty()) {
+        if (!m_reviewingResolution && !m_resultConflicts.isEmpty()) {
             const ResultConflict &conflict = m_resultConflicts.at(m_currentConflict);
             id = conflict.id;
             line = conflict.firstLine;
@@ -1833,7 +1843,9 @@ private:
     {
         const QList<int> lines = navigationLines();
         for (int line : lines) {
-            if (line > currentCursorLine()) {
+            if (line > currentCursorLine()
+                || (m_reviewingResolution && !m_resultConflicts.isEmpty()
+                    && line == currentCursorLine())) {
                 gotoHunk(line);
                 return;
             }
@@ -1844,6 +1856,7 @@ private:
 
     void gotoHunk(int line)
     {
+        m_reviewingResolution = false;
         const QScopedValueRollback guard(m_synchronizingScroll, true);
         gotoLine(m_resultWidget, line);
         alignSourceViews(line);
@@ -1943,6 +1956,7 @@ private:
         if (!first.isValid() || !last.isValid())
             return;
 
+        const QScopedValueRollback guard(m_synchronizingScroll, true);
         QTextCursor cursor(document);
         cursor.beginEditBlock();
         cursor.setPosition(first.position());
@@ -1985,6 +1999,11 @@ private:
         }
         cursor.endEditBlock();
 
+        cursor.setPosition(replacementStart);
+        m_resultWidget->setTextCursor(cursor);
+        m_reviewingResolution = true;
+        m_alignAfterUpdate = false;
+        m_recenterTimer.stop();
         updateResultState();
         m_resultWidget->setFocus();
     }
@@ -2121,6 +2140,7 @@ private:
     QList<int> m_theirsLineMapping;
     int m_mappingRevision = -1;
     bool m_alignAfterUpdate = false;
+    bool m_reviewingResolution = false;
     QList<int> m_controlIds;
     QList<QPointer<QWidget>> m_controlRows;
     std::vector<std::unique_ptr<EmbeddedWidgetInterface>> m_conflictControls;
@@ -2848,6 +2868,22 @@ void MergeEditorTest::testMergeEditorActiveConflictAndResize()
     QTRY_COMPARE(result->activeConflictId(), 0);
     QCOMPARE(ours->activeConflictId(), 0);
     QCOMPARE(theirs->activeConflictId(), 0);
+
+    auto *takeCurrent = result->findChild<QToolButton *>("MergeEditor.Conflict.0.Current");
+    QTRY_VERIFY(takeCurrent && takeCurrent->isVisible());
+    takeCurrent->click();
+    QTRY_VERIFY(Utils::anyOf(result->textDocument()->marks(), [](const TextMark *mark) {
+        return mark->category().id == Utils::Id("DiffEditor.ResolvedMergeHunk");
+    }));
+    QCOMPARE(result->textCursor().block().text(), QString("one ours"));
+    QCOMPARE(result->activeConflictId(), -1);
+    splitter->resize(1100, 700);
+    QCoreApplication::processEvents();
+    QCOMPARE(result->textCursor().block().text(), QString("one ours"));
+    QVERIFY(result->viewport()->rect().intersects(result->cursorRect()));
+
+    next->click();
+    QTRY_COMPARE(result->activeConflictId(), 1);
 }
 
 void MergeEditorTest::testMergeEditorPaddingAfterResolution()
