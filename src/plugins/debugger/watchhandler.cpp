@@ -2096,7 +2096,7 @@ void WatchModel::saveMemoryToFile(WatchItem *item)
     const quint64 address = item->address;
     const quint64 size = item->size;
     FilePath dir = m_engine->runParameters().inferior().workingDirectory;
-    if (dir.isEmpty() || dir.needsDevice())
+    if (dir.isEmpty() || !dir.isLocal())
         dir = FileUtils::homePath();
     const FilePath defaultPath = dir / (FileUtils::fileSystemFriendlyName(name) + ".bin");
     const FilePath filePath
