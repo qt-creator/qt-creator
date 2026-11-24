@@ -42,7 +42,7 @@ QVariant QtTestTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (type() == Root)
+        if (type() == Root || type() == GroupNode)
             break;
         return QVariant(name() + nameSuffix());
     case Qt::ToolTipRole: {

@@ -106,7 +106,7 @@ QVariant GTestTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DisplayRole: {
-        if (type() == TestTreeItem::Root)
+        if (type() == TestTreeItem::Root || type() == TestTreeItem::GroupNode)
             break;
 
         const QString &displayName = (m_state & Disabled) ? name().mid(9) : name();

@@ -22,6 +22,7 @@
 #include "qtest/qttest_utils.h"
 #include "qtest/qttestconfiguration.h"
 #include "qtest/qttestframework.h"
+#include "qtest/qttesttreeitem.h"
 #include "quick/quicktestconfiguration.h"
 #include "quick/quicktestframework.h"
 
@@ -595,6 +596,8 @@ private slots:
     void testFilterInterfering();
     void testFilterInterfering_data();
     void testFilterInterferingWithoutOmitted();
+    void testGroupNodesWithTheSameNameShowTheirParents();
+    void testGroupNodeLabelsFollowTheirSiblings();
 };
 
 void QtTestUtilsTest::testFilterInterfering()
@@ -650,6 +653,61 @@ void QtTestUtilsTest::testFilterInterferingWithoutOmitted()
     QCOMPARE(QTestUtils::filterInterfering({"-maxwarnings", "500", "-iterations", "5"},
                                            nullptr, false),
              QStringList({"-iterations", "5"}));
+}
+
+void QtTestUtilsTest::testGroupNodesWithTheSameNameShowTheirParents()
+{
+    QtTestFramework &framework = theQtTestFramework();
+    QtTestTreeItem root(&framework);
+    const auto group = [&](const QString &name, const QString &dir) {
+        auto item = new QtTestTreeItem(&framework, name, FilePath::fromString(dir),
+                                       TestTreeItem::GroupNode);
+        root.appendChild(item);
+        return item;
+    };
+    const TestTreeItem *core = group("test", "/p/libs/core/test");
+    const TestTreeItem *gui = group("test", "/p/libs/gui/test");
+    const TestTreeItem *apps = group("test", "/p/apps/gui/test");
+    const TestTreeItem *other = group("other", "/p/other");
+
+    const auto label = [](const QString &portable) {
+        return portable.split('/').join(FilePath::fromString("/p").pathComponentSeparator());
+    };
+    QCOMPARE(core->data(0, Qt::DisplayRole).toString(), label("core/test"));
+    QCOMPARE(gui->data(0, Qt::DisplayRole).toString(), label("libs/gui/test"));
+    QCOMPARE(apps->data(0, Qt::DisplayRole).toString(), label("apps/gui/test"));
+    QCOMPARE(other->data(0, Qt::DisplayRole).toString(), "other");
+}
+
+void QtTestUtilsTest::testGroupNodeLabelsFollowTheirSiblings()
+{
+    TestTreeModel *model = TestTreeModel::instance();
+    QtTestFramework &framework = theQtTestFramework();
+    TestTreeItem *root = framework.rootNode();
+    if (!root->parent())
+        QSKIP("The Qt Test framework is not active");
+    const auto group = [&](const QString &dir) {
+        auto item = new QtTestTreeItem(&framework, "test", FilePath::fromString(dir),
+                                       TestTreeItem::GroupNode);
+        root->appendChild(item);
+        return item;
+    };
+    TestTreeItem *core = group("/p/libs/core/test");
+    TestTreeItem *gui = group("/p/libs/gui/test");
+    const QModelIndex coreIndex = model->indexForItem(core);
+    QCOMPARE(model->data(coreIndex, Qt::DisplayRole).toString(),
+             QString("core").append(root->filePath().pathComponentSeparator()).append("test"));
+
+    QSignalSpy dataChangedSpy(model, &QAbstractItemModel::dataChanged);
+    gui->markForRemoval(true);
+    model->sweep();
+    QCOMPARE(model->data(coreIndex, Qt::DisplayRole).toString(), "test");
+    QVERIFY(Utils::anyOf(dataChangedSpy, [&](const QList<QVariant> &args) {
+        return args.at(0).toModelIndex() == coreIndex;
+    }));
+
+    core->markForRemoval(true);
+    model->sweep();
 }
 
 class TestOutputReaderTest : public QObject

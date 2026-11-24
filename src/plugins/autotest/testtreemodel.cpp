@@ -503,6 +503,15 @@ void TestTreeModel::synchronizeTestTools()
     emit updatedActiveFrameworks(invisibleRoot->childCount());
 }
 
+// The display text of a group node depends on the group nodes with the same name next to it.
+static void updateGroupNodeSiblings(TestTreeItem *parent, const QString &name)
+{
+    parent->forFirstLevelChildItems([&name](TestTreeItem *sibling) {
+        if (sibling->type() == TestTreeItem::GroupNode && sibling->name() == name)
+            sibling->update();
+    });
+}
+
 void TestTreeModel::filterAndInsert(TestTreeItem *item, TestTreeItem *root, bool groupingEnabled)
 {
     TestTreeItem *filtered = item->applyFilters();
@@ -530,8 +539,11 @@ void TestTreeModel::rebuild(const QList<Id> &frameworkIds)
                     takeItem(childTestItem);
                     filterAndInsert(childTestItem, frameworkRoot, groupingEnabled);
                 }
-                if (!groupingEnabled || testItem->childCount() == 0)
+                if (!groupingEnabled || testItem->childCount() == 0) {
+                    const QString name = testItem->name();
                     delete takeItem(testItem);
+                    updateGroupNodeSiblings(frameworkRoot, name);
+                }
             } else {
                 takeItem(testItem);
                 filterAndInsert(testItem, frameworkRoot, groupingEnabled);
@@ -653,13 +665,21 @@ bool TestTreeModel::sweepChildren(TestTreeItem *item)
         TestTreeItem *child = item->childItem(row);
 
         if (child->type() != TestTreeItem::Root && child->markedForRemoval()) {
+            const bool isGroup = child->type() == TestTreeItem::GroupNode;
+            const QString name = child->name();
             destroyItem(child);
+            if (isGroup)
+                updateGroupNodeSiblings(item, name);
             revalidateCheckState(item);
             hasChanged = true;
         } else if (child->hasChildren()) {
             hasChanged |= sweepChildren(child);
             if (!child->hasChildren() && child->removeOnSweepIfEmpty()) {
+                const bool isGroup = child->type() == TestTreeItem::GroupNode;
+                const QString name = child->name();
                 destroyItem(child);
+                if (isGroup)
+                    updateGroupNodeSiblings(item, name);
                 revalidateCheckState(item);
             }
         } else {
@@ -703,8 +723,10 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
             parentNode = item->createParentGroupNode();
             if (!QTC_GUARD(parentNode)) // we might not get a group node at all
                 parentNode = root;
-            else
+            else {
                 root->appendChild(parentNode);
+                updateGroupNodeSiblings(root, parentNode->name());
+            }
         }
     }
     // check if a similar item is already present (can happen for rebuild())

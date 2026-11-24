@@ -45,7 +45,7 @@ QVariant CatchTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (type() == Root)
+        if (type() == Root || type() == GroupNode)
             break;
         return QString(nonRootDisplayName(this) + stateSuffix());
     case Qt::CheckStateRole:

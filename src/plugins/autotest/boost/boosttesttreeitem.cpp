@@ -35,7 +35,7 @@ QVariant BoostTestTreeItem::data(int column, int role) const
 {
     switch (role) {
     case Qt::DisplayRole:
-        if (type() == Root)
+        if (type() == Root || type() == GroupNode)
             break;
         return QString(name() + nameSuffix());
     case Qt::CheckStateRole:

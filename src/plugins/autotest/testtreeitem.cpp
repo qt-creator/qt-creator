@@ -9,6 +9,7 @@
 #include "itestparser.h"
 #include "testconfiguration.h"
 
+#include <utils/algorithm.h>
 #include <utils/link.h>
 #include <utils/utilsicons.h>
 
@@ -181,8 +182,39 @@ TestTreeItem::TestTreeItem(ITestFramework *testFramework, const QString &name,
     }
 }
 
+// Group nodes are named after their directory. Where several directories
+// share that name, enough parent directories are added to tell them apart.
+static QString groupNodeDisplayName(const TestTreeItem *item)
+{
+    const TestTreeItem *parent = item->parentItem();
+    if (!parent)
+        return item->name();
+    QList<QStringList> others;
+    for (int row = 0, count = parent->childCount(); row < count; ++row) {
+        const TestTreeItem *sibling = parent->childItem(row);
+        if (sibling != item && sibling->type() == TestTreeItem::GroupNode
+            && sibling->name() == item->name() && sibling->filePath() != item->filePath()) {
+            others.append(sibling->filePath().path().split('/', Qt::SkipEmptyParts));
+        }
+    }
+    if (others.isEmpty())
+        return item->name();
+    const QStringList own = item->filePath().path().split('/', Qt::SkipEmptyParts);
+    for (int length = 2; length < own.size(); ++length) {
+        const QStringList suffix = own.mid(own.size() - length);
+        if (Utils::allOf(others, [&](const QStringList &other) {
+                return other.mid(other.size() - length) != suffix;
+            })) {
+            return suffix.join(item->filePath().pathComponentSeparator());
+        }
+    }
+    return item->filePath().toUserOutput();
+}
+
 QVariant TestTreeItem::data(int column, int role) const
 {
+    if (role == Qt::DisplayRole && type() == GroupNode)
+        return groupNodeDisplayName(this);
     if (role == LinkRole) {
         if (type() == GroupNode)
             return QVariant();
