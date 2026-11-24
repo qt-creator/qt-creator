@@ -7,6 +7,8 @@ add_qtc_plugin(Remote
     connectdevicestep.cpp connectdevicestep.h
     customcommanddeploystep.cpp customcommanddeploystep.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
+    flatpakapi.cpp flatpakapi.h
+    flatpakdevice.cpp flatpakdevice.h
     genericdeploystep.cpp genericdeploystep.h
     genericdirectuploadstep.cpp genericdirectuploadstep.h
     killappstep.cpp killappstep.h
@@ -27,6 +29,7 @@ add_qtc_plugin(Remote
     remotelinuxplugin.cpp
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxtr.h
+    shellcommand.cpp shellcommand.h
     sshconnectionsharing.cpp sshconnectionsharing.h
     sshdevicewizard.cpp sshdevicewizard.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h
@@ -46,6 +49,8 @@ extend_qtc_plugin(Remote
   SOURCES
     filesystemaccess_test.cpp
     filesystemaccess_test.h
+    flatpakapi_test.cpp
+    flatpakapi_test.h
     remoterun_test.cpp
     remoterun_test.h
     windowsdevicedetection_test.cpp
@@ -56,6 +61,8 @@ add_qtc_test(tst_wsl_api
   CONDITION WITH_TESTS
   DEPENDS Utils
   SOURCES
+    shellcommand.cpp
+    shellcommand.h
     tests/tst_wsl_api.cpp
     wslapi.cpp
 )

@@ -9,6 +9,11 @@ inline constexpr char GenericLinuxOsType[] = "GenericLinuxOsType";
 inline constexpr char GenericWindowsOsType[] = "GenericWindowsOsType";
 inline constexpr char GenericMacOsType[] = "GenericMacOsType";
 
+inline constexpr char FlatpakDeviceType[] = "FlatpakHostDeviceType";
+inline constexpr char FlatpakDeviceId[] = "flatpak.host";
+inline constexpr char16_t FlatpakDeviceScheme[] = u"flatpak";
+inline constexpr char16_t FlatpakDeviceHost[] = u"host";
+
 inline constexpr char DeployToGenericLinux[] = "DeployToGenericLinux";
 
 inline constexpr char ConnectStepId[] = "RemoteLinux.ConnectStep";

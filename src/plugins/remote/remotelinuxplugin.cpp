@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "customcommanddeploystep.h"
+#include "flatpakdevice.h"
 #include "killappstep.h"
 #include "linuxdevice.h"
 #include "macdevice.h"
+#include "remotelinux_constants.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeploysupport.h"
@@ -29,6 +31,7 @@
 
 #ifdef WITH_TESTS
 #include "filesystemaccess_test.h"
+#include "flatpakapi_test.h"
 #include "remoterun_test.h"
 #include "windowsdevicedetection_test.h"
 #endif
@@ -59,12 +62,14 @@ public:
     RemoteLinuxPlugin()
     {
         FSEngine::registerDeviceScheme(u"ssh");
+        FSEngine::registerDeviceScheme(Constants::FlatpakDeviceScheme);
         if (HostOsInfo::isWindowsHost())
             FSEngine::registerDeviceScheme(Wsl::Constants::WSL_DEVICE_SCHEME);
     }
 
     ~RemoteLinuxPlugin() final
     {
+        FSEngine::unregisterDeviceScheme(Constants::FlatpakDeviceScheme);
         FSEngine::unregisterDeviceScheme(u"ssh");
         if (HostOsInfo::isWindowsHost())
             FSEngine::unregisterDeviceScheme(Wsl::Constants::WSL_DEVICE_SCHEME);
@@ -77,6 +82,7 @@ public:
         m_linuxDeviceFactory = std::make_unique<LinuxDeviceFactory>();
         m_windowsDeviceFactory = std::make_unique<WindowsDeviceFactory>();
         m_macDeviceFactory = std::make_unique<MacDeviceFactory>();
+        setupFlatpakDevice();
         if (HostOsInfo::isWindowsHost())
             Wsl::Internal::setupWslDevice();
         setupRemoteLinuxRunConfiguration();
@@ -91,6 +97,7 @@ public:
 #ifdef WITH_TESTS
         addTest<AccessViaTest>();
         addTest<FileSystemAccessTest>();
+        addTest<FlatpakApiTest>();
         addTest<RemoteRunTest>();
         addTest<WindowsDeviceDetectionTest>();
 #endif
@@ -98,6 +105,8 @@ public:
 
     void extensionsInitialized() final
     {
+        addMissingFlatpakDevice();
+
         if (!HostOsInfo::isWindowsHost())
             return;
 

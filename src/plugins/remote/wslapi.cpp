@@ -3,6 +3,7 @@
 
 #include "wslapi.h"
 
+#include "shellcommand.h"
 #include "wsltr.h"
 
 #include <utils/environment.h>
@@ -389,15 +390,6 @@ QString wslPathToHostPath(const QString &mountRoot,
     return "//" + QString::fromUtf16(wslLocalhostHost) + '/' + distribution + wslPath;
 }
 
-// What CommandLine::addCommandLineAsArgs(Raw) does, except that the
-// executable is quoted for the distribution rather than for the host: the
-// shell that parses it is the distribution's, and the arguments already are.
-static void addLinuxCommandLineAsArgs(CommandLine *cmd, const CommandLine &inner)
-{
-    cmd->addArg(inner.executable().path(), OsTypeLinux);
-    cmd->addArgs(inner.arguments(), CommandLine::Raw);
-}
-
 CommandLine wslCommandLine(
     const FilePath &wslExecutable,
     const QString &distribution,
@@ -420,42 +412,8 @@ CommandLine wslCommandLine(
     // there to protect.
     wslCmd.addArg("--exec");
 
-    // Around the shell, not around the command inside it: the test below runs
-    // in the shell, and has to look the executable up in the PATH the command
-    // is then run with.
-    if (environment) {
-        wslCmd.addArg("env");
-        environment->forEachEntry(
-            [&wslCmd, &environment](const QString &key, const QString &value, bool enabled) {
-                if (enabled)
-                    wslCmd.addArg(key + '=' + environment->expandVariables(value));
-            });
-    }
-
-    wslCmd.addArgs({"/bin/sh", "-c"});
-
-    CommandLine inner("exec");
-    addLinuxCommandLineAsArgs(&inner, command);
-
-    if (markerTemplate.isEmpty()) {
-        wslCmd.addCommandLineAsSingleArg(inner);
-        return wslCmd;
-    }
-
-    // wsl.exe reports nothing about the command it starts, so the command
-    // reports itself, but only after its executable is found, so that a failed
-    // start is told apart from a command that failed. exec keeps the pid.
-    CommandLine testType({"type", {}});
-    testType.addArg(command.executable().path(), OsTypeLinux);
-    testType.addArgs(">/dev/null", CommandLine::Raw);
-
-    CommandLine echo("echo");
-    echo.addArgs(markerTemplate.arg("$$"), CommandLine::Raw);
-    echo.addCommandLineWithAnd(inner);
-
-    testType.addCommandLineWithAnd(echo);
-
-    wslCmd.addCommandLineAsSingleArg(testType);
+    Remote::Internal::addShellInvocation(
+        &wslCmd, command, environment, markerTemplate, HostOsInfo::hostOs());
     return wslCmd;
 }
 

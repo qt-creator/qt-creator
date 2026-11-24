@@ -22,6 +22,10 @@ Project {
             "connectdevicestep.h",
             "customcommanddeploystep.cpp",
             "customcommanddeploystep.h",
+            "flatpakapi.cpp",
+            "flatpakapi.h",
+            "flatpakdevice.cpp",
+            "flatpakdevice.h",
             "genericdeploystep.cpp",
             "genericdeploystep.h",
             "genericdirectuploadstep.cpp",
@@ -56,6 +60,8 @@ Project {
             "remotelinuxrunconfiguration.cpp",
             "remotelinuxrunconfiguration.h",
             "remotelinuxtr.h",
+            "shellcommand.cpp",
+            "shellcommand.h",
             "sshconnectionsharing.cpp",
             "sshconnectionsharing.h",
             "sshdevicewizard.cpp",
@@ -84,6 +90,8 @@ Project {
             files: [
                 "filesystemaccess_test.cpp",
                 "filesystemaccess_test.h",
+                "flatpakapi_test.cpp",
+                "flatpakapi_test.h",
                 "remoterun_test.cpp",
                 "remoterun_test.h",
                 "windowsdevicedetection_test.cpp",
@@ -122,6 +130,8 @@ Project {
         name: "WSL API test"
         Depends { name: "Utils" }
         files: [
+            "shellcommand.cpp",
+            "shellcommand.h",
             "tests/tst_wsl_api.cpp",
             "wslapi.cpp",
         ]
