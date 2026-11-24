@@ -17,6 +17,7 @@ QuickTransitionItem::QuickTransitionItem(int index, ItemType connectionType, QGr
     : QGraphicsObject(parent)
     , m_connectionType(connectionType)
 {
+    setFlag(ItemStopsClickFocusPropagation);
     setParentItem(parent);
     installSceneEventFilter(parent);
     setZValue(501);

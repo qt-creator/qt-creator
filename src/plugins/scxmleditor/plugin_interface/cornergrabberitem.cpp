@@ -15,6 +15,7 @@ CornerGrabberItem::CornerGrabberItem(QGraphicsItem *parent, Qt::CursorShape csha
     , m_cursorShape(cshape)
 {
     setFlag(ItemIgnoresTransformations, true);
+    setFlag(ItemStopsClickFocusPropagation);
     setParentItem(parent);
     installSceneEventFilter(parent);
     setZValue(500);
