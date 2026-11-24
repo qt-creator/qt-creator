@@ -3,6 +3,7 @@
 
 #include "debuggerrunconfigurationaspect.h"
 
+#include "commonoptionspage.h"
 #include "debuggertr.h"
 
 #include <cppeditor/cppmodelmanager.h>
@@ -140,7 +141,8 @@ static LanguageSelection languagesFor(bool cpp, bool qml, bool python)
 }
 
 DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguration *bc)
-    : m_buildConfiguration(bc)
+    : m_sourcePathMapAspect(new Internal::SourcePathMapAspect(nullptr))
+    , m_buildConfiguration(bc)
 {
     setId("DebuggerAspect");
     setDisplayName(Tr::tr("Debugger Settings"));
@@ -175,6 +177,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
         const auto updateInfoVisibility = [this, info] { info->setVisible(useQmlDebugger()); };
         connect(&m_languagesAspect, &BaseAspect::changed, info, updateInfoVisibility);
         builder.addRow({m_overrideStartupAspect});
+        builder.addRow({*m_sourcePathMapAspect});
 
         static const QString env = qtcEnvironmentVariable("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
@@ -239,6 +242,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCombinedEngine, &Data::useCombinedEngine);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useMultiProcess, &Data::useMultiProcess);
     addDataExtractor(this, &DebuggerRunConfigurationAspect::overrideStartup, &Data::overrideStartup);
+    addDataExtractor(this, &DebuggerRunConfigurationAspect::sourcePathMap, &Data::sourcePathMap);
 
     m_languagesAspect.setSettingsKey("RunConfiguration.DebuggerLanguages");
     m_languagesAspect.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
@@ -295,9 +299,14 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
     m_overrideStartupAspect.setSettingsKey("RunConfiguration.OverrideDebuggerStartup");
     m_overrideStartupAspect.setDisplayStyle(StringAspect::TextEditDisplay);
     m_overrideStartupAspect.setLabelText(Tr::tr("Additional startup commands:"));
+
+    m_sourcePathMapAspect->setSettingsKey("RunConfiguration.SourcePathMap");
 }
 
-DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect() = default;
+DebuggerRunConfigurationAspect::~DebuggerRunConfigurationAspect()
+{
+    delete m_sourcePathMapAspect;
+}
 
 LanguageSelection DebuggerRunConfigurationAspect::languages() const
 {
@@ -459,11 +468,17 @@ QString DebuggerRunConfigurationAspect::overrideStartup() const
     return m_overrideStartupAspect();
 }
 
+QMap<QString, QString> DebuggerRunConfigurationAspect::sourcePathMap() const
+{
+    return (*m_sourcePathMapAspect)();
+}
+
 void DebuggerRunConfigurationAspect::toMap(Store &map) const
 {
     m_languagesAspect.toMap(map);
     m_multiProcessAspect.toMap(map);
     m_overrideStartupAspect.toMap(map);
+    m_sourcePathMapAspect->toMap(map);
 
     // compatibility to settings of Qt Creator 18 and earlier
     if (m_legacyLanguages) {
@@ -500,6 +515,7 @@ void DebuggerRunConfigurationAspect::fromMap(const Store &map)
 {
     m_multiProcessAspect.fromMap(map);
     m_overrideStartupAspect.fromMap(map);
+    m_sourcePathMapAspect->fromMap(map);
 
     m_legacyLanguages.reset();
     m_languagesAspect.fromMap(map);

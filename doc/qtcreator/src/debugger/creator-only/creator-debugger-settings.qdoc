@@ -86,6 +86,11 @@
     \uicontrol Remote from the menu next to \uicontrol Browse, or the device
     from the \uicontrol Devices list in the file dialog.
 
+    The mappings here apply to all projects. To add mappings that only one
+    project needs, such as those for the libraries it uses, go to
+    \uicontrol Projects > \uicontrol {Run Settings} > \uicontrol {Debugger Settings}.
+    They take precedence over the ones here.
+
     \sa {Debug}{How to: Debug}, {Debugging}, {Debuggers}
 */
 

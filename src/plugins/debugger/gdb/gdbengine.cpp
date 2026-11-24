@@ -4151,7 +4151,7 @@ void GdbEngine::handleGdbStarted()
 
     // Apply source path mappings from global options.
     //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
-    const SourcePathMap sourcePathMap = mergePlatformQtPath(rp, settings().sourcePathMap());
+    const SourcePathMap sourcePathMap = mergePlatformQtPath(rp, userSourcePathMap(rp));
     const SourcePathMap completeSourcePathMap =
             mergeStartParametersSourcePathMap(rp, sourcePathMap);
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
@@ -5491,7 +5491,7 @@ static GdbImplSearchPaths gdbImplSearchPaths(const DebuggerRunParameters &rp)
     paths.solibSearchPath = rp.solibSearchPath();
     paths.debugSourceLocation = rp.debugSourceLocation();
     const SourcePathMap sourcePathMap
-        = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+        = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, userSourcePathMap(rp)));
     for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
         paths.sourcePathMap.insert(it.key(), rp.macroExpander()->expand(it.value()));
     return paths;

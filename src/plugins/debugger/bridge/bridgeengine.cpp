@@ -236,7 +236,7 @@ void BridgeEngine::configureTarget()
     const DebuggerRunParameters &rp = runParameters();
     QJsonArray mappings;
     const SourcePathMap sourcePathMap =
-        mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+        mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, userSourcePathMap(rp)));
     for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
         mappings.append(QJsonObject{{"from", it.key()}, {"to", expand(it.value())}});
 
@@ -1318,7 +1318,7 @@ DebuggerEngine *createBridgeEngine(const DebuggerRunParameters &rp)
     if (DebuggerEngine::isUsingGenericDebugger()) {
         QList<QPair<QString, QString>> sourcePathMap;
         const SourcePathMap mergedMap = mergeStartParametersSourcePathMap(
-            rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+            rp, mergePlatformQtPath(rp, userSourcePathMap(rp)));
         for (auto it = mergedMap.cbegin(), end = mergedMap.cend(); it != end; ++it)
             sourcePathMap.append(qMakePair(it.key(),
                                            rp.macroExpander()->expand(it.value())));

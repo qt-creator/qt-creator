@@ -199,7 +199,7 @@ void DisassemblerAgentPrivate::updateSourceForLine(const DisassemblerLines &cont
     if (engine) {
         const DebuggerRunParameters &rp = engine->runParameters();
         const SourcePathMap map = mergeStartParametersSourcePathMap(
-            rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+            rp, mergePlatformQtPath(rp, userSourcePathMap(rp)));
         for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
             sourcePathMap.append(
                 {it.key(), rp.macroExpander() ? rp.macroExpander()->expand(it.value()) : it.value()});

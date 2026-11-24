@@ -376,6 +376,7 @@ private slots:
     void testUnresolvedLegacyLanguagesSurviveASave();
     void testLegacyQmlAndPythonKeepsBothLanguages();
     void testJavaOnlyEnablesNoOtherDebugger();
+    void testProjectSourcePathMap();
     void testAutomaticDebugsAJavaLaunchAsJava();
     void testNativeMixedEnvironmentVariableWins();
     void testOverrideKitDebugger();
@@ -9528,6 +9529,41 @@ void DebuggerUnitTests::testLegacyQmlAndPythonKeepsBothLanguages()
 
     QVERIFY(aspect.useQmlDebugger());
     QVERIFY(aspect.usePythonDebugger());
+}
+
+void DebuggerUnitTests::testProjectSourcePathMap()
+{
+    Store stored;
+    stored.insert("RunConfiguration.SourcePathMap",
+                  QVariantMap{{"/build/lib", "/src/lib"}, {"/build/shared", "/src/project"}});
+    DebuggerRunConfigurationAspect aspect(nullptr);
+    aspect.fromMap(stored);
+    const SourcePathMap projectMap = aspect.sourcePathMap();
+    QCOMPARE(projectMap.value("/build/lib"), "/src/lib");
+
+    Store saved;
+    aspect.toMap(saved);
+    QCOMPARE(saved.value("RunConfiguration.SourcePathMap"),
+             stored.value("RunConfiguration.SourcePathMap"));
+
+    // The project settings reader hands nested maps back as stores.
+    DebuggerRunConfigurationAspect reloaded(nullptr);
+    reloaded.fromMap(storeFromMap(mapFromStore(saved)));
+    QCOMPARE(reloaded.sourcePathMap(), projectMap);
+
+    TypedAspect<SourcePathMap> &globalAspect = settings().sourcePathMap;
+    const SourcePathMap globalBefore = globalAspect();
+    const QScopeGuard restore([&globalAspect, globalBefore] {
+        globalAspect.setValue(globalBefore);
+    });
+    globalAspect.setValue({{"/build/shared", "/src/global"}, {"/build/other", "/src/other"}});
+
+    DebuggerRunParameters rp;
+    rp.m_projectSourcePathMap = projectMap;
+    const SourcePathMap merged = userSourcePathMap(rp);
+    QCOMPARE(merged.value("/build/lib"), "/src/lib");
+    QCOMPARE(merged.value("/build/shared"), "/src/project");
+    QCOMPARE(merged.value("/build/other"), "/src/other");
 }
 
 void DebuggerUnitTests::testJavaOnlyEnablesNoOtherDebugger()

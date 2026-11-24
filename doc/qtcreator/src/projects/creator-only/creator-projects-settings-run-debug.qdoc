@@ -39,6 +39,12 @@
 
     However, you can usually leave this field empty.
 
+    In \uicontrol {Source Paths Mapping}, you can map the source paths in the
+    debug information of the executable to the locations of the source files,
+    in the same way as in the \l{Source paths mapping}{global preferences}.
+    The mappings here only apply to the project and take precedence over the
+    global ones.
+
     \section1 Debug Qt Quick
 
     Opening a socket at a well-known port presents a security risk. Anyone

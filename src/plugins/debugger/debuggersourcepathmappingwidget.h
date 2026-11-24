@@ -59,6 +59,10 @@ SourcePathMap mergePlatformQtPath(const QString &qtSourceLocation,
  * backslash as an escape. */
 QString normalizedSourcePathPrefix(const QString &input);
 
+/* The mappings from the settings, with the project's own ones taking precedence
+ * over the global ones. */
+SourcePathMap userSourcePathMap(const DebuggerRunParameters &sp);
+
 /* Merge the run parameters' own mappings over the given ones, expanding
  * macros. User settings win. */
 SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,

@@ -4,6 +4,7 @@
 #include "debuggersourcepathmappingwidget.h"
 
 #include "commonoptionspage.h"
+#include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggertr.h"
 
@@ -468,6 +469,13 @@ QString normalizedSourcePathPrefix(const QString &input)
 {
     QString prefix = input.trimmed();
     return prefix.replace('\\', '/');
+}
+
+SourcePathMap userSourcePathMap(const DebuggerRunParameters &sp)
+{
+    SourcePathMap rc = settings().sourcePathMap();
+    rc.insert(sp.projectSourcePathMap());
+    return rc;
 }
 
 SourcePathMap mergeStartParametersSourcePathMap(const DebuggerRunParameters &sp,
@@ -958,14 +966,26 @@ SourcePathMapAspect::~SourcePathMapAspect()
     delete d;
 }
 
-void SourcePathMapAspect::fromMap(const Store &)
+void SourcePathMapAspect::fromMap(const Store &map)
 {
-    QTC_CHECK(false); // This is only used via read/writeSettings
+    SourcePathMap sourcePathMap;
+    const Store stored = storeFromVariant(map.value(settingsKey()));
+    for (auto it = stored.cbegin(), end = stored.cend(); it != end; ++it)
+        sourcePathMap.insert(stringFromKey(it.key()), it.value().toString());
+    setValue(sourcePathMap, BeQuiet);
 }
 
-void SourcePathMapAspect::toMap(Store &) const
+void SourcePathMapAspect::toMap(Store &map) const
 {
-    QTC_CHECK(false);
+    const SourcePathMap sourcePathMap = value();
+    if (sourcePathMap.isEmpty()) {
+        map.remove(settingsKey());
+        return;
+    }
+    QVariantMap stored;
+    for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
+        stored.insert(it.key(), it.value());
+    map.insert(settingsKey(), stored);
 }
 
 void SourcePathMapAspect::addToLayoutImpl(Layouting::Layout &parent)

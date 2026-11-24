@@ -86,7 +86,7 @@ static QList<QPair<QString, QString>> lldbImplSourcePathMap(const DebuggerRunPar
 {
     QList<QPair<QString, QString>> mappings;
     const SourcePathMap sourcePathMap = mergeStartParametersSourcePathMap(
-        rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+        rp, mergePlatformQtPath(rp, userSourcePathMap(rp)));
     for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it)
         mappings.append({it.key(), rp.macroExpander()->expand(it.value())});
     return mappings;

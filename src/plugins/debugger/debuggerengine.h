@@ -154,6 +154,7 @@ public:
         m_sourcePathMap.insert(key, value);
     }
     QMap<QString, QString> sourcePathMap() const { return m_sourcePathMap; }
+    QMap<QString, QString> projectSourcePathMap() const { return m_projectSourcePathMap; }
 
     void setCommandsAfterConnect(const QString &commands) { m_commandsAfterConnect = commands; }
     QStringList commandsAfterConnect() const;
@@ -355,6 +356,7 @@ private:
     Utils::ProcessHandle m_serverAttachPid;
     QUrl m_qmlServer; // Used by Qml debugging.
     QMap<QString, QString> m_sourcePathMap; // Used by Mer plugin (3rd party)
+    QMap<QString, QString> m_projectSourcePathMap;
     qint64 m_applicationPid = 0; // Terminal
     qint64 m_applicationMainThreadId = 0; // Terminal
     const Utils::MacroExpander *m_macroExpander = nullptr;

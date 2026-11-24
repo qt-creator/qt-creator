@@ -207,7 +207,7 @@ private:
     {
         QJsonArray sourcePathMapping;
         const SourcePathMap sourcePathMap
-            = mergePlatformQtPath(runParameters(), settings().sourcePathMap());
+            = mergePlatformQtPath(runParameters(), userSourcePathMap(runParameters()));
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend;
              ++it) {
             sourcePathMapping.append(QJsonArray{

@@ -252,6 +252,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(RunControl *runContr
         params.m_languagesAutomatic = aspect->isAutomatic;
         params.m_multiProcess = aspect->useMultiProcess;
         params.m_additionalStartupCommands = aspect->overrideStartup;
+        params.m_projectSourcePathMap = aspect->sourcePathMap;
 
         if (aspect->useCppDebugger)
             validateKitDebugger();
@@ -3658,7 +3659,7 @@ void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
-            const QMap<QString, QString> sourcePathMap = settings().sourcePathMap();
+            const QMap<QString, QString> sourcePathMap = userSourcePathMap(rp);
             QList<QPair<QRegularExpression, QString>> globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(sourcePathMap.size());
             for (auto it = sourcePathMap.begin(), end = sourcePathMap.end(); it != end; ++it) {

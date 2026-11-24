@@ -13,6 +13,8 @@ namespace Debugger {
 
 enum class LanguageSelection;
 
+namespace Internal { class SourcePathMapAspect; }
+
 class DEBUGGER_EXPORT DebuggerRunConfigurationAspect
     : public ProjectExplorer::GlobalOrProjectAspect
 {
@@ -33,6 +35,7 @@ public:
     bool useMultiProcess() const;
     void setUseMultiProcess(bool on);
     QString overrideStartup() const;
+    QMap<QString, QString> sourcePathMap() const;
 
     struct Data : ProjectExplorer::GlobalOrProjectAspect::Data
     {
@@ -44,6 +47,7 @@ public:
         bool useCombinedEngine = false;
         bool useMultiProcess = false;
         QString overrideStartup;
+        QMap<QString, QString> sourcePathMap;
 
 #ifdef WITH_TESTS
         static BaseAspect::Data::Ptr createQmlTestData()
@@ -86,6 +90,7 @@ private:
     Utils::SelectionAspect m_languagesAspect;
     Utils::BoolAspect m_multiProcessAspect;
     Utils::StringAspect m_overrideStartupAspect;
+    Internal::SourcePathMapAspect *m_sourcePathMapAspect;
     std::optional<LegacyLanguages> m_legacyLanguages;
     ProjectExplorer::BuildConfiguration * const m_buildConfiguration;
 };

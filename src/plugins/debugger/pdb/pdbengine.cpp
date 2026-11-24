@@ -39,7 +39,7 @@ DebuggerEngine *createPdbEngine(const DebuggerRunParameters &rp)
 
     QList<QPair<QString, QString>> sourcePathMap;
     const SourcePathMap mergedMap
-        = mergeStartParametersSourcePathMap(rp, settings().sourcePathMap());
+        = mergeStartParametersSourcePathMap(rp, userSourcePathMap(rp));
     for (auto it = mergedMap.cbegin(), end = mergedMap.cend(); it != end; ++it)
         sourcePathMap.append(qMakePair(it.key(), rp.macroExpander()->expand(it.value())));
 

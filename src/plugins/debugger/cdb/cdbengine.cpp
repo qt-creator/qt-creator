@@ -125,7 +125,7 @@ static CdbImplSearchPaths cdbImplSearchPaths(const DebuggerRunParameters &rp)
     }
     paths.sourcePaths = settings().cdbSourcePaths();
     const SourcePathMap sourcePathMap
-        = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, settings().sourcePathMap()));
+        = mergeStartParametersSourcePathMap(rp, mergePlatformQtPath(rp, userSourcePathMap(rp)));
     for (auto it = sourcePathMap.cbegin(), end = sourcePathMap.cend(); it != end; ++it) {
         paths.sourcePathMap.append(
             {FilePath::fromUserInput(it.key()).path(),
