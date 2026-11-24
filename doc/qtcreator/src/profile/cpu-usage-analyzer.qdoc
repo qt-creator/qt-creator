@@ -49,9 +49,8 @@
 
     When you start analyzing an application, the application is launched, and
     Performance Analyzer immediately begins to collect data. This is indicated
-    by the time running in \uicontrol Recorded. However, as the data
-    is passed through the Perf tool and an extra helper program bundled with
-    \QC, and both buffer and process it on the fly, data may arrive in \QC
+    by the time running in \uicontrol Recorded. However, as both the Perf tool
+    and \QC buffer and process the data on the fly, data may arrive in \QC
     several seconds after it was generated. \uicontrol {Processing delay} shows
     an estimate of the delay.
 
@@ -246,10 +245,10 @@
     \section1 Adding command-line options for Perf
 
     Set additional command-line options to pass to Perf when
-    recording data in \uicontrol {Additional arguments}. Set \c{--no-delay}
-    or \c{--no-buffering} to reduce the processing
-    delay. However, those options are not supported by all versions of Perf and
-    Perf may not start if an unsupported option is given.
+    recording data in \uicontrol {Additional arguments}. Set
+    \c{--no-buffering} to reduce the processing delay. However, not all
+    versions of Perf support all options, and Perf may not start if an
+    unsupported option is given.
 
     \section1 Resolving names for JIT-compiled JavaScript functions
 
@@ -482,9 +481,18 @@
             events enabled.
             For a custom configuration you need to make sure that the file
             \c {/proc/sys/kernel/perf_event_paranoid} contains a value smaller
-            than \c {2}. For maximum flexibility in recording traces you can
+            than \c {2}. Otherwise, Perf may refuse to record call graphs
+            and report an error such as:
+
+            \badcode
+            Failure to open event 'cpu-cycles:u' on PMU 'cpu' which will be removed.
+            Access to performance monitoring and observability operations is limited.
+            \endcode
+
+            For maximum flexibility in recording traces you can
             set the value to \c {-1}. This allows any user to record any kind
-            of trace, even using raw kernel trace points.
+            of trace, even using raw kernel trace points and traces of all
+            processes running on a CPU.
 
             The way to enable Perf events depends on your Linux distribution.
             On some distributions, you can run the following command with
@@ -494,13 +502,24 @@
             echo -e "kernel.perf_event_paranoid=-1\nkernel.kptr_restrict=0" | sudo tee /etc/sysctl.d/10-perf.conf
             \endcode
 
+            The setting takes effect when the system starts. To apply it
+            immediately, run:
+
+            \code [shell]
+            sudo sysctl --system
+            \endcode
+
+            If you cannot change the value, add \c {--user-callchains} to
+            \uicontrol {Additional arguments}. Perf then records call graphs
+            only for code running in user space. Not all versions of Perf
+            support this option.
+
         \li The connection between the target device and the host may not be
             fast enough to transfer the data produced by Perf. Try modifying
             the values of the \uicontrol {Stack snapshot size} or
             \uicontrol {Sample period} settings.
         \li Perf may be buffering the data forever, never sending it. Add
-            \c {--no-delay} or \c {--no-buffering} to
-            \uicontrol {Additional arguments}.
+            \c {--no-buffering} to \uicontrol {Additional arguments}.
         \li Some versions of Perf will not start recording unless given a
             certain minimum sampling frequency. Try setting
             \uicontrol {Sample period} to 1000.
@@ -520,16 +539,20 @@
             Linux distribution. For example, try the following commands:
 
             \list
-                \li On Ubuntu 22.04:
+                \li On Ubuntu:
                     \c {sudo apt install linux-tools-$(uname -r)}
                 \li On Debian:
                     \c {apt install linux-perf}
+                \li On Fedora:
+                    \c {sudo dnf install perf}
+                \li On Arch Linux:
+                    \c {sudo pacman -S perf}
             \endlist
     \endlist
 
     \if defined(qtcreator)
-    The \uicontrol {General Messages} view shows \l{View output}{output} from the
-    helper program that processes the data.
+    The \uicontrol {General Messages} view shows \l{View output}{warnings} from
+    processing the data.
 
     The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
