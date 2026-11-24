@@ -28,6 +28,11 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     m_copyAction(new QAction(this))
 {
     header()->setSectionResizeMode(QHeaderView::Interactive);
+    setSpanColumn(DiagnosticColumn);
+    connect(header(), &QHeaderView::sectionCountChanged, this, [this](int, int newCount) {
+        if (newCount > LocationColumn)
+            header()->setSectionResizeMode(LocationColumn, QHeaderView::ResizeToContents);
+    });
 
     m_copyAction->setText(Tr::tr("Copy"));
     m_copyAction->setIcon(Utils::Icons::COPY.icon());
