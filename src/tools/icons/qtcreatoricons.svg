@@ -4343,7 +4343,9 @@
          id="sparklebubble_sparkle" />
     </g>
     <g
-       id="src/plugins/acpclient/images/wizardicon-agentproject">
+       id="src/plugins/acpclient/images/wizardicon-agentproject"
+       style="display:inline"
+       transform="translate(-1900,-284)">
       <use
          style="display:inline"
          x="0"
@@ -4363,18 +4365,19 @@
          height="100%"
          transform="translate(2133,206)" />
       <g
-         id="wizardicon-agentproject_sparklebubble"
-         transform="matrix(1.5,0,0,1.5,-1266.875,-340.125)">
+         id="wizardicon-agentproject_sparklebubble">
         <path
-           style="fill:none;stroke:#404040;stroke-width:1.33333"
-           d="m 2612.5,575 v 2.5 c 0,1 -1,2 -2,2 h -2.5 l -4.5,3 1,-3 h -1 c -1,0 -2,-1 -2,-2 v -5 c 0,-1 1,-2 2,-2 h 4.5"
+           style="fill:none;stroke:#000000"
+           d="m 2652.5,522 v 3 c 0,2 -1.5,3.5 -3.5,3.5 h -2.8125 l -6.1875,4.125 2,-4.125 h -2 c -2,0 -3.5,-1.5 -3.5,-3.5 v -5 c 0,-2 1.5,-3.5 3.5,-3.5 h 7"
            sodipodi:nodetypes="csscccssssc"
            id="wizardicon-agentproject_bubble" />
-        <path
-           style="fill:#404040;stroke:#404040;stroke-width:0.666667;stroke-linejoin:round"
-           d="m 2607,572.5 c 2.5,0 3.5,-1 3.5,-3.5 0,2.5 1,3.5 3.5,3.5 -2.5,0 -3.5,1 -3.5,3.5 0,-2.5 -1,-3.5 -3.5,-3.5 z"
-           sodipodi:nodetypes="ccccc"
-           id="wizardicon-agentproject_sparkle" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#sparklebubble_sparkle"
+           id="use_wizardicon-agentproject_sparkle"
+           style="display:inline"
+           transform="translate(41,-55)" />
       </g>
     </g>
     <g
