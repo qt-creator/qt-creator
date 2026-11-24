@@ -6,6 +6,7 @@
 #include "externaltestrun.h"
 #include "testcodeparser.h"
 #include "testoutputreader.h"
+#include "testresultmodel.h"
 #include "testresultspane.h"
 #include "testrunner.h"
 #include "testsettings.h"
@@ -22,6 +23,7 @@
 #include "qtest/qttest_utils.h"
 #include "qtest/qttestconfiguration.h"
 #include "qtest/qttestframework.h"
+#include "qtest/qttestresult.h"
 #include "qtest/qttesttreeitem.h"
 #include "quick/quicktestconfiguration.h"
 #include "quick/quicktestframework.h"
@@ -586,6 +588,218 @@ void ExternalTestRunTest::checkFailuresAreExpanded(bool finishAfterResultsShown)
     const QModelIndex passed = findResult(model, "passed check");
     QVERIFY(passed.isValid());
     QVERIFY(!view->isExpanded(passed.parent()));
+}
+
+class TestResultFilterTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDurationFollowsOutcome();
+    void testDurationFollowsPrecedingOutcome();
+    void testDurationFollowsOutcomeWhileRunning();
+};
+
+static TestResult qtTestResult(ResultType type, const QString &function = {},
+                               const QString &duration = {})
+{
+    QtTestResult result("app", "tst_Foo", {}, TestType::QtTest, function);
+    result.setResult(type);
+    result.setDescription(function);
+    if (!duration.isEmpty())
+        result.setDuration(duration);
+    return result;
+}
+
+void TestResultFilterTest::testDurationFollowsOutcome()
+{
+    TestResultModel model;
+    model.addTestResult(qtTestResult(ResultType::TestStart));
+    model.addTestResult(qtTestResult(ResultType::TestStart, "passing"));
+    model.addTestResult(qtTestResult(ResultType::MessageDebug, "passing"));
+    model.addTestResult(qtTestResult(ResultType::Pass, "passing"));
+    model.addTestResult(qtTestResult(ResultType::TestEnd, "passing", "5"));
+    model.addTestResult(qtTestResult(ResultType::TestStart, "failing"));
+    model.addTestResult(qtTestResult(ResultType::Fail, "failing"));
+    model.addTestResult(qtTestResult(ResultType::TestEnd, "failing", "7"));
+    model.addTestResult(qtTestResult(ResultType::TestStart, "skipping"));
+    model.addTestResult(qtTestResult(ResultType::Skip, "skipping"));
+    model.addTestResult(qtTestResult(ResultType::TestEnd, "skipping", "9"));
+    model.addTestResult(qtTestResult(ResultType::TestEnd));
+
+    TestResultFilterModel filter;
+    filter.setRecursiveFilteringEnabled(true);
+    filter.setSourceModel(&model);
+
+    auto findItem = [&model](ResultType type, const QString &function) {
+        return model.findNonRootItem([&](TestResultItem *item) {
+            const TestResult result = item->testResult();
+            return result.result() == type && result.description() == function;
+        });
+    };
+    auto isShown = [&](const TestResultItem *item) {
+        return filter.mapFromSource(model.indexForItem(item)).isValid();
+    };
+
+    const TestResultItem *passingEnd = findItem(ResultType::TestEnd, "passing");
+    const TestResultItem *passingDebug = findItem(ResultType::MessageDebug, "passing");
+    const TestResultItem *failingEnd = findItem(ResultType::TestEnd, "failing");
+    const TestResultItem *skippingEnd = findItem(ResultType::TestEnd, "skipping");
+    QVERIFY(passingEnd && passingDebug && failingEnd && skippingEnd);
+    const TestResultItem *passingStart = passingEnd->parent();
+    const TestResultItem *failingStart = failingEnd->parent();
+    const TestResultItem *skippingStart = skippingEnd->parent();
+    QCOMPARE(passingStart->testResult().result(), ResultType::TestStart);
+    QCOMPARE(failingStart->testResult().result(), ResultType::TestStart);
+    QCOMPARE(skippingStart->testResult().result(), ResultType::TestStart);
+    // a function's TestEnd hands its duration to the function
+    QVERIFY(!passingEnd->endedOutcome());
+    QCOMPARE(passingStart->testResult().duration(), QString("5"));
+    QCOMPARE(failingStart->testResult().duration(), QString("7"));
+    QVERIFY(isShown(passingEnd));
+    QVERIFY(isShown(failingEnd));
+    QVERIFY(filter.isOutcomeEnabled(passingStart));
+
+    filter.toggleTestResultType(ResultType::Pass);
+    QVERIFY(isShown(passingDebug)); // keeps the passing function's row visible
+    QVERIFY(!isShown(passingEnd));
+    QVERIFY(!filter.isOutcomeEnabled(passingStart));
+    QVERIFY(isShown(failingEnd));
+    QVERIFY(filter.isOutcomeEnabled(failingStart));
+    // a skipped function is not a passed one
+    QVERIFY(isShown(skippingEnd));
+    QVERIFY(filter.isOutcomeEnabled(skippingStart));
+
+    filter.toggleTestResultType(ResultType::Pass);
+    QVERIFY(isShown(passingEnd));
+    QVERIFY(filter.isOutcomeEnabled(passingStart));
+
+    filter.toggleTestResultType(ResultType::Skip);
+    QVERIFY(!isShown(skippingEnd));
+    QVERIFY(!filter.isOutcomeEnabled(skippingStart));
+    QVERIFY(isShown(passingEnd));
+}
+
+// CTest reports a test's TestEnd as the sibling following its outcome
+static TestResult ctestResult(ResultType type, const QString &description = {},
+                              const QString &duration = {})
+{
+    ResultHooks hooks;
+    hooks.directParent = [](const TestResult &result, const TestResult &, bool *) {
+        return result.result() == ResultType::TestStart;
+    };
+    TestResult result("ctest", "project", hooks);
+    result.setResult(type);
+    result.setDescription(description);
+    result.setEndsPrecedingOutcome(type == ResultType::TestEnd);
+    if (!duration.isEmpty())
+        result.setDuration(duration);
+    return result;
+}
+
+void TestResultFilterTest::testDurationFollowsPrecedingOutcome()
+{
+    TestResultModel model;
+    model.addTestResult(ctestResult(ResultType::TestStart, "project"));
+    model.addTestResult(ctestResult(ResultType::Fail, "failing"));
+    model.addTestResult(ctestResult(ResultType::TestEnd, "failing took", "20"));
+    model.addTestResult(ctestResult(ResultType::Pass, "passing"));
+    model.addTestResult(ctestResult(ResultType::TestEnd, "passing took", "30"));
+
+    TestResultFilterModel filter;
+    filter.setRecursiveFilteringEnabled(true);
+    filter.setSourceModel(&model);
+
+    auto findItem = [&model](const QString &description) {
+        return model.findNonRootItem([&](TestResultItem *item) {
+            return item->testResult().description() == description;
+        });
+    };
+    auto isShown = [&](const TestResultItem *item) {
+        return filter.mapFromSource(model.indexForItem(item)).isValid();
+    };
+
+    const TestResultItem *project = findItem("project");
+    const TestResultItem *passing = findItem("passing");
+    const TestResultItem *passingEnd = findItem("passing took");
+    const TestResultItem *failingEnd = findItem("failing took");
+    QVERIFY(project && passing && passingEnd && failingEnd);
+    QCOMPARE(passingEnd->parent(), project);
+    QCOMPARE(passingEnd->endedOutcome(), passing);
+    QVERIFY(!project->endedOutcome());
+    // the durations belong to the single tests, not to the project
+    QVERIFY(!project->testResult().duration());
+    QVERIFY(isShown(passingEnd));
+
+    filter.toggleTestResultType(ResultType::Pass);
+    QVERIFY(!isShown(passing));
+    QVERIFY(!isShown(passingEnd));
+    QVERIFY(isShown(failingEnd));
+
+    filter.toggleTestResultType(ResultType::Pass);
+    QVERIFY(isShown(passingEnd));
+
+    // the project failed, but that does not hide the duration of a passed test
+    filter.toggleTestResultType(ResultType::Fail);
+    QVERIFY(isShown(passing));
+    QVERIFY(isShown(passingEnd));
+    QVERIFY(!isShown(failingEnd));
+
+    filter.toggleTestResultType(ResultType::MessageInternal);
+    QVERIFY(isShown(passing));
+    QVERIFY(!isShown(passingEnd));
+
+    filter.toggleTestResultType(ResultType::MessageInternal);
+    QVERIFY(isShown(passingEnd));
+}
+
+void TestResultFilterTest::testDurationFollowsOutcomeWhileRunning()
+{
+    // results arriving while Pass is filtered out are checked as they are inserted
+    TestResultModel model;
+    TestResultFilterModel filter;
+    filter.setRecursiveFilteringEnabled(true);
+    filter.setSourceModel(&model);
+    filter.toggleTestResultType(ResultType::Pass);
+
+    auto findItem = [&model](const QString &description) {
+        return model.findNonRootItem([&](TestResultItem *item) {
+            return item->testResult().description() == description;
+        });
+    };
+    auto isShown = [&](const TestResultItem *item) {
+        return filter.mapFromSource(model.indexForItem(item)).isValid();
+    };
+
+    model.addTestResult(ctestResult(ResultType::TestStart, "project"));
+    model.addTestResult(ctestResult(ResultType::Fail, "failing"));
+    model.addTestResult(ctestResult(ResultType::TestEnd, "failing took", "20"));
+    model.addTestResult(ctestResult(ResultType::Pass, "passing"));
+    model.addTestResult(ctestResult(ResultType::TestEnd, "passing took", "30"));
+
+    const TestResultItem *passingEnd = findItem("passing took");
+    const TestResultItem *failingEnd = findItem("failing took");
+    QVERIFY(passingEnd && failingEnd);
+    QVERIFY(!isShown(passingEnd));
+    QVERIFY(isShown(failingEnd));
+
+    model.clearTestResults();
+    model.addTestResult(qtTestResult(ResultType::TestStart));
+    model.addTestResult(qtTestResult(ResultType::TestStart, "failing"));
+    model.addTestResult(qtTestResult(ResultType::Fail, "failing"));
+    model.addTestResult(qtTestResult(ResultType::TestEnd, "failing", "7"));
+    model.addTestResult(qtTestResult(ResultType::TestStart, "passing"));
+    model.addTestResult(qtTestResult(ResultType::MessageDebug, "passing"));
+    model.addTestResult(qtTestResult(ResultType::Pass, "passing"));
+    model.addTestResult(qtTestResult(ResultType::TestEnd, "passing", "5"));
+
+    const TestResultItem *qtPassingEnd = model.findNonRootItem([](TestResultItem *item) {
+        const TestResult result = item->testResult();
+        return result.result() == ResultType::TestEnd && result.description() == "passing";
+    });
+    QVERIFY(qtPassingEnd);
+    QVERIFY(isShown(qtPassingEnd->parent())); // for its debug message
+    QVERIFY(!isShown(qtPassingEnd));
 }
 
 class QtTestUtilsTest : public QObject
@@ -1226,6 +1440,11 @@ QObject *createAutotestUnitTests()
 QObject *createExternalTestRunTest()
 {
     return new ExternalTestRunTest;
+}
+
+QObject *createTestResultFilterTest()
+{
+    return new TestResultFilterTest;
 }
 
 QObject *createQtTestUtilsTest()

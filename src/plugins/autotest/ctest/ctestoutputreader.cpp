@@ -204,6 +204,7 @@ void CTestOutputReader::sendCompleteInformation()
         testResult.setDescription(Tr::tr("Test execution took %1.").arg(m_duration + " sec"));
         testResult.setDuration(QString::number(m_duration.toDouble() * 1000., 'f', 3));
         testResult.setResult(ResultType::TestEnd);
+        testResult.setEndsPrecedingOutcome(true);
         reportResult(testResult);
     }
     m_testName.clear();

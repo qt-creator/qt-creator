@@ -125,6 +125,25 @@ static bool isFailed(ResultType type)
     }
 }
 
+static bool isOutcome(ResultType type)
+{
+    switch (type) {
+    case ResultType::Pass:
+    case ResultType::Fail:
+    case ResultType::ExpectedFail:
+    case ResultType::UnexpectedPass:
+    case ResultType::Skip:
+    case ResultType::BlacklistedPass:
+    case ResultType::BlacklistedFail:
+    case ResultType::BlacklistedXPass:
+    case ResultType::BlacklistedXFail:
+    case ResultType::MessageFatal:
+        return true;
+    default:
+        return false;
+    }
+}
+
 static void updateParentOf(const TestResultItem *item)
 {
     QTC_ASSERT(item, return);
@@ -133,8 +152,12 @@ static void updateParentOf(const TestResultItem *item)
         return;
     QTC_ASSERT(item->testResult().isValid(), return);
     bool changed = false;
+    // the duration of an outcome's own TestEnd is not the duration of the parent
+    const std::optional<QString> duration = item->endedOutcome()
+                                                ? std::nullopt
+                                                : item->testResult().duration();
     parentItem->updateResult(changed, item->testResult().result(), item->summaryResult(),
-                             item->testResult().duration());
+                             duration);
     bool changedType = parentItem->updateDescendantTypes(item->testResult().result());
     if (!changed && !changedType)
         return;
@@ -243,6 +266,12 @@ void TestResultItem::addTestResult(const TestResult &testResult, bool autoExpand
 
     TestResultItem *parentItem = findParentItemFor(newItem, root, this);
     if (parentItem) {
+        // link before inserting, the filter model checks the new row on insertion
+        if (testResult.endsPrecedingOutcome() && parentItem->hasChildren()) {
+            const TestResultItem *previous = parentItem->childAt(parentItem->childCount() - 1);
+            if (QTC_GUARD(isOutcome(previous->testResult().result())))
+                newItem->m_endedOutcome = previous;
+        }
         parentItem->appendChild(newItem);
         if (autoExpand && parentItem->model()) {
             QMetaObject::invokeMethod(parentItem->model(), [parentItem]{ parentItem->expand(); },
@@ -352,6 +381,13 @@ TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem
     return intermediate;
 }
 
+/*!
+    \fn const TestResultItem *TestResultItem::endedOutcome() const
+
+    Returns the outcome this item ends if its result was reported as ending the
+    outcome right before it, as CTest does. Returns \c nullptr otherwise.
+*/
+
 QString TestResultItem::resultString() const
 {
     if (testResult().result() != ResultType::TestStart)
@@ -373,6 +409,20 @@ bool TestResultItem::updateDescendantTypes(ResultType t)
 bool TestResultItem::descendantTypesContainsAnyOf(const QSet<ResultType> &types) const
 {
     return !m_descendantsTypes.isEmpty() && m_descendantsTypes.intersects(types);
+}
+
+/*!
+    Returns the types of the outcomes below this item, such as \c Pass, \c Fail
+    or \c Skip.
+*/
+QSet<ResultType> TestResultItem::descendantOutcomes() const
+{
+    QSet<ResultType> outcomes;
+    for (const ResultType type : m_descendantsTypes) {
+        if (isOutcome(type))
+            outcomes.insert(type);
+    }
+    return outcomes;
 }
 
 /********************************* TestResultModel *****************************************/
@@ -550,6 +600,17 @@ TestResultItem *TestResultFilterModel::itemForIndex(const QModelIndex &index) co
     return index.isValid() ? m_sourceModel->itemForIndex(mapToSource(index)) : nullptr;
 }
 
+/*!
+    Returns whether the current filter shows any of the outcomes below \a item.
+    Items without outcomes below them count as shown.
+*/
+bool TestResultFilterModel::isOutcomeEnabled(const TestResultItem *item) const
+{
+    QTC_ASSERT(item, return true);
+    const QSet<ResultType> outcomes = item->descendantOutcomes();
+    return outcomes.isEmpty() || outcomes.intersects(m_enabled);
+}
+
 const QVariantList TestResultFilterModel::enabledFiltersAsSetting() const
 {
     return Utils::transform(Utils::toList(m_enabled),
@@ -607,8 +668,17 @@ bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
         if (!descendentContainsEnabledType(item))
             return false;
     } else if (resultType == ResultType::TestEnd) {
+        // durations are reported as internal messages
+        if (!m_enabled.contains(ResultType::MessageInternal))
+            return false;
         if (!item || !descendentContainsEnabledType(item->parent()))
             return false;
+        if (const TestResultItem *outcome = item->endedOutcome()) {
+            if (!m_enabled.contains(outcome->testResult().result()))
+                return false;
+        } else if (!isOutcomeEnabled(item->parent())) {
+            return false;
+        }
     } else if (!m_enabled.contains(resultType)) {
         return false;
     }

@@ -119,7 +119,8 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                 .elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
     }
 
-    if (testResult.result() == ResultType::TestStart && m_showDuration && testResult.duration()) {
+    if (testResult.result() == ResultType::TestStart && m_showDuration && testResult.duration()
+        && resultFilterModel->isOutcomeEnabled(item)) {
         const QString txt = *testResult.duration() + " ms";
         QPen tmp = painter->pen();
         painter->setPen(opt.palette.mid().color());

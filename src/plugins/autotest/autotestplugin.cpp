@@ -571,6 +571,7 @@ public:
         addTestCreator(createExternalTestRunTest);
         addTestCreator(createFrameworksAspectTest);
         addTestCreator(createQtTestUtilsTest);
+        addTestCreator(createTestResultFilterTest);
         addTestCreator(createTestOutputReaderTest);
         addTestCreator(createTestArgumentsTest);
 #endif

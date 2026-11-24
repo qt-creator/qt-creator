@@ -10,6 +10,7 @@ namespace Autotest::Internal {
 QObject *createAutotestUnitTests();
 QObject *createExternalTestRunTest();
 QObject *createQtTestUtilsTest();
+QObject *createTestResultFilterTest();
 QObject *createTestOutputReaderTest();
 QObject *createTestArgumentsTest();
 

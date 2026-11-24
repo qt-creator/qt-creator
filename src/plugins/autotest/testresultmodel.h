@@ -44,16 +44,19 @@ public:
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
+    const TestResultItem *endedOutcome() const { return m_endedOutcome; }
     QString resultString() const;
     std::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
 
     bool updateDescendantTypes(ResultType t);
     bool descendantTypesContainsAnyOf(const QSet<ResultType> &types) const;
+    QSet<ResultType> descendantOutcomes() const;
 
 private:
     TestResult m_testResult;
     QSet<ResultType> m_descendantsTypes;
     std::optional<SummaryEvaluation> m_summaryResult;
+    const TestResultItem *m_endedOutcome = nullptr;
 };
 
 class TestResultModel : public Utils::TreeModel<TestResultItem>
@@ -105,6 +108,7 @@ public:
     TestResult testResult(const QModelIndex &index) const;
     TestResultItem *itemForIndex(const QModelIndex &index) const;
     const QSet<ResultType> enabledFilters() const { return m_enabled; }
+    bool isOutcomeEnabled(const TestResultItem *item) const;
     const QVariantList enabledFiltersAsSetting() const;
     void setEnabledFiltersFromSetting(const QVariantList &enabled);
     void setSourceModel(QAbstractItemModel *sourceModel) override;

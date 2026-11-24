@@ -97,12 +97,14 @@ public:
     Utils::FilePath fileName() const { return m_file; }
     int line() const { return m_line; }
     std::optional<QString> duration() const { return m_duration; }
+    bool endsPrecedingOutcome() const { return m_endsPrecedingOutcome; }
     QVariant extraData() const { return m_hooks.extraData; }
 
     void setDescription(const QString &description) { m_description = description; }
     void setFileName(const Utils::FilePath &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
     void setDuration(const QString &milliSeconds);
+    void setEndsPrecedingOutcome(bool ends) { m_endsPrecedingOutcome = ends; }
     void setResult(ResultType type) { m_result = type; }
 
     static ResultType resultFromString(const QString &resultString);
@@ -122,6 +124,7 @@ private:
     QString m_description;
     Utils::FilePath m_file;
     int m_line = 0;
+    bool m_endsPrecedingOutcome = false;
     ResultHooks m_hooks = {};
 };
 
