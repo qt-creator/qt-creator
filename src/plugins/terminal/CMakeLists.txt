@@ -10,6 +10,7 @@ add_qtc_plugin(Terminal
     shellprofilesaspect.cpp shellprofilesaspect.h
     shortcutmap.cpp shortcutmap.h
     terminalconstants.h
+    terminaleditor.cpp terminaleditor.h
     terminalicons.h
     terminalpane.cpp terminalpane.h
     terminalplugin.cpp
@@ -32,6 +33,8 @@ extend_qtc_plugin(Terminal
   SOURCES
     shellprofilesaspect_test.cpp
     shellprofilesaspect_test.h
+    terminaleditor_test.cpp
+    terminaleditor_test.h
 )
 
 qtc_add_resources(Terminal "images"

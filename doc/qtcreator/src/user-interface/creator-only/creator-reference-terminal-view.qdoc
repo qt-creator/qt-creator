@@ -95,6 +95,23 @@
             the order of the shells in the list.
     \endlist
 
+    \section1 Move the terminal to the editor area
+
+    To work in a terminal next to your code, move it from the \uicontrol Terminal
+    view into the editor area. Select \uicontrol {Move Terminal to Editor} on the
+    toolbar, or right-click the terminal tab and select
+    \uicontrol {Move to Editor}. The shell keeps running, and the terminal keeps
+    its output.
+
+    In the editor area, you can split the view to show the terminal next to
+    another editor. To show the terminal in a separate window, go to
+    \uicontrol Window > \uicontrol {Open in New Window}.
+
+    To move the terminal back to the \uicontrol Terminal view, select
+    \uicontrol {Move Terminal to Terminal Pane} on the editor toolbar.
+
+    Closing the editor closes the terminal and ends its shell.
+
     \section1 Run terminal in a separate window
 
     To open the terminal in a separate window, go to \preferences >

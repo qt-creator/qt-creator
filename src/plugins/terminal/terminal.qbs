@@ -25,6 +25,8 @@ QtcPlugin {
         "shortcutmap.cpp",
         "shortcutmap.h",
         "terminalconstants.h",
+        "terminaleditor.cpp",
+        "terminaleditor.h",
         "terminalicons.h",
         "terminalpane.cpp",
         "terminalpane.h",
@@ -42,6 +44,8 @@ QtcPlugin {
         files: [
             "shellprofilesaspect_test.cpp",
             "shellprofilesaspect_test.h",
+            "terminaleditor_test.cpp",
+            "terminaleditor_test.h",
         ]
     }
 

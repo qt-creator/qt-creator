@@ -5,6 +5,7 @@
 
 #include "shellmodel.h"
 #include "terminalconstants.h"
+#include "terminaleditor.h"
 #include "terminalicons.h"
 #include "terminalsettings.h"
 #include "terminaltr.h"
@@ -23,6 +24,7 @@
 
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 #include <utils/terminalhooks.h>
 #include <utils/utilsicons.h>
 
@@ -50,6 +52,7 @@ TerminalPane::TerminalPane(QObject *parent)
     , m_closeCurrentTabAction(new QAction(Tr::tr("Close Tab"), this))
     , m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this))
     , m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this))
+    , m_moveTabToEditorAction(new QAction(Tr::tr("Move to Editor"), this))
     , m_selfContext("Terminal.Pane")
 {
     setId("Terminal");
@@ -85,6 +88,9 @@ TerminalPane::TerminalPane(QObject *parent)
 
     m_closeTerminalButton = new QToolButton();
     m_closeTerminalButton->setDefaultAction(m_closeTerminalAction);
+
+    m_moveToEditorButton = new QToolButton();
+    m_moveToEditorButton->setDefaultAction(m_moveToEditorAction);
 
     m_openSettingsButton = new QToolButton();
     m_openSettingsButton->setToolTip(Tr::tr("Configure..."));
@@ -277,6 +283,37 @@ void TerminalPane::removeTab(int index)
     emit navigateStateUpdate();
 }
 
+TerminalWidget *TerminalPane::takeTerminal(int index)
+{
+    auto terminal = qobject_cast<TerminalWidget *>(m_tabWidget.widget(index));
+    if (!terminal)
+        return nullptr;
+    disconnect(terminal, nullptr, this, nullptr);
+    m_tabWidget.removeTab(index);
+    terminal->setParent(nullptr);
+    emit navigateStateUpdate();
+    return terminal;
+}
+
+/*!
+    Moves \a terminal, with its running shell, out of the pane into an
+    editor. Returns \c false if no editor was opened, in which case the
+    terminal stays in the pane.
+*/
+bool TerminalPane::moveTerminalToEditor(TerminalWidget *terminal)
+{
+    const int index = m_tabWidget.indexOf(terminal);
+    QTC_ASSERT(index >= 0, return false);
+    const QString title = m_tabWidget.tabText(index);
+    takeTerminal(index);
+    if (Internal::openTerminalInEditor(terminal))
+        return true;
+    m_tabWidget.insertTab(index, terminal, title);
+    m_tabWidget.setCurrentIndex(index);
+    setupTerminalWidget(terminal);
+    return false;
+}
+
 void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
 {
     if (!terminal)
@@ -316,6 +353,17 @@ void TerminalPane::initActions()
         .setToolTip(Tr::tr("Close the current Terminal."))
         .setContext(m_selfContext)
         .addOnTriggered(this, [this] { removeTab(m_tabWidget.currentIndex()); });
+
+    ActionBuilder(this, MOVE_TO_EDITOR)
+        .setText(Tr::tr("Move Terminal to Editor"))
+        .bindContextAction(&m_moveToEditorAction)
+        .setIcon(Icons::EXPAND_TOOLBAR.icon())
+        .setToolTip(Tr::tr("Move the current Terminal into the editor area."))
+        .setContext(m_selfContext)
+        .addOnTriggered(this, [this] {
+            if (TerminalWidget *terminal = currentTerminal())
+                moveTerminalToEditor(terminal);
+        });
 
     ActionBuilder(this, NEXTTERMINAL)
         .setText(Tr::tr("Next Terminal"))
@@ -375,6 +423,7 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
 {
     QList<QWidget *> widgets = IOutputPane::toolBarWidgets();
 
+    widgets.prepend(m_moveToEditorButton);
     widgets.prepend(m_newTerminalButton);
     widgets.prepend(m_closeTerminalButton);
 
@@ -462,7 +511,10 @@ void TerminalPane::contextMenuRequested(const QPoint &pos)
 
     const int index = m_tabWidget.tabBar()->tabAt(pos);
     const QList<QAction *> actions
-        = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
+        = {m_closeCurrentTabAction,
+           m_closeAllTabsAction,
+           m_closeOtherTabsAction,
+           m_moveTabToEditorAction};
     QAction *action = QMenu::exec(actions, m_tabWidget.mapToGlobal(pos), nullptr, &m_tabWidget);
 
     if (action == m_closeAllTabsAction) {
@@ -472,7 +524,10 @@ void TerminalPane::contextMenuRequested(const QPoint &pos)
     }
 
     const int currentIdx = index != -1 ? index : m_tabWidget.currentIndex();
-    if (action == m_closeCurrentTabAction) {
+    if (action == m_moveTabToEditorAction) {
+        if (auto terminal = qobject_cast<TerminalWidget *>(m_tabWidget.widget(currentIdx)))
+            moveTerminalToEditor(terminal);
+    } else if (action == m_closeCurrentTabAction) {
         if (currentIdx >= 0)
             removeTab(currentIdx);
     } else if (action == m_closeOtherTabsAction) {

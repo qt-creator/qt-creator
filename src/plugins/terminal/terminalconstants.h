@@ -5,6 +5,8 @@
 
 namespace Terminal::Constants {
 constexpr char NEWTERMINAL[] = "Terminal.NewTerminal";
+constexpr char MOVE_TO_EDITOR[] = "Terminal.MoveToEditor";
+constexpr char TERMINAL_EDITOR_ID[] = "Terminal.Editor";
 constexpr char CLOSETERMINAL[] = "Terminal.CloseTerminal";
 constexpr char NEXTTERMINAL[] = "Terminal.NextTerminal";
 constexpr char PREVTERMINAL[] = "Terminal.PrevTerminal";

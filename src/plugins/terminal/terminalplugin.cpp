@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "consolehost.h"
+#include "terminaleditor.h"
 #include "terminalpane.h"
 #include "terminalprocessimpl.h"
 #include "terminalsettings.h"
@@ -10,6 +11,7 @@
 
 #ifdef WITH_TESTS
 #include "shellprofilesaspect_test.h"
+#include "terminaleditor_test.h"
 #endif
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -37,12 +39,16 @@ public:
     {
 #ifdef WITH_TESTS
         addTestCreator(createShellProfilesAspectTest);
+        addTestCreator([this] { return createTerminalEditorTest(m_terminalPane); });
 #endif
     }
 
     void extensionsInitialized() final
     {
         m_terminalPane = new TerminalPane(this);
+        setupTerminalEditor([this](TerminalWidget *terminal) {
+            m_terminalPane->addTerminal(terminal, terminal->title());
+        });
 
         ConsoleHost::apply();
 
@@ -79,6 +85,12 @@ public:
                          settingsChanged);
 
         settingsChanged();
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        closeAllTerminalEditors();
+        return SynchronousShutdown;
     }
 
 private:

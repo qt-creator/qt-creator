@@ -55,10 +55,13 @@ public:
 
     void ensureVisible(TerminalWidget *terminal);
 
+    bool moveTerminalToEditor(TerminalWidget *terminal);
+
 private:
     TerminalWidget *currentTerminal() const;
 
     void removeTab(int index);
+    TerminalWidget *takeTerminal(int index);
     void setupTerminalWidget(TerminalWidget *terminal);
     void initActions();
     void createShellMenu();
@@ -69,6 +72,7 @@ private:
 
     QToolButton *m_newTerminalButton{nullptr};
     QToolButton *m_closeTerminalButton{nullptr};
+    QToolButton *m_moveToEditorButton{nullptr};
     QToolButton *m_openSettingsButton{nullptr};
     QToolButton *m_escSettingButton{nullptr};
     QToolButton *m_lockKeyboardButton{nullptr};
@@ -76,10 +80,12 @@ private:
 
     QAction *m_newTerminalAction{nullptr};
     QAction *m_closeTerminalAction{nullptr};
+    QAction *m_moveToEditorAction{nullptr};
     QAction *m_toggleKeyboardLockAction{nullptr};
     QAction *m_closeCurrentTabAction{nullptr};
     QAction *m_closeAllTabsAction{nullptr};
     QAction *m_closeOtherTabsAction{nullptr};
+    QAction *m_moveTabToEditorAction{nullptr};
 
     QMenu m_shellMenu;
 
