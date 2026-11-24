@@ -23,6 +23,8 @@ bool wantRunTool(ToolMode toolMode, const QString &toolName);
 class ValgrindProcess;
 class ValgrindSettings;
 
+void loadValgrindSettings(ValgrindSettings &settings,
+                          const ProjectExplorer::RunControl *runControl);
 QtTaskTree::ExecutableItem initValgrindRecipe(const QtTaskTree::Storage<ValgrindSettings> &storage,
                                            ProjectExplorer::RunControl *runControl);
 void setupValgrindProcess(ValgrindProcess *process, ProjectExplorer::RunControl *runControl,

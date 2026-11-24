@@ -35,10 +35,18 @@ static QString selfModifyingCodeDetectionToString(ValgrindSettings::SelfModifyin
     return {};
 }
 
+void loadValgrindSettings(ValgrindSettings &settings, const RunControl *runControl)
+{
+    Store map = runControl->settingsData(ANALYZER_VALGRIND_SETTINGS);
+    if (map.isEmpty()) // Started without a run configuration.
+        globalSettings().toMap(map);
+    settings.fromMap(map);
+}
+
 ExecutableItem initValgrindRecipe(const Storage<ValgrindSettings> &storage, RunControl *runControl)
 {
     const auto onSetup = [storage, runControl] {
-        storage->fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
+        loadValgrindSettings(*storage, runControl);
         if (storage->valgrindExecutable().searchInPath().isExecutableFile()) {
             runControl->reportStarted();
             return DoneResult::Success;

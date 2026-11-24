@@ -832,8 +832,11 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
 
 void MemcheckTool::setupRunControl(RunControl *runControl)
 {
-    m_errorModel.setRelevantFrameFinder(makeFrameFinder(transform(runControl->project()->files(Project::AllFiles),
-                                                                  &FilePath::toUrlishString)));
+    const Project *project = runControl->project();
+    const QStringList projectFiles = project
+        ? transform(project->files(Project::AllFiles), &FilePath::toUrlishString)
+        : QStringList();
+    m_errorModel.setRelevantFrameFinder(makeFrameFinder(projectFiles));
     connect(runControl, &RunControl::stopped,
             this, &MemcheckTool::engineFinished);
     connect(runControl, &RunControl::aboutToStart, this, [this] {
@@ -851,10 +854,9 @@ void MemcheckTool::setupRunControl(RunControl *runControl)
     m_stopAction->disconnect();
     connect(m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
-    const FilePath dir = runControl->project()->projectDirectory();
-    const QString name = runControl->commandLine().executable().fileName();
-
-    m_errorView->setDefaultSuppressionFile(dir.pathAppended(name + ".supp"));
+    const FilePath executable = runControl->commandLine().executable();
+    const FilePath dir = project ? project->projectDirectory() : executable.parentDir();
+    m_errorView->setDefaultSuppressionFile(dir.pathAppended(executable.fileName() + ".supp"));
 }
 
 void MemcheckTool::setupSuppressionFiles(const FilePaths &suppressionFiles)

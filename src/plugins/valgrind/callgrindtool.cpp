@@ -815,7 +815,7 @@ void CallgrindTool::setupRunControl(RunControl *runControl)
 
     // apply project settings
     ValgrindSettings settings{false};
-    settings.fromMap(m_runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
+    loadValgrindSettings(settings, m_runControl);
     m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
     m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
     m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());

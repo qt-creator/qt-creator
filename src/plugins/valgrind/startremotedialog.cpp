@@ -11,7 +11,6 @@
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
@@ -20,12 +19,12 @@
 #include <utils/fancylineedit.h>
 #include <utils/filepath.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLineEdit>
-#include <QMessageBox>
 #include <QPushButton>
 
 using namespace Core;
@@ -39,6 +38,7 @@ class StartRemoteDialog : public QDialog
 public:
     StartRemoteDialog();
 
+    Kit *kit() const { return m_kitChooser->currentKit(); }
     CommandLine commandLine() const;
     FilePath workingDirectory() const;
 
@@ -56,12 +56,12 @@ private:
 StartRemoteDialog::StartRemoteDialog()
     : QDialog(Core::ICore::dialogParent())
 {
-    setWindowTitle(Tr::tr("Start Remote Analysis"));
+    setWindowTitle(Tr::tr("Analyze External Application"));
 
     m_kitChooser = new KitChooser(this);
     m_kitChooser->setKitPredicate([](const Kit *kit) {
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
-        return kit->isValid() && device && !device->sshParameters().host().isEmpty();
+        return kit->isValid() && device;
     });
     m_executable = new PathChooser(this);
     m_executable->setExpectedKind(PathChooserKind::ExistingCommand);
@@ -140,31 +140,26 @@ FilePath StartRemoteDialog::workingDirectory() const
 
 void setupExternalAnalyzer(QAction *action, Perspective *perspective, Id runMode)
 {
-    QObject::connect(action, &QAction::triggered, perspective, [action, perspective, runMode] {
-        RunConfiguration *runConfig = activeRunConfigForActiveProject();
-        if (!runConfig) {
-            auto errorDialog = new QMessageBox(Core::ICore::dialogParent());
-            errorDialog->setAttribute(Qt::WA_DeleteOnClose);
-            errorDialog->setIcon(QMessageBox::Warning);
-            errorDialog->setWindowTitle(action->text());
-            errorDialog->setText(Tr::tr("Cannot start %1 without a project. Open the "
-                                        "project and try again.").arg(action->text()));
-            errorDialog->setStandardButtons(QMessageBox::Ok);
-            errorDialog->setDefaultButton(QMessageBox::Ok);
-            errorDialog->show();
-            return;
-        }
+    QObject::connect(action, &QAction::triggered, perspective, [perspective, runMode] {
         StartRemoteDialog dlg;
         if (dlg.exec() != QDialog::Accepted)
             return;
+        Kit *kit = dlg.kit();
+        QTC_ASSERT(kit, return);
 
         TaskHub::clearTasks(Core::Constants::ANALYZERTASK_ID);
         perspective->select();
         RunControl *runControl = new RunControl(runMode);
-        runControl->copyDataFromRunConfiguration(runConfig);
-        runControl->createMainRecipe();
+        RunConfiguration *runConfig = activeRunConfigForActiveProject();
+        if (runConfig && runConfig->kit() != kit)
+            runConfig = nullptr;
+        if (runConfig)
+            runControl->copyDataFromRunConfiguration(runConfig);
         runControl->setCommandLine(dlg.commandLine());
         runControl->setWorkingDirectory(dlg.workingDirectory());
+        if (!runConfig)
+            runControl->setKit(kit);
+        runControl->createMainRecipe();
         runControl->start();
     });
 }
