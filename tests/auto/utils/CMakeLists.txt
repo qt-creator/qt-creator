@@ -1,6 +1,7 @@
 add_subdirectory(ansiescapecodehandler)
 add_subdirectory(aspects)
 add_subdirectory(async)
+add_subdirectory(basetreeview)
 add_subdirectory(commandline)
 add_subdirectory(covariantcallback)
 add_subdirectory(dialogtask)

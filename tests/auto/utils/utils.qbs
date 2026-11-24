@@ -6,6 +6,7 @@ Project {
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "aspects/aspects.qbs",
         "async/async.qbs",
+        "basetreeview/basetreeview.qbs",
         "commandline/commandline.qbs",
         "covariantcallback/covariantcallback.qbs",
         "dialogtask/dialogtask.qbs",

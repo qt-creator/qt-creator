@@ -565,6 +565,8 @@ void BaseTreeView::setSettings(QtcSettings *settings, const QByteArray &key)
     d->m_settings = settings;
     d->m_settingsKey = key;
     d->readSettings();
+    if (model())
+        d->restoreState();
 }
 
 ItemViewEvent::ItemViewEvent(QEvent *ev, QAbstractItemView *view)
