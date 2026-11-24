@@ -1,6 +1,5 @@
 {
     "$schema": "./recommendations.schema.json",
-    "$id": "recommendations.schema.json",
     "contentitems": [
         {
             "description": "Testing that your installation is successful by opening an existing example application project.",

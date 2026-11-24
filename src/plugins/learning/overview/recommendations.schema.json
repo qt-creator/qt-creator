@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://example.com/schemas/recommendations.schema.json",
+    "$id": "recommendations.schema.json",
     "title": "Qt Creator Onboarding Recommendations List",
     "type": "object",
     "additionalProperties": false,
@@ -8,7 +8,6 @@
 
     "properties": {
         "$schema": { "type": "string" },
-        "$id": { "type": "string" },
         "contentitems": {
             "type": "array",
             "description": "Array of recommendation objects.",
