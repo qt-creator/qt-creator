@@ -279,6 +279,17 @@ void ToolTip::hideImmediately()
     instance()->hideTipImmediately();
 }
 
+/*!
+    Dismisses the current tool tip when \a key is pressed. Call this after a
+    show() call with nonempty content. The next displayed tool tip clears it.
+*/
+void ToolTip::dismissOnKey(Qt::Key key)
+{
+    ToolTip *toolTip = instance();
+    if (toolTip->m_tip)
+        toolTip->m_dismissKey = key;
+}
+
 void ToolTip::hideTipWithDelay()
 {
     if (!m_hideDelayTimer.isActive())
@@ -303,6 +314,7 @@ void ToolTip::hideTipImmediately()
 void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
                            int typeId, QWidget *w, const QVariant &contextHelp, const QRect &rect)
 {
+    m_dismissKey = Qt::Key_unknown;
     if (acceptShow(content, typeId, pos, w, contextHelp, rect)) {
         switch (typeId) {
             case ColorContent:
@@ -363,8 +375,10 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
     case QEvent::KeyPress:
     case QEvent::KeyRelease: {
         int key = static_cast<QKeyEvent *>(event)->key();
-        if (key == Qt::Key_Escape)
+        if (key == Qt::Key_Escape || (event->type() == QEvent::KeyPress
+                                     && m_dismissKey != Qt::Key_unknown && key == m_dismissKey)) {
             hideTipImmediately();
+        }
         if (HostOsInfo::isMacHost()) {
             Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(event)->modifiers();
             if (!(mody & Qt::KeyboardModifierMask)

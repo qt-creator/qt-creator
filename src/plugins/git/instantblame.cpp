@@ -62,6 +62,10 @@
 #include <QClipboard>
 #include <QMetaObject>
 #include <QTemporaryDir>
+#include <QHelpEvent>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QPixmap>
 #include <QTest>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -1716,6 +1720,7 @@ private slots:
     void testBlameDocumentContents();
     void testBlameGutter();
     void testBlameGutterEditor();
+    void testBlameGutterHover();
 };
 
 void InstantBlameTest::testBlameCommandArguments()
@@ -1827,6 +1832,59 @@ void InstantBlameTest::testBlameGutter()
     QVERIFY(gutter.items.first().toolTip.contains("Initial commit"));
     QCOMPARE(gutter.items.last().text, Tr::tr("Local changes"));
     QVERIFY(gutter.items.last().id.isEmpty());
+}
+
+void InstantBlameTest::testBlameGutterHover()
+{
+    const auto document = TextDocumentPtr::create();
+    QVERIFY(document->setPlainText("first\nsecond\nthird\nfourth\n"));
+    TextEditorWidget widget;
+    widget.setTextDocument(document);
+    widget.resize(640, 300);
+    const TextEditorWidget::AnnotationGutter gutter{
+        .lineItems = {0, 0, 1, 0},
+        .items = {{"First commit annotation", "First commit", "first"},
+                  {"Second commit annotation", "Second commit", "second"}}
+    };
+    widget.setAnnotationGutter(gutter);
+    widget.show();
+    const auto rowY = [&](int row) {
+        return widget.cursorRect(document->document()->findBlockByNumber(row).position())
+            .center().y();
+    };
+    const auto rowColor = [&](int row) {
+        const QPixmap picture = widget.viewport()->grab();
+        return picture.toImage().pixelColor(qRound(300 * picture.devicePixelRatio()),
+                                             qRound(rowY(row) * picture.devicePixelRatio()));
+    };
+    const QColor secondBefore = rowColor(1);
+    const QColor thirdBefore = rowColor(2);
+    const QColor fourthBefore = rowColor(3);
+    QWidget *area = widget.extraArea();
+    const QPoint hoverPoint(area->width() / 2, rowY(1));
+    QMouseEvent hover(QEvent::MouseMove, hoverPoint, area->mapToGlobal(hoverPoint),
+                      Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+    widget.extraAreaMouseEvent(&hover);
+    QVERIFY(rowColor(1) != secondBefore);
+    QCOMPARE(rowColor(2), thirdBefore);
+    QVERIFY(rowColor(3) != fourthBefore);
+
+    const auto dismissToolTip = qScopeGuard([] { ToolTip::hideImmediately(); });
+    QHelpEvent tooltip(QEvent::ToolTip, hoverPoint, area->mapToGlobal(hoverPoint));
+    widget.extraAreaToolTipEvent(&tooltip);
+    QVERIFY(ToolTip::isVisible());
+    QKeyEvent shift(QEvent::KeyPress, Qt::Key_Shift, Qt::ShiftModifier);
+    QCoreApplication::sendEvent(&widget, &shift);
+    QVERIFY(!ToolTip::isVisible());
+    QVERIFY(rowColor(3) != fourthBefore);
+
+    QEvent leave(QEvent::Leave);
+    widget.extraAreaLeaveEvent(&leave);
+    QCOMPARE(rowColor(3), fourthBefore);
+    widget.extraAreaMouseEvent(&hover);
+    QVERIFY(rowColor(3) != fourthBefore);
+    widget.setAnnotationGutter(gutter);
+    QCOMPARE(rowColor(3), fourthBefore);
 }
 
 void InstantBlameTest::testBlameGutterEditor()

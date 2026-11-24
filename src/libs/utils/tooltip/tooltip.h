@@ -69,6 +69,7 @@ public:
     static void move(const QPoint &pos);
     static void hide();
     static void hideImmediately();
+    static void dismissOnKey(Qt::Key key);
     static bool isVisible();
 
     static QPoint offsetFromPosition();
@@ -100,6 +101,7 @@ private:
     QPointer<Internal::TipLabel> m_tip;
     QWidget *m_widget;
     QRect m_rect;
+    Qt::Key m_dismissKey = Qt::Key_unknown;
     QTimer m_showTimer;
     QTimer m_hideDelayTimer;
     QVariant m_contextHelp;

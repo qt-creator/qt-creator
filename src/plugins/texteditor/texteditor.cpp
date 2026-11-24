@@ -849,6 +849,9 @@ public:
     void paintIfDefedOutBlocks(const PaintEventData &data, QPainter &painter) const;
     void paintFindScope(const PaintEventData &data, QPainter &painter) const;
     void paintLineHighlight(const PaintEventData &data, QPainter &painter) const;
+    void paintAnnotationHoverHighlight(const PaintEventData &data,
+                                       const PaintEventBlockData &blockData,
+                                       QPainter &painter) const;
     QRectF cursorBlockRect(const QTextDocument *doc,
                            const QTextBlock &block,
                            int cursorPosition,
@@ -891,9 +894,15 @@ public:
     int annotationGutterWidth(const QFontMetrics &metrics) const;
     bool isInAnnotationGutter(int x) const;
     const TextEditorWidget::AnnotationGutterItem *annotationGutterItem(int blockNumber) const;
+    bool sharesAnnotationGroup(const TextEditorWidget::AnnotationGutterItem *item,
+                               int otherLine) const;
+    void updateAnnotationHover(int line);
     void paintAnnotationGutter(QPainter &painter, const ExtraAreaPaintEventData &data,
                                const QRectF &blockBoundingRect) const;
     std::optional<TextEditorWidget::AnnotationGutter> m_annotationGutter;
+    QString m_hoveredAnnotationId;
+    int m_firstHoveredAnnotationLine = -1;
+    int m_lastHoveredAnnotationLine = -1;
     QString m_annotationGutterWidthSample;
     void paintLineNumbers(QPainter &painter, const ExtraAreaPaintEventData &data,
                           const QRectF &blockBoundingRect) const;
@@ -1488,7 +1497,10 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     // Scrolling moves the lines under a mouse that does not move.
     connect(q->verticalScrollBar(), &QScrollBar::valueChanged,
-            this, [this] { updateHoveredBlock(-1); });
+            this, [this] {
+        updateHoveredBlock(-1);
+        updateAnnotationHover(-1);
+    });
 
     connect(q, &PlainTextEdit::selectionChanged,
             this, &TextEditorWidgetPrivate::slotSelectionChanged);
@@ -7249,6 +7261,25 @@ void TextEditorWidgetPrivate::paintFindScope(const PaintEventData &data, QPainte
     overlay.paint(&painter, data.eventRect);
 }
 
+void TextEditorWidgetPrivate::paintAnnotationHoverHighlight(
+    const PaintEventData &data, const PaintEventBlockData &blockData, QPainter &painter) const
+{
+    const int line = data.block.blockNumber();
+    if (!m_hoveredAnnotationId.isEmpty()) {
+        const auto *item = annotationGutterItem(line);
+        if (!item || item->id != m_hoveredAnnotationId)
+            return;
+    } else if (line < m_firstHoveredAnnotationLine || line > m_lastHoveredAnnotationLine) {
+        return;
+    }
+
+    constexpr int annotationHoverTintAlpha = 28;
+    QColor tint = data.context.palette.text().color();
+    tint.setAlpha(annotationHoverTintAlpha);
+    painter.fillRect(QRectF(0, data.mainLayoutOffset.y(), data.viewportRect.width(),
+                            blockData.layout->boundingRect().height()), tint);
+}
+
 void TextEditorWidgetPrivate::paintLineHighlight(const PaintEventData &data, QPainter &painter) const
 {
     QPointF fullLineHighlightOffset = data.mainLayoutOffset;
@@ -8042,6 +8073,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
             d->setupSelections(data, blockData);
 
             d->paintLineHighlight(data, painter);
+            d->paintAnnotationHoverHighlight(data, blockData, painter);
 
             bool drawCursor = false;
             bool drawCursorAsBlock = false;
@@ -8267,6 +8299,7 @@ void TextEditorWidget::setAnnotationGutter(std::optional<AnnotationGutter> gutte
             }
         }
     }
+    d->updateAnnotationHover(-1);
     d->m_annotationGutter = std::move(gutter);
     if (previousWidth != d->annotationGutterWidth(metrics))
         d->slotUpdateExtraAreaWidth();
@@ -8315,6 +8348,41 @@ const TextEditorWidget::AnnotationGutterItem *TextEditorWidgetPrivate::annotatio
         return nullptr;
     return &m_annotationGutter->items.at(index);
 }
+
+bool TextEditorWidgetPrivate::sharesAnnotationGroup(
+    const TextEditorWidget::AnnotationGutterItem *item, int otherLine) const
+{
+    const auto *other = annotationGutterItem(otherLine);
+    return other == item || (other && item->displayGroup.isValid()
+                             && other->displayGroup == item->displayGroup);
+}
+
+void TextEditorWidgetPrivate::updateAnnotationHover(int line)
+{
+    if (line >= 0 && line >= m_firstHoveredAnnotationLine && line <= m_lastHoveredAnnotationLine)
+        return;
+
+    int first = -1;
+    int last = -1;
+    const auto *item = annotationGutterItem(line);
+    const QString id = item ? item->id : QString();
+    if (item && id.isEmpty() && item->displayGroup.isValid()) {
+        first = last = line;
+        while (sharesAnnotationGroup(item, first - 1))
+            --first;
+        while (sharesAnnotationGroup(item, last + 1))
+            ++last;
+    }
+    if (id == m_hoveredAnnotationId && first == m_firstHoveredAnnotationLine
+        && last == m_lastHoveredAnnotationLine) {
+        return;
+    }
+    m_hoveredAnnotationId = id;
+    m_firstHoveredAnnotationLine = first;
+    m_lastHoveredAnnotationLine = last;
+    q->viewport()->update();
+}
+
 
 int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 {
@@ -8552,12 +8620,8 @@ void TextEditorWidgetPrivate::paintAnnotationGutter(QPainter &painter,
                                                             item->foreground)
                              : data.palette.color(QPalette::WindowText);
     const int line = data.block.blockNumber();
-    const auto sharesGroup = [this, item](int otherLine) {
-        const auto *other = annotationGutterItem(otherLine);
-        return other == item || (other && item->displayGroup.isValid()
-                                 && other->displayGroup == item->displayGroup);
-    };
-    const bool continuation = data.previousBlockNumber == line - 1 && sharesGroup(line - 1);
+    const bool continuation = data.previousBlockNumber == line - 1
+                              && sharesAnnotationGroup(item, line - 1);
     QRectF stripe(x + 2, blockBoundingRect.top(), PaddingHS - 3, blockBoundingRect.height());
     if (!continuation)
         stripe.adjust(0, 1, 0, 0);
@@ -8567,7 +8631,7 @@ void TextEditorWidgetPrivate::paintAnnotationGutter(QPainter &painter,
         painter.setPen(color);
         const qreal textTop = blockBoundingRect.top() + q->editorLayout()->mainLayoutOffset(data.block);
         qreal y = qMax(qreal(0), textTop);
-        if (textTop < 0 && (!sharesGroup(line + 1)
+        if (textTop < 0 && (!sharesAnnotationGroup(item, line + 1)
                             || nextVisibleBlock(data.block).blockNumber() != line + 1)) {
             // Let the next annotation push this one offscreen at the end of its group.
             y = qMin(y, blockBoundingRect.bottom() - data.fontMetrics.height());
@@ -9760,6 +9824,7 @@ std::unique_ptr<QTextDocument> TextEditorWidget::documentToPrint(bool selectionO
 
 void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
+    d->updateAnnotationHover(-1);
     d->extraAreaPreviousMarkTooltipRequestedLine = -1;
     d->extraAreaToggleMarkBlockNumber = -1;
     ToolTip::hide();
@@ -9855,17 +9920,22 @@ void TextEditorWidget::extraAreaToolTipEvent(QHelpEvent *e)
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
 
     if (d->isInAnnotationGutter(e->pos().x())) {
+        if (QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier))
+            return;
         const auto *item = d->annotationGutterItem(cursor.blockNumber());
         if (item && d->m_annotationGutter->populateToolTip) {
             auto layout = std::make_unique<QVBoxLayout>();
             if (d->m_annotationGutter->populateToolTip(cursor.blockNumber(), layout.get())) {
                 layout->addWidget(createAnnotationSettingsLink(), 0, Qt::AlignRight);
                 ToolTip::show(e->globalPos(), layout.release(), this);
+                ToolTip::dismissOnKey(Qt::Key_Shift);
                 return;
             }
         }
-        if (item && !item->toolTip.isEmpty())
+        if (item && !item->toolTip.isEmpty()) {
             ToolTip::show(e->globalPos(), item->toolTip, Qt::PlainText, this);
+            ToolTip::dismissOnKey(Qt::Key_Shift);
+        }
         return;
     }
 
@@ -9888,7 +9958,13 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
 
-    if (d->isInAnnotationGutter(e->pos().x()) && !d->m_markDragging) {
+    const bool inAnnotationGutter = d->isInAnnotationGutter(e->pos().x()) && !d->m_markDragging;
+    if (e->type() == QEvent::MouseMove) {
+        const bool hovering = inAnnotationGutter && e->buttons() == Qt::NoButton
+                              && d->m_extraArea->rect().contains(e->pos());
+        d->updateAnnotationHover(hovering ? cursor.blockNumber() : -1);
+    }
+    if (inAnnotationGutter) {
         const auto *item = d->annotationGutterItem(cursor.blockNumber());
         const bool clickable = item && !item->id.isEmpty() && d->m_annotationGutter->activate;
         if (e->type() == QEvent::MouseMove && e->buttons() == Qt::NoButton) {
