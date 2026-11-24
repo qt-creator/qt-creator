@@ -5,6 +5,7 @@
 
 #include "terminalconstants.h"
 #include "terminalpane.h"
+#include "terminalsettings.h"
 #include "terminalwidget.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -22,6 +23,7 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QPointer>
+#include <QScopeGuard>
 #include <QTest>
 #include <QToolButton>
 
@@ -159,7 +161,88 @@ private slots:
         QCOMPARE(terminal->processState(), Utils::ProcessState::Running);
     }
 
+    void testZoomActions()
+    {
+        // The actions are enabled by the context of the focus widget.
+        if (!activateMainWindow())
+            QSKIP("The main window is not activated in this environment.");
+        TerminalWidget *terminal = startedTerminal();
+        QVERIFY(terminal);
+        const int original = terminal->font().pointSize();
+
+        m_pane->ensureVisible(terminal);
+        QTRY_VERIFY(terminal->hasFocus());
+        checkZoomActions(terminal, original);
+        if (QTest::currentTestFailed())
+            return;
+
+        QVERIFY(m_pane->moveTerminalToEditor(terminal));
+        QTRY_VERIFY(terminal->hasFocus());
+        checkZoomActions(terminal, original);
+    }
+
+    void testZoomShortcuts_data()
+    {
+        QTest::addColumn<bool>("blockShortcuts");
+        QTest::newRow("shortcuts blocked") << true;
+        QTest::newRow("shortcuts not blocked") << false;
+    }
+
+    void testZoomShortcuts()
+    {
+        QFETCH(bool, blockShortcuts);
+        if (!activateMainWindow())
+            QSKIP("The main window is not activated in this environment.");
+
+        const bool wasBlocked = settings().lockKeyboard();
+        settings().lockKeyboard.setValue(blockShortcuts);
+        const auto restore = qScopeGuard(
+            [wasBlocked] { settings().lockKeyboard.setValue(wasBlocked); });
+
+        TerminalWidget *terminal = startedTerminal();
+        QVERIFY(terminal);
+        m_pane->ensureVisible(terminal);
+        QTRY_VERIFY(terminal->hasFocus());
+        const int original = terminal->font().pointSize();
+
+        pressShortcut(terminal, Core::Constants::ZOOM_IN);
+        QCOMPARE(terminal->font().pointSize(), original + 1);
+        pressShortcut(terminal, Core::Constants::ZOOM_OUT);
+        pressShortcut(terminal, Core::Constants::ZOOM_OUT);
+        QCOMPARE(terminal->font().pointSize(), original - 1);
+        pressShortcut(terminal, Core::Constants::ZOOM_RESET);
+        QCOMPARE(terminal->font().pointSize(), original);
+
+        terminal->closeTerminal();
+    }
+
 private:
+    static void pressShortcut(QWidget *widget, Utils::Id command)
+    {
+        const QKeySequence sequence = Core::ActionManager::command(command)->keySequence();
+        QVERIFY2(!sequence.isEmpty(), qPrintable(command.toString()));
+        const QKeyCombination keys = sequence[0];
+        QTest::keyClick(widget, keys.key(), keys.keyboardModifiers());
+    }
+
+    static void checkZoomActions(TerminalWidget *terminal, int original)
+    {
+        QAction *zoomIn = Core::ActionManager::command(Core::Constants::ZOOM_IN)->action();
+        QAction *zoomOut = Core::ActionManager::command(Core::Constants::ZOOM_OUT)->action();
+        QAction *zoomReset = Core::ActionManager::command(Core::Constants::ZOOM_RESET)->action();
+        QTRY_VERIFY(zoomIn->isEnabled());
+        QVERIFY(zoomOut->isEnabled());
+        QVERIFY(zoomReset->isEnabled());
+
+        zoomIn->trigger();
+        QCOMPARE(terminal->font().pointSize(), original + 1);
+        zoomOut->trigger();
+        zoomOut->trigger();
+        QCOMPARE(terminal->font().pointSize(), original - 1);
+        zoomReset->trigger();
+        QCOMPARE(terminal->font().pointSize(), original);
+    }
+
     TerminalWidget *startedTerminal()
     {
         auto terminal = new TerminalWidget(

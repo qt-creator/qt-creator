@@ -29,6 +29,7 @@ public:
                    const Utils::Terminal::OpenTerminalParameters &openParameters = {});
 
     void closeTerminal();
+    void resetZoom();
 
     void setShellName(const QString &shellName);
     QString shellName() const;
@@ -122,6 +123,9 @@ private:
     RegisteredAction m_deleteWordLeft;
     RegisteredAction m_deleteLineLeft;
     RegisteredAction m_closeTerminal;
+    RegisteredAction m_zoomIn;
+    RegisteredAction m_zoomOut;
+    RegisteredAction m_zoomReset;
 
     Internal::ShortcutMap m_shortcutMap;
 

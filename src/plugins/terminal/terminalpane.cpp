@@ -70,6 +70,10 @@ TerminalPane::TerminalPane(QObject *parent)
         if (currentTerminal())
             currentTerminal()->zoomOut();
     });
+    connect(this, &IOutputPane::resetZoomRequested, this, [this] {
+        if (currentTerminal())
+            currentTerminal()->resetZoom();
+    });
 
     m_tabWidget.setContextMenuPolicy(Qt::CustomContextMenu);
     connect(

@@ -445,6 +445,21 @@ void TerminalWidget::setupActions()
     deleteLineLeft.addOnTriggered(this, [this]() { writeToPty("\x15"); });
     m_deleteLineLeft = make_registered(deleteLineLeft);
 
+    ActionBuilder zoomInAction(this, Core::Constants::ZOOM_IN);
+    zoomInAction.setContext(m_context);
+    zoomInAction.addOnTriggered(this, &TerminalWidget::zoomIn);
+    m_zoomIn = make_registered(zoomInAction);
+
+    ActionBuilder zoomOutAction(this, Core::Constants::ZOOM_OUT);
+    zoomOutAction.setContext(m_context);
+    zoomOutAction.addOnTriggered(this, &TerminalWidget::zoomOut);
+    m_zoomOut = make_registered(zoomOutAction);
+
+    ActionBuilder zoomResetAction(this, Core::Constants::ZOOM_RESET);
+    zoomResetAction.setContext(m_context);
+    zoomResetAction.addOnTriggered(this, &TerminalWidget::resetZoom);
+    m_zoomReset = make_registered(zoomResetAction);
+
     // Ctrl+Q, the default "Quit" shortcut, is a useful key combination in a shell.
     // It can be used in combination with Ctrl+S to pause a program, and resume it with Ctrl+Q.
     // So we unlock the EXIT command only for macOS where the default is Cmd+Q to quit.
@@ -458,6 +473,14 @@ void TerminalWidget::setupActions()
 void TerminalWidget::closeTerminal()
 {
     deleteLater();
+}
+
+/*!
+    Returns to the font size set in the preferences.
+*/
+void TerminalWidget::resetZoom()
+{
+    setupFont();
 }
 
 qint64 TerminalWidget::writeToPty(const QByteArray &data)
