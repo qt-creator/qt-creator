@@ -501,7 +501,7 @@ void BaseFileFind::readCommonSettings(
         exclusionFilters << defaultExclusionFilter;
     const QVariant currentExclusionFilter = s.value("currentExclusionFilter");
     d->m_exclusionSetting = currentExclusionFilter.isValid() ? currentExclusionFilter.toString()
-                                                          : exclusionFilters.first();
+                                                          : defaultExclusionFilter;
     d->m_exclusionStrings.setStringList(toNativeSeparators(exclusionFilters));
     if (d->m_exclusionCombo)
         syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
