@@ -74,6 +74,27 @@
 
     \image {qtcreator-preferences-terminal.webp} {Terminal preferences}
 
+    \section1 Select the shell
+
+    To open a terminal with a particular shell, select the arrow next to
+    the \uicontrol {New Terminal} button, and then select the shell.
+
+    To manage the shells in the list, go to \preferences >
+    \uicontrol Terminal > \uicontrol Shells. \QC lists the shells it finds
+    on the computer under \uicontrol Auto-detected. You can:
+
+    \list
+        \li Hide an auto-detected shell from the list by clearing its
+            check box.
+        \li Select \uicontrol Add to add a shell, or \uicontrol Clone to add
+            a copy of the selected shell, and then set its name, executable,
+            arguments, working directory, and environment.
+        \li Select \uicontrol {Make Default} to open new terminals with the
+            selected shell.
+        \li Select \uicontrol {Move Up} or \uicontrol {Move Down} to change
+            the order of the shells in the list.
+    \endlist
+
     \section1 Run terminal in a separate window
 
     To open the terminal in a separate window, go to \preferences >

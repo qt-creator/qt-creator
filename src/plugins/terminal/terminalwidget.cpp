@@ -165,8 +165,9 @@ void TerminalWidget::setupPty()
 {
     m_process = std::make_unique<Process>();
 
-    const CommandLine shellCommand = m_openParameters.shellCommand.value_or(
-        CommandLine{settings().shell(), settings().shellArguments(), CommandLine::Raw});
+    const CommandLine shellCommand = m_openParameters.shellCommand
+                                         ? *m_openParameters.shellCommand
+                                         : settings().shellProfiles.defaultProfile().commandLine();
 
     if (shellCommand.executable().isRootPath()) {
         writeToTerminal((Tr::tr("Connecting...") + "\r\n").toUtf8(), true);

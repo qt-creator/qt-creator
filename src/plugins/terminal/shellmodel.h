@@ -3,16 +3,16 @@
 
 #pragma once
 
+#include <utils/commandline.h>
+#include <utils/environment.h>
+#include <utils/filepath.h>
 #include <utils/terminalhooks.h>
 
 #include <QIcon>
-#include <QObject>
+#include <QList>
 #include <QString>
 
-#include <memory>
-
 namespace Terminal::Internal {
-struct ShellModelPrivate;
 
 struct ShellModelItem
 {
@@ -20,17 +20,36 @@ struct ShellModelItem
     Utils::Terminal::OpenTerminalParameters openParameters;
 };
 
-class ShellModel : public QObject
+class ShellProfile
 {
 public:
-    ShellModel(QObject *parent = nullptr);
-    ~ShellModel() override;
+    Utils::CommandLine unexpandedCommandLine() const;
+    Utils::CommandLine commandLine() const;
+    Utils::FilePath expandedWorkingDirectory() const;
+    void applyEnvironmentChanges(std::optional<Utils::Environment> &environment) const;
+    QIcon icon() const;
+    Utils::Terminal::OpenTerminalParameters openParameters() const;
 
-    QList<ShellModelItem> local() const;
-    QList<ShellModelItem> remote() const;
+    friend bool operator==(const ShellProfile &, const ShellProfile &) = default;
 
-private:
-    std::unique_ptr<ShellModelPrivate> d;
+    QString id;
+    QString name;
+    Utils::FilePath executable;
+    QString arguments;
+    Utils::EnvironmentChanges environmentChanges;
+    Utils::FilePath workingDirectory;
+    Utils::FilePath iconPath;
+    bool isDetected = false;
 };
+
+QString systemShellProfileId();
+ShellProfile systemShellProfile();
+QList<ShellProfile> detectedShellProfiles();
+QList<ShellModelItem> remoteShells();
+
+Utils::Terminal::OpenTerminalParameters withDefaultShell(
+    const Utils::Terminal::OpenTerminalParameters &parameters,
+    const Utils::FilePath &defaultDirectory,
+    const ShellProfile &defaultProfile);
 
 } // namespace Terminal::Internal

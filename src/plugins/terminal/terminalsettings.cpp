@@ -12,11 +12,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcsettings.h>
 #include <utils/shutdownguard.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -56,18 +56,6 @@ static int defaultFontSize()
     if (Utils::HostOsInfo::isAnyUnixHost())
         return 9;
     return 10;
-}
-
-static QString defaultShell()
-{
-    if (HostOsInfo::isWindowsHost())
-        return qtcEnvironmentVariable("COMSPEC");
-
-    FilePath defaultShell = FilePath::fromUserInput(qtcEnvironmentVariable("SHELL"));
-    if (defaultShell.isExecutableFile())
-        return defaultShell.toUserOutput();
-
-    return Environment::systemEnvironment().searchInPath("sh").toUserOutput();
 }
 
 static void setupColor(TerminalSettings *settings,
@@ -472,20 +460,7 @@ TerminalSettings::TerminalSettings()
     allowBlinkingCursor.setToolTip(Tr::tr("Allow the cursor to blink."));
     allowBlinkingCursor.setDefaultValue(false);
 
-    shell.setSettingsKey("ShellPath");
-    shell.setLabelText(Tr::tr("Shell path:"));
-    shell.setExpectedKind(PathChooserKind::ExistingCommand);
-    shell.setHistoryCompleter("Terminal.Shell.History");
-    shell.setToolTip(Tr::tr("The shell executable to be started."));
-    shell.setDefaultValue(defaultShell());
-
-    shellArguments.setSettingsKey("ShellArguments");
-    shellArguments.setLabelText(Tr::tr("Shell arguments:"));
-    shellArguments.setDisplayStyle(StringAspect::LineEditDisplay);
-    shellArguments.setHistoryCompleter("Terminal.Shell.History");
-    shellArguments.setToolTip(Tr::tr("The arguments to be passed to the shell."));
-    if (!HostOsInfo::isWindowsHost())
-        shellArguments.setDefaultValue(QString("-l"));
+    shellProfiles.setSettingsKey("ShellProfiles");
 
     sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
     sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
@@ -761,10 +736,9 @@ TerminalSettings::TerminalSettings()
             },
             consoleHostGroup,
             Group {
-                title(Tr::tr("Default Shell")),
+                title(Tr::tr("Shells")),
                 Column {
-                    shell,
-                    shellArguments,
+                    shellProfiles,
                 },
             },
             st,
@@ -773,6 +747,7 @@ TerminalSettings::TerminalSettings()
     });
 
     readSettings();
+    Internal::migrateLegacyShellSetting(shellProfiles, "Terminal");
 }
 
 class TerminalSettingsPage final : public Core::IOptionsPage

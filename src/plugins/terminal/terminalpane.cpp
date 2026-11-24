@@ -161,19 +161,11 @@ static FilePath defaultWorkingDirectory()
 
 void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
 {
-    OpenTerminalParameters parametersCopy{parameters};
-
-    if (!parametersCopy.workingDirectory) {
-        const FilePath defaultDir = defaultWorkingDirectory();
-        if (!defaultDir.isEmpty()) {
-            if (!parametersCopy.shellCommand) {
-                parametersCopy.workingDirectory = defaultDir;
-            } else if (parametersCopy.shellCommand->executable().ensureReachable(defaultDir)) {
-                parametersCopy.workingDirectory
-                    = parametersCopy.shellCommand->executable().withNewMappedPath(defaultDir);
-            }
-        }
-    }
+    OpenTerminalParameters parametersCopy = Internal::withDefaultShell(
+        parameters,
+        parameters.workingDirectory ? FilePath() : defaultWorkingDirectory(),
+        parameters.shellCommand ? Internal::ShellProfile()
+                                : settings().shellProfiles.defaultProfile());
 
     if (parametersCopy.workingDirectory && !parametersCopy.workingDirectory->isLocal()
         && !parametersCopy.shellCommand) {
@@ -202,7 +194,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
             QFileIconProvider iconProvider;
             const FilePath command = parametersCopy.shellCommand
                                          ? parametersCopy.shellCommand->executable()
-                                         : settings().shell();
+                                         : settings().shellProfiles.defaultProfile().executable;
             icon = iconProvider.icon(command.toFileInfo());
         }
     }
@@ -356,32 +348,26 @@ void TerminalPane::initActions()
     cmd->setAttribute(Command::CA_UpdateIcon);
 }
 
-static Internal::ShellModel *shellModel()
-{
-    static Internal::ShellModel model;
-    return &model;
-}
-
 void TerminalPane::createShellMenu()
 {
     connect(&m_shellMenu, &QMenu::aboutToShow, &m_shellMenu, [this] {
         m_shellMenu.clear();
 
-        const auto addItems = [this](const QList<Internal::ShellModelItem> &items) {
-            for (const Internal::ShellModelItem &item : items) {
-                QAction *action = new QAction(item.openParameters.icon, item.name, &m_shellMenu);
-
-                connect(action, &QAction::triggered, action, [item, this]() {
-                    openTerminal(item.openParameters);
-                });
-
-                m_shellMenu.addAction(action);
-            }
+        const auto addItem = [this](const QIcon &icon,
+                                    const QString &name,
+                                    const OpenTerminalParameters &parameters) {
+            QAction *action = new QAction(icon, name, &m_shellMenu);
+            connect(action, &QAction::triggered, action, [parameters, this]() {
+                openTerminal(parameters);
+            });
+            m_shellMenu.addAction(action);
         };
 
-        addItems(shellModel()->local());
+        for (const Internal::ShellProfile &profile : settings().shellProfiles.profiles())
+            addItem(profile.icon(), profile.name, profile.openParameters());
         m_shellMenu.addSection(Tr::tr("Devices"));
-        addItems(shellModel()->remote());
+        for (const Internal::ShellModelItem &item : Internal::remoteShells())
+            addItem(item.openParameters.icon, item.name, item.openParameters);
     });
 }
 

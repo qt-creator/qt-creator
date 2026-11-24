@@ -8,6 +8,10 @@
 #include "terminaltr.h"
 #include "terminalwidget.h"
 
+#ifdef WITH_TESTS
+#include "shellprofilesaspect_test.h"
+#endif
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/iplugin.h>
@@ -28,6 +32,13 @@ class TerminalPlugin final : public ExtensionSystem::IPlugin
 
 public:
     TerminalPlugin() = default;
+
+    void initialize() final
+    {
+#ifdef WITH_TESTS
+        addTestCreator(createShellProfilesAspectTest);
+#endif
+    }
 
     void extensionsInitialized() final
     {

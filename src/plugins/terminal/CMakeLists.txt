@@ -7,6 +7,7 @@ add_qtc_plugin(Terminal
     consolehost.cpp consolehost.h
     shellintegration.cpp shellintegration.h
     shellmodel.cpp shellmodel.h
+    shellprofilesaspect.cpp shellprofilesaspect.h
     shortcutmap.cpp shortcutmap.h
     terminalconstants.h
     terminalicons.h
@@ -24,6 +25,13 @@ add_qtc_plugin(Terminal
     ATTRIBUTION_IDS
       terminal-shellintegrations
       terminal-shellintegrations-clink
+)
+
+extend_qtc_plugin(Terminal
+  CONDITION WITH_TESTS
+  SOURCES
+    shellprofilesaspect_test.cpp
+    shellprofilesaspect_test.h
 )
 
 qtc_add_resources(Terminal "images"

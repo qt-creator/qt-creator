@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "shellprofilesaspect.h"
+
 #include <utils/aspects.h>
 
 namespace Terminal {
@@ -16,8 +18,7 @@ public:
 
     Utils::FontFamilyAspect fontFamily{this};
     Utils::IntegerAspect fontSize{this};
-    Utils::FilePathAspect shell{this};
-    Utils::StringAspect shellArguments{this};
+    Internal::ShellProfilesAspect shellProfiles{this};
 
     Utils::ColorAspect foregroundColor;
     Utils::ColorAspect backgroundColor;

@@ -16,6 +16,8 @@ QtcPlugin {
     files: [
         "shellmodel.cpp",
         "shellmodel.h",
+        "shellprofilesaspect.cpp",
+        "shellprofilesaspect.h",
         "consolehost.cpp",
         "consolehost.h",
         "shellintegration.cpp",
@@ -35,6 +37,13 @@ QtcPlugin {
         "terminalwidget.cpp",
         "terminalwidget.h",
     ]
+
+    QtcTestFiles {
+        files: [
+            "shellprofilesaspect_test.cpp",
+            "shellprofilesaspect_test.h",
+        ]
+    }
 
     Group {
         name: "images"
