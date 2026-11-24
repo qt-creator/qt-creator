@@ -30192,7 +30192,10 @@ void FakeVimTester::test_vim_command_swept_batch()
     // A changed buffer needs the bang, which is the measured message.
     data.doKeys("x");
     QVERIFY2(run("edit").contains("E37"), qPrintable(message));
-    QVERIFY2(run("e").contains("E37"), qPrintable(message));
+    // A bare ":e" is Qt Creator's own default mapping to the locator, which
+    // goes before Vim's ":edit" and leaves the buffer alone.
+    QVERIFY2(!run("e").contains("E37"), qPrintable(message));
+    QCOMPARE(data.text(), QString("lpha" N "beta"));
     // With the bang it goes ahead - whatever it then says, it is not that.
     QVERIFY2(!run("edit!").contains("E37"), qPrintable(message));
     QVERIFY2(!run("view").contains("E492"), qPrintable(message));

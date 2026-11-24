@@ -2718,6 +2718,18 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         return nullptr;
     };
 
+    // Trigger the action that one of the configured commands maps this one to.
+    auto triggerMappedAction = [this, &cmd] {
+        for (auto it = m_exCommandMap.constBegin(); it != m_exCommandMap.constEnd(); ++it) {
+            const QString &re = it.value();
+            if (!re.isEmpty() && QRegularExpression(re).match(cmd.cmd).hasMatch()) {
+                triggerAction(Id::fromString(it.key()));
+                return true;
+            }
+        }
+        return false;
+    };
+
     *handled = true;
     if ((cmd.matches("w", "write") || cmd.cmd == "wq") && cmd.args.isEmpty()) {
         // :w[rite]
@@ -2782,6 +2794,9 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             return;
         }
         if (target.isEmpty()) {
+            // The default mapping opens the locator on a bare ":e".
+            if (cmd.matches("e", "edit") && !cmd.hasBang && triggerMappedAction())
+                return;
             if (!editor)
                 return;
             IDocument *document = editor->document();
@@ -2950,17 +2965,7 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
         triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
         triggerAction(CppEditor::Constants::SWITCH_HEADER_SOURCE);
     } else {
-        // Check whether one of the configure commands matches.
-        const auto end = m_exCommandMap.constEnd();
-        for (auto it = m_exCommandMap.constBegin(); it != end; ++it) {
-            const QString &id = it.key();
-            const QString re = it.value();
-            if (!re.isEmpty() && QRegularExpression(re).match(cmd.cmd).hasMatch()) {
-                triggerAction(Id::fromString(id));
-                return;
-            }
-        }
-        *handled = false;
+        *handled = triggerMappedAction();
     }
 }
 
