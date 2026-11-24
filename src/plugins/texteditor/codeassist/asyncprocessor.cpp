@@ -16,6 +16,7 @@ namespace TextEditor {
 AsyncProcessor::AsyncProcessor()
 {
     QObject::connect(&m_watcher, &QFutureWatcher<IAssistProposal *>::finished, &m_watcher, [this] {
+        m_resultDelivered = true;
         setAsyncProposalAvailable(m_watcher.result());
     });
 }
@@ -26,6 +27,11 @@ AsyncProcessor::AsyncProcessor()
 AsyncProcessor::~AsyncProcessor()
 {
     QTC_CHECK(!m_watcher.isRunning());
+
+    // The future can be finished without the watcher having reported it yet,
+    // in which case nobody has taken ownership of the proposal.
+    if (!m_resultDelivered && m_watcher.isFinished() && m_watcher.future().resultCount() > 0)
+        delete m_watcher.result();
 }
 
 IAssistProposal *AsyncProcessor::perform()

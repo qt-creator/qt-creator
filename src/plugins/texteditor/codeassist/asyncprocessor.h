@@ -25,6 +25,9 @@ public:
 protected:
     bool isCanceled() const;
     QFutureWatcher<IAssistProposal *> m_watcher;
+
+private:
+    bool m_resultDelivered = false;
 };
 
 } // namespace TextEditor
