@@ -30,6 +30,7 @@ public:
     virtual void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) = 0;
     virtual void updateContents() = 0;
     virtual void addData(quint64 address, const QByteArray &data) = 0;
+    virtual void addUnreadable(quint64 address, quint64 length, const QString &reason) = 0;
 
     virtual void clearMarkup() = 0;
     virtual void addMarkup(quint64 address, quint64 len, const QColor &color, const QString &toolTip) = 0;

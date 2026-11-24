@@ -50,6 +50,7 @@ public:
 
     void updateContents();
     void addData(quint64 address, const QByteArray &data);
+    void addUnreadable(quint64 address, quint64 length, const QString &reason);
     void setFinished();
     bool isUsable();
 

@@ -40,6 +40,7 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QBasicTimer>
+#include <QBitArray>
 #include <QByteArrayMatcher>
 #include <QDebug>
 #include <QFile>
@@ -67,6 +68,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <limits>
 #include <optional>
 
 #ifdef WITH_TESTS
@@ -222,6 +224,9 @@ public:
     QByteArray dataMid(qint64 from, qint64 length, bool old = false) const;
     QByteArray blockData(qint64 block, bool old = false) const;
     void addData(quint64 addr, const QByteArray &data);
+    void addUnreadable(quint64 addr, quint64 length, const QString &reason);
+    bool isUnreadable(qint64 pos) const;
+    QString unreadableReason(qint64 pos) const;
     void updateContents();
 
     Result<> save(const FilePath &oldFilePath, const FilePath &newFilePath);
@@ -249,6 +254,14 @@ public:
     BlockMap m_modifiedData;
     mutable QSet<qint64> m_requests;
     QByteArray m_emptyBlock;
+
+    class UnreadableBlock
+    {
+    public:
+        QBitArray bytes;
+        QString reason;
+    };
+    QMap<qint64, UnreadableBlock> m_unreadable;
     QByteArray m_lowerBlock;
 
     std::function<void(quint64)> m_fetchDataHandler;
@@ -620,8 +633,44 @@ void BinEditorDocument::addData(quint64 addr, const QByteArray &data)
         const qint64 translatedBlock = (addr - m_baseAddr) / m_blockSize;
         m_data.insert(translatedBlock, data);
         m_requests.remove(translatedBlock);
+        m_unreadable.remove(translatedBlock);
         emit dataAdded();
     }
+}
+
+// Marks bytes the debugger could not read. Their data is meaningless, and the
+// mark lasts until the block is delivered anew.
+void BinEditorDocument::addUnreadable(quint64 addr, quint64 length, const QString &reason)
+{
+    // Offsets from the base do not wrap, the exclusive end addresses do at the top.
+    const quint64 last = addr + std::min(length - 1, std::numeric_limits<quint64>::max() - addr);
+    if (length == 0 || m_size == 0 || last < m_baseAddr)
+        return;
+    const quint64 from = addr > m_baseAddr ? addr - m_baseAddr : 0;
+    const quint64 to = std::min<quint64>(last - m_baseAddr, quint64(m_size) - 1);
+    for (quint64 off = from; off <= to; ++off) {
+        const qint64 pos = qint64(off);
+        UnreadableBlock &block = m_unreadable[pos / m_blockSize];
+        if (block.bytes.isEmpty())
+            block.bytes.resize(m_blockSize);
+        block.bytes.setBit(pos % m_blockSize);
+        block.reason = reason;
+    }
+    emit dataAdded();
+}
+
+bool BinEditorDocument::isUnreadable(qint64 pos) const
+{
+    const auto it = m_unreadable.constFind(pos / m_blockSize);
+    return it != m_unreadable.constEnd() && it->bytes.testBit(pos % m_blockSize);
+}
+
+QString BinEditorDocument::unreadableReason(qint64 pos) const
+{
+    if (!isUnreadable(pos))
+        return {};
+    const QString reason = m_unreadable.value(pos / m_blockSize).reason;
+    return reason.isEmpty() ? Tr::tr("The memory could not be read.") : reason;
 }
 
 bool BinEditorDocument::requestDataAt(qint64 pos) const
@@ -852,6 +901,7 @@ void BinEditorDocument::setSizes(quint64 startAddr, qint64 range, int blockSize)
     m_data.clear();
     m_modifiedData.clear();
     m_requests.clear();
+    m_unreadable.clear();
 
     m_baseAddr = newBaseAddr;
     m_size = newSize;
@@ -1413,7 +1463,8 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 qint64 pos = line * m_bytesPerLine + c;
                 if (pos >= docSize)
                     break;
-                const QChar qc = displayChar(m_doc->dataAt(pos, isOld));
+                const QChar qc = m_doc->isUnreadable(pos)
+                                     ? QLatin1Char(' ') : displayChar(m_doc->dataAt(pos, isOld));
                 printable += qc;
                 printableDisp += qc;
                 if (qc.direction() == QChar::Direction::DirR)
@@ -1446,9 +1497,15 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
 
 
                 const uchar value = uchar(m_doc->dataAt(pos, isOld));
-                itemStringData[c*3] = QLatin1Char(hex[value >> 4]);
-                itemStringData[c*3+1] = QLatin1Char(hex[value & 0xf]);
-                if (hasOldData && !isOld && value != uchar(m_doc->dataAt(pos, true))) {
+                const bool unreadable = m_doc->isUnreadable(pos);
+                if (unreadable) {
+                    itemStringData[c*3] = itemStringData[c*3+1] = QLatin1Char('?');
+                } else {
+                    itemStringData[c*3] = QLatin1Char(hex[value >> 4]);
+                    itemStringData[c*3+1] = QLatin1Char(hex[value & 0xf]);
+                }
+                if (hasOldData && !isOld && !unreadable
+                        && value != uchar(m_doc->dataAt(pos, true))) {
                     changedString[c] = true;
                     somethingChanged = true;
                 }
@@ -1470,7 +1527,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 // A byte that has a background of its own is set apart by that
                 // background already, and a colored glyph on top of it is what
                 // becomes hard to read.
-                if (m_colorBytes && !color.isValid()) {
+                if (m_colorBytes && !color.isValid() && !unreadable) {
                     byteColors[c] = byteColor(value);
                     anyByteColored = true;
                 }
@@ -1789,6 +1846,12 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
             return QString();
         selStart = *pos;
         byteCount = 1;
+    }
+
+    for (qint64 pos = selStart; pos < selStart + byteCount; ++pos) {
+        const QString reason = m_doc->unreadableReason(pos);
+        if (!reason.isEmpty())
+            return reason;
     }
 
     quint64 bigEndianValue, littleEndianValue;
@@ -2530,16 +2593,20 @@ static QColor cellColor(BinEditorWidget &widget, int line, int column)
                             line * widget.m_lineHeight + widget.m_lineHeight / 2);
 }
 
-// A cell a digit is drawn into is no longer of one color.
-static bool cellIsBlank(BinEditorWidget &widget, int line, int column)
+static QImage cellImage(BinEditorWidget &widget, int line, int column)
 {
     QImage image(widget.viewport()->size(), QImage::Format_ARGB32);
     image.fill(Qt::transparent);
     widget.viewport()->render(&image);
-    const QImage cell = image.copy(widget.m_margin + widget.m_labelWidth
-                                       + widget.hexColumnOffset(column) - widget.m_charWidth / 2,
-                                   line * widget.m_lineHeight,
-                                   widget.m_columnWidth, widget.m_lineHeight);
+    return image.copy(widget.m_margin + widget.m_labelWidth
+                          + widget.hexColumnOffset(column) - widget.m_charWidth / 2,
+                      line * widget.m_lineHeight, widget.m_columnWidth, widget.m_lineHeight);
+}
+
+// A cell a digit is drawn into is no longer of one color.
+static bool cellIsBlank(BinEditorWidget &widget, int line, int column)
+{
+    const QImage cell = cellImage(widget, line, column);
     for (int y = 0; y < cell.height(); ++y) {
         for (int x = 0; x < cell.width(); ++x) {
             if (cell.pixel(x, y) != cell.pixel(0, 0))
@@ -3007,6 +3074,44 @@ private slots:
         QVERIFY(cellIsBlank(widget, 1, 5));
     }
 
+    // Bytes the debugger could not read are zero in the data, and must not
+    // look like zeros the target holds.
+    void testUnreadableBytesAreMarked()
+    {
+        auto document = std::make_shared<BinEditorDocument>();
+        document->setSizes(0, 16, 16);
+        document->addData(0, QByteArray(16, '\0'));
+        BinEditorWidget widget(document);
+        widget.m_colorBytes = false;
+        widget.resize(600, 200);
+        widget.init();
+        QVERIFY(document->requestDataAt(0));
+
+        document->addUnreadable(4, 4, "Cannot access memory at address 0x4");
+        QCOMPARE(document->unreadableReason(5), "Cannot access memory at address 0x4");
+        QVERIFY(document->unreadableReason(3).isEmpty());
+        QVERIFY(cellImage(widget, 0, 5) != cellImage(widget, 0, 3));
+
+        const QPoint overByteFive = widget.offsetToPos(5)
+                                    + QPoint(widget.m_columnWidth / 2, widget.m_lineHeight / 2);
+        QHelpEvent event(QEvent::ToolTip, overByteFive, widget.mapToGlobal(overByteFive));
+        QCOMPARE(widget.toolTip(&event), "Cannot access memory at address 0x4");
+
+        document->addData(0, QByteArray(16, '\0'));
+        QVERIFY(document->unreadableReason(5).isEmpty());
+        QCOMPARE(cellImage(widget, 0, 5), cellImage(widget, 0, 3));
+    }
+
+    void testUnreadableBytesAtTopOfAddressSpace()
+    {
+        BinEditorDocument document;
+        document.setSizes(0xffffffffffffffffULL, 16, 16);
+        document.addData(0xfffffffffffffff0ULL, QByteArray(16, '\0'));
+        document.addUnreadable(0xfffffffffffffff8ULL, 8, "x");
+        QCOMPARE(document.unreadableReason(8), "x");
+        QVERIFY(document.unreadableReason(7).isEmpty());
+    }
+
     // The grouping is global, so choosing one in a context menu has to reach
     // the editors that are already open.
     void testGroupingIsShared()
@@ -3320,6 +3425,11 @@ public:
     void addData(quint64 address, const QByteArray &data) final
     {
         m_document->addData(address, data);
+    }
+
+    void addUnreadable(quint64 address, quint64 length, const QString &reason) final
+    {
+        m_document->addUnreadable(address, length, reason);
     }
 
     void clearMarkup() final

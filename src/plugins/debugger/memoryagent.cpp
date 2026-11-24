@@ -280,6 +280,12 @@ void MemoryAgent::addData(quint64 address, const QByteArray &a)
     m_service->addData(address, a);
 }
 
+void MemoryAgent::addUnreadable(quint64 address, quint64 length, const QString &reason)
+{
+    QTC_ASSERT(m_service, return);
+    m_service->addUnreadable(address, length, reason);
+}
+
 void MemoryAgent::setFinished()
 {
     if (m_service)

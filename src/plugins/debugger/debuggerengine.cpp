@@ -1659,8 +1659,11 @@ void DebuggerEngine::fetchMemory(MemoryAgent *agent, quint64 addr, quint64 lengt
         return;
     const QPointer<MemoryAgent> guard(agent);
     readMemory(addr, length, [guard](const MemoryReadResult &result) {
-        if (guard)
-            guard->addData(result.address, result.data);
+        if (!guard)
+            return;
+        guard->addData(result.address, result.data);
+        for (const MemoryReadResult::Unreadable &u : result.unreadable)
+            guard->addUnreadable(result.address + u.offset, u.length, u.reason);
     });
 }
 
