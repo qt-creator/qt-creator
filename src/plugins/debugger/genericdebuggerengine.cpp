@@ -1758,6 +1758,15 @@ void GenericDebuggerEngine::executeRunToFunction(const QString &functionName)
     m_backend->execute({ExecutionCommand::RunToFunction, false, {}, functionName});
 }
 
+void GenericDebuggerEngine::executeRunToCallTarget(const RunToTarget &target)
+{
+    ExecutionRequest request;
+    request.command = ExecutionCommand::RunToFunction;
+    request.functionName = target.function;
+    request.exactName = target.exact;
+    m_backend->execute(request);
+}
+
 void GenericDebuggerEngine::executeJumpToLine(const ContextData &data)
 {
     m_backend->execute({ExecutionCommand::JumpToLine, false, data});

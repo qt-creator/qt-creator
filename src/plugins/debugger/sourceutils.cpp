@@ -9,11 +9,17 @@
 #include "watchdata.h"
 #include "watchutils.h"
 
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/TypeOfExpression.h>
 
 #include <cppeditor/cppprojectfile.h>
+#include <cppeditor/functionutils.h>
 #include <cppeditor/cppmodelmanager.h>
 
 #include <texteditor/texteditor.h>
@@ -24,6 +30,8 @@
 #include <QDebug>
 #include <QTextDocument>
 #include <QTextBlock>
+
+#include <algorithm>
 
 enum { debug = 0 };
 
@@ -211,6 +219,116 @@ QStringList getUninitializedVariables(const Snapshot &snapshot,
     SeenHash seenHash;
     blockRecursion(overview, innerMostScope, line, &result, &seenHash);
     return result;
+}
+
+namespace {
+
+// Collects the name tokens of the calls whose function name is on the given line.
+class CallCollector : public ASTVisitor
+{
+public:
+    CallCollector(TranslationUnit *unit, int line)
+        : ASTVisitor(unit), m_line(line)
+    {}
+
+    QList<std::pair<int, CallAST *>> calls;
+
+private:
+    bool preVisit(AST *ast) override
+    {
+        const int first = ast->firstToken();
+        const int last = ast->lastToken() - 1;
+        // The positions of tokens that a macro generated are not reliable.
+        if (last < first || tokenAt(first).generated() || tokenAt(last).generated())
+            return true;
+        int firstLine = 0;
+        int lastLine = 0;
+        getTokenStartPosition(first, &firstLine, nullptr);
+        getTokenEndPosition(last, &lastLine, nullptr);
+        return firstLine <= m_line && m_line <= lastLine;
+    }
+
+    bool visit(CallAST *ast) override
+    {
+        const int nameToken = ast->base_expression->lastToken() - 1;
+        if (!tokenAt(nameToken).generated()) {
+            int line = 0;
+            getTokenStartPosition(nameToken, &line, nullptr);
+            if (line == m_line)
+                calls.append({nameToken, ast});
+        }
+        return true;
+    }
+
+    const int m_line;
+};
+
+} // namespace
+
+// The name of an anonymous namespace is not part of the name that is looked up.
+static bool inAnonymousNamespace(const CPlusPlus::Symbol *symbol)
+{
+    for (const Scope *scope = symbol->enclosingScope(); scope; scope = scope->enclosingScope()) {
+        const Namespace *ns = scope->asNamespace();
+        if (ns && !ns->name() && scope->enclosingScope())
+            return true;
+    }
+    return false;
+}
+
+// The functions that a line of C++ source calls, in the order of their
+// appearance, as targets for "Run to Function".
+QList<RunToTarget> functionCallTargets(const Snapshot &snapshot, const FilePath &filePath,
+                                       const QByteArray &source, int lineNumber)
+{
+    const Document::Ptr document = snapshot.preprocessedDocument(source, filePath);
+    document->check();
+    TranslationUnit *unit = document->translationUnit();
+    if (!unit->ast())
+        return {};
+    CallCollector collector(unit, lineNumber);
+    collector.accept(unit->ast());
+    std::sort(collector.calls.begin(), collector.calls.end(),
+              [](const auto &a, const auto &b) { return a.first < b.first; });
+
+    TypeOfExpression typeOf;
+    typeOf.init(document, snapshot);
+    const Overview overview;
+    QList<RunToTarget> result;
+    for (const auto &[nameToken, call] : std::as_const(collector.calls)) {
+        int line = 0;
+        int column = 0;
+        unit->getTokenPosition(nameToken, &line, &column);
+        Scope *scope = document->scopeAt(line, column);
+        if (!scope)
+            continue;
+        // An explicitly qualified call such as Base::paint() does not dispatch.
+        const bool qualified = nameToken > 0 && unit->tokenAt(nameToken - 1).is(T_COLON_COLON);
+        for (const LookupItem &item : typeOf(call->base_expression, document, scope)) {
+            CPlusPlus::Symbol *function = item.declaration();
+            if (Template *templ = function ? function->asTemplate() : nullptr)
+                function = templ->declaration();
+            if (!function || !function->type()->asFunctionType())
+                continue;
+            // A virtual call runs an override, so only the bare name can match it.
+            RunToTarget target;
+            target.anyClass = !qualified && CppEditor::isVirtualFunction(
+                function->type()->asFunctionType(), typeOf.context());
+            target.function = target.anyClass
+                    ? overview.prettyName(function->name())
+                    : overview.prettyName(LookupContext::fullyQualifiedName(function));
+            target.exact = !target.anyClass && !inAnonymousNamespace(function);
+            if (!result.contains(target))
+                result.append(target);
+        }
+    }
+    return result;
+}
+
+QList<RunToTarget> functionCallTargets(const FilePath &filePath, const QByteArray &source,
+                                       int lineNumber)
+{
+    return functionCallTargets(CppModelManager::snapshot(), filePath, source, lineNumber);
 }
 
 QString cppFunctionAt(const FilePath &filePath, int line, int column)

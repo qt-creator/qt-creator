@@ -161,6 +161,7 @@ static DebuggerEngineSetupData pdbImplSetupData()
                       | ReloadModuleSymbolsCapability
                       | ResetInferiorCapability
                       | RunToLineCapability
+                      | RunToFunctionCapability
                       | ShowModuleSymbolsCapability
                       | TracePointCapability
                       | WatchComplexExpressionsCapability;

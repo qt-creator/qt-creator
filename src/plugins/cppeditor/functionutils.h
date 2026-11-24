@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "cppeditor_global.h"
+
 #include <QList>
 #include <QObject>
 
@@ -14,7 +16,12 @@ class Snapshot;
 class Symbol;
 } // namespace CPlusPlus
 
-namespace CppEditor::Internal {
+namespace CppEditor {
+
+CPPEDITOR_EXPORT bool isVirtualFunction(const CPlusPlus::Function *function,
+                                        const CPlusPlus::LookupContext &context);
+
+namespace Internal {
 
 class FunctionUtils
 {
@@ -45,4 +52,5 @@ private slots:
 };
 #endif // WITH_TESTS
 
-} // namespace CppEditor::Internal
+} // namespace Internal
+} // namespace CppEditor

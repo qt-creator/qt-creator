@@ -182,6 +182,32 @@ static QList<quint64> ambiguousMatchAddresses(const QStringList &reply)
     return addresses;
 }
 
+// The addresses of the members called name in an "x" listing, whose lines
+// look like "00007ff6`12341230 app!Derived::paint (void)".
+static QList<quint64> memberAddresses(const QStringList &reply, const QString &name)
+{
+    QList<quint64> addresses;
+    for (const QString &replyLine : reply) {
+        const QString trimmed = replyLine.trimmed();
+        const int space = trimmed.indexOf(' ');
+        if (space <= 0)
+            continue;
+        QString symbol = trimmed.mid(space).trimmed();
+        const int signature = symbol.lastIndexOf(" (");
+        if (signature > 0)
+            symbol.truncate(signature);
+        if (!symbol.endsWith("::" + name))
+            continue;
+        QString addressString = trimmed.left(space);
+        addressString.remove('`');
+        bool ok = false;
+        const quint64 address = addressString.toULongLong(&ok, 16);
+        if (ok && !addresses.contains(address))
+            addresses.append(address);
+    }
+    return addresses;
+}
+
 // "ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL",
 // with a bare address pair on 32 bit.
 static std::optional<QString> loadedModule(const QString &line)
@@ -284,6 +310,7 @@ static DebuggerEngineSetupData cdbImplSetupData()
                       | ReloadModuleCapability
                       | ResetInferiorCapability
                       | RunToLineCapability
+                      | RunToFunctionCapability
                       | TracePointCapability
                       | WatchpointByAddressCapability;
     data.acceptsBreakpoint = [](const AcceptsBreakpointQuery &query) {
@@ -1022,21 +1049,45 @@ void CdbImpl::execute(const ExecutionRequest &request)
                                                          m_startData.moduleForSourceFile),
                                           id, sourcePathMap());
         }
-        runCommand({cmd, BuiltinCommand, [this](const DebuggerResponse &response) {
-            // cdb refuses a breakpoint whose location is ambiguous, so a line with
-            // several of them needs one per match, as insertBreakpoint() does.
-            for (quint64 address : ambiguousMatchAddresses(response.data.data().split('\n'))) {
-                const QString subId = nextBreakpointId();
-                m_internalBreakpointIds.insert(subId);
-                m_runToBreakpointIds.append(subId);
-                runCommand({"bu" + subId + " /1 " + hexAddress(address), NoFlags});
-            }
+        QString memberName;
+        if (request.command == ExecutionCommand::RunToFunction && !request.exactName
+                && !request.functionName.contains('!')) {
+            memberName = request.functionName;
+        }
+        const auto addRunToBreakpoint = [this](quint64 address) {
+            const QString subId = nextBreakpointId();
+            m_internalBreakpointIds.insert(subId);
+            m_runToBreakpointIds.append(subId);
+            runCommand({"bu" + subId + " /1 " + hexAddress(address), NoFlags});
+        };
+        const auto resume = [this] {
             m_expectSpontaneousStop = true;
             m_inferiorRunning = true;
             m_runIsContinue = true;
             emit inferiorEvent(InferiorEvent::RunRequested);
             emit inferiorEvent(InferiorEvent::RunOk);
             runCommand({"g", NoFlags});
+        };
+        runCommand({cmd, BuiltinCommand, [this, memberName, addRunToBreakpoint, resume]
+                                         (const DebuggerResponse &response) {
+            // cdb refuses a breakpoint whose location is ambiguous, so a line with
+            // several of them needs one per match, as insertBreakpoint() does.
+            for (quint64 address : ambiguousMatchAddresses(response.data.data().split('\n')))
+                addRunToBreakpoint(address);
+            if (memberName.isEmpty()) {
+                resume();
+                return;
+            }
+            // A bare name also means a member of any class, as it does for gdb
+            // and lldb. cdb finds those only through a wildcard over the scopes.
+            runCommand({"x *!*::" + memberName, BuiltinCommand,
+                        [memberName, addRunToBreakpoint, resume](const DebuggerResponse &response) {
+                for (quint64 address : memberAddresses(response.data.data().split('\n'),
+                                                       memberName)) {
+                    addRunToBreakpoint(address);
+                }
+                resume();
+            }});
         }});
         break;
     }

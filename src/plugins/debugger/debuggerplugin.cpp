@@ -1843,6 +1843,34 @@ void DebuggerPluginPrivate::requestContextMenu(TextEditorWidget *widget,
                     QTC_ASSERT(engine, return);
                     engine->executeRunToLine(args);
                 });
+                BreakpointParameters bp(BreakpointByFileAndLine);
+                bp.fileName = args.fileName;
+                if (!args.address && engine->hasCapability(RunToFunctionCapability)
+                        && document->id() == CppEditor::Constants::CPPEDITOR_ID
+                        && engine->acceptsBreakpoint(bp)) {
+                    QMenu *sub = menu->addMenu(Tr::tr("Run to Function"));
+                    const QPointer<TextDocument> doc(document);
+                    connect(sub, &QMenu::aboutToShow, sub,
+                            [sub, doc, engine, fileName = args.fileName, lineNumber] {
+                        if (!doc || !sub->isEmpty())
+                            return;
+                        const QList<RunToTarget> targets
+                            = functionCallTargets(fileName, doc->contents(), lineNumber);
+                        for (const RunToTarget &target : targets) {
+                            QAction *act = sub->addAction(
+                                target.anyClass ? Tr::tr("%1 (any class)").arg(target.function)
+                                                : target.function);
+                            connect(act, &QAction::triggered, sub, [target, engine] {
+                                QTC_ASSERT(engine, return);
+                                engine->resetLocation();
+                                engine->executeRunToCallTarget(target);
+                            });
+                        }
+                        if (sub->isEmpty())
+                            sub->addAction(Tr::tr("No function calls on this line"))
+                                ->setEnabled(false);
+                    });
+                }
             }
             if (engine->hasCapability(JumpToLineCapability)) {
                 auto act = menu->addAction(args.address

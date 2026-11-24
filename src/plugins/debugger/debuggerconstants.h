@@ -92,7 +92,8 @@ enum DebuggerCapabilities
     ResetInferiorCapability           = 1 << 26, //!< restart program while debugging
     BreakIndividualLocationsCapability= 1 << 27, //!< Allows to enable/disable individual location for multi-location bps
     WatchpointAccessCapability        = 1 << 28, //!< Watchpoints can stop on reads
-    HardwareBreakpointCapability      = 1 << 29  //!< Breakpoints can use hardware units
+    HardwareBreakpointCapability      = 1 << 29, //!< Breakpoints can use hardware units
+    RunToFunctionCapability           = 1 << 30  //!< Can run to a function by name
 };
 Q_ENUM_NS(DebuggerCapabilities)
 

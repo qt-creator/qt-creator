@@ -108,7 +108,7 @@ static DebuggerEngineSetupData dapImplSetupData()
                       | ShowModuleSectionsCapability | ShowModuleSymbolsCapability
                       | JumpToLineCapability | ResetInferiorCapability
                       | ReturnFromFunctionCapability
-                      | RunToLineCapability | SnapshotCapability
+                      | RunToLineCapability | RunToFunctionCapability | SnapshotCapability
                       | WatchComplexExpressionsCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability
                       | WatchpointAccessCapability;

@@ -46,6 +46,7 @@
 #include "shared/hostutils.h"
 #include "stackframe.h"
 #include "commonoptionspage.h"
+#include "sourceutils.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
@@ -61,6 +62,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/modemanager.h>
+
+#include <cplusplus/CppDocument.h>
 
 #include <cppeditor/cpptoolstestcase.h>
 
@@ -164,6 +167,8 @@ private slots:
     void testDeviceDetectionFailedExtraction();
     void testDeviceDetectionKnownItemRemoved();
     void testDeviceDetectionDapForLinkedGdb();
+    void testFunctionCallTargets_data();
+    void testFunctionCallTargets();
 
     void testBenchmark();
     void testStateMachine();
@@ -215,6 +220,7 @@ private slots:
     void testCdbImplBreakpointRemovedWhileRunning();
     void testCdbImplBreakpointRemovedDuringStep();
     void testCdbImplBreakpointRemovedDuringRunToFunction();
+    void testCdbImplRunToFunctionMatchesMembers();
     void testCdbImplBreakpointReenabledWhileRunning();
     void testCdbImplBreakpointUpdateReplaces();
     void testCdbImplAmbiguousBreakpointWhileRunning();
@@ -983,6 +989,86 @@ void DebuggerUnitTests::testBenchmark()
     CALLGRIND_STOP_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
 #endif
+}
+
+void DebuggerUnitTests::testFunctionCallTargets_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("targets");
+
+    QTest::newRow("nested") << QByteArray("foo(bar(), baz(42));")
+                            << QStringList{"foo", "bar", "baz"};
+    QTest::newRow("members") << QByteArray("item.run(p->next()->size());")
+                             << QStringList{"Item::run", "Item::next", "Item::size"};
+    QTest::newRow("qualified") << QByteArray("int x = ns::Cls::make(1) + ::g();")
+                               << QStringList{"ns::Cls::make", "g"};
+    QTest::newRow("keywords") << QByteArray("if (sizeof(int) == 4 && g()) return;")
+                              << QStringList{"g"};
+    QTest::newRow("literals") << QByteArray("baz(\"f(x)\"[0]); // g()") << QStringList{"baz"};
+    QTest::newRow("repeated") << QByteArray("baz(baz(1));") << QStringList{"baz"};
+    QTest::newRow("declaration") << QByteArray("Item copy(item);") << QStringList();
+    QTest::newRow("macro argument") << QByteArray("CHECK(g());") << QStringList{"g"};
+    QTest::newRow("macro body") << QByteArray("LOG();") << QStringList();
+    QTest::newRow("ternary") << QByteArray("int y = g() ? bar() : baz(1);")
+                             << QStringList{"g", "bar", "baz"};
+    QTest::newRow("variables") << QByteArray("this->member(); callback(); helper();")
+                               << QStringList{"S::member", "helper"};
+    QTest::newRow("template") << QByteArray("convert<int>(1);") << QStringList{"convert"};
+    QTest::newRow("continuation") << QByteArray("foo(1,\n    bar());") << QStringList{"bar"};
+    QTest::newRow("comment") << QByteArray("// foo(1, 2)") << QStringList();
+    QTest::newRow("virtual") << QByteArray("base->paint(); derived->draw(); base->size();")
+                             << QStringList{"paint*", "draw*", "Base::size"};
+    QTest::newRow("implicit override") << QByteArray("derived->paint();")
+                                       << QStringList{"paint*"};
+    QTest::newRow("anonymous namespace") << QByteArray("local();") << QStringList{"local?"};
+    QTest::newRow("explicitly qualified") << QByteArray("derived->Base::draw();")
+                                          << QStringList{"Base::draw"};
+}
+
+void DebuggerUnitTests::testFunctionCallTargets()
+{
+    QFETCH(QByteArray, code);
+    QFETCH(QStringList, targets);
+
+    QByteArray source =
+        "#define CHECK(x) if (!(x)) return\n"
+        "#define LOG() helper()\n"
+        "namespace ns { struct Cls { static int make(int); }; }\n"
+        "int g();\n"
+        "int foo(int, int);\n"
+        "int bar();\n"
+        "int baz(int);\n"
+        "void helper();\n"
+        "namespace { int local(); }\n"
+        "template <typename T> T convert(int);\n"
+        "struct Item { int run(int); Item *next(); int size() const; };\n"
+        "struct S { void member(); void work(); };\n"
+        "struct Base { virtual void paint() = 0; virtual void draw(); int size(); };\n"
+        "struct Derived : Base { void draw() override; void paint(); };\n"
+        "void S::work()\n"
+        "{\n"
+        "    Item item;\n"
+        "    Item *p = &item;\n"
+        "    Base *base = nullptr;\n"
+        "    Derived *derived = nullptr;\n"
+        "    auto callback = [] {};\n"
+        "    int member = 0;\n"
+        "    @\n"
+        "}\n";
+    const int line = source.left(source.indexOf('@')).count('\n') + 1 + code.count('\n');
+    source.replace("@", code);
+
+    const FilePath filePath = FilePath::fromString("/nonexistent/targets.cpp");
+    // A trailing '*' in the expected names marks a target that matches any class,
+    // a trailing '?' one that is not virtual but whose name is not complete.
+    const QStringList actual = Utils::transform(
+        functionCallTargets(CPlusPlus::Snapshot(), filePath, source, line),
+        [](const RunToTarget &target) {
+            return target.anyClass ? target.function + '*'
+                   : target.exact  ? target.function
+                                   : target.function + '?';
+        });
+    QCOMPARE(actual, targets);
 }
 
 void DebuggerUnitTests::testDebuggerMatching_data()
@@ -2534,6 +2620,7 @@ void DebuggerUnitTests::testCdbImplBreakpointRemovedDuringRunToFunction()
     ExecutionRequest run;
     run.command = ExecutionCommand::RunToFunction;
     run.functionName = "main";
+    run.exactName = true;
     cdb.execute(run);
     answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
     QVERIFY(cdb.m_inferiorRunning);
@@ -2550,6 +2637,67 @@ void DebuggerUnitTests::testCdbImplBreakpointRemovedDuringRunToFunction()
                             R"(breakpointId=")" + id + R"(",threadId="1"})");
     QCOMPARE(written.last(), QString("g"));
     QVERIFY(events.isEmpty());
+
+    cdb.m_shuttingDown = true;
+    cdb.m_cdbProc.kill();
+    QVERIFY(cdb.m_cdbProc.waitForFinished());
+}
+
+void DebuggerUnitTests::testCdbImplRunToFunctionMatchesMembers()
+{
+    CdbImpl cdb({});
+    cdb.m_wow64State = CdbImpl::Wow64State::None;
+    QStringList written;
+    QVERIFY(startCdbStandIn(cdb, &written));
+
+    ExecutionRequest run;
+    run.command = ExecutionCommand::RunToFunction;
+    run.functionName = "paint";
+    cdb.execute(run);
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QVERIFY(written.last().contains("\nx *!*::paint\n"));
+    const QString marker = cdb.m_tokenPrefix + QString::number(cdb.m_nextCommandToken);
+    cdb.handleCdbOutputLine(marker + '<');
+    cdb.handleCdbOutputLine("00000000`00401000 app!Base::paint (void)");
+    cdb.handleCdbOutputLine("00000000`00402000 app!Derived::paint (void)");
+    cdb.handleCdbOutputLine("00000000`00403000 app!Derived::paintAll (void)");
+    cdb.handleCdbOutputLine(marker + '>');
+    QCOMPARE(written.filter(QRegularExpression("^bu\\d+ /1 0x40[12]000$")).size(), 2);
+    QCOMPARE(written.last(), QString("g"));
+    const QStringList runToIds = cdb.m_runToBreakpointIds;
+    QCOMPARE(runToIds.size(), 3);
+
+    // The stop clears the matches that did not fire.
+    written.clear();
+    cdb.reportStop(GdbMi());
+    QVERIFY(written.contains("bc " + runToIds.join(' ')));
+    QVERIFY(cdb.m_runToBreakpointIds.isEmpty());
+
+    written.clear();
+    run.functionName = "Base::paint";
+    run.exactName = true;
+    cdb.execute(run);
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QVERIFY(!written.join('\n').contains("x *!*"));
+    QCOMPARE(written.last(), QString("g"));
+
+    // A bare name that is exact, such as a global function.
+    cdb.reportStop(GdbMi());
+    written.clear();
+    run.functionName = "paint";
+    cdb.execute(run);
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QVERIFY(!written.join('\n').contains("x *!*"));
+    QCOMPARE(written.last(), QString("g"));
+
+    // A function in an anonymous namespace is not exact, whatever its class.
+    cdb.reportStop(GdbMi());
+    written.clear();
+    run.functionName = "local";
+    run.exactName = false;
+    cdb.execute(run);
+    answerCdbBuiltin(cdb, cdb.m_nextCommandToken);
+    QVERIFY(written.last().contains("\nx *!*::local\n"));
 
     cdb.m_shuttingDown = true;
     cdb.m_cdbProc.kill();

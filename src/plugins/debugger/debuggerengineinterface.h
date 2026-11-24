@@ -52,6 +52,7 @@ public:
     QString functionName = {};
     bool currentFrameIsQml = false;
     bool reverse = false;
+    bool exactName = false; // RunToFunction: do not match same-named functions in other scopes
 };
 
 enum class RefreshKind {

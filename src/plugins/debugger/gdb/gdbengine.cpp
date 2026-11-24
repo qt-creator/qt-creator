@@ -2082,6 +2082,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
                   | AddWatcherWhileRunningCapability
                   | WatchWidgetsCapability
                   | RunToLineCapability
+                  | RunToFunctionCapability
                   | ResetInferiorCapability
                   | SnapshotCapability
                   | ReverseSteppingCapability);

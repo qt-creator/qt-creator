@@ -200,6 +200,15 @@ QList<Function *> FunctionUtils::overrides(Function *function, Class *functionsC
 
 }  // namespace CppEditor::Internal
 
+namespace CppEditor {
+
+bool isVirtualFunction(const Function *function, const LookupContext &context)
+{
+    return Internal::FunctionUtils::isVirtualFunction(function, context);
+}
+
+} // namespace CppEditor
+
 #ifdef WITH_TESTS
 namespace CppEditor::Internal {
 enum class Virtuality

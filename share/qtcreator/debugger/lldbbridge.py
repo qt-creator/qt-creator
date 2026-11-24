@@ -3342,12 +3342,35 @@ class Dumper(DumperBase):
                 self.reportResult('', args)
                 self.process.Continue()
 
+    def stripTemplateArguments(self, name):
+        result = ''
+        depth = 0
+        for c in name:
+            if c == '<':
+                depth += 1
+            elif c == '>':
+                depth = max(depth - 1, 0)
+            elif depth == 0:
+                result += c
+        return result
+
     def executeRunToFunction(self, args):
         self.reportToken(args)
         frame = self.currentFrame()
-        bp = self.target.BreakpointCreateByName(str(args['function']))
+        name = str(args['function'])
+        bp = self.target.BreakpointCreateByName(name)
+        numLocations = bp.GetNumLocations()
+        if args.get('exact') and '::' not in name:
+            # A bare name would also match members and functions in namespaces.
+            for loc in bp:
+                func = loc.GetAddress().GetFunction()
+                qualified = self.stripTemplateArguments(
+                    (func.GetDisplayName() or '').split('(')[0])
+                if func and '::' in qualified.strip().split(' ')[-1]:
+                    loc.SetEnabled(False)
+                    numLocations -= 1
         self.internalBreakpointIds.add(bp.GetID())
-        if bp.GetNumLocations() == 0:
+        if numLocations == 0:
             self.target.BreakpointDelete(bp.GetID())
             self.reportResult(self.describeStatus('No target location found.')
                               + self.describeLocation(frame), args)

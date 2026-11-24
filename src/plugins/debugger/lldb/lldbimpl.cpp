@@ -73,6 +73,7 @@ static DebuggerEngineSetupData lldbImplSetupData()
                       | ResetInferiorCapability
                       | ReturnFromFunctionCapability
                       | RunToLineCapability
+                      | RunToFunctionCapability
                       | SnapshotCapability
                       | TracePointCapability
                       | WatchWidgetsCapability
@@ -746,6 +747,7 @@ void LldbImpl::execute(const ExecutionRequest &request)
         emit inferiorEvent(InferiorEvent::RunRequested);
         DebuggerCommand cmd("executeRunToFunction", DebuggerCommand::RunRequest);
         cmd.arg("function", request.functionName);
+        cmd.arg("exact", request.exactName);
         runCommand(cmd);
         break;
     }

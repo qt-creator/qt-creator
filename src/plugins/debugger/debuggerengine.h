@@ -447,6 +447,7 @@ class DebuggerEnginePrivate;
 class DebuggerPluginPrivate;
 class DisassemblerAgent;
 class MemoryAgent;
+class RunToTarget;
 class WatchItem;
 class BreakHandler;
 class BreakpointParameters;
@@ -824,6 +825,7 @@ protected:
 
     virtual void executeRunToLine(const Internal::ContextData &) {}
     virtual void executeRunToFunction(const QString &) {}
+    virtual void executeRunToCallTarget(const Internal::RunToTarget &target);
     virtual void executeJumpToLine(const Internal::ContextData &) {}
 
     virtual void doUpdateLocals(const UpdateParameters &params);

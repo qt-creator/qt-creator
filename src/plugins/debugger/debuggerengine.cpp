@@ -3303,6 +3303,11 @@ void DebuggerEngine::handleExecJumpToLine()
     }
 }
 
+void DebuggerEngine::executeRunToCallTarget(const RunToTarget &target)
+{
+    executeRunToFunction(target.function);
+}
+
 void DebuggerEngine::handleExecRunToLine()
 {
     resetLocation();

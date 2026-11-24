@@ -142,7 +142,7 @@ static DebuggerEngineSetupData bridgeImplSetupData()
                       | ReloadModuleCapability | ReloadModuleSymbolsCapability
                       | BreakConditionCapability | BreakIndividualLocationsCapability
                       | BreakOnThrowAndCatchCapability | BreakModuleCapability
-                      | RunToLineCapability | JumpToLineCapability
+                      | RunToLineCapability | RunToFunctionCapability | JumpToLineCapability
                       | WatchpointByAddressCapability | WatchpointByExpressionCapability
                       | WatchpointAccessCapability
                       | HardwareBreakpointCapability

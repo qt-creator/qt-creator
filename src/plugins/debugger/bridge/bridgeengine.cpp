@@ -1285,7 +1285,8 @@ void BridgeEngine::updateAll()
 bool BridgeEngine::hasCapability(unsigned cap) const
 {
     return cap & (ReloadModuleCapability | BreakConditionCapability | ShowModuleSymbolsCapability
-                  | RunToLineCapability | AddWatcherCapability | RegisterCapability
+                  | RunToLineCapability | RunToFunctionCapability | AddWatcherCapability
+                  | RegisterCapability
                   | ShowMemoryCapability | DisassemblerCapability
                   | OperateByInstructionCapability | JumpToLineCapability
                   | WatchpointByAddressCapability | WatchpointByExpressionCapability

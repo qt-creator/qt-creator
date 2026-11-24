@@ -77,6 +77,7 @@ private:
     void executeReturn() final;
     void executeRunToLine(const ContextData &data) final;
     void executeRunToFunction(const QString &functionName) final;
+    void executeRunToCallTarget(const RunToTarget &target) final;
     void executeJumpToLine(const ContextData &data) final;
     void executeRecordReverse(bool record) final;
     void debugLastCommand() final;

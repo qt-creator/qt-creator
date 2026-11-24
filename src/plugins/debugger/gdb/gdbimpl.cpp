@@ -89,6 +89,7 @@ static DebuggerEngineSetupData gdbImplSetupData()
                       | ReturnFromFunctionCapability
                       | ReverseSteppingCapability
                       | RunToLineCapability
+                      | RunToFunctionCapability
                       | SnapshotCapability
                       | TracePointCapability
                       | WatchWidgetsCapability
@@ -830,13 +831,17 @@ void GdbImpl::execute(const ExecutionRequest &request)
         });
         runRunRequestCommand("continue", DebuggerCommand::NativeCommand);
         break;
-    case ExecutionCommand::RunToFunction:
-        runOwnBreakpointCommand("-break-insert -t " + request.functionName,
+    case ExecutionCommand::RunToFunction: {
+        const bool qualified = request.exactName && m_gdbVersion >= 100000;
+        runOwnBreakpointCommand(QString("-break-insert -t ")
+                                    + (qualified ? "--qualified " : "")
+                                    + request.functionName,
                                 [this](const DebuggerResponse &response) {
             registerInternalBreakpointNumber(response.data["bkpt"]["number"].data());
         });
         runRunRequestCommand("-exec-continue");
         break;
+    }
     case ExecutionCommand::JumpToLine: {
         // The two commands disagree about what the location may resolve to: the
         // temporary breakpoint takes one location per template instantiation,
