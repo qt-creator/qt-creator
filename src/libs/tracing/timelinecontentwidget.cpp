@@ -6,6 +6,7 @@
 #include "pausedrangesoverlay.h"
 #include "selectionrangeoverlay.h"
 #include "timelinedetailswidget.h"
+#include "timelineformatdata.h"
 #include "timelinemodel.h"
 #include "timelinemodelaggregator.h"
 #include "timelinenotesmodel.h"
