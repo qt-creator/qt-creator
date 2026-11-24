@@ -37,6 +37,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             QStringList val;
             for (int i = 0; i < keys.count(); ++i)
                 val << QString::fromLatin1("%1=%2").arg(keys[i]).arg(values[i]);
+            val << tag->content();
             return val.join(";");
         }
     }
@@ -51,6 +52,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
                 if (keys[i].contains(m_strFilter, Qt::CaseInsensitive) || values[i].contains(m_strFilter, Qt::CaseInsensitive))
                     val << QString::fromLatin1("%1=%2").arg(keys[i]).arg(values[i]);
             }
+            const QString content = tag->content().simplified();
+            if (!m_strFilter.isEmpty() && content.contains(m_strFilter, Qt::CaseInsensitive))
+                val << content;
             return val.join(";");
         }
     }
