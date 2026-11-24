@@ -335,7 +335,6 @@ public:
     // There are usually other means available. E.g. distinguishing based
     // on FilePath::osType().
     bool isLocal() const;
-    [[deprecated]] bool needsDevice() const { return !isLocal(); }
     bool hasFileAccess() const;
 
     bool isSameDevice(const FilePath &other) const;
