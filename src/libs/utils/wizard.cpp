@@ -1095,6 +1095,7 @@ void WizardPage::pageWasAdded()
 void WizardPage::registerFieldWithName(const QString &name, QWidget *widget,
                                        const char *property, const char *changedSignal)
 {
+    QTC_ASSERT(widget, return);
     QTC_ASSERT(!property || widget->metaObject()->indexOfProperty(property) > -1, return);
     registerFieldName(name);
     registerField(name, widget, property, changedSignal);
