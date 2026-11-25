@@ -7,6 +7,9 @@
 
 #include <debugger/debuggerruncontrol.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <profiler/perfprofilerconstants.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -186,12 +189,33 @@ public:
     }
 };
 
+class QdbPerfProfilerRunWorkerFactory final : public RunWorkerFactory
+{
+public:
+    QdbPerfProfilerRunWorkerFactory()
+    {
+        setId("QdbPerfProfilerRunWorkerFactory");
+        cloneProduct(ProjectExplorer::Constants::PERFPROFILER_RUN_FACTORY);
+        addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+        addSupportedDeviceType(ProjectExplorer::Constants::BOOT2QT_DEVICE_TYPE);
+        addSupportedRunConfig(Constants::QdbRunConfigurationId);
+    }
+};
+
 void setupQdbRunWorkers()
 {
     static QdbRunWorkerFactory theQdbRunWorkerFactory;
     static QdbDebugWorkerFactory theQdbDebugWorkerFactory;
     static QdbQmlToolingWorkerFactory theQdbQmlToolingWorkerFactory;
     static QdbPerfProfilerWorkerFactory theQdbProfilerWorkerFactory;
+}
+
+void setupQdbPerfProfilerRunWorker()
+{
+    const ExtensionSystem::PluginSpec *spec = ExtensionSystem::PluginManager::specById("profiler");
+    if (!spec || !spec->plugin())
+        return;
+    static QdbPerfProfilerRunWorkerFactory theQdbPerfProfilerRunWorkerFactory;
 }
 
 } // Qdb::Internal

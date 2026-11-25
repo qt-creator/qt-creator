@@ -205,6 +205,7 @@ inline constexpr char PERFPROFILER_RUNNER[]="PerfProfiler.Runner";
 // RunWorkerFactory
 inline constexpr char QML_PROFILER_RUN_FACTORY[] = "LocalQmlProfilerRunWorkerFactory";
 inline constexpr char QML_PREVIEW_RUN_FACTORY[] = "LocalQmlPreviewSupportFactory";
+inline constexpr char PERFPROFILER_RUN_FACTORY[] = "PerfProfilerRunWorkerFactory";
 
 // RunConfig
 inline constexpr char QMAKE_RUNCONFIG_ID[] = "Qt4ProjectManager.Qt4RunConfiguration:";

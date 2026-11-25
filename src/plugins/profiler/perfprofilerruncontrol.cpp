@@ -145,7 +145,7 @@ class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     PerfProfilerRunWorkerFactory()
     {
-        setId("PerfProfilerRunWorkerFactory");
+        setId(ProjectExplorer::Constants::PERFPROFILER_RUN_FACTORY);
         setRecipeProducer([](RunControl *runControl) {
             // The following RunWorkerFactories react to that:
             // 1. AppManagerPerfProfilerWorkerFactory

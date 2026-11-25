@@ -6,5 +6,6 @@
 namespace Qdb::Internal {
 
 void setupQdbRunWorkers();
+void setupQdbPerfProfilerRunWorker();
 
 } // Qdb::Internal

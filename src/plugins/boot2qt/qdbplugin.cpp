@@ -165,6 +165,8 @@ private:
 
     void extensionsInitialized() final
     {
+        setupQdbPerfProfilerRunWorker();
+
         if (DeviceManager::isLoaded()) {
             d->setupDeviceDetection();
         } else {
