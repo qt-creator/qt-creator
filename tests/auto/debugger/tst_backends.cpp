@@ -12,6 +12,8 @@
 #include <debugger/pdb/pdbimpl.h>
 #include <debugger/qml/qmlimpl.h>
 
+#include <qmldebug/qmldebugconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/elfreader.h>
@@ -1658,6 +1660,11 @@ public:
         });
         connect(m_engine.get(), &DebuggerEngineInterface::inferiorDone, this,
                 [this](const InferiorResultData &resultData) { m_inferiorResults.append(resultData); });
+        connect(m_engine.get(), &DebuggerEngineInterface::connectionFailed, this,
+                [this](const QString &text) {
+            m_connectionFailed = true;
+            recordMessage("connection failed: " + text);
+        });
         connect(m_engine.get(), &DebuggerEngineInterface::threadEvent, this,
                 [this](ThreadEvent event, const GdbMi &data) {
             // A resume names its thread the way the engine reads it, which is the
@@ -1697,6 +1704,13 @@ public:
     {
         return contains(InferiorEvent::RunAndInferiorStopOk)
                || contains(InferiorEvent::RunAndInferiorStopOkAndResuming);
+    }
+    // An engine that gives up connecting leaves it to the user to retry, so
+    // that ends the wait for an attach as well.
+    bool attachSettled() const
+    {
+        return contains(InferiorEvent::RunAndInferiorRunOk)
+               || contains(InferiorEvent::EngineSetupFailed) || m_connectionFailed;
     }
     qsizetype count(InferiorEvent event) const { return m_events.count(event); }
     bool isEmpty() const { return m_events.isEmpty(); }
@@ -1765,6 +1779,7 @@ private:
     QString m_breakpointResponseId;
     QList<QPair<QString, QString>> m_triggeredBreakpoints;
     QStringList m_appOutput;
+    bool m_connectionFailed = false;
 };
 
 static QString wireTail(const QStringList &wire, int lines = 40)
@@ -5815,10 +5830,9 @@ void tst_backends::testDetachCapability()
         QVERIFY(debuggerBackend);
 
         debuggerBackend->engine()->start();
-        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                                 s_qmlStartupTimeout);
-        QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
+        QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                 qPrintable(debuggerBackend->lastMessages()));
 
         QStringList messages;
         connect(debuggerBackend->engine(), &DebuggerEngineInterface::message, this,
@@ -7068,10 +7082,9 @@ void tst_backends::testRunToLineCapability()
         DebuggerEngineInterface *engine = debuggerBackend->engine();
 
         engine->start();
-        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                                 || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                                 s_qmlStartupTimeout);
-        QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+        QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
+        QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+                 qPrintable(debuggerBackend->lastMessages()));
 
         QHash<quint64, bool> insertResults;
         connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -8335,9 +8348,7 @@ std::unique_ptr<DebuggerBackend> tst_backends::stopAtBreakpoint(Backend backend,
 
     engine->start();
     [backendPtr = debuggerBackend.get()] {
-        QTRY_VERIFY_WITH_TIMEOUT(backendPtr->contains(InferiorEvent::RunAndInferiorRunOk)
-                                 || backendPtr->contains(InferiorEvent::EngineSetupFailed),
-                                 s_qmlStartupTimeout);
+        QTRY_VERIFY_WITH_TIMEOUT(backendPtr->attachSettled(), s_qmlStartupTimeout);
     }();
     if (QTest::currentTestFailed() || !debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk))
         return nullptr;
@@ -19367,21 +19378,58 @@ QString tst_backends::startGdbserver(Process &gdbserverProcess, const QStringLis
     return gdbserverOutput->mid(portStart, portEnd - portStart);
 }
 
+// Returns once the runtime listens, as an attach that comes earlier is refused
+// and gives up. The port was free when it was picked, but something else can
+// take it before the runtime gets to listen on it, then another one is tried.
 quint16 tst_backends::startQmlServer(Process &inferiorProcess, const FilePath &executable)
 {
-    quint16 port = 0;
-    {
-        QTcpServer probe;
-        if (!probe.listen(QHostAddress::LocalHost))
+    QString output;
+    const QMetaObject::Connection reader = connect(&inferiorProcess,
+            &Process::readyReadStandardError, this, [&inferiorProcess, &output] {
+        output += inferiorProcess.readAllStandardError();
+    });
+    const auto disconnectReader = qScopeGuard([reader] { QObject::disconnect(reader); });
+
+    // Without a console, Qt may log to the system log instead of the pipe.
+    Environment environment = Environment::systemEnvironment();
+    environment.set("QT_FORCE_STDERR_LOGGING", "1");
+    inferiorProcess.setEnvironment(environment);
+
+    const QString waiting = QmlDebug::Constants::STR_WAITING_FOR_CONNECTION;
+    const QString unableToListen = QmlDebug::Constants::STR_UNABLE_TO_LISTEN;
+    for (int attempt = 0; attempt < 3; ++attempt) {
+        quint16 port = 0;
+        {
+            QTcpServer probe;
+            if (!probe.listen(QHostAddress::LocalHost))
+                return 0;
+            port = probe.serverPort();
+        }
+        output.clear();
+        inferiorProcess.setCommand({executable,
+            {QString("-qmljsdebugger=port:%1,block,services:V8Debugger,QmlDebugger").arg(port)}});
+        inferiorProcess.start();
+        if (!inferiorProcess.waitForStarted())
             return 0;
-        port = probe.serverPort();
+        [&] {
+            QTRY_VERIFY2_WITH_TIMEOUT(output.contains(waiting) || output.contains(unableToListen)
+                                          || inferiorProcess.state() == ProcessState::NotRunning,
+                                      qPrintable("The Qml runtime never said whether it listens:\n"
+                                                 + output),
+                                      s_qmlStartupTimeout);
+        }();
+        if (QTest::currentTestFailed())
+            return 0;
+        if (output.contains(waiting))
+            return port;
+        if (!output.contains(unableToListen)) {
+            qWarning("The Qml runtime ended before it listened:\n%s", qPrintable(output));
+            return 0;
+        }
+        inferiorProcess.kill();
+        inferiorProcess.waitForFinished();
     }
-    inferiorProcess.setCommand({executable,
-        {QString("-qmljsdebugger=port:%1,block,services:V8Debugger,QmlDebugger").arg(port)}});
-    inferiorProcess.start();
-    if (!inferiorProcess.waitForStarted())
-        return 0;
-    return port;
+    return 0;
 }
 
 void tst_backends::launchesThroughTheRemoteLinuxPlatform()
@@ -20616,10 +20664,9 @@ void tst_backends::attachesToQmlServerAndStopsAtBreakpoint()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                             s_qmlStartupTimeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
 
     QHash<quint64, bool> insertResults;
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -20679,10 +20726,9 @@ void tst_backends::endsAQmlAttachWhenTheApplicationQuits()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                             s_qmlStartupTimeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
 
     debuggerBackend->clearEvents();
     inferiorProcess.kill();
@@ -20719,10 +20765,9 @@ void tst_backends::insertsBreakpointAtJavaScriptThrowAndStopsAtIt()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                             s_qmlStartupTimeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
 
     QHash<quint64, bool> insertResults;
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -20782,10 +20827,9 @@ void tst_backends::insertsABreakOnAQmlSignalEmit()
     DebuggerEngineInterface *engine = debuggerBackend->engine();
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                             s_qmlStartupTimeout);
-    QVERIFY(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk));
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
+    QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
+             qPrintable(debuggerBackend->lastMessages()));
 
     QHash<quint64, bool> results;
     connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
@@ -20879,9 +20923,7 @@ void tst_backends::fillsTheInspectorTreeOnlyWhileItIsShown()
 
     engine->showInspectorTree(false);
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                             s_qmlStartupTimeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
     QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
              qPrintable(debuggerBackend->lastMessages()));
 
@@ -20941,9 +20983,7 @@ void tst_backends::reportsInspectorObjectTree()
     });
 
     engine->start();
-    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk)
-                             || debuggerBackend->contains(InferiorEvent::EngineSetupFailed),
-                             s_qmlStartupTimeout);
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->attachSettled(), s_qmlStartupTimeout);
     QVERIFY2(debuggerBackend->contains(InferiorEvent::RunAndInferiorRunOk),
              qPrintable(debuggerBackend->lastMessages()));
 
