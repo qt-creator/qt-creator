@@ -3,6 +3,7 @@ add_qtc_plugin(Remote
   PLUGIN_DEPENDS Core Debugger ProjectExplorer
   SOURCES
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
+    bridgeddeviceaccess.cpp bridgeddeviceaccess.h
     connectdevicestep.cpp connectdevicestep.h
     customcommanddeploystep.cpp customcommanddeploystep.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h

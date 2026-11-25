@@ -91,10 +91,10 @@ static QString decodedWslFailureOutput(const Process &process)
     return stdErr.isEmpty() ? stdOut : stdErr;
 }
 
-static Result<QString> runWsl(const QStringList &arguments,
+static Result<QString> runWsl(const FilePath &wsl,
+                              const QStringList &arguments,
                               std::chrono::seconds timeout = serviceTimeout)
 {
-    const FilePath wsl = wslExecutable();
     if (wsl.isEmpty())
         return ResultError(Tr::tr("No wsl.exe was found on this host."));
 
@@ -123,18 +123,18 @@ static Result<QString> runWsl(const QStringList &arguments,
     return decodeWslOutput(process.rawStdOut());
 }
 
-Result<QStringList> installedDistributions()
+Result<QStringList> installedDistributions(const FilePath &wsl)
 {
     // The quiet form carries no header and is not translated.
-    const Result<QString> output = runWsl({"--list", "--quiet"});
+    const Result<QString> output = runWsl(wsl, {"--list", "--quiet"});
     if (!output)
         return ResultError(output.error());
     return parseDistributionList(*output);
 }
 
-Result<QStringList> runningDistributions()
+Result<QStringList> runningDistributions(const FilePath &wsl)
 {
-    const Result<QString> output = runWsl({"--list", "--quiet", "--running"});
+    const Result<QString> output = runWsl(wsl, {"--list", "--quiet", "--running"});
     if (!output)
         return ResultError(output.error());
     return parseDistributionList(*output);
@@ -228,46 +228,54 @@ Environment parseEnvironment(const QString &envOutput)
 // Not through the device: a command run on the device asks it for the file
 // access that is being set up.
 static Result<QString> runInDistribution(
-    const QString &distribution, const QString &userName, const QStringList &command)
+    const FilePath &wsl,
+    const QString &distribution,
+    const QString &userName,
+    const QStringList &command)
 {
     QStringList arguments{"--distribution", distribution};
     if (!userName.isEmpty())
         arguments << "--user" << userName;
     arguments << "--exec";
     arguments << command;
-    return runWsl(arguments, distributionTimeout);
+    return runWsl(wsl, arguments, distributionTimeout);
 }
 
 // Through /bin/sh rather than a full path to the program: /usr/bin is where
 // a distribution with usrmerge keeps them, and Alpine and the older Debian
 // images keep "uname" and "env" in /bin.
 static Result<QString> runShellInDistribution(
-    const QString &distribution, const QString &userName, const QString &script)
+    const FilePath &wsl,
+    const QString &distribution,
+    const QString &userName,
+    const QString &script)
 {
-    return runInDistribution(distribution, userName, {"/bin/sh", "-c", script});
+    return runInDistribution(wsl, distribution, userName, {"/bin/sh", "-c", script});
 }
 
-Result<QString> detectMountRoot(const QString &distribution)
+Result<QString> detectMountRoot(const FilePath &wsl, const QString &distribution)
 {
     // A distribution without /etc/wsl.conf is not an error.
     const Result<QString> output
-        = runShellInDistribution(distribution, {}, "cat /etc/wsl.conf 2>/dev/null || true");
+        = runShellInDistribution(wsl, distribution, {}, "cat /etc/wsl.conf 2>/dev/null || true");
     if (!output)
         return ResultError(output.error());
     return parseMountRoot(*output);
 }
 
-Result<OsArch> detectArchitecture(const QString &distribution)
+Result<OsArch> detectArchitecture(const FilePath &wsl, const QString &distribution)
 {
-    const Result<QString> output = runShellInDistribution(distribution, {}, "uname -m");
+    const Result<QString> output = runShellInDistribution(wsl, distribution, {}, "uname -m");
     if (!output)
         return ResultError(output.error());
     return osArchFromString(output->trimmed());
 }
 
-Result<Environment> detectEnvironment(const QString &distribution, const QString &userName)
+Result<Environment> detectEnvironment(
+    const FilePath &wsl, const QString &distribution, const QString &userName)
 {
-    const Result<QString> output = runShellInDistribution(distribution, userName, "exec env");
+    const Result<QString> output
+        = runShellInDistribution(wsl, distribution, userName, "exec env");
     if (!output)
         return ResultError(output.error());
     return parseEnvironment(*output);

@@ -22,8 +22,8 @@ QString decodeWslOutput(const QByteArray &output);
 
 QStringList parseDistributionList(const QString &output);
 
-Utils::Result<QStringList> installedDistributions();
-Utils::Result<QStringList> runningDistributions();
+Utils::Result<QStringList> installedDistributions(const Utils::FilePath &wsl);
+Utils::Result<QStringList> runningDistributions(const Utils::FilePath &wsl);
 
 inline constexpr char defaultMountRoot[] = "/mnt";
 
@@ -33,10 +33,11 @@ QString parseMountRoot(const QString &wslConf);
 
 Utils::Environment parseEnvironment(const QString &envOutput);
 
-Utils::Result<QString> detectMountRoot(const QString &distribution);
-Utils::Result<Utils::OsArch> detectArchitecture(const QString &distribution);
+Utils::Result<QString> detectMountRoot(const Utils::FilePath &wsl, const QString &distribution);
+Utils::Result<Utils::OsArch> detectArchitecture(
+    const Utils::FilePath &wsl, const QString &distribution);
 Utils::Result<Utils::Environment> detectEnvironment(
-    const QString &distribution, const QString &userName);
+    const Utils::FilePath &wsl, const QString &distribution, const QString &userName);
 
 Utils::Environment withoutWindowsPath(
     const Utils::Environment &environment, const QString &mountRoot);

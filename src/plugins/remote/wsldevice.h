@@ -26,6 +26,9 @@ public:
 
     void shutdown();
 
+    // The wsl.exe that commands for the distribution go through.
+    Utils::FilePath launcher() const;
+
     Utils::CommandLine createCommandLineForDisplay() const;
 
     ProjectExplorer::IDeviceWidget *createWidget() final;

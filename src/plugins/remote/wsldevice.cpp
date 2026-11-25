@@ -3,6 +3,7 @@
 
 #include "wsldevice.h"
 
+#include "bridgeddeviceaccess.h"
 #include "wslapi.h"
 #include "wslconstants.h"
 #include "wsldevicewidget.h"
@@ -28,27 +29,18 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/osspecificaspects.h>
-#include <utils/processinfo.h>
-#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
 #include <utils/synchronizedvalue.h>
-#include <utils/terminalhooks.h>
 #include <utils/url.h>
 
 #include <QComboBox>
-#include <QDeadlineTimer>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLoggingCategory>
-#include <QPointer>
 #include <QPushButton>
 #include <QThread>
 
-#include <QtTaskTree/QConditional>
-
-#include <chrono>
 #include <optional>
 
 #ifdef Q_OS_WIN
@@ -58,6 +50,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtTaskTree;
+using namespace Remote::Internal;
 using namespace Utils;
 
 namespace Wsl {
@@ -85,41 +78,20 @@ public:
     WslDevicePrivate *m_dev = nullptr;
 };
 
-class WslFallbackFileAccess final : public UnixDeviceFileAccess
+class WslFallbackFileAccess final : public BridgeFallbackFileAccess
 {
 public:
     WslFallbackFileAccess(WslDevicePrivate *dev, const FilePath &rootPath)
-        : m_dev(dev)
-        , m_rootPath(rootPath)
+        : BridgeFallbackFileAccess(rootPath)
+        , m_dev(dev)
     {}
 
     // Not the "env" UnixDeviceFileAccess would run, so that leaving the
     // Windows PATH out means the same with the bridge and without it.
     Result<Environment> deviceEnvironment() const final;
 
-    Result<RunResult> runInShellImpl(
-        const CommandLine &cmdLine, const QByteArray &stdInData) const final
-    {
-        // Split for the distribution, not for the host: UnixDeviceFileAccess
-        // quoted these arguments the way a shell in the distribution parses
-        // them.
-        Process proc;
-        proc.setWriteData(stdInData);
-        proc.setCommand(
-            {m_rootPath.withNewPath(cmdLine.executable().path()),
-             ProcessArgs::splitArgs(cmdLine.arguments(), OsTypeLinux)});
-        proc.runBlocking();
-
-        return RunResult{
-            proc.resultData().m_exitCode,
-            proc.readAllRawStandardOutput(),
-            proc.readAllRawStandardError(),
-        };
-    }
-
 private:
     WslDevicePrivate *const m_dev;
-    const FilePath m_rootPath;
 };
 
 class WslDevicePrivate final : public QObject
@@ -128,17 +100,15 @@ public:
     explicit WslDevicePrivate(WslDevice *parent)
         : q(parent)
     {
-        QObject::connect(q, &WslDevice::applied, this, [this] { dropFileAccess(); });
+        QObject::connect(q, &WslDevice::applied, this, [this] { m_access.drop(); });
     }
-
-    ~WslDevicePrivate() final { m_fileAccess.writeLocked()->reset(); }
 
     Result<CommandLine> withWslCmd(
         const QString &markerTemplate,
         const CommandLine &cmd,
-        const std::optional<Environment> &env = std::nullopt,
-        const std::optional<FilePath> &workDir = std::nullopt,
-        bool withMarker = true) const;
+        const std::optional<Environment> &env,
+        const std::optional<FilePath> &workDir,
+        bool withMarker) const;
 
     CommandLine launcherCommandLine(const QString &distribution, const QString &userName) const;
 
@@ -146,38 +116,12 @@ public:
     Result<FilePath> cmdBridgePathInDistribution() const;
     Result<Environment> fetchEnvironment() const;
 
-    DeviceFileAccessPtr cachedFileAccess() const
-    {
-        auto fileAccess = m_fileAccess.readLocked();
-        if (*fileAccess && !shouldRetryBridge())
-            return *fileAccess;
-        return {};
-    }
-
-    DeviceFileAccessPtr createFileAccess();
-    void dropFileAccess();
-    void dropStaleFileAccess() const;
-
     QString distribution() const;
     QString mountRoot() const;
 
     WslDevice *const q;
 
 private:
-    Result<DeviceFileAccessPtr> createBridgeFileAccess(
-        SynchronizedValue<DeviceFileAccessPtr>::unique_lock &fileAccess,
-        const Utils::Result<Utils::FilePath> &inPlace,
-        const Utils::Environment &bridgeEnvironment);
-
-    DeviceFileAccessPtr bringUpFileAccess(int generation);
-
-    DeviceFileAccessPtr fallBackToDirectAccess(
-        SynchronizedValue<DeviceFileAccessPtr>::unique_lock &fileAccess, const QString &reason);
-
-    bool shouldRetryBridge() const { return m_retryBridge && m_bridgeRetryTimer.hasExpired(); }
-
-    std::function<void()> bridgeExitHandler();
-
     void detectMountRootAsync() const;
 
     void dropStaleTranslations() const;
@@ -193,21 +137,14 @@ private:
 
     bool takeMountRootAnswer(MountRootDetection *detection, const Result<QString> &root) const;
 
-    mutable SynchronizedValue<DeviceFileAccessPtr> m_fileAccess;
-
-    // Guarded by m_fileAccess.
-    static constexpr int MaxBridgeAttempts = 3;
-    static constexpr std::chrono::seconds BridgeRetryDelay{5};
-    bool m_retryBridge = false;
-    int m_bridgeAttempts = 0;
-    QDeadlineTimer m_bridgeRetryTimer;
-
-    bool m_creatingFileAccess = false;
-
-    mutable int m_fileAccessGeneration = 0;
+    BridgedDeviceAccess::Hooks accessHooks();
 
     mutable SynchronizedValue<std::optional<OsArch>> m_osArch;
     mutable SynchronizedValue<MountRootDetection> m_detectedMountRoot;
+
+public:
+    // Last: it waits for the bring-ups, which use the members above.
+    BridgedDeviceAccess m_access{&wslDeviceLog, accessHooks()};
 };
 
 QString WslDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
@@ -218,6 +155,29 @@ QString WslDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 Result<Environment> WslFallbackFileAccess::deviceEnvironment() const
 {
     return m_dev->fetchEnvironment();
+}
+
+BridgedDeviceAccess::Hooks WslDevicePrivate::accessHooks()
+{
+    BridgedDeviceAccess::Hooks hooks;
+    hooks.rootPath = [this] { return q->rootPath(); };
+    hooks.bridgeEnvironment = [this] { return fetchEnvironment(); };
+    hooks.bridgeInPlace = [this] { return cmdBridgePathInDistribution(); };
+    hooks.createBridge = [this](const std::function<void()> &errorExitHandler) {
+        return std::make_unique<WslDeviceFileAccess>(this, errorExitHandler);
+    };
+    hooks.createFallback = [this] {
+        return std::make_shared<WslFallbackFileAccess>(this, q->rootPath());
+    };
+    hooks.resetCaches = [this] {
+        m_osArch.writeLocked()->reset();
+        m_detectedMountRoot.writeLocked()->reset();
+    };
+    hooks.dropped = [this] {
+        q->invalidateSystemEnvironment();
+        q->setDeviceState(IDevice::DeviceDisconnected);
+    };
+    return hooks;
 }
 
 QString WslDevicePrivate::distribution() const
@@ -274,7 +234,7 @@ QString WslDevicePrivate::mountRoot() const
     // to every path translation, and would sit out the whole boot on it.
     detected->detecting = true;
     detected.unlock();
-    const Result<QString> root = detectMountRoot(q->distribution());
+    const Result<QString> root = detectMountRoot(q->launcher(), q->distribution());
 
     auto answered = m_detectedMountRoot.writeLocked();
     const bool changed = takeMountRootAnswer(&*answered, root);
@@ -290,7 +250,8 @@ QString WslDevicePrivate::mountRoot() const
 
 void WslDevicePrivate::detectMountRootAsync() const
 {
-    QFuture<Result<QString>> future = Utils::asyncRun(&detectMountRoot, q->distribution());
+    QFuture<Result<QString>> future = Utils::asyncRun(&detectMountRoot, q->launcher(),
+                                                           q->distribution());
     future.then(q, [this](const Result<QString> &root) {
         auto detected = m_detectedMountRoot.writeLocked();
         const bool changed = takeMountRootAnswer(&*detected, root);
@@ -304,31 +265,14 @@ void WslDevicePrivate::detectMountRootAsync() const
 
 void WslDevicePrivate::dropStaleTranslations() const
 {
-    dropStaleFileAccess();
+    m_access.dropStale();
     FSEngine::invalidateFileInfoCache();
-}
-
-std::function<void()> WslDevicePrivate::bridgeExitHandler()
-{
-    return [self = QPointer<WslDevicePrivate>(this)] {
-        if (!self)
-            return;
-        // Queued: this runs on the thread the bridge answers on, and dropping
-        // the access destroys the very client that is reporting.
-        QMetaObject::invokeMethod(
-            self.get(),
-            [self] {
-                if (self)
-                    self->dropFileAccess();
-            },
-            Qt::QueuedConnection);
-    };
 }
 
 CommandLine WslDevicePrivate::launcherCommandLine(
     const QString &distribution, const QString &userName) const
 {
-    CommandLine cmd{wslExecutable(), {"--distribution", distribution}};
+    CommandLine cmd{q->launcher(), {"--distribution", distribution}};
     if (!userName.isEmpty())
         cmd.addArgs({"--user", userName});
     return cmd;
@@ -341,7 +285,7 @@ Result<CommandLine> WslDevicePrivate::withWslCmd(
     const std::optional<FilePath> &workDir,
     bool withMarker) const
 {
-    const FilePath wslExe = wslExecutable();
+    const FilePath wslExe = q->launcher();
     if (wslExe.isEmpty())
         return ResultError(Tr::tr("No wsl.exe was found on this host."));
 
@@ -367,7 +311,7 @@ Result<OsArch> WslDevicePrivate::osArch() const
     if (const std::optional<OsArch> cached = *m_osArch.readLocked())
         return *cached;
 
-    const Result<OsArch> arch = detectArchitecture(q->distribution());
+    const Result<OsArch> arch = detectArchitecture(q->launcher(), q->distribution());
     if (arch)
         *m_osArch.writeLocked() = *arch;
     return arch;
@@ -375,7 +319,8 @@ Result<OsArch> WslDevicePrivate::osArch() const
 
 Result<Environment> WslDevicePrivate::fetchEnvironment() const
 {
-    const Result<Environment> env = detectEnvironment(q->distribution(), q->userName());
+    const Result<Environment> env = detectEnvironment(q->launcher(), q->distribution(),
+                                                       q->userName());
     if (!env) {
         return ResultError(Tr::tr("Could not read the environment of \"%1\": %2")
                                .arg(q->distribution(), env.error()));
@@ -430,204 +375,6 @@ Result<FilePath> WslDevicePrivate::cmdBridgePathInDistribution() const
     return q->rootPath().withNewPath(inDistribution);
 }
 
-Result<DeviceFileAccessPtr> WslDevicePrivate::createBridgeFileAccess(
-    SynchronizedValue<DeviceFileAccessPtr>::unique_lock &fileAccess,
-    const Result<FilePath> &inPlace,
-    const Environment &bridgeEnvironment)
-{
-    if (inPlace) {
-        auto fAccess = std::make_unique<WslDeviceFileAccess>(this, bridgeExitHandler());
-        fAccess->setPidMarker(Utils::pidMarkerTemplate());
-        const Result<> initResult = fAccess->init(*inPlace, bridgeEnvironment, false);
-        if (initResult)
-            return DeviceFileAccessPtr(std::move(fAccess));
-
-        qCWarning(wslDeviceLog).noquote()
-            << "Could not run the command bridge from" << inPlace->toUserOutput() << ":"
-            << initResult.error();
-    } else {
-        qCWarning(wslDeviceLog).noquote() << inPlace.error();
-    }
-
-    auto fAccess = std::make_unique<WslDeviceFileAccess>(this, bridgeExitHandler());
-    fAccess->setPidMarker(Utils::pidMarkerTemplate());
-
-    // Deploying runs commands on the device, which asks for the very file
-    // access being set up here. Leave a fallback in place for the duration, or
-    // those calls start another attempt of their own.
-    *fileAccess = std::make_shared<WslFallbackFileAccess>(this, q->rootPath());
-    fileAccess.unlock();
-    const CmdBridge::FileAccess::DeployResult deployResult
-        = fAccess->deployAndInit(ICore::libexecPath(), q->rootPath(), bridgeEnvironment);
-    fileAccess.lock();
-
-    if (!deployResult)
-        return ResultError(deployResult.error().message);
-
-    return DeviceFileAccessPtr(std::move(fAccess));
-}
-
-DeviceFileAccessPtr WslDevicePrivate::fallBackToDirectAccess(
-    SynchronizedValue<DeviceFileAccessPtr>::unique_lock &fileAccess, const QString &reason)
-{
-    m_retryBridge = ++m_bridgeAttempts < MaxBridgeAttempts;
-    m_bridgeRetryTimer = QDeadlineTimer(BridgeRetryDelay);
-
-    qCWarning(wslDeviceLog).noquote() << "Failed to start the command bridge:" << reason
-                                      << ", falling back to slow direct access";
-
-    *fileAccess = std::make_shared<WslFallbackFileAccess>(this, q->rootPath());
-    return *fileAccess;
-}
-
-DeviceFileAccessPtr WslDevicePrivate::bringUpFileAccess(int generation)
-{
-    // Asked before the lock is taken. Both start the distribution, and this
-    // runs from the file access factory, so anything that reaches back for
-    // the device's file access while they wait would deadlock on it.
-    const Result<FilePath> inPlace = cmdBridgePathInDistribution();
-    const Result<Environment> bridgeEnvironment = fetchEnvironment();
-
-    SynchronizedValue<DeviceFileAccessPtr>::unique_lock fileAccess = m_fileAccess.writeLocked();
-    m_creatingFileAccess = false;
-
-    // The bridge answers deviceEnvironment() with the one it was started
-    // with, so an empty one would leave the device with no PATH.
-    if (!bridgeEnvironment)
-        return fallBackToDirectAccess(fileAccess, bridgeEnvironment.error());
-
-    const Result<DeviceFileAccessPtr> fAccess
-        = createBridgeFileAccess(fileAccess, inPlace, *bridgeEnvironment);
-    if (!fAccess)
-        return fallBackToDirectAccess(fileAccess, fAccess.error());
-
-    // The bridge was set up for an automount root or settings the device
-    // has moved on from since. Not a failed attempt, so it is not counted.
-    if (generation != m_fileAccessGeneration) {
-        m_retryBridge = true;
-        m_bridgeRetryTimer = QDeadlineTimer(std::chrono::seconds::zero());
-        if (!*fileAccess)
-            *fileAccess = std::make_shared<WslFallbackFileAccess>(this, q->rootPath());
-        return *fileAccess;
-    }
-
-    *fileAccess = *fAccess;
-    m_bridgeAttempts = 0;
-    return *fileAccess;
-}
-
-DeviceFileAccessPtr WslDevicePrivate::createFileAccess()
-{
-    if (DeviceFileAccessPtr fileAccess = cachedFileAccess())
-        return fileAccess;
-
-    SynchronizedValue<DeviceFileAccessPtr>::unique_lock fileAccess = m_fileAccess.writeLocked();
-    if (*fileAccess && !shouldRetryBridge())
-        return *fileAccess;
-
-    if (!*fileAccess)
-        *fileAccess = std::make_shared<WslFallbackFileAccess>(this, q->rootPath());
-
-    if (m_creatingFileAccess)
-        return *fileAccess;
-
-    m_creatingFileAccess = true;
-    m_retryBridge = false;
-    const int generation = m_fileAccessGeneration;
-
-    // Starting a distribution is a virtual machine boot, see mountRoot().
-    if (QThread::isMainThread()) {
-        QFuture<void> future = Utils::asyncRun(
-            [this, generation] { bringUpFileAccess(generation); });
-        Utils::futureSynchronizer()->addFuture(future);
-        return *fileAccess;
-    }
-
-    fileAccess.unlock();
-    return bringUpFileAccess(generation);
-}
-
-void WslDevicePrivate::dropStaleFileAccess() const
-{
-    {
-        auto fileAccess = m_fileAccess.writeLocked();
-        fileAccess->reset();
-        ++m_fileAccessGeneration;
-    }
-
-    q->invalidateSystemEnvironment();
-    q->setDeviceState(IDevice::DeviceDisconnected);
-}
-
-void WslDevicePrivate::dropFileAccess()
-{
-    m_osArch.writeLocked()->reset();
-    m_detectedMountRoot.writeLocked()->reset();
-
-    {
-        auto fileAccess = m_fileAccess.writeLocked();
-        m_retryBridge = false;
-        m_bridgeAttempts = 0;
-    }
-
-    dropStaleFileAccess();
-}
-
-static WrappedProcessInterface *makeProcessInterface(
-    const IDevice::ConstPtr &device, WslDevicePrivate *devicePrivate)
-{
-    std::weak_ptr<const IDevice> weakDevice = device;
-
-    const auto wrapCommandLine =
-        [devicePrivate](
-            const ProcessSetupData &setupData,
-            const QString &markerTemplate,
-            const QString & /*exitCodeTemplate*/) -> Result<CommandLine> {
-        QTC_ASSERT(devicePrivate, return ResultError(Tr::tr("The WSL device is not initialized.")));
-
-        return devicePrivate->withWslCmd(
-            markerTemplate,
-            setupData.m_commandLine,
-            setupData.m_environment,
-            setupData.rawWorkingDirectory(),
-            !setupData.m_ptyData
-                && !setupData.m_extraData.value(Utils::TARGET_REPORTS_PID).toBool());
-    };
-
-    const auto controlSignalFunction = [weakDevice](ControlSignal controlSignal, qint64 remotePid) {
-        const IDevice::ConstPtr device = weakDevice.lock();
-        if (!device)
-            return;
-
-        const auto access = std::dynamic_pointer_cast<WslDeviceFileAccess>(device->fileAccess());
-        if (access) {
-            access->signalProcess(remotePid, controlSignal);
-            return;
-        }
-
-        const int signal = ProcessInterface::controlSignalToInt(controlSignal);
-        Process process;
-        process.setCommand(
-            {device->rootPath().withNewPath("kill"),
-             {QString("-%1").arg(signal), QString::number(remotePid)}});
-        process.runBlocking();
-    };
-
-    auto processInterface = new WrappedProcessInterface(wrapCommandLine, controlSignalFunction);
-
-    QObject::connect(device.get(), &QObject::destroyed, processInterface, [processInterface] {
-        processInterface->emitDone(
-            ProcessResultData{
-                -1,
-                ProcessExitStatus::CrashExit,
-                ProcessError::UnknownError,
-                Tr::tr("Device is shut down."),
-            });
-    });
-
-    return processInterface;
-}
-
 } // namespace Internal
 
 using namespace Internal;
@@ -679,10 +426,10 @@ WslDevice::WslDevice()
     offerKitCreation();
 
     setFileAccessFactory([this]() -> DeviceFileAccessPtr {
-        if (DeviceFileAccessPtr fileAccess = d->cachedFileAccess())
+        if (DeviceFileAccessPtr fileAccess = d->m_access.cachedFileAccess())
             return fileAccess;
 
-        if (DeviceFileAccessPtr fileAccess = d->createFileAccess()) {
+        if (DeviceFileAccessPtr fileAccess = d->m_access.fileAccess()) {
             setDeviceState(IDevice::DeviceReadyToUse);
             FSEngine::invalidateFileInfoCache();
             return fileAccess;
@@ -690,23 +437,7 @@ WslDevice::WslDevice()
         return nullptr;
     });
 
-    setOpenTerminal(
-        [this](const Environment &env, const FilePath &workingDir, const Continuation<> &cont) {
-            const Result<FilePath> shell = Terminal::defaultShellForDevice(rootPath());
-            if (!shell) {
-                cont(ResultError(shell.error()));
-                return;
-            }
-
-            Process process;
-            process.setTerminalMode(TerminalMode::Detached);
-            process.setEnvironment(env);
-            process.setWorkingDirectory(workingDir);
-            process.setCommand(CommandLine{*shell});
-            process.start();
-
-            cont(ResultOk);
-        });
+    setOpenTerminal(openTerminalWithDefaultShell([this] { return rootPath(); }));
 }
 
 WslDevice::~WslDevice()
@@ -716,7 +447,12 @@ WslDevice::~WslDevice()
 
 void WslDevice::shutdown()
 {
-    d->dropFileAccess();
+    d->m_access.drop();
+}
+
+FilePath WslDevice::launcher() const
+{
+    return wslExecutable();
 }
 
 CommandLine WslDevice::createCommandLineForDisplay() const
@@ -731,7 +467,16 @@ IDeviceWidget *WslDevice::createWidget()
 
 ProcessInterface *WslDevice::createProcessInterface() const
 {
-    return makeProcessInterface(shared_from_this(), d);
+    return createBridgedProcessInterface(
+        shared_from_this(),
+        [this](
+            const QString &markerTemplate,
+            const CommandLine &cmd,
+            const std::optional<Environment> &env,
+            const std::optional<FilePath> &workDir,
+            bool withMarker) {
+            return d->withWslCmd(markerTemplate, cmd, env, workDir, withMarker);
+        });
 }
 
 FilePath WslDevice::rootPath() const
@@ -824,65 +569,7 @@ void WslDevice::fromMap(const Store &map)
 ExecutableItem WslDevice::signalOperationRecipeImpl(
     const SignalOperationData &data, const Storage<Result<>> &resultStorage) const
 {
-    Storage<qint64> pid;
-
-    const auto onFindProcessSetup = [this, data](Async<Result<qint64>> &task) {
-        task.setConcurrentCallData(
-            [](QPromise<Result<qint64>> &promise,
-               const FilePath &filePath,
-               const FilePath &rootPath) {
-                const Result<QList<ProcessInfo>> list = ProcessInfo::processInfoList(rootPath);
-                if (!list) {
-                    promise.addResult(ResultError(list.error()));
-                    return;
-                }
-
-                for (const ProcessInfo &processInfo : *list) {
-                    if (processInfo.commandLine == filePath.path()) {
-                        promise.addResult(processInfo.processId);
-                        return;
-                    }
-                }
-                promise.addResult(ResultError(Tr::tr("Process not found.")));
-            },
-            data.filePath,
-            rootPath());
-    };
-
-    const auto onFindProcessDone = [pid, resultStorage](const Async<Result<qint64>> &task) {
-        const Result<qint64> result = task.result();
-        if (!result) {
-            *resultStorage = ResultError(result.error());
-            return DoneResult::Error;
-        }
-        *pid = *result;
-        return DoneResult::Success;
-    };
-
-    const auto onProcessSetup = [rootPath = rootPath(), pid, data](Process &process) {
-        const int signal = data.mode == SignalOperationMode::InterruptByPid ? 2 : 9;
-        process.setCommand(
-            {rootPath.withNewPath("kill"), {QString("-%1").arg(signal), QString::number(*pid)}});
-    };
-
-    const auto onProcessDone = [resultStorage](const Process &process, DoneWith result) {
-        if (result == DoneWith::Error)
-            *resultStorage = ResultError(process.exitMessage());
-        else if (result == DoneWith::Cancel)
-            *resultStorage = ResultError(Tr::tr("Signal operation canceled."));
-    };
-
-    // clang-format off
-    return Group {
-        pid,
-        If ([data] { return data.mode == SignalOperationMode::KillByPath; }) >> Then {
-            AsyncTask<Result<qint64>>(onFindProcessSetup, onFindProcessDone),
-        } >> Else {
-            QSyncTask([data, pid] { *pid = data.pid; })
-        },
-        ProcessTask(onProcessSetup, onProcessDone),
-    };
-    // clang-format on
+    return bridgedSignalOperationRecipe(rootPath(), data, resultStorage);
 }
 
 namespace Internal {
@@ -969,7 +656,7 @@ static QString chooseDistribution()
 
     // A wedged WSL service would otherwise freeze the settings page for as
     // long as it takes to time out.
-    QFuture<Result<QStringList>> future = Utils::asyncRun(&installedDistributions);
+    QFuture<Result<QStringList>> future = Utils::asyncRun(&installedDistributions, wslExecutable());
     future.then(&dialog, [combo, info, buttons](const Result<QStringList> &installed) {
         if (!installed) {
             // "wsl.exe --list" fails outright on a host that has no
@@ -1062,10 +749,11 @@ void setupWslDevice()
 
 QStringList detectWslDistributions()
 {
-    if (wslExecutable().isEmpty())
+    const FilePath wsl = wslExecutable();
+    if (wsl.isEmpty())
         return {};
 
-    const Result<QStringList> distributions = installedDistributions();
+    const Result<QStringList> distributions = installedDistributions(wsl);
     if (!distributions) {
         qCDebug(wslDeviceLog).noquote() << "Not detecting WSL devices:" << distributions.error();
         return {};

@@ -14,6 +14,8 @@ Project {
         files: [
             "abstractremotelinuxdeploystep.cpp",
             "abstractremotelinuxdeploystep.h",
+            "bridgeddeviceaccess.cpp",
+            "bridgeddeviceaccess.h",
             "deploymenttimeinfo.cpp",
             "deploymenttimeinfo.h",
             "connectdevicestep.cpp",

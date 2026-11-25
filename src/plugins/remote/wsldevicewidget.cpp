@@ -30,9 +30,9 @@ struct DistributionState
 // Two round trips to the WSL service, which is why this is asked off the main
 // thread: a wedged service would hold the settings page up for as long as it
 // takes them to time out.
-static DistributionState distributionState(const QString &distribution)
+static DistributionState distributionState(const FilePath &wsl, const QString &distribution)
 {
-    const Result<QStringList> installed = installedDistributions();
+    const Result<QStringList> installed = installedDistributions(wsl);
     if (!installed)
         return {InfoLabelType::Error, installed.error()};
 
@@ -42,7 +42,7 @@ static DistributionState distributionState(const QString &distribution)
             Tr::tr("The distribution \"%1\" is not installed.").arg(distribution)};
     }
 
-    const Result<QStringList> running = runningDistributions();
+    const Result<QStringList> running = runningDistributions(wsl);
     const bool isRunning = running && running->contains(distribution);
     // A stopped distribution is not a problem: WSL starts it with the first
     // command sent to it.
@@ -64,7 +64,7 @@ WslDeviceWidget::WslDeviceWidget(const IDevice::Ptr &device)
     stateLabel->setText(Tr::tr("Asking WSL about the distribution..."));
 
     QFuture<DistributionState> stateFuture
-        = Utils::asyncRun(&distributionState, wslDevice->distribution());
+        = Utils::asyncRun(&distributionState, wslDevice->launcher(), wslDevice->distribution());
     stateFuture.then(this, [stateLabel](const DistributionState &state) {
         stateLabel->setType(state.type);
         stateLabel->setText(state.text);
