@@ -9,6 +9,8 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
 
+#include <utils/algorithm.h>
+
 #include <QPromise>
 #include <QRegularExpression>
 
@@ -45,8 +47,7 @@ static bool isCatchMacro(const QString &macroName)
     return isCatchTestCaseMacro(unprefixed) || validSectionMacros.contains(unprefixed);
 }
 
-static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
-                                const CPlusPlus::Snapshot &snapshot)
+static bool includesCatchHeader(const FilePath &fileName)
 {
     static const QStringList catchHeaders{"catch.hpp", // v2
                                           "catch_all.hpp", // v3 - new approach
@@ -54,25 +55,14 @@ static bool includesCatchHeader(const CPlusPlus::Document::Ptr &doc,
                                           "catch_test_macros.hpp",
                                           "catch_template_test_macros.hpp"
                                          };
-    for (const CPlusPlus::Document::Include &inc : doc->resolvedIncludes()) {
-        for (const QString &catchHeader : catchHeaders) {
-            if (inc.resolvedFileName().endsWith(catchHeader))
-                return true;
-        }
-    }
-
-    for (const FilePath &include : snapshot.allIncludesForDocument(doc->filePath())) {
-        for (const QString &catchHeader : catchHeaders) {
-            if (include.endsWith(catchHeader))
-                return true;
-        }
-    }
-
-    for (const QString &catchHeader : catchHeaders) {
-        if (CppParser::precompiledHeaderContains(doc->filePath(), catchHeader))
-            return true;
-    }
-    return false;
+    const bool reached = CppParser::includeClosureReaches(fileName, [](const FilePath &include) {
+        return Utils::anyOf(catchHeaders, [&include](const QString &catchHeader) {
+            return include.endsWith(catchHeader);
+        });
+    });
+    return reached || Utils::anyOf(catchHeaders, [&fileName](const QString &catchHeader) {
+               return CppParser::precompiledHeaderContains(fileName, catchHeader);
+           });
 }
 
 static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
@@ -110,7 +100,7 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         return false;
 
     // After document(), which may read the file and its headers into the snapshot.
-    if (!includesCatchHeader(doc, CppEditor::CppModelManager::snapshot()))
+    if (!includesCatchHeader(fileName))
         return false;
 
     const QString &filePath = doc->filePath().toUserOutput();

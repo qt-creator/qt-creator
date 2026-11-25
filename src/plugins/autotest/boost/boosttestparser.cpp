@@ -50,21 +50,15 @@ TestTreeItem *BoostTestParseResult::createTestTreeItem() const
 }
 
 
-static bool includesBoostTest(const CPlusPlus::Document::Ptr &doc,
-                              const CPlusPlus::Snapshot &snapshot)
+static bool includesBoostTest(const FilePath &fileName)
 {
     static const QRegularExpression boostTestHpp("^.*/boost/test/.*\\.hpp$");
-    for (const CPlusPlus::Document::Include &inc : doc->resolvedIncludes()) {
-        if (boostTestHpp.match(inc.resolvedFileName().path()).hasMatch())
-            return true;
-    }
-
-    for (const FilePath &include : snapshot.allIncludesForDocument(doc->filePath())) {
-        if (boostTestHpp.match(include.path()).hasMatch())
-            return true;
-    }
-
-    return CppParser::precompiledHeaderContains(doc->filePath(), boostTestHpp);
+    return CppParser::includeClosureReaches(fileName,
+                                            [](const FilePath &include) {
+                                                return boostTestHpp.match(include.path())
+                                                    .hasMatch();
+                                            })
+           || CppParser::precompiledHeaderContains(fileName, boostTestHpp);
 }
 
 static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
@@ -117,7 +111,7 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     // After document(), which may read the file and its headers into the snapshot.
     const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
-    if (!includesBoostTest(doc, snapshot) || !hasBoostTestMacros(doc))
+    if (!includesBoostTest(fileName) || !hasBoostTestMacros(doc))
         return false;
 
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts

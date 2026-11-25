@@ -144,4 +144,12 @@ CPlusPlus::Document::Ptr CppParser::document(const FilePath &fileName)
     return CppEditor::CppModelManager::document(fileName, CppEditor::DocumentLookup::ReadIfNeeded);
 }
 
+bool CppParser::includeClosureReaches(
+    const FilePath &fileName, const std::function<bool(const FilePath &)> &isFrameworkHeader)
+{
+    return Utils::anyOf(CppEditor::includeClosureOf(CppEditor::CppModelManager::snapshot(),
+                                                    fileName),
+                        isFrameworkHeader);
+}
+
 } // namespace Autotest

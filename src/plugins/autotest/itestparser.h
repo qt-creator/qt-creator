@@ -83,6 +83,11 @@ public:
     // The file as the code model has it, read now if the indexer does not deliver it.
     static CPlusPlus::Document::Ptr document(const Utils::FilePath &fileName);
 
+    // Whether the include closure of \a fileName reaches a header \a isFrameworkHeader accepts.
+    static bool includeClosureReaches(
+        const Utils::FilePath &fileName,
+        const std::function<bool(const Utils::FilePath &)> &isFrameworkHeader);
+
     static bool precompiledHeaderContains(const Utils::FilePath &filePath,
                                           const QString &headerFilePath);
     static bool precompiledHeaderContains(const Utils::FilePath &filePath,
