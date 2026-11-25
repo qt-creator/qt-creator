@@ -29,6 +29,7 @@
 #include "gerrit/gerritplugin.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
@@ -53,6 +54,7 @@
 
 #include <utils/aggregate.h>
 #include <utils/action.h>
+#include <utils/aiassistance.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/completingtextedit.h>
@@ -68,6 +70,7 @@
 
 #include <vcsbase/cleandialog.h>
 #include <vcsbase/commonvcssettings.h>
+#include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -85,12 +88,14 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDebug>
+#include <QDialog>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QListWidget>
 #include <QLocale>
 #include <QMenu>
 #include <QMessageBox>
@@ -2583,6 +2588,9 @@ private slots:
     void testRevisionFilenameCollision();
     void testRebaseActionSelection();
     void testSubmitMessageSpellCheck();
+    void testGenerateCommitMessage_data();
+    void testGenerateCommitMessage();
+    void testCancelCommitMessageGeneration();
     void testDiffDescriptionEditor();
     void testGerritFiltering();
     void testGerritEscape_data();
@@ -4417,6 +4425,230 @@ void GitTest::testSubmitMessageSpellCheck()
 
     widget.setDescriptionText("Rename mispelledFunction in src/libs/utils/spellcheckr.cpp");
     QCOMPARE(underlinedTexts(widget.descriptionEdit()->document()), QStringList());
+}
+
+class CommitMessageAiProvider final : public AiProvider
+{
+public:
+    CommitMessageAiProvider()
+        : AiProvider("Test.CommitMessageAiProvider", "Commit Message")
+    {
+        AiTarget target;
+        target.id = "write";
+        target.displayName = "Write Commit Message";
+        target.supportsHeadless = true;
+        setTargets({target});
+    }
+
+    void execute(const AiRequest &request, const AiTargetSelection &, AiResponse *response) final
+    {
+        requests.append(request);
+        connect(response, &AiResponse::cancelRequested, this, [this] { ++cancelRequests; });
+        if (answer)
+            response->reportFinished(answerText);
+    }
+
+    QList<AiRequest> requests;
+    bool answer = true;
+    QString answerText = "```\nAdd a second line\n\nAnd a new file.\n```\n";
+    int cancelRequests = 0;
+};
+
+static QDialog *visibleCommitMessageDialog()
+{
+    for (QWidget *topLevel : QApplication::topLevelWidgets()) {
+        if (auto dialog = qobject_cast<QDialog *>(topLevel); dialog && dialog->isVisible())
+            return dialog;
+    }
+    return nullptr;
+}
+
+static void acceptCommitMessageTarget()
+{
+    QDialog *dialog = nullptr;
+    QTRY_VERIFY_WITH_TIMEOUT((dialog = visibleCommitMessageDialog()), 10000);
+    auto list = dialog->findChild<QListWidget *>();
+    QVERIFY(list);
+    const QList<QListWidgetItem *> items = list->findItems("Write Commit Message",
+                                                           Qt::MatchExactly);
+    QCOMPARE(items.size(), 1);
+    list->setCurrentItem(items.first());
+    dialog->accept();
+}
+
+const char generateCommitMessageTask[] = "VcsBase.GenerateCommitMessage";
+
+// The changes of the checked files reach the AI, and its answer replaces the
+// message, as an edit that can be undone.
+void GitTest::testGenerateCommitMessage_data()
+{
+    QTest::addColumn<bool>("initialCommit");
+    QTest::addColumn<bool>("emptyAnswer");
+    QTest::newRow("with history") << false << false;
+    // There is no HEAD to diff against yet.
+    QTest::newRow("initial commit") << true << false;
+    // Keeps the draft and its trailers.
+    QTest::newRow("empty answer") << false << true;
+}
+
+void GitTest::testGenerateCommitMessage()
+{
+    QFETCH(bool, initialCommit);
+    QFETCH(bool, emptyAnswer);
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    const auto run = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(run({"init", "-b", "main", "."}));
+    QVERIFY(run({"config", "user.email", "test@test"}));
+    QVERIFY(run({"config", "user.name", "test"}));
+    // The description gets a patch, whatever the user configured for diffs.
+    QVERIFY(run({"config", "color.ui", "always"}));
+    QVERIFY(run({"config", "diff.external", "echo external diff tool"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("first line\n")));
+    QVERIFY(bool((repository / "unchecked.txt").writeFileContents("kept\n")));
+    QVERIFY(run({"add", "file.txt", "unchecked.txt"}));
+    if (!initialCommit)
+        QVERIFY(run({"-c", "commit.gpgsign=false", "commit", "-m", "initial"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("first line\nsecond line\n")));
+    QVERIFY(bool((repository / "new.txt").writeFileContents("brand new\n")));
+    QVERIFY(run({"add", "new.txt"}));
+    QVERIFY(bool((repository / "unchecked.txt").writeFileContents("left out\n")));
+
+    const Result<CommitData> data = gitClient().getCommitData(SimpleCommit, repository);
+    QVERIFY2(data, data ? "" : qPrintable(data.error()));
+
+    CommitMessageAiProvider provider;
+    if (emptyAnswer)
+        provider.answerText = "```\n```\n";
+    GitSubmitEditor editor;
+    editor.setCommitData(*data);
+    editor.setCheckScriptWorkingDirectory(repository);
+    auto widget = qobject_cast<VcsBase::SubmitEditorWidget *>(editor.widget());
+    QVERIFY(widget);
+    VcsBase::SubmitFileModel *model = widget->fileModel();
+    QVERIFY(model);
+    QStringList listedFiles;
+    for (int row = 0; row < model->rowCount(); ++row)
+        listedFiles << model->file(row);
+    listedFiles.removeDuplicates();
+    listedFiles.sort();
+    QCOMPARE(listedFiles, QStringList({"file.txt", "new.txt", "unchecked.txt"}));
+    for (int row = 0; row < model->rowCount(); ++row)
+        model->setChecked(row, !model->file(row).contains("unchecked"));
+    widget->setDescriptionText("Draft\n\nChange-Id: I0123\n");
+
+    auto generate = widget->findChild<QToolButton *>("generateCommitMessageButton");
+    QVERIFY(generate);
+    QVERIFY(!generate->isHidden());
+    // On the line of the title of the description, at the right edge of the editor,
+    // not where the commit button is expected.
+    widget->resize(800, 600);
+    widget->show();
+    QVERIFY(QTest::qWaitForWindowExposed(widget));
+    const QRect buttonRect(generate->mapTo(widget, QPoint()), generate->size());
+    const QRect editRect(widget->descriptionEdit()->mapTo(widget, QPoint()),
+                         widget->descriptionEdit()->size());
+    QCOMPARE(buttonRect.right(), editRect.right());
+    QVERIFY(buttonRect.bottom() < editRect.top());
+    widget->hide();
+    QSignalSpy started(Core::ProgressManager::instance(), &Core::ProgressManager::taskStarted);
+    QSignalSpy ended(Core::ProgressManager::instance(),
+                     &Core::ProgressManager::allTasksFinished);
+    generate->click();
+    // The run shows its progress in the status bar until it ends.
+    QVERIFY(started.contains({QVariant::fromValue(Id(generateCommitMessageTask))}));
+
+    acceptCommitMessageTarget();
+    if (QTest::currentTestFailed())
+        return;
+
+    if (emptyAnswer) {
+        QTRY_VERIFY(ended.contains({QVariant::fromValue(Id(generateCommitMessageTask))}));
+        QCOMPARE(provider.requests.size(), 1);
+        QCOMPARE(widget->descriptionText(), "Draft\n\nChange-Id: I0123\n");
+        return;
+    }
+    QTRY_COMPARE(widget->descriptionText(), "Add a second line\n\nAnd a new file.\n");
+    QTRY_VERIFY(ended.contains({QVariant::fromValue(Id(generateCommitMessageTask))}));
+    QCOMPARE(provider.requests.size(), 1);
+    const AiRequest &request = provider.requests.first();
+    QCOMPARE(request.mode, AiRequest::Headless);
+    QCOMPARE(request.workingDirectory, repository);
+    const auto contextText = [&request](const QString &name) {
+        for (const AiContextItem &item : request.context) {
+            if (item.name == name)
+                return item.text;
+        }
+        return QString();
+    };
+    const QString diff = contextText("Diff");
+    QVERIFY2(diff.contains("+second line"), qPrintable(diff));
+    QVERIFY2(diff.contains("+brand new"), qPrintable(diff));
+    QVERIFY2(!diff.contains("left out"), qPrintable(diff));
+    QVERIFY2(!diff.contains('\x1b'), qPrintable(diff));
+    QVERIFY2(!diff.contains("external diff tool"), qPrintable(diff));
+    QVERIFY(contextText("Draft").contains("Change-Id: I0123"));
+
+    widget->descriptionEdit()->undo();
+    QCOMPARE(widget->descriptionText(), "Draft\n\nChange-Id: I0123\n");
+}
+
+// Canceling the progress in the status bar cancels the request, and leaves the
+// message as it was.
+void GitTest::testCancelCommitMessageGeneration()
+{
+    QTemporaryDir directory;
+    QVERIFY(directory.isValid());
+    const FilePath repository = FilePath::fromString(directory.path());
+    const auto run = [repository](const QStringList &arguments) {
+        return gitClient().vcsSynchronousExec(repository, arguments).result()
+               == ProcessResult::FinishedWithSuccess;
+    };
+    QVERIFY(run({"init", "-b", "main", "."}));
+    QVERIFY(run({"config", "user.email", "test@test"}));
+    QVERIFY(run({"config", "user.name", "test"}));
+    QVERIFY(bool((repository / "file.txt").writeFileContents("first line\n")));
+    QVERIFY(run({"add", "file.txt"}));
+
+    const Result<CommitData> data = gitClient().getCommitData(SimpleCommit, repository);
+    QVERIFY2(data, data ? "" : qPrintable(data.error()));
+
+    CommitMessageAiProvider provider;
+    provider.answer = false;
+    GitSubmitEditor editor;
+    editor.setCommitData(*data);
+    editor.setCheckScriptWorkingDirectory(repository);
+    auto widget = qobject_cast<VcsBase::SubmitEditorWidget *>(editor.widget());
+    QVERIFY(widget);
+    widget->setDescriptionText("Draft\n");
+    auto generate = widget->findChild<QToolButton *>("generateCommitMessageButton");
+    QVERIFY(generate);
+
+    QSignalSpy ended(Core::ProgressManager::instance(),
+                     &Core::ProgressManager::allTasksFinished);
+    generate->click();
+    QCOMPARE(generate->toolTip(), "Cancel");
+    // While it runs, the button shows a spinner instead of its icon.
+    auto spinner = generate->findChild<QWidget *>("aiTaskButtonSpinner");
+    QVERIFY(spinner);
+    QVERIFY(spinner->isVisibleTo(generate));
+    QVERIFY(generate->icon().isNull());
+    acceptCommitMessageTarget();
+    if (QTest::currentTestFailed())
+        return;
+    QTRY_COMPARE(provider.requests.size(), 1);
+
+    Core::ProgressManager::cancelTasks(generateCommitMessageTask);
+    QTRY_VERIFY(ended.contains({QVariant::fromValue(Id(generateCommitMessageTask))}));
+    QTRY_COMPARE(provider.cancelRequests, 1);
+    QVERIFY(generate->toolTip() != "Cancel");
+    QVERIFY(!spinner->isVisibleTo(generate));
+    QVERIFY(!generate->icon().isNull());
+    QCOMPARE(widget->descriptionText(), "Draft\n");
 }
 
 static bool createAsyncBranchTestRepository(const FilePath &repository)

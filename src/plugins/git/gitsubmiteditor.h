@@ -42,6 +42,7 @@ protected:
 
 private:
     void slotDiffSelected(const QList<int> &rows);
+    QtTaskTree::ExecutableItem commitDiffTask(const CommitDiffStorage &diff);
     void showCommit(const QString &commit);
     void showLog(const QStringList &range);
     void performFileAction(const Utils::FilePath &filePath, Core::IVersionControl::FileAction action);

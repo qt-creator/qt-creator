@@ -14,6 +14,7 @@
 
 #include <utils/async.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <vcsbase/submitfilemodel.h>
@@ -89,6 +90,70 @@ GitSubmitEditor::GitSubmitEditor() :
             this, &GitSubmitEditor::performFileAction);
     connect(versionControl(), &IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
+    setCommitDiffTask([this](const CommitDiffStorage &diff) { return commitDiffTask(diff); });
+}
+
+// What the commit will be based on. Before the first commit, or when amending
+// it, that is nothing, so the diff is against the empty tree.
+static QString commitDiffBase(const FilePath &repository, bool amend)
+{
+    const QString base = amend ? QString("HEAD^") : QString("HEAD");
+    const CommandResult verified = gitClient().vcsSynchronousExec(
+        repository, {"rev-parse", "--verify", "--quiet", base + "^{commit}"}, RunFlag::NoOutput);
+    if (verified.result() == ProcessResult::FinishedWithSuccess)
+        return base;
+    const CommandResult format = gitClient().vcsSynchronousExec(
+        repository, {"rev-parse", "--show-object-format"}, RunFlag::NoOutput);
+    // The ids of the empty tree with SHA-256 and SHA-1.
+    return format.cleanedStdOut().trimmed() == "sha256"
+               ? QString("6ef19b41225c5369f1c104d45d8d85efa9b057b53b14b4b9b939dd74decc5321")
+               : QString("4b825dc642cb6eb9a060e54bf8d69288fbee4904");
+}
+
+// The changes of the checked files: tracked ones as a diff against what the
+// commit will be based on, untracked ones with their contents.
+ExecutableItem GitSubmitEditor::commitDiffTask(const CommitDiffStorage &diff)
+{
+    const auto onSetup = [this, diff](Process &process) {
+        // Larger untracked files are rarely sources that a message needs to describe.
+        const qint64 maxUntrackedFileSize = 50000;
+
+        QStringList trackedFiles;
+        QString untrackedFiles;
+        for (int row = 0; m_model && row < m_model->rowCount(); ++row) {
+            if (!m_model->checked(row))
+                continue;
+            const QString file = m_model->file(row);
+            const FileStates state = static_cast<FileStates>(m_model->extraData(row).toInt());
+            if (!state.testFlag(UntrackedFile)) {
+                trackedFiles += gitClient().splitRenamedFilePattern(file);
+                continue;
+            }
+            const Result<QByteArray> contents
+                = m_workingDirectory.pathAppended(file).fileContents(maxUntrackedFileSize);
+            untrackedFiles += QString("New file %1:\n%2\n")
+                                  .arg(file, contents ? QString::fromUtf8(*contents) : QString());
+        }
+        // The diff of the tracked files goes before these.
+        *diff = untrackedFiles;
+        if (trackedFiles.isEmpty())
+            return SetupResult::StopWithSuccess;
+
+        const QString base = commitDiffBase(m_workingDirectory, m_commitType == AmendCommit);
+        process.setEnvironment(gitClient().processEnvironment(m_workingDirectory));
+        process.setWorkingDirectory(m_workingDirectory);
+        process.setCommand({gitClient().vcsBinary(m_workingDirectory),
+                            QStringList{"diff", "--no-color", "--no-ext-diff", base, "--"}
+                                + trackedFiles});
+        return SetupResult::Continue;
+    };
+    const auto onDone = [diff](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success)
+            *diff = process.cleanedStdOut() + diff->value_or(QString());
+        else if (result == DoneWith::Error)
+            *diff = ResultError(process.exitMessage(Process::FailureMessageFormat::WithStdErr));
+    };
+    return ProcessTask(onSetup, onDone);
 }
 
 GitSubmitEditor::~GitSubmitEditor() = default;
