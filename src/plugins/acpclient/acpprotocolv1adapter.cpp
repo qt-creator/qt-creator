@@ -449,7 +449,8 @@ void AcpProtocolV1Adapter::authenticate(const QString &methodId)
 }
 
 void AcpProtocolV1Adapter::setConfigOption(const QString &sessionId, const QString &configId,
-                                           const QJsonValue &value)
+                                           const QJsonValue &value,
+                                           const std::function<void()> &done)
 {
     if (configId == QLatin1String(v1SessionModeConfigId)) {
         const QString modeId = value.toString();
@@ -457,14 +458,16 @@ void AcpProtocolV1Adapter::setConfigOption(const QString &sessionId, const QStri
         params["sessionId"] = sessionId;
         params["modeId"] = modeId;
         m_client->sendRequest(QStringLiteral("session/set_mode"), params,
-                              [this, modeId](const QJsonObject &,
-                                             const std::optional<Error> &error) {
+                              [this, modeId, done](const QJsonObject &,
+                                                   const std::optional<Error> &error) {
             if (error) {
                 emit errorOccurred(Tr::tr("Failed to set mode: %1").arg(error->message()));
-                return;
+            } else {
+                m_currentModeId = modeId;
+                emit configOptionsReceived(fullConfigOptions());
             }
-            m_currentModeId = modeId;
-            emit configOptionsReceived(fullConfigOptions());
+            if (done)
+                done();
         });
         return;
     }
@@ -476,15 +479,16 @@ void AcpProtocolV1Adapter::setConfigOption(const QString &sessionId, const QStri
     if (value.isBool())
         params["type"] = QStringLiteral("boolean");
     m_client->sendRequest(QStringLiteral("session/set_config_option"), params,
-                          [this](const QJsonObject &result, const std::optional<Error> &error) {
+                          [this, done](const QJsonObject &result,
+                                       const std::optional<Error> &error) {
         if (error) {
             emit errorOccurred(Tr::tr("Failed to set config option: %1").arg(error->message()));
-            return;
-        }
-        if (result.value("configOptions").isArray()) {
+        } else if (result.value("configOptions").isArray()) {
             m_configOptions = convertConfigOptions(result.value("configOptions").toArray());
             emit configOptionsReceived(fullConfigOptions());
         }
+        if (done)
+            done();
     });
 }
 

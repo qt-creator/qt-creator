@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
     parser.addOption({"cancel", "Wait for session/cancel during session/prompt."});
     parser.addOption({"crash-on-prompt", "Exit with code 1 on session/prompt."});
     parser.addOption({"config-options", "Report session config options."});
+    parser.addOption({"echo-model", "Prefix echoed prompts with the current test.model value."});
     parser.addOption({"modes", "Report session modes."});
     parser.addOption({"updates-all", "Stream one session/update of each kind per prompt."});
     parser.addOption({"stderr-noise", "Write noise to stderr."});
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
                       "completes when the next prompt arrives."});
     parser.addOption({"paused-tool-call", "Leave a tool call paused at the end of v2 "
                                           "prompts."});
-    parser.addOption({"stop-reason", "End v2 prompts with <reason> (default end_turn).",
+    parser.addOption({"stop-reason", "End prompts with <reason> (default end_turn).",
                       "reason"});
     parser.addOption({"system-prompt",
                       "Advertise system prompt support in v2 and echo the received system "
@@ -93,6 +94,7 @@ int main(int argc, char *argv[])
     scenario.waitForCancel = parser.isSet("cancel");
     scenario.crashOnPrompt = parser.isSet("crash-on-prompt");
     scenario.configOptions = parser.isSet("config-options");
+    scenario.echoModel = parser.isSet("echo-model");
     scenario.modes = parser.isSet("modes");
     scenario.allUpdateKinds = parser.isSet("updates-all");
     scenario.stderrNoise = parser.isSet("stderr-noise");

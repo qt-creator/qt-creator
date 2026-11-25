@@ -446,6 +446,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
     connect(m_controller, &AcpChatController::connectionStateChanged, this, [this](AcpClientObject::State state) {
         const bool disconnected = state == AcpClientObject::State::Disconnected;
         if (disconnected) {
+            finishRequest(ResultError(Tr::tr("The agent disconnected.")));
             m_serverConsole->setInputEnabled(false);
             m_sessionPending = false;
             m_pendingPrompt.clear();
@@ -517,7 +518,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_stack->setCurrentIndex(2);
         m_chatPanel->setSendEnabled(true);
         m_chatPanel->setCanCloseSession(m_controller->supportsSessionClose());
-        if (m_pendingPrompt.isEmpty()) {
+        if (m_request) {
+            sendRequest();
+        } else if (m_pendingPrompt.isEmpty()) {
             m_chatPanel->appendAgentText(
                 "Cute Greetings,\n\n your AI Agent is ready and you can start chatting.");
             m_chatPanel->finishAgentMessage();
@@ -664,7 +667,12 @@ AcpChatTab::AcpChatTab(QWidget *parent)
         m_chatPanel->resolveAuthentication();
         m_stack->setCurrentIndex(2);
         m_autoStartedSession = false;
-        if (m_autoStartDirectory.isEmpty()) {
+        if (m_request) {
+            if (!m_sessionPending) {
+                m_sessionPending = true;
+                m_controller->createNewSession(m_request->workingDirectory);
+            }
+        } else if (m_autoStartDirectory.isEmpty()) {
             showSessionPicker();
         } else {
             m_sessionPending = true;
@@ -710,6 +718,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             m_startupFailed = false;
     });
     connect(m_controller, &AcpChatController::errorOccurred, this, [this](const QString &msg) {
+        // A rejected option leaves the agent's own choice in place.
+        if (!m_configuringRequest)
+            finishRequest(ResultError(msg));
         m_sessionPending = false;
         m_pendingPrompt.clear();
         m_autoStartDirectory.clear();
@@ -731,6 +742,7 @@ AcpChatTab::AcpChatTab(QWidget *parent)
 
 AcpChatTab::~AcpChatTab()
 {
+    finishRequest(ResultError(Tr::tr("The AI chat was closed.")));
     // Disconnect all signals from the controller before the blocking
     // disconnectFromServer() call. That call pumps the event loop
     // (waitForFinished), which can deliver signals back to this
@@ -765,8 +777,49 @@ void AcpChatTab::setFocus()
         m_serverConsole->setFocus();
 }
 
+/*!
+    Connects to \a server, starts a new session without asking for one,
+    applies the configuration values of \a request and sends its prompt.
+*/
+void AcpChatTab::startRequest(const AcpSettings::ServerInfo &server,
+                              const AcpPromptRequest &request)
+{
+    finishRequest(ResultError(Tr::tr("A newer request replaced this one.")));
+    m_controller->disconnectFromServer();
+    m_request = request;
+    connectToServer(server);
+}
+
+void AcpChatTab::sendRequest()
+{
+    QTC_ASSERT(m_request, return);
+    m_configuringRequest = true;
+    m_controller->setConfigOptions(m_request->configValues, [this] {
+        m_configuringRequest = false;
+        if (!m_request)
+            return;
+        const AcpPromptRequest request = *m_request;
+        m_chatPanel->addUserMessage(request.prompt);
+        m_chatPanel->setPrompting(true);
+        m_controller->sendPrompt(request.prompt, request.files, false, request.textContexts,
+                                 request.imageContexts);
+        finishRequest(ResultOk);
+    });
+}
+
+void AcpChatTab::finishRequest(const Result<> &result)
+{
+    if (!m_request)
+        return;
+    const auto onSent = m_request->onSent;
+    m_request.reset();
+    if (onSent)
+        onSent(result);
+}
+
 void AcpChatTab::abandonStartup()
 {
+    finishRequest(ResultError(Tr::tr("The connection to the agent was canceled.")));
     m_startupFailed = false;
     m_controller->disconnectFromServer();
     m_stack->setCurrentIndex(0);

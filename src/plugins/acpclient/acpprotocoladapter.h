@@ -9,6 +9,7 @@
 #include <QJsonValue>
 #include <QObject>
 
+#include <functional>
 #include <optional>
 
 namespace AcpClient::Internal {
@@ -40,8 +41,10 @@ public:
     virtual void cancelToolCall(const QString &sessionId, const QString &toolCallId) = 0;
     virtual void cancelTerminal(const QString &sessionId, const QString &terminalId) = 0;
     virtual void authenticate(const QString &methodId) = 0;
+    // done is called once the agent answered, whether it accepted the value or not.
     virtual void setConfigOption(const QString &sessionId, const QString &configId,
-                                 const QJsonValue &value) = 0;
+                                 const QJsonValue &value,
+                                 const std::function<void()> &done = {}) = 0;
 
     virtual bool supportsSessionList() const = 0;
     virtual bool supportsSessionDelete() const = 0;

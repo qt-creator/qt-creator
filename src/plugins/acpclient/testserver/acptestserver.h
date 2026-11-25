@@ -25,6 +25,7 @@ public:
     bool waitForCancel = false;    // --cancel
     bool crashOnPrompt = false;    // --crash-on-prompt
     bool configOptions = false;    // --config-options
+    bool echoModel = false;        // --echo-model
     bool modes = false;            // --modes
     bool allUpdateKinds = false;   // --updates-all
     bool stderrNoise = false;      // --stderr-noise

@@ -33,7 +33,7 @@ public:
     void cancelTerminal(const QString &sessionId, const QString &terminalId) override;
     void authenticate(const QString &methodId) override;
     void setConfigOption(const QString &sessionId, const QString &configId,
-                         const QJsonValue &value) override;
+                         const QJsonValue &value, const std::function<void()> &done) override;
 
     bool supportsSessionList() const override;
     bool supportsSessionDelete() const override;

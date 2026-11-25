@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "acpclienttest.h"
+#include "acpaiprovider.h"
 
 #include "acpchatcontroller.h"
 #include "acpchattab.h"
@@ -58,6 +59,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/markdownbrowser.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcsettings.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
@@ -515,6 +517,8 @@ class AcpClientTest final : public QObject
     Q_OBJECT
 
 private slots:
+    void cleanupTestCase();
+
     // Tier 1a: newline-delimited JSON framing (AcpTransport)
     void testFramingSingleMessage();
     void testFramingChunkedData();
@@ -686,6 +690,19 @@ private slots:
     void testChatTabResponseCommands();
     void testChatWidgetOverviewHeight();
     void testChatEditorRoundTrip();
+
+    // AI assistance provider
+    void testAiTargetParameters();
+    void testAiPromptRequest();
+    void testAiHeadlessRequest_data();
+    void testAiHeadlessRequest();
+    void testAiHeadlessRejectsPermissions();
+    void testAiHeadlessNeedsAuthentication();
+    void testAiHeadlessStopsEarly_data();
+    void testAiHeadlessStopsEarly();
+    void testAiInteractiveRequest_data();
+    void testAiInteractiveRequest();
+    void testAiInteractiveRequestInConnectedTab();
 
     // Tier 6: agent registry
     void testRegistryRememberedDenial();
@@ -6438,6 +6455,319 @@ void AcpClientTest::testMessageViewCancelButtons()
             .terminalId("term-1")
             .capabilities(V2::TerminalCapabilities().cancel(V2::TerminalCancelCapabilities())));
     QVERIFY(!terminalCancel->isVisibleTo(terminal));
+}
+
+// QVERIFY2 evaluates its message also when the check passes.
+template<typename T>
+static QByteArray errorOf(const Utils::Result<T> &result)
+{
+    return result ? QByteArray() : result.error().toUtf8();
+}
+
+// Every session with the test server remembers its options for the AI target.
+void AcpClientTest::cleanupTestCase()
+{
+    const Utils::Key key("AcpClient/AgentConfigOptions");
+    QVariantMap remembered = Utils::userSettings().value(key).toMap();
+    remembered.remove("acptestserver");
+    if (remembered.isEmpty())
+        Utils::userSettings().remove(key);
+    else
+        Utils::userSettings().setValue(key, remembered);
+}
+
+// Select options become target parameters, with their category, choices
+// (also from groups) and current value; other options are left out, and so
+// are further options of a category that is offered already.
+void AcpClientTest::testAiTargetParameters()
+{
+    const QJsonArray json{
+        QJsonObject{{"configId", "flag"}, {"name", "Flag"}, {"type", "boolean"},
+                    {"currentValue", true}},
+        QJsonObject{{"configId", "effort"}, {"name", "Effort"}, {"category", "thought_level"},
+                    {"type", "select"}, {"currentValue", "high"},
+                    {"options",
+                     QJsonArray{QJsonObject{
+                         {"groupId", "levels"}, {"name", "Levels"},
+                         {"options",
+                          QJsonArray{QJsonObject{{"value", "low"}, {"name", "Low"}},
+                                     QJsonObject{{"value", "high"}, {"name", "High"},
+                                                 {"description", "Think hard"}}}}}}}},
+        QJsonObject{{"configId", "model"}, {"name", "Model"}, {"category", "model"},
+                    {"type", "select"}, {"currentValue", "big"},
+                    {"options", QJsonArray{QJsonObject{{"value", "small"}, {"name", "Small"}},
+                                           QJsonObject{{"value", "big"}, {"name", "Big"}}}}},
+        QJsonObject{{"configId", "mode"}, {"name", "Mode"}, {"category", "mode"},
+                    {"type", "select"}, {"currentValue", "ask"},
+                    {"options", QJsonArray{QJsonObject{{"value", "ask"}, {"name", "Ask"}}}}},
+        QJsonObject{{"configId", "_v1_session_mode"}, {"name", "Mode"}, {"category", "mode"},
+                    {"type", "select"}, {"currentValue", "ask"},
+                    {"options", QJsonArray{QJsonObject{{"value", "ask"}, {"name", "Ask"}}}}}};
+    QList<V2::SessionConfigOption> options;
+    for (const QJsonValue &value : json) {
+        const auto option = V2::fromJson<V2::SessionConfigOption>(value);
+        QVERIFY2(option, errorOf(option).constData());
+        options.append(*option);
+    }
+
+    const QList<Utils::AiTargetParameter> parameters = aiTargetParameters(options);
+    QCOMPARE(parameters.size(), 3);
+    QCOMPARE(parameters.at(0).id, "effort");
+    QCOMPARE(parameters.at(0).category, Utils::AiTargetParameter::Effort);
+    QCOMPARE(parameters.at(0).defaultValue, "high");
+    QCOMPARE(parameters.at(0).choices.size(), 2);
+    QCOMPARE(parameters.at(0).choices.at(1).value, "high");
+    QCOMPARE(parameters.at(0).choices.at(1).displayName, "High");
+    QCOMPARE(parameters.at(0).choices.at(1).description, "Think hard");
+    QCOMPARE(parameters.at(1).id, "model");
+    QCOMPARE(parameters.at(1).displayName, "Model");
+    QCOMPARE(parameters.at(1).category, Utils::AiTargetParameter::Model);
+    QCOMPARE(parameters.at(1).defaultValue, "big");
+    QCOMPARE(parameters.at(1).choices.size(), 2);
+    QCOMPARE(parameters.at(2).id, "mode");
+    QCOMPARE(parameters.at(2).category, Utils::AiTargetParameter::Mode);
+}
+
+// Files are linked, a range of a file is also quoted, text and images become
+// context of their own, and the chosen parameters become config values.
+void AcpClientTest::testAiPromptRequest()
+{
+    const Utils::TemporaryDirectory dir("acpclient-ai");
+    const Utils::FilePath whole = dir.filePath("whole.cpp");
+    const Utils::FilePath part = dir.filePath("part.cpp");
+    QVERIFY(whole.writeFileContents("whole\n"));
+    QVERIFY(part.writeFileContents("line 1\nline 2\nline 3\nline 4\n"));
+    Utils::Text::Range range;
+    range.begin.line = 2;
+    range.end.line = 3;
+
+    Utils::AiRequest request;
+    request.prompt = "Explain";
+    request.workingDirectory = dir.path();
+    Utils::Text::Range singleLine;
+    singleLine.begin.line = 4;
+    singleLine.end.line = 4;
+    request.context = {Utils::AiContextItem::fromFile(whole),
+                       Utils::AiContextItem::fromFile(part, range),
+                       Utils::AiContextItem::fromText("Snippet", "some text"),
+                       Utils::AiContextItem::fromImage("Shot", QImage(2, 2, QImage::Format_RGB32)),
+                       Utils::AiContextItem::fromFile(part, singleLine)};
+    const Utils::AiTargetSelection selection{"Test.Provider", "agent", {{"model", "big"}}};
+
+    const AcpPromptRequest result = acpPromptRequest(request, selection);
+    QCOMPARE(result.prompt, "Explain");
+    QCOMPARE(result.workingDirectory, dir.path());
+    QCOMPARE(result.configValues, selection.parameters);
+    QCOMPARE(result.files, QList<Utils::FilePath>({whole, part, part}));
+    QCOMPARE(result.textContexts.size(), 3);
+    // The excerpts are named by file and lines, as the files go along with their path.
+    QCOMPARE(result.textContexts.at(0).name, "part.cpp:2-3");
+    QCOMPARE(result.textContexts.at(0).text, "line 2\nline 3");
+    QVERIFY(result.textContexts.at(0).scope == TextContextScope::None);
+    QCOMPARE(result.textContexts.at(1).name, "Snippet");
+    QCOMPARE(result.textContexts.at(1).text, "some text");
+    QCOMPARE(result.textContexts.at(2).name, "part.cpp:4");
+    QCOMPARE(result.textContexts.at(2).text, "line 4");
+    QCOMPARE(result.imageContexts.size(), 1);
+    QCOMPARE(result.imageContexts.first().name, "Shot");
+}
+
+void AcpClientTest::testAiHeadlessRequest_data()
+{
+    QTest::addColumn<QStringList>("protocolArguments");
+    QTest::newRow("v1") << QStringList();
+    QTest::newRow("v2") << QStringList{"--protocol-version", "2"};
+}
+
+// A headless request connects, applies the chosen model before it prompts, and
+// answers with the streamed agent text.
+void AcpClientTest::testAiHeadlessRequest()
+{
+    QFETCH(QStringList, protocolArguments);
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo(
+        QStringList{"--config-options", "--echo-model"} + protocolArguments);
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpPromptRequest request;
+    request.prompt = "hello";
+    request.configValues = {{"test.model", "big"}};
+    auto response = new Utils::AiResponse;
+    QSignalSpy textSpy(response, &Utils::AiResponse::textReceived);
+    QSignalSpy finishedSpy(response, &Utils::AiResponse::finished);
+    runHeadlessAcpRequest(info, request, nullptr, response);
+
+    QTRY_COMPARE_WITH_TIMEOUT(finishedSpy.count(), 1, 15000);
+    const auto result = finishedSpy.first().first().value<Utils::Result<QString>>();
+    QVERIFY2(result, errorOf(result).constData());
+    QString streamed;
+    for (const QList<QVariant> &arguments : std::as_const(textSpy))
+        streamed += arguments.first().toString();
+    QCOMPARE(*result, streamed);
+    QVERIFY2(result->contains("chunk-1:big:hello"), qPrintable(*result));
+    QVERIFY2(!result->contains("small"), qPrintable(*result));
+}
+
+// Nobody can answer a permission request of a headless run, so it is refused.
+void AcpClientTest::testAiHeadlessRejectsPermissions()
+{
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo({"--permission"});
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpPromptRequest request;
+    request.prompt = "hello";
+    auto response = new Utils::AiResponse;
+    QSignalSpy finishedSpy(response, &Utils::AiResponse::finished);
+    runHeadlessAcpRequest(info, request, nullptr, response);
+
+    QTRY_COMPARE_WITH_TIMEOUT(finishedSpy.count(), 1, 15000);
+    const auto result = finishedSpy.first().first().value<Utils::Result<QString>>();
+    QVERIFY2(result, errorOf(result).constData());
+    QCOMPARE(*result, "chunk-1:hellorejected:hello");
+}
+
+// A headless run cannot sign in, so it fails instead of waiting.
+void AcpClientTest::testAiHeadlessNeedsAuthentication()
+{
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo({"--require-auth"});
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpPromptRequest request;
+    request.prompt = "hello";
+    auto response = new Utils::AiResponse;
+    QSignalSpy finishedSpy(response, &Utils::AiResponse::finished);
+    runHeadlessAcpRequest(info, request, nullptr, response);
+
+    QTRY_COMPARE_WITH_TIMEOUT(finishedSpy.count(), 1, 15000);
+    const auto result = finishedSpy.first().first().value<Utils::Result<QString>>();
+    QVERIFY(!result);
+    QVERIFY2(result.error().contains("authentication"), errorOf(result).constData());
+}
+
+// A turn that ends for any other reason than end_turn leaves an incomplete
+// answer, which must not be reported as the result.
+void AcpClientTest::testAiHeadlessStopsEarly_data()
+{
+    QTest::addColumn<QStringList>("protocolArguments");
+    QTest::addColumn<QString>("stopReason");
+    QTest::newRow("v1 max_tokens") << QStringList() << "max_tokens";
+    QTest::newRow("v1 refusal") << QStringList() << "refusal";
+    QTest::newRow("v2 max_tokens") << QStringList{"--protocol-version", "2"} << "max_tokens";
+    QTest::newRow("v2 refusal") << QStringList{"--protocol-version", "2"} << "refusal";
+}
+
+void AcpClientTest::testAiHeadlessStopsEarly()
+{
+    QFETCH(QStringList, protocolArguments);
+    QFETCH(QString, stopReason);
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo(
+        QStringList{"--stop-reason", stopReason} + protocolArguments);
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpPromptRequest request;
+    request.prompt = "hello";
+    auto response = new Utils::AiResponse;
+    QSignalSpy textSpy(response, &Utils::AiResponse::textReceived);
+    QSignalSpy finishedSpy(response, &Utils::AiResponse::finished);
+    runHeadlessAcpRequest(info, request, nullptr, response);
+
+    QTRY_COMPARE_WITH_TIMEOUT(finishedSpy.count(), 1, 15000);
+    QVERIFY(!textSpy.isEmpty()); // the partial answer did arrive
+    const auto result = finishedSpy.first().first().value<Utils::Result<QString>>();
+    QVERIFY2(!result, qPrintable(result.value_or(QString())));
+    QVERIFY2(result.error().contains(stopReason), errorOf(result).constData());
+}
+
+// An interactive request starts a session in a chat tab on its own, applies
+// the chosen model, and shows the prompt there.
+void AcpClientTest::testAiInteractiveRequest_data()
+{
+    QTest::addColumn<QStringList>("protocolArguments");
+    QTest::newRow("v1") << QStringList();
+    QTest::newRow("v2") << QStringList{"--protocol-version", "2"};
+}
+
+void AcpClientTest::testAiInteractiveRequest()
+{
+    QFETCH(QStringList, protocolArguments);
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo(
+        QStringList{"--config-options", "--echo-model", "--sessions", "2"} + protocolArguments);
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpChatWidget widget;
+    auto *tab = widget.findChild<AcpChatTab *>();
+    QVERIFY(tab);
+    auto *controller = tab->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    QStringList chunks;
+    QObject::connect(controller, &AcpChatController::sessionUpdate, controller,
+                     [&chunks](const QString &, const V2::SessionUpdate &update) {
+        if (update.kind() != QLatin1String("agent_message_chunk"))
+            return;
+        if (const auto *chunk = update.get<V2::ContentChunk>()) {
+            if (const auto *text = std::get_if<V2::TextContent>(&chunk->content()))
+                chunks.append(text->text());
+        }
+    });
+    QSignalSpy finished(controller, &AcpChatController::promptFinished);
+
+    std::optional<Utils::Result<>> sent;
+    AcpPromptRequest request;
+    request.prompt = "hello";
+    request.configValues = {{"test.model", "big"}};
+    request.onSent = [&sent](const Utils::Result<> &result) { sent = result; };
+    tab->startRequest(info, request);
+
+    QTRY_VERIFY_WITH_TIMEOUT(sent.has_value(), 15000);
+    QVERIFY2(*sent, errorOf(*sent).constData());
+    QTRY_COMPARE(finished.count(), 1);
+    QCOMPARE(controller->serverId(), info.id);
+    QVERIFY(!controller->sessionId().isEmpty());
+    QVERIFY(!tab->findChild<SessionPickerWidget *>());
+    QVERIFY2(chunks.contains("chunk-1:big:hello"), qPrintable(chunks.join(", ")));
+    const QStringList shownUserMessages = Utils::transform(
+        tab->findChildren<QLabel *>("userMessageText"), &QLabel::text);
+    QVERIFY2(shownUserMessages.contains("hello"), qPrintable(shownUserMessages.join(", ")));
+}
+
+// A request for a tab that is connected already replaces that connection,
+// whose end does not count as the end of the request.
+void AcpClientTest::testAiInteractiveRequestInConnectedTab()
+{
+    const bool wasAccepted = acpTermsAccepted();
+    const QScopeGuard restoreAcceptance([wasAccepted] { setAcpTermsAccepted(wasAccepted); });
+    setAcpTermsAccepted(true);
+
+    const AcpSettings::ServerInfo info = ControllerFixture::serverInfo({});
+    if (QTest::currentTestFailed())
+        return;
+
+    AcpChatWidget widget;
+    auto *tab = widget.findChild<AcpChatTab *>();
+    QVERIFY(tab);
+    auto *controller = tab->findChild<AcpChatController *>();
+    QVERIFY(controller);
+    controller->connectToServer(info);
+    QTRY_VERIFY_WITH_TIMEOUT(controller->isInitialized(), 15000);
+    QSignalSpy finished(controller, &AcpChatController::promptFinished);
+
+    std::optional<Utils::Result<>> sent;
+    AcpPromptRequest request;
+    request.prompt = "hello";
+    request.onSent = [&sent](const Utils::Result<> &result) { sent = result; };
+    tab->startRequest(info, request);
+
+    QTRY_VERIFY_WITH_TIMEOUT(sent.has_value(), 15000);
+    QVERIFY2(*sent, errorOf(*sent).constData());
+    QTRY_COMPARE(finished.count(), 1);
 }
 
 QObject *createAcpClientTest()

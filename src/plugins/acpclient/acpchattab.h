@@ -3,12 +3,15 @@
 
 #pragma once
 
+#include "acpaiprovider.h"
 #include "acpsettings.h"
 #include "agentoverview.h"
 
 #include <utils/filepath.h>
 
 #include <QWidget>
+
+#include <optional>
 
 class QAbstractButton;
 class QComboBox;
@@ -41,6 +44,7 @@ public:
     ~AcpChatTab() override;
 
     void setInspector(AcpInspector *inspector);
+    void startRequest(const AcpSettings::ServerInfo &server, const AcpPromptRequest &request);
 
     void startSession(const AcpSettings::ServerInfo &serverInfo,
                       const Utils::FilePath &workingDirectory, const QString &prompt);
@@ -74,6 +78,8 @@ private:
     void populateServerButtons();
     void connectToServer(const AcpSettings::ServerInfo &serverInfo);
     void sendPendingPrompt();
+    void sendRequest();
+    void finishRequest(const Utils::Result<> &result);
     void abandonStartup();
     void showRegistryPage();
     void clearRegistryButtons();
@@ -119,6 +125,8 @@ private:
     Utils::FilePath m_autoStartDirectory;
     bool m_autoStartedPromptPending = false;
     bool m_autoStartedSession = false;
+    std::optional<AcpPromptRequest> m_request;
+    bool m_configuringRequest = false;
     SessionActivity m_activity = SessionActivity::None;
     QIcon m_serverIcon;
 };

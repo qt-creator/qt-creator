@@ -336,7 +336,8 @@ void AcpProtocolV2Adapter::authenticate(const QString &methodId)
 }
 
 void AcpProtocolV2Adapter::setConfigOption(const QString &sessionId, const QString &configId,
-                                           const QJsonValue &value)
+                                           const QJsonValue &value,
+                                           const std::function<void()> &done)
 {
     QJsonObject params;
     params["sessionId"] = sessionId;
@@ -344,14 +345,14 @@ void AcpProtocolV2Adapter::setConfigOption(const QString &sessionId, const QStri
     params["value"] = value;
     params["type"] = value.isBool() ? QStringLiteral("boolean") : QStringLiteral("id");
     m_client->sendRequest(QStringLiteral("session/set_config_option"), params,
-                          [this](const QJsonObject &result,
-                                 const std::optional<Acp::Error> &error) {
-        if (error) {
+                          [this, done](const QJsonObject &result,
+                                       const std::optional<Acp::Error> &error) {
+        if (error)
             emit errorOccurred(Tr::tr("Failed to set config option: %1").arg(error->message()));
-            return;
-        }
-        if (result.value("configOptions").isArray())
+        else if (result.value("configOptions").isArray())
             emitConfigOptions(result.value("configOptions").toArray());
+        if (done)
+            done();
     });
 }
 

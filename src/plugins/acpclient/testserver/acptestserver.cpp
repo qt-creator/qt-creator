@@ -402,6 +402,8 @@ void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
             break;
         }
     }
+    if (m_scenario.echoModel)
+        promptText = m_model + ':' + promptText;
 
     if (m_scenario.allUpdateKinds) {
         const auto sendUpdate = [&](const SessionUpdate::Variant &value, const QString &kind) {
@@ -480,7 +482,13 @@ void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
 
         const auto response = fromJson<RequestPermissionResponse>(answer->value("result"));
         const bool selected = response && response->outcome().kind() == QLatin1String("selected");
-        if (selected) {
+        const QJsonObject outcome
+            = answer->value("result").toObject().value("outcome").toObject();
+        const QString optionId = outcome.value("optionId").toString();
+        if (selected && optionId == QLatin1String("reject")) {
+            sendAgentMessageChunk(sessionId, QString("rejected:%1").arg(promptText));
+            sendResult(id, toJson(PromptResponse().stopReason(StopReason::end_turn)));
+        } else if (selected) {
             sendAgentMessageChunk(sessionId, QString("chunk-2:%1").arg(promptText));
             sendResult(id, toJson(PromptResponse().stopReason(StopReason::end_turn)));
         } else {
@@ -537,7 +545,9 @@ void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
 
     for (int i = 2; i <= m_scenario.chunks; ++i)
         sendAgentMessageChunk(sessionId, QString("chunk-%1:%2").arg(i).arg(promptText));
-    sendResult(id, toJson(PromptResponse().stopReason(StopReason::end_turn)));
+    QJsonObject result = toJson(PromptResponse().stopReason(StopReason::end_turn));
+    result["stopReason"] = m_scenario.stopReason; // verbatim, as for v2
+    sendResult(id, result);
 }
 
 void Server::handleSetMode(const QJsonValue &id, const QJsonObject &params)
@@ -724,6 +734,8 @@ void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
             break;
         }
     }
+    if (m_scenario.echoModel)
+        promptText = m_model + ':' + promptText;
 
     // The response only acknowledges acceptance; the turn runs on afterwards.
     // The accepted prompt is echoed as a chunk followed by an upsert of the

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "acpchatcontroller.h"
+
+#include "acpaiprovider.h"
 #include "acpclientobject.h"
 #include "acpclienttr.h"
 #include "acpfilesystemhandler.h"
@@ -28,6 +30,7 @@
 #include <QImage>
 #include <QJsonArray>
 #include <QLoggingCategory>
+#include <QPointer>
 
 static Q_LOGGING_CATEGORY(logController, "qtc.acpclient.controller", QtWarningMsg);
 
@@ -98,6 +101,7 @@ void AcpChatController::connectToServer(const AcpSettings::ServerInfo &serverInf
     disconnectFromServer();
 
     m_serverName = serverInfo.name;
+    m_serverId = serverInfo.id;
     m_iconUrl = serverInfo.iconUrl;
     m_systemPrompt = serverInfo.systemPrompt;
     m_systemPromptOverride = serverInfo.systemPromptOverride;
@@ -256,6 +260,7 @@ void AcpChatController::disconnectFromServer()
     m_agentName.clear();
     m_agentVersion.clear();
     m_serverName.clear();
+    m_serverId.clear();
     m_iconUrl.clear();
     m_systemPrompt.clear();
     m_systemPromptOverride = false;
@@ -418,6 +423,25 @@ void AcpChatController::setConfigOption(const QString &configId, const QJsonValu
     m_adapter->setConfigOption(m_sessionId, configId, value);
 }
 
+void AcpChatController::setConfigOptions(const QMap<QString, QString> &values,
+                                         const std::function<void()> &done)
+{
+    if (values.isEmpty() || m_sessionId.isEmpty() || !m_adapter) {
+        if (done)
+            done();
+        return;
+    }
+    const QString configId = values.firstKey();
+    const QString value = values.first();
+    QMap<QString, QString> rest = values;
+    rest.remove(configId);
+    QPointer<AcpChatController> guard(this);
+    m_adapter->setConfigOption(m_sessionId, configId, value, [guard, rest, done] {
+        if (guard)
+            guard->setConfigOptions(rest, done);
+    });
+}
+
 void AcpChatController::sendPermissionResponse(const QJsonValue &id, const QString &optionId)
 {
     if (m_permissionHandler)
@@ -551,7 +575,10 @@ void AcpChatController::connectAdapter()
         emit sessionSelectionRequired();
     });
     connect(m_adapter, &AcpProtocolAdapter::configOptionsReceived,
-            this, &AcpChatController::configOptionsReceived);
+            this, [this](const QList<V2::SessionConfigOption> &configOptions) {
+        rememberAgentConfigOptions(m_serverId, configOptions);
+        emit configOptionsReceived(configOptions);
+    });
     connect(m_adapter, &AcpProtocolAdapter::availableCommandsReceived,
             this, &AcpChatController::availableCommandsReceived);
     connect(m_adapter, &AcpProtocolAdapter::sessionUpdate,

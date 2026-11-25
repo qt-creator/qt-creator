@@ -12,6 +12,7 @@
 #include <acp/acpv2.h>
 
 #include <QJsonValue>
+#include <QMap>
 #include <QObject>
 
 #include <utils/filepath.h>
@@ -53,6 +54,8 @@ public:
     void cancelTerminal(const QString &terminalId);
     void authenticate(const QString &methodId);
     void setConfigOption(const QString &configId, const QJsonValue &value);
+    // Sets the options one after the other, then calls done.
+    void setConfigOptions(const QMap<QString, QString> &values, const std::function<void()> &done);
     void sendPermissionResponse(const QJsonValue &id, const QString &optionId);
     void sendPermissionCancelled(const QJsonValue &id);
     void sendElicitationAccepted(const QJsonValue &id, const QJsonObject &content);
@@ -75,6 +78,7 @@ public:
     const QString &agentVersion() const { return m_agentVersion; }
     const QString &iconUrl() const { return m_iconUrl; }
     const QString &serverName() const { return m_serverName; }
+    const QString &serverId() const { return m_serverId; }
 
 signals:
     void connectionStateChanged(AcpClientObject::State state);
@@ -128,6 +132,7 @@ private:
     QString m_agentName;
     QString m_agentVersion;
     QString m_serverName;
+    QString m_serverId;
     QString m_iconUrl;
     QString m_systemPrompt;
     bool m_systemPromptOverride = false;

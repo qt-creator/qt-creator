@@ -20,6 +20,8 @@ Project {
         cpp.defines: VoiceInput.present ? base.concat(["WITH_VOICE_INPUT"]) : base
 
         files: [
+            "acpaiprovider.cpp",
+            "acpaiprovider.h",
             "acpchatcontroller.cpp",
             "acpchatcontroller.h",
             "acpchateditor.cpp",

@@ -1,6 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "acpaiprovider.h"
 #include "acpchateditor.h"
 #include "acpchattab.h"
 #include "acpchatwidget.h"
@@ -51,6 +52,7 @@ public:
 
     ~AcpClientPlugin() final
     {
+        delete m_aiProvider;
         delete m_rightPaneChatWidget;
         delete m_inspector;
     }
@@ -76,13 +78,19 @@ public:
 
         m_inspector = new AcpInspector;
 
-        setupAcpChatEditor(m_inspector, [this](AcpChatTab *tab) {
+        const auto showChat = [this] {
             createRightPaneChatWidget();
-            m_rightPaneChatWidget->addTab(tab);
             RightPaneWidget::instance()->setWidget(m_rightPaneChatWidget);
             RightPaneWidget::instance()->setShown(true);
+        };
+        const auto showTab = [this, showChat](AcpChatTab *tab) {
+            createRightPaneChatWidget();
+            m_rightPaneChatWidget->addTab(tab);
+            showChat();
             tab->setFocus();
-        });
+        };
+        setupAcpChatEditor(m_inspector, showTab);
+        m_aiProvider = createAcpAiProvider(m_inspector, showTab, showChat);
 
         // Create the ACP Client menu under Tools
         ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
@@ -172,6 +180,7 @@ private:
 
     AcpInspector *m_inspector = nullptr;
     AcpChatWidget *m_rightPaneChatWidget = nullptr;
+    Utils::AiProvider *m_aiProvider = nullptr;
 };
 
 } // namespace AcpClient::Internal
