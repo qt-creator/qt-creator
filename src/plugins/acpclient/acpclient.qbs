@@ -103,8 +103,6 @@ Project {
             name: "images"
             prefix: "images/"
             files: [
-                "sparklebubble.png",
-                "sparklebubble@2x.png",
                 "wizardicon-agentproject.png",
                 "wizardicon-agentproject@2x.png",
             ]

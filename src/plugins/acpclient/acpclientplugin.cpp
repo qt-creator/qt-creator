@@ -26,6 +26,7 @@
 #include <extensionsystem/iplugin.h>
 #include <texteditor/texteditor.h>
 #include <utils/icon.h>
+#include <utils/utilsicons.h>
 
 #ifdef WITH_VOICE_INPUT
 #include <voiceinput/transcriber.h>
@@ -174,8 +175,7 @@ private:
 
     static QIcon sidePanelIcon()
     {
-        return Utils::Icon({{":/acpclient/images/sparklebubble.png",
-                             Utils::Theme::Token_Text_Accent}}).icon();
+        return Utils::Icons::AI_ASSISTANT.icon();
     }
 
     AcpInspector *m_inspector = nullptr;

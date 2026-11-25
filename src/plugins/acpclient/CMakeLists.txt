@@ -51,8 +51,6 @@ add_qtc_plugin(AcpClient
 qtc_add_resources(AcpClient "images"
   PREFIX "/acpclient"
   FILES
-    images/sparklebubble.png
-    images/sparklebubble@2x.png
     images/wizardicon-agentproject.png
     images/wizardicon-agentproject@2x.png
 )

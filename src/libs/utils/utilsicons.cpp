@@ -160,6 +160,8 @@ const Icon RELOAD({
         {":/utils/images/reload_gray.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon RELOAD_TOOLBAR({
         {":/utils/images/reload_gray.png", Theme::IconsBaseColor}});
+const Icon AI_ASSISTANT({
+        {":/utils/images/sparklebubble.png", Theme::Token_Text_Accent}});
 const Icon TOGGLE_LEFT_SIDEBAR({
         {":/utils/images/leftsidebaricon.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon TOGGLE_LEFT_SIDEBAR_TOOLBAR({
@@ -411,6 +413,7 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(REDO_TOOLBAR),
     MAKE_ENTRY(REDO),
     MAKE_ENTRY(RELOAD_TOOLBAR),
+    MAKE_ENTRY(AI_ASSISTANT),
     MAKE_ENTRY(RELOAD),
     MAKE_ENTRY(REPLACE),
     MAKE_ENTRY(RESET_TOOLBAR),
