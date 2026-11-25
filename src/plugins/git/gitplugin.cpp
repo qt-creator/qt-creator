@@ -2309,7 +2309,7 @@ bool GitPluginPrivate::vcsFileAction(const FilePath &topLevel, const FilePath &f
     if (topLevel.isEmpty())
         return false;
 
-    const FilePath fullPath = topLevel.pathAppended(filePath.toUrlishString());
+    const FilePath fullPath = topLevel.pathAppended(filePath.path());
 
     auto markAsResolved = [topLevel](const Utils::FilePath &filePath) {
         // Check if file still contains conflict markers

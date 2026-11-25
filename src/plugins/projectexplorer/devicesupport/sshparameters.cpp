@@ -143,7 +143,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     args << "-o" << "BatchMode=" + batchModeEnabled;
 
     const bool isWindows = HostOsInfo::isWindowsHost()
-            && binary.toUrlishString().toLower().contains("/system32/");
+            && binary.contains("/system32/", Qt::CaseInsensitive);
     const bool useTimeout = (m_timeout != 0) && !isWindows;
     if (useTimeout)
         args << "-o" << "ConnectTimeout=" + QString::number(m_timeout);
