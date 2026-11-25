@@ -15,6 +15,7 @@
 #include "vcsplugin.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/aitaskbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/find/basetextfind.h>
@@ -29,6 +30,7 @@
 #include <texteditor/fontsettings.h>
 
 #include <utils/aggregate.h>
+#include <utils/aiassistance.h>
 #include <utils/algorithm.h>
 #include <utils/completingtextedit.h>
 #include <utils/fileutils.h>
@@ -39,6 +41,7 @@
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
+
 #include <QAction>
 #include <QApplication>
 #include <QCompleter>
@@ -47,6 +50,7 @@
 #include <QProcess>
 #include <QPushButton>
 #include <QSet>
+#include <QTextCursor>
 #include <QStringListModel>
 #include <QStyle>
 #include <QToolBar>
@@ -114,6 +118,8 @@ public:
     QPointer<QAction> m_submitAction;
 
     NickNameDialog *m_nickNameDialog = nullptr;
+    VcsBaseSubmitEditor::CommitDiffTask m_commitDiffTask;
+    AiTaskButton *m_generateButton = nullptr;
     bool m_disablePrompt = false;
 };
 
@@ -216,6 +222,127 @@ VcsBaseSubmitEditor::~VcsBaseSubmitEditor()
 {
     delete d->m_widget;
     delete d;
+}
+
+// More of a diff does not help the AI to summarize it, but costs time.
+const int maxCommitDiffSize = 200000;
+
+static AiRequest commitMessageRequest(const QString &diff, const QString &draft,
+                                      const FilePath &workingDirectory)
+{
+    AiRequest request;
+    request.id = "VcsBase.GenerateCommitMessage";
+    request.title = Tr::tr("Generate Commit Message");
+    request.mode = AiRequest::Headless;
+    request.workingDirectory = workingDirectory;
+    request.prompt
+        = "Write a commit message for the changes in the attached diff.\n"
+          "Follow the commit message conventions of the repository, as described in files "
+          "like AGENTS.md, CLAUDE.md or CONTRIBUTING.md, or as shown by its recent history, "
+          "if you can find them. Otherwise write a summary line of at most 72 characters, "
+          "an empty line, and a body that explains what changed and why.\n"
+          "Reply with the commit message only: no explanation, no Markdown code fences.";
+    if (!draft.trimmed().isEmpty()) {
+        request.prompt += "\nThe attached draft is the current commit message. Take it as a "
+                          "hint, and keep its trailer lines, such as Change-Id, unchanged.";
+        request.context.append(AiContextItem::fromText("Draft", draft));
+    }
+    QString shownDiff = diff;
+    if (shownDiff.size() > maxCommitDiffSize) {
+        shownDiff.truncate(maxCommitDiffSize);
+        shownDiff += "\n[The rest of the diff was left out.]\n";
+    }
+    request.context.append(AiContextItem::fromText("Diff", shownDiff));
+    return request;
+}
+
+static QString cleanedCommitMessage(const QString &answer)
+{
+    QStringList lines = answer.trimmed().split('\n');
+    if (lines.size() >= 2 && lines.first().startsWith("```") && lines.last().startsWith("```")) {
+        lines.removeFirst();
+        lines.removeLast();
+    }
+    return lines.join('\n').trimmed() + '\n';
+}
+
+/*!
+    Offers to have the description written by an AI. The recipe \a task
+    returns puts the diff of the changes that are about to be committed into
+    its storage, or fails with an error message there.
+*/
+void VcsBaseSubmitEditor::setCommitDiffTask(const CommitDiffTask &task)
+{
+    d->m_commitDiffTask = task;
+    if (d->m_generateButton)
+        return;
+    d->m_generateButton = new AiTaskButton;
+    d->m_generateButton->setObjectName("generateCommitMessageButton");
+    d->m_generateButton->setRequestMode(AiRequest::Headless);
+    d->m_generateButton->setIdleToolTip(
+        Tr::tr("Let an AI write the commit message from the changes in the checked files."));
+    d->m_generateButton->setProgress(Tr::tr("Generating Commit Message"),
+                                     "VcsBase.GenerateCommitMessage");
+    d->m_generateButton->setRecipe([this] { return commitMessageRecipe(); });
+    d->m_widget->addDescriptionButton(d->m_generateButton);
+}
+
+QtTaskTree::Group VcsBaseSubmitEditor::commitMessageRecipe()
+{
+    using namespace QtTaskTree;
+    QTC_ASSERT(d->m_commitDiffTask, return {});
+    const FilePath workingDirectory = d->m_checkScriptWorkingDirectory;
+    const CommitDiffStorage diffStorage;
+
+    const auto onDiffDone = [diffStorage, workingDirectory](DoneWith result) {
+        if (result != DoneWith::Error)
+            return;
+        const Result<QString> &diff = *diffStorage;
+        VcsOutputWindow::appendError(workingDirectory,
+                                     diff ? Tr::tr("Cannot get the changes to describe.")
+                                          : diff.error());
+    };
+    const auto onAiSetup = [this, diffStorage, workingDirectory](AiRequestRunner &runner) {
+        const QString diff = diffStorage->value_or(QString());
+        if (diff.trimmed().isEmpty()) {
+            VcsOutputWindow::appendError(workingDirectory,
+                                         Tr::tr("There are no changes to describe."));
+            return SetupResult::StopWithError;
+        }
+        runner.setRequest(commitMessageRequest(diff, description(), workingDirectory));
+        return SetupResult::Continue;
+    };
+    const auto onAiDone = [this, workingDirectory](const AiRequestRunner &runner,
+                                                   DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return;
+        const Result<QString> answer = runner.result();
+        if (!answer) {
+            VcsOutputWindow::appendError(
+                workingDirectory,
+                Tr::tr("Cannot generate the commit message: %1").arg(answer.error()));
+            return;
+        }
+        const QString message = cleanedCommitMessage(*answer);
+        if (message.trimmed().isEmpty()) {
+            VcsOutputWindow::appendError(workingDirectory,
+                                         Tr::tr("The AI did not write a commit message."));
+            return;
+        }
+        // Replacing the text through a cursor keeps the old message in the undo history.
+        QTextCursor cursor(d->m_widget->descriptionEdit()->document());
+        cursor.select(QTextCursor::Document);
+        cursor.insertText(message);
+    };
+
+    return {
+        diffStorage,
+        Group {
+            d->m_commitDiffTask(diffStorage),
+            onGroupDone(onDiffDone)
+        },
+        AiRequestTask(onAiSetup, onAiDone)
+    };
 }
 
 void VcsBaseSubmitEditor::slotUpdateEditorSettings()

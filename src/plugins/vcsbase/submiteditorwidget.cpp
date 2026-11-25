@@ -17,7 +17,9 @@
 #include <utils/algorithm.h>
 #include <utils/completingtextedit.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -113,6 +115,7 @@ struct SubmitEditorWidgetPrivate
     MiniSplitter *splitter = nullptr;
     QGroupBox *descriptionBox = nullptr;
     QVBoxLayout *descriptionLayout = nullptr;
+    QWidget *descriptionTitleButtons = nullptr;
     QLabel *descriptionHint = nullptr;
     CompletingTextEdit *description = nullptr;
     QCheckBox *checkAllCheckBox = nullptr;
@@ -495,6 +498,25 @@ QStringList SubmitEditorWidget::checkedFiles() const
         if (model->checked(i))
             rc.push_back(model->file(i));
     return rc;
+}
+
+/*!
+    Adds \a button on the line of the title of the description, with its right
+    edge at the right edge of the description editor.
+*/
+void SubmitEditorWidget::addDescriptionButton(QAbstractButton *button)
+{
+    if (!d->descriptionTitleButtons) {
+        // Not a child of the box, which would cut it off, nor of the splitter,
+        // which would make it a part of it.
+        d->descriptionTitleButtons = new QWidget(d->splitter->parentWidget());
+        d->descriptionTitleButtons->setObjectName("descriptionTitleButtons");
+        auto layout = new QHBoxLayout(d->descriptionTitleButtons);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(StyleHelper::SpacingTokens::GapHXs);
+        attachToGroupBoxTitle(d->descriptionTitleButtons, d->descriptionBox, d->description);
+    }
+    d->descriptionTitleButtons->layout()->addWidget(button);
 }
 
 CompletingTextEdit *SubmitEditorWidget::descriptionEdit() const

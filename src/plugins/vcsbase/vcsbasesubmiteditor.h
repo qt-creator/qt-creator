@@ -8,8 +8,13 @@
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <utils/aspects.h>
+#include <utils/result.h>
+
+#include <QtTaskTree/QTaskTree>
 
 #include <QAbstractItemView>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -48,6 +53,10 @@ public:
                          QAction *submitAction = nullptr, QAction *diffAction = nullptr);
 
     ~VcsBaseSubmitEditor() override;
+
+    using CommitDiffStorage = QtTaskTree::Storage<Utils::Result<QString>>;
+    using CommitDiffTask = std::function<QtTaskTree::ExecutableItem(const CommitDiffStorage &)>;
+    void setCommitDiffTask(const CommitDiffTask &task);
 
     void accept(VersionControlBase *plugin);
     bool promptSubmit(VersionControlBase *plugin);
@@ -112,6 +121,7 @@ private:
     void slotInsertNickName();
     void slotSetFieldNickName(int);
     void slotUpdateEditorSettings();
+    QtTaskTree::Group commitMessageRecipe();
 
     void createUserFields(const Utils::FilePath &fieldConfigFile);
     Utils::Result<> checkSubmitMessage() const;

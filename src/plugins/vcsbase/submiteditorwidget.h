@@ -10,6 +10,7 @@
 #include <QAbstractItemView>
 
 QT_BEGIN_NAMESPACE
+class QAbstractButton;
 class QAction;
 class QModelIndex;
 QT_END_NAMESPACE
@@ -55,6 +56,7 @@ public:
     Utils::CompletingTextEdit *descriptionEdit() const;
 
     void addDescriptionEditContextMenuAction(QAction *a);
+    void addDescriptionButton(QAbstractButton *button);
 
     void addSubmitFieldWidget(SubmitFieldWidget *f);
     QList<SubmitFieldWidget *> submitFieldWidgets() const;
