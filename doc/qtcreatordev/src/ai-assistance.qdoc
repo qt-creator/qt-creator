@@ -1,0 +1,171 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page ai-assistance.html
+    \title Asking an AI for Help
+
+    The \l{Utils::AiAssistance} API connects two kinds of plugins:
+
+    \list
+        \li Plugins that want an AI to do something, such as to explain an
+            issue or to write a commit message. They describe the task in an
+            \l{Utils::AiRequest}.
+        \li Plugins that integrate an AI, such as the ACP Client. They derive
+            from \l{Utils::AiProvider} and offer targets, such as the agents
+            that the user configured.
+    \endlist
+
+    Neither side depends on the other, as both use the API in the Utils
+    library. A plugin that wants help works the same whether no AI plugin is
+    loaded or several are. A built-in provider copies a request to the
+    clipboard, so the user can always paste it into an AI that \QC does not
+    know.
+
+    \section1 Requesting Help
+
+    An \l{Utils::AiRequest} holds the prompt and the context that goes along
+    with it, such as files, lines in a file, text, and images.
+
+    \code
+    using namespace Utils;
+
+    AiRequest request;
+    request.id = "MyPlugin.ExplainSelection";
+    request.title = Tr::tr("Explain Selection");
+    request.prompt = "Explain what the attached code does.";
+    request.context.append(AiContextItem::fromFile(filePath, range));
+    request.context.append(AiContextItem::fromText("Build output", output));
+
+    AiAssistance::submit(request);
+    \endcode
+
+    \l{Utils::AiAssistance::submit()} lets the user pick a target in a dialog,
+    and preselects the target that the user picked for a request with the same
+    \c id the last time. To pass a target without asking, use the overload
+    that takes an \l{Utils::AiTargetSelection}.
+
+    To offer the request in a menu, \l{Utils::AiAssistance::createAction()}
+    creates an action that builds the request when the user triggers it, and
+    that is disabled while no target is available.
+
+    \section2 Interactive and Headless Requests
+
+    By default, a request is \l{Utils::AiRequest::Interactive}{interactive}:
+    the target takes it over, and the user continues there, for example in a
+    chat with an agent.
+
+    A \l{Utils::AiRequest::Headless}{headless} request reports the answer back.
+    Only targets that \l{Utils::AiTarget::supportsHeadless}{support} it are
+    offered for such a request, and \l{Utils::AiAssistance::hasTargets()} tells
+    whether there are any.
+
+    \code
+    request.mode = AiRequest::Headless;
+    AiResponse *response = AiAssistance::submit(request);
+    connect(response, &AiResponse::finished, this, [this](const Result<QString> &answer) {
+        if (answer)
+            useAnswer(*answer);
+    });
+    \endcode
+
+    \l{Utils::AiResponse} follows the request. It reports the answer in
+    pieces with \c textReceived() as the target produces it, and ends with
+    \c finished() exactly once. \c finished() is never emitted before the
+    event loop runs, so connecting to it right after submitting is in time.
+    The response deletes itself afterwards. To stop a request, call
+    \l{Utils::AiResponse::cancel()}.
+
+    \section2 Requests in Task Trees
+
+    \l{Utils::AiRequestTask} runs a request as a task of a task tree, for
+    example after the task that collects its context. Stopping or canceling
+    the tree cancels the request.
+
+    \code
+    const Storage<QString> diff;
+    const auto onAiSetup = [diff](AiRequestRunner &runner) {
+        AiRequest request;
+        request.prompt = "Write a commit message for the attached diff.";
+        request.mode = AiRequest::Headless;
+        request.context.append(AiContextItem::fromText("Diff", *diff));
+        runner.setRequest(request);
+    };
+    const auto onAiDone = [this](const AiRequestRunner &runner) {
+        useAnswer(runner.result().value_or(QString()));
+    };
+    const Group recipe {
+        diff,
+        ProcessTask(onDiffSetup, onDiffDone),
+        AiRequestTask(onAiSetup, onAiDone)
+    };
+    \endcode
+
+    \section2 Offering a Button
+
+    \l{Core::AiTaskButton} is a button with the icon of the AI chat that runs
+    such a recipe. While it runs, the button shows a spinner and the progress
+    shows in the status bar. Clicking the button again or canceling the progress
+    cancels the task tree. The button is hidden while no target can run its kind
+    of request.
+
+    \code
+    auto button = new Core::AiTaskButton;
+    button->setRequestMode(AiRequest::Headless);
+    button->setIdleToolTip(Tr::tr("Let an AI write the commit message."));
+    button->setProgress(Tr::tr("Generating Commit Message"), "MyPlugin.GenerateMessage");
+    button->setRecipe([this] { return commitMessageRecipe(); });
+    \endcode
+
+    To put the button next to the title of a group box, use
+    \l{Utils::attachToGroupBoxTitle()}.
+
+    \section1 Providing an AI
+
+    A provider registers itself when it is created and unregisters when it is
+    deleted. Create it when the plugin initializes, and delete it with the
+    plugin.
+
+    \code
+    class MyAiProvider final : public Utils::AiProvider
+    {
+    public:
+        MyAiProvider()
+            : AiProvider("MyPlugin.MyAi", Tr::tr("My AI"))
+        {
+            AiTarget target;
+            target.id = "default";
+            target.displayName = Tr::tr("My AI");
+            target.supportsHeadless = true;
+
+            AiTargetParameter model;
+            model.id = "model";
+            model.displayName = Tr::tr("Model");
+            model.category = AiTargetParameter::Model;
+            model.choices = {{"small", Tr::tr("Small"), {}}, {"large", Tr::tr("Large"), {}}};
+            model.defaultValue = "small";
+            target.parameters = {model};
+
+            setTargets({target});
+        }
+
+        void execute(const AiRequest &request, const AiTargetSelection &selection,
+                     AiResponse *response) final
+        {
+            // Run the request with the model in selection.parameters.value("model"),
+            // stream the answer with response->reportText(), and end with
+            // response->reportFinished().
+        }
+    };
+    \endcode
+
+    A provider can change its targets at any time with the protected function
+    \c setTargets(), for example when it learns which
+    models an agent offers only after talking to it. Open dialogs follow the
+    change.
+
+    In \l{Utils::AiProvider::execute()}, a provider should stop working on the
+    request when \l{Utils::AiResponse} emits \c cancelRequested(). If the AI
+    only takes plain text, \l{Utils::AiAssistance::toPlainText()} turns the
+    request with its context into a text that quotes the lines of files.
+*/

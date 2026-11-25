@@ -62,6 +62,243 @@ const char clipboardTargetId[] = "Clipboard";
 
 // AiContextItem
 
+/*!
+    \class Utils::AiContextItem
+    \inmodule QtCreator
+
+    \brief The AiContextItem class is a piece of context that goes along with
+    the prompt of an AiRequest.
+
+    Create items with fromFile(), fromText(), and fromImage().
+*/
+
+/*!
+    \enum Utils::AiContextItem::Kind
+
+    This enum describes what an item holds.
+
+    \value File  A file, possibly only some of its lines.
+    \value Text  A text with a name.
+    \value Image An image with a name.
+*/
+
+/*!
+    \variable Utils::AiContextItem::kind
+    \brief What the item holds.
+*/
+
+/*!
+    \variable Utils::AiContextItem::name
+    \brief The name that the item is shown with.
+*/
+
+/*!
+    \variable Utils::AiContextItem::filePath
+    \brief The file of a \l File item.
+*/
+
+/*!
+    \variable Utils::AiContextItem::range
+    \brief The lines of the file that the item is about, if not the whole file.
+*/
+
+/*!
+    \variable Utils::AiContextItem::text
+    \brief The text of a \l Text item.
+*/
+
+/*!
+    \variable Utils::AiContextItem::image
+    \brief The image of an \l Image item.
+*/
+
+/*!
+    \class Utils::AiRequest
+    \inmodule QtCreator
+
+    \brief The AiRequest class describes a task for an AI.
+
+    \sa AiAssistance::submit(), AiRequestTask
+*/
+
+/*!
+    \enum Utils::AiRequest::Mode
+
+    This enum describes whether the requester wants the answer back.
+
+    \value Interactive The target takes the request over, and the user
+           continues there, such as in a chat.
+    \value Headless    The answer is reported back through the AiResponse.
+*/
+
+/*!
+    \variable Utils::AiRequest::id
+    \brief Identifies the kind of request.
+
+    The target that the user picks is remembered for requests with the same id.
+*/
+
+/*!
+    \variable Utils::AiRequest::title
+    \brief The title of the dialog that lets the user pick a target.
+*/
+
+/*!
+    \variable Utils::AiRequest::prompt
+    \brief What the AI should do.
+*/
+
+/*!
+    \variable Utils::AiRequest::context
+    \brief The context that goes along with the prompt.
+*/
+
+/*!
+    \variable Utils::AiRequest::workingDirectory
+    \brief The directory that the AI works in.
+
+    If it is empty, the provider picks one, such as the directory of the
+    startup project.
+*/
+
+/*!
+    \variable Utils::AiRequest::mode
+    \brief Whether the answer is reported back.
+*/
+
+/*!
+    \class Utils::AiParameterChoice
+    \inmodule QtCreator
+
+    \brief The AiParameterChoice class is one of the values that the user can
+    choose for an AiTargetParameter.
+*/
+
+/*!
+    \variable Utils::AiParameterChoice::value
+    \brief The value that the provider gets.
+*/
+
+/*!
+    \variable Utils::AiParameterChoice::displayName
+    \brief The name that the user sees.
+*/
+
+/*!
+    \variable Utils::AiParameterChoice::description
+    \brief Describes the choice in more detail, for a tooltip.
+*/
+
+/*!
+    \class Utils::AiTargetParameter
+    \inmodule QtCreator
+
+    \brief The AiTargetParameter class is an option of an AiTarget that the
+    user sets for a request, such as the model.
+*/
+
+/*!
+    \enum Utils::AiTargetParameter::Category
+
+    This enum describes what a parameter is about.
+
+    \value Model  The model that runs the request.
+    \value Effort How much effort, such as thinking, goes into the request.
+    \value Mode   The mode that the target runs the request in.
+    \value Other  Anything else.
+*/
+
+/*!
+    \variable Utils::AiTargetParameter::id
+    \brief Identifies the parameter in an AiTargetSelection.
+*/
+
+/*!
+    \variable Utils::AiTargetParameter::displayName
+    \brief The name that the user sees.
+*/
+
+/*!
+    \variable Utils::AiTargetParameter::category
+    \brief What the parameter is about.
+*/
+
+/*!
+    \variable Utils::AiTargetParameter::choices
+    \brief The values that the user can choose.
+*/
+
+/*!
+    \variable Utils::AiTargetParameter::defaultValue
+    \brief The value of the choice that is used unless the user picks another.
+*/
+
+/*!
+    \class Utils::AiTarget
+    \inmodule QtCreator
+
+    \brief The AiTarget class is something that an AiProvider can run requests
+    on, such as an agent.
+*/
+
+/*!
+    \variable Utils::AiTarget::id
+    \brief Identifies the target within its provider.
+*/
+
+/*!
+    \variable Utils::AiTarget::displayName
+    \brief The name that the user sees.
+*/
+
+/*!
+    \variable Utils::AiTarget::description
+    \brief Describes the target in more detail, for a tooltip.
+*/
+
+/*!
+    \variable Utils::AiTarget::icon
+    \brief The icon that the user sees.
+*/
+
+/*!
+    \variable Utils::AiTarget::supportsHeadless
+    \brief Whether the target can report an answer back.
+
+    Only such targets are offered for AiRequest::Headless requests.
+*/
+
+/*!
+    \variable Utils::AiTarget::parameters
+    \brief The options that the user sets for a request.
+*/
+
+/*!
+    \class Utils::AiTargetSelection
+    \inmodule QtCreator
+
+    \brief The AiTargetSelection class names a target and the values of its
+    parameters.
+*/
+
+/*!
+    \variable Utils::AiTargetSelection::providerId
+    \brief The provider of the target.
+*/
+
+/*!
+    \variable Utils::AiTargetSelection::targetId
+    \brief The target within the provider.
+*/
+
+/*!
+    \variable Utils::AiTargetSelection::parameters
+    \brief The values of the parameters, by their ids.
+*/
+
+/*!
+    Returns an item for \a filePath, or only the lines in \a range of it.
+*/
 AiContextItem AiContextItem::fromFile(const FilePath &filePath,
                                       const std::optional<Text::Range> &range)
 {
@@ -73,6 +310,9 @@ AiContextItem AiContextItem::fromFile(const FilePath &filePath,
     return item;
 }
 
+/*!
+    Returns an item for \a text, which is shown as \a name.
+*/
 AiContextItem AiContextItem::fromText(const QString &name, const QString &text)
 {
     AiContextItem item;
@@ -82,6 +322,9 @@ AiContextItem AiContextItem::fromText(const QString &name, const QString &text)
     return item;
 }
 
+/*!
+    Returns an item for \a image, which is shown as \a name.
+*/
 AiContextItem AiContextItem::fromImage(const QString &name, const QImage &image)
 {
     AiContextItem item;
@@ -108,12 +351,37 @@ AiContextItem AiContextItem::fromImage(const QString &name, const QImage &image)
     the event loop ran, so connecting right after submit() is in time.
 */
 
+/*!
+    \internal
+*/
+/*!
+    \fn void Utils::AiResponse::textReceived(const QString &chunk)
+
+    Reports the next \a chunk of the answer of a headless request.
+*/
+
+/*!
+    \fn void Utils::AiResponse::finished(const Utils::Result<QString> &result)
+
+    Reports the end of the request with \a result: the whole answer of a
+    headless request, an empty string for an interactive one, or an error.
+*/
+
+/*!
+    \fn void Utils::AiResponse::cancelRequested()
+
+    Asks the provider to stop working on the request.
+*/
+
 AiResponse::AiResponse()
     : QObject(shutdownGuard())
 {}
 
 AiResponse::~AiResponse() = default;
 
+/*!
+    Returns whether finished() was emitted.
+*/
 bool AiResponse::isFinished() const
 {
     return m_finished;
@@ -131,6 +399,9 @@ void AiResponse::cancel()
     reportFinished(ResultError(Tr::tr("The request was canceled.")));
 }
 
+/*!
+    Reports the next \a chunk of the answer. For providers.
+*/
 void AiResponse::reportText(const QString &chunk)
 {
     if (m_finished || chunk.isEmpty())
@@ -138,6 +409,10 @@ void AiResponse::reportText(const QString &chunk)
     emit textReceived(chunk);
 }
 
+/*!
+    Reports the end of the request with \a result, the whole answer or an
+    error. Later calls are ignored. For providers.
+*/
 void AiResponse::reportFinished(const Result<QString> &result)
 {
     if (m_finished)
@@ -224,6 +499,16 @@ static void ensureBuiltinProviders()
     which models an agent offers only after talking to it.
 */
 
+/*!
+    \fn void Utils::AiProvider::targetsChanged()
+
+    This signal is emitted when the targets of the provider changed.
+*/
+
+/*!
+    Creates and registers a provider with the unique \a id, which is shown as
+    \a displayName.
+*/
 AiProvider::AiProvider(Id id, const QString &displayName)
     : m_id(id)
     , m_displayName(displayName)
@@ -234,27 +519,42 @@ AiProvider::AiProvider(Id id, const QString &displayName)
     registry().notify();
 }
 
+/*!
+    Unregisters the provider.
+*/
 AiProvider::~AiProvider()
 {
     registry().providers.removeOne(this);
     registry().notify();
 }
 
+/*!
+    Returns the id of the provider.
+*/
 Id AiProvider::id() const
 {
     return m_id;
 }
 
+/*!
+    Returns the name of the provider that the user sees.
+*/
 QString AiProvider::displayName() const
 {
     return m_displayName;
 }
 
+/*!
+    Returns the targets of the provider.
+*/
 QList<AiTarget> AiProvider::targets() const
 {
     return m_targets;
 }
 
+/*!
+    Returns the target with \a targetId, if the provider has it.
+*/
 std::optional<AiTarget> AiProvider::target(const QString &targetId) const
 {
     for (const AiTarget &target : m_targets) {
@@ -297,10 +597,36 @@ void AiProvider::setTargets(const QList<AiTarget> &targets)
     task tree, cancels the request.
 */
 
+/*!
+    \typedef Utils::AiRequestTask
+    \relates Utils::AiRequestRunner
+
+    A task that runs an AiRequestRunner in a task tree.
+*/
+
+/*!
+    \fn void Utils::AiRequestRunner::textReceived(const QString &chunk)
+
+    Reports the next \a chunk of the answer of a headless request.
+*/
+
+/*!
+    \fn void Utils::AiRequestRunner::done(QtTaskTree::DoneResult result)
+
+    Reports the end of the request with \a result, which is a success if there
+    is an answer.
+*/
+
+/*!
+    Creates a runner without a request.
+*/
 AiRequestRunner::AiRequestRunner()
     : m_result(ResultError(Tr::tr("The request did not run.")))
 {}
 
+/*!
+    Cancels the request if it runs.
+*/
 AiRequestRunner::~AiRequestRunner()
 {
     if (m_response) {
@@ -309,16 +635,25 @@ AiRequestRunner::~AiRequestRunner()
     }
 }
 
+/*!
+    Sets the \a request to run.
+*/
 void AiRequestRunner::setRequest(const AiRequest &request)
 {
     m_request = request;
 }
 
+/*!
+    Runs the request on the target in \a selection, without asking the user.
+*/
 void AiRequestRunner::setSelection(const AiTargetSelection &selection)
 {
     m_selection = selection;
 }
 
+/*!
+    Submits the request.
+*/
 void AiRequestRunner::start()
 {
     QTC_ASSERT(!m_response, return);
@@ -332,6 +667,9 @@ void AiRequestRunner::start()
     });
 }
 
+/*!
+    Returns the answer, or an error if the request failed or has not finished.
+*/
 Result<QString> AiRequestRunner::result() const
 {
     return m_result;
@@ -352,6 +690,9 @@ QList<AiProvider *> providers()
     return result;
 }
 
+/*!
+    Returns the provider with \a providerId, if it is registered.
+*/
 AiProvider *provider(Id providerId)
 {
     return Utils::findOrDefault(registry().providers, [providerId](AiProvider *provider) {
@@ -364,6 +705,9 @@ static bool targetFits(const AiTarget &target, AiRequest::Mode mode)
     return mode == AiRequest::Interactive || target.supportsHeadless;
 }
 
+/*!
+    Returns whether a target can run requests in \a mode.
+*/
 bool hasTargets(AiRequest::Mode mode)
 {
     for (AiProvider *provider : providers()) {
@@ -630,8 +974,9 @@ AiResponse *submit(const AiRequest &request)
 }
 
 /*!
-    Creates an action that submits the request \a request returns when
-    triggered. The action is disabled while no target is available.
+    Creates an action with \a text and \a parent that submits the request
+    \a request returns when triggered. The action is disabled while no target
+    is available.
 */
 QAction *createAction(const QString &text, const std::function<AiRequest()> &request,
                       QObject *parent)
@@ -709,6 +1054,10 @@ QString toPlainText(const AiRequest &request)
     return result;
 }
 
+/*!
+    Returns the id of the built-in provider that copies requests to the
+    clipboard.
+*/
 Id clipboardProviderId()
 {
     return "Utils.AiAssistance.Clipboard";

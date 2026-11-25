@@ -128,6 +128,17 @@
         \endomit
     \endlist
 
+    \section1 Asking an AI for Help
+
+    A plugin can hand a task to an AI, such as explaining an issue, without
+    depending on the plugins that integrate AIs. The user picks one of the AIs
+    that these plugins offer, or copies the task to the clipboard. A plugin
+    that integrates an AI can offer it for such tasks in turn.
+
+    \list
+        \li \l{Asking an AI for Help}
+    \endlist
+
     \section1 Running External Tools
 
     Most software projects and development processes require various external

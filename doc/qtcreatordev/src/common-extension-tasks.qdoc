@@ -48,6 +48,19 @@
                 \l{Core::IWizardFactory}, \l{Core::BaseFileWizardFactory},
                 \l{Core::BaseFileWizard}, \l{Core::WizardDialogParameters}
         \row
+            \li Ask an AI to do something.
+            \li Such as to explain an issue. The user picks the AI.
+            \li \l{Asking an AI for Help}
+
+                \l{Utils::AiAssistance}, \l{Utils::AiRequest},
+                \l{Utils::AiRequestTask}, \l{Core::AiTaskButton}
+
+        \row
+            \li Offer an AI for such tasks.
+            \li Such as the agents of an AI integration.
+            \li \l{Utils::AiProvider}
+
+        \row
             \li Add support for a new version control system.
             \li Version control systems integrated in \QC are Bazaar, CVS, Git,
                 Mecurial, Perforce, and Subversion.

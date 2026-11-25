@@ -105,11 +105,15 @@
     \row
         \li output
         \li Specifies how to handle the tool's standard output stream.
-           Defaults to \c ShowInPane. Optional.
+            Possible values are: \c "showinpane", \c "replaceselection",
+            \c "ignore", or \c "sendtoai" to send it to an AI that the user
+            picks when the tool finishes (defaults to \c "showinpane").
+            Optional.
     \row
         \li error
         \li Specifies how to handle the tool's standard error stream.
-            Defaults to \c ShowInPane. Optional.
+            Takes the same values as \c output (defaults to
+            \c "showinpane"). Optional.
     \row
         \li modifiesdocument
         \li Specifies whether \QC should expect changes to the current
@@ -148,6 +152,10 @@
     \row
         \li input
         \li A potentially multiline string that is passed to the tool via standard input stream.
+    \row
+        \li aiprompt
+        \li What an AI should do with the output that is sent to it. Without
+            it, the AI explains the output. Optional.
     \endtable
 
     \section1 Example
