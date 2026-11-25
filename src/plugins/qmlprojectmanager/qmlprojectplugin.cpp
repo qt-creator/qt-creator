@@ -103,7 +103,7 @@ static void openQds(const FilePath &fileName, QdsMode mode)
     const QStringList modeArgument = mode == QdsMode::Lite ? QStringList("-qml-lite-designer")
                                                            : QStringList();
     qdsStarted = Process::startDetached(
-        {qdsPath, modeArgument + QStringList({"-client", fileName.toUrlishString()})});
+        {qdsPath, modeArgument + QStringList({"-client", fileName.nativePath()})});
 
     if (!qdsStarted) {
         QMessageBox::warning(ICore::dialogParent(),

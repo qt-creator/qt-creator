@@ -139,7 +139,8 @@ void QmlMainFileAspect::updateFileComboBox()
         if (!fn.hasSuffix(u"qml"))
             continue;
 
-        auto item = new QStandardItem(fn.toUrlishString());
+        auto item = new QStandardItem(fn.toUserOutput());
+        item->setData(fn.toUrlishString(), Qt::UserRole);
         m_fileListModel.appendRow(item);
 
         if (mainScriptPath == fn)
@@ -167,7 +168,8 @@ void QmlMainFileAspect::setMainScript(int index)
     if (index == 0) {
         setScriptSource(FileInEditor);
     } else {
-        const QString path = m_fileListModel.data(m_fileListModel.index(index, 0)).toString();
+        const QString path
+            = m_fileListModel.data(m_fileListModel.index(index, 0), Qt::UserRole).toString();
         setScriptSource(FileInSettings, path);
     }
 }
