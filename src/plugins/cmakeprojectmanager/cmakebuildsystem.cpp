@@ -3994,7 +3994,8 @@ void CMakeBuildSystem::updateExtraData()
     const QVariant androidAbis = value(Android::Constants::ANDROID_ABIS);
     const QVariant androidDeploySettings
         = value(Android::Constants::ANDROID_DEPLOYMENT_SETTINGS_FILE);
-    const QVariant androidExtraLibs = value(Android::Constants::ANDROID_EXTRA_LIBS);
+    const QStringList androidExtraLibs = CMakeConfigItem::cmakeSplitValue(
+        cfg.stringValueOf(Android::Constants::ANDROID_EXTRA_LIBS));
     const QVariant androidPackageSourceDir = value(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
 
     // Read by the androiddeployqt settings generation for projects that set

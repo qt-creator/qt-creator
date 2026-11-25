@@ -1063,7 +1063,8 @@ QtTaskTree::GroupItem AndroidBuildApkStep::runRecipe()
         }
         deploySettings["application-binary"] = applicationBinary;
 
-        const QString extraLibs = bs->extraData(buildKey, Android::Constants::AndroidExtraLibs).toString();
+        const QString extraLibs
+            = bs->extraData(buildKey, Android::Constants::AndroidExtraLibs).toStringList().join(',');
         if (!extraLibs.isEmpty())
             deploySettings["android-extra-libs"] = extraLibs;
 
