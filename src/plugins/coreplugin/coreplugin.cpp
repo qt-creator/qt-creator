@@ -518,6 +518,7 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
 #ifdef WITH_TESTS
     addTestCreator(createActionManagerTest);
     addTestCreator(createBaseTextDocumentTest);
+    addTestCreator(createCustomLanguageModelsTest);
     addTestCreator(createDocumentManagerTest);
     addTestCreator(createExternalToolTest);
     addTestCreator(createRegistriesTest);

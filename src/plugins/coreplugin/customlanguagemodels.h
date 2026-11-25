@@ -6,6 +6,10 @@
 
 #include <utils/commandline.h>
 
+QT_BEGIN_NAMESPACE
+class QObject;
+QT_END_NAMESPACE
+
 namespace Utils { class BaseAspect; }
 
 namespace Core {
@@ -17,6 +21,10 @@ CORE_EXPORT Utils::BaseAspect &customLanguageModelsContext();
 namespace Internal {
 
 void setupCustomLanguageModels();
+
+#ifdef WITH_TESTS
+QObject *createCustomLanguageModelsTest();
+#endif
 
 } // namespace Internal
 } // namespace Core
