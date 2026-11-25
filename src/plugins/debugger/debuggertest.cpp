@@ -249,6 +249,7 @@ private slots:
     void testHiddenLogHeadEndingAtTheLimit();
     void testFindsASourceFileOnTheDebuggerDevice();
     void testCdbSourcePathMapping();
+    void testMappedSourcePath();
     void testCdbBreakpointFileName();
     void testCdbEnvironmentScript();
     void testCdbEnvironmentScriptOnDevice();
@@ -3905,6 +3906,34 @@ void DebuggerUnitTests::testCdbSourcePathMapping()
 
     QCOMPARE(cdbSourcePathMapping("C:/src/foo.cpp", {}, SourceToDebugger),
              QString("C:/src/foo.cpp"));
+}
+
+void DebuggerUnitTests::testMappedSourcePath()
+{
+    // The prebuilt Qt names its sources like this, and the built-in guess for
+    // its build path is spelled in lower case.
+    const QString reported = "C:/Users/qt/work/qt/qtbase/src/corelib/text/qbytearray.cpp";
+    const QList<QPair<QString, QString>> qt{{"c:/users/qt/work/qt", "C:/Qt/6.12.0/Src"}};
+    QCOMPARE(mappedSourcePath(qt, reported, true),
+             QString("C:/Qt/6.12.0/Src/qtbase/src/corelib/text/qbytearray.cpp"));
+    QCOMPARE(mappedSourcePath(qt, "C:/Qt/6.12.0/Src/qtbase/x.cpp", false),
+             QString("c:/users/qt/work/qt/qtbase/x.cpp"));
+    QCOMPARE(mappedSourcePath(qt, "C:/Users/qt/work/qtbase/x.cpp", true),
+             QString("C:/Users/qt/work/qtbase/x.cpp"));
+
+    const QList<QPair<QString, QString>> build{{"/build/src", "/home/me/src"}};
+    QCOMPARE(mappedSourcePath(build, "/build/src/foo.cpp", true), QString("/home/me/src/foo.cpp"));
+    QCOMPARE(mappedSourcePath(build, "/build/src", true), QString("/home/me/src"));
+    QCOMPARE(mappedSourcePath(build, "/Build/src/foo.cpp", true), QString("/Build/src/foo.cpp"));
+    QCOMPARE(mappedSourcePath(build, "/build/srcery/foo.cpp", true),
+             QString("/build/srcery/foo.cpp"));
+
+    const QList<QPair<QString, QString>> unsetTarget{{"/build/src", ""}};
+    QCOMPARE(mappedSourcePath(unsetTarget, "/home/me/foo.cpp", false),
+             QString("/home/me/foo.cpp"));
+
+    const QList<QPair<QString, QString>> root{{"/", "/sysroot"}};
+    QCOMPARE(mappedSourcePath(root, "/usr/foo.cpp", true), QString("/sysroot/usr/foo.cpp"));
 }
 
 static const char noWindowsTestDevice[]

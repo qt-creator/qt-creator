@@ -65,13 +65,24 @@ QString mappedSourcePath(const QList<QPair<QString, QString>> &sourcePathMap,
     if (path.isEmpty() || sourcePathMap.isEmpty())
         return path;
     const FilePath given = FilePath::fromUserInput(path);
+    const QString givenPath = given.path();
     for (const QPair<QString, QString> &entry : sourcePathMap) {
         const FilePath from = FilePath::fromUserInput(toLocal ? entry.first : entry.second);
         const FilePath to = FilePath::fromUserInput(toLocal ? entry.second : entry.first);
-        if (given == from)
+        if (!given.isSameDevice(from))
+            continue;
+        // A build path from the debug information usually does not exist here, so
+        // FilePath's comparison cannot fall back to the file system for the case.
+        const QString fromPath = from.path();
+        if (fromPath.isEmpty())
+            continue;
+        const bool isWindowsPath = fromPath.size() >= 2 && fromPath.at(1) == ':';
+        const Qt::CaseSensitivity cs = isWindowsPath ? Qt::CaseInsensitive : Qt::CaseSensitive;
+        if (givenPath.compare(fromPath, cs) == 0)
             return to.path();
-        if (given.isChildOf(from))
-            return to.pathAppended(given.relativePathFromDir(from)).path();
+        const QString prefix = fromPath.endsWith('/') ? fromPath : fromPath + '/';
+        if (givenPath.startsWith(prefix, cs))
+            return to.pathAppended(givenPath.mid(prefix.size())).path();
     }
     return path;
 }
