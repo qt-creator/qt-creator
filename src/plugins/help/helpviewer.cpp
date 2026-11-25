@@ -148,7 +148,7 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
             if (!saver.hasError())
                 saver.write(helpEngine.fileData(resolvedUrl));
             if (const Result<> res = saver.finalize())
-                QDesktopServices::openUrl(QUrl(saver.filePath().toUrlishString()));
+                QDesktopServices::openUrl(saver.filePath().toUrl());
             else
                 FileUtils::showError(res.error());
             return true;

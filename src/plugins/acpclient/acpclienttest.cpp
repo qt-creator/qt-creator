@@ -5097,7 +5097,7 @@ void AcpClientTest::testChatWidgetServerIconClearedOnDisconnect()
     QVERIFY(iconFile.writeFileContents(
         "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\">"
         "<rect width=\"16\" height=\"16\" fill=\"currentColor\"/></svg>"));
-    info.iconUrl = iconFile.toUrlishString();
+    info.iconUrl = iconFile.toUrl().toString();
 
     AcpChatWidget widget;
     const QList<AcpChatTab *> tabs = widget.findChildren<AcpChatTab *>();
