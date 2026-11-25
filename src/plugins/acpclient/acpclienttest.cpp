@@ -6592,6 +6592,9 @@ void AcpClientTest::testAiHeadlessRequest()
     AcpPromptRequest request;
     request.prompt = "hello";
     request.configValues = {{"test.model", "big"}};
+    // Names become part of a resource URI, which agents check for being a URL.
+    request.textContexts = {{"Standard output", "some output", TextContextScope::None},
+                            {"/path/to/file.cpp:2-3", "line 2", TextContextScope::None}};
     auto response = new Utils::AiResponse;
     QSignalSpy textSpy(response, &Utils::AiResponse::textReceived);
     QSignalSpy finishedSpy(response, &Utils::AiResponse::finished);

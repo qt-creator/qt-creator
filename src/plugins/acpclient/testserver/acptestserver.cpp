@@ -8,6 +8,7 @@
 
 #include <QDir>
 #include <QJsonDocument>
+#include <QUrl>
 
 #include <algorithm>
 #include <cstdio>
@@ -18,6 +19,21 @@
 using namespace Acp;
 
 namespace AcpTestServer {
+
+// Agents validate the URIs of embedded resources, and refuse a prompt with one
+// that is not a valid URL.
+static QString invalidResourceUri(const QJsonObject &params)
+{
+    for (const QJsonValue &block : params.value("prompt").toArray()) {
+        const QJsonObject object = block.toObject();
+        if (object.value("type").toString() != QLatin1String("resource"))
+            continue;
+        const QString uri = object.value("resource").toObject().value("uri").toString();
+        if (!QUrl(uri, QUrl::StrictMode).isValid())
+            return uri;
+    }
+    return {};
+}
 
 static SessionModeState makeModeState(const QString &currentModeId)
 {
@@ -381,6 +397,10 @@ void Server::handlePrompt(const QJsonValue &id, const QJsonObject &params)
         fflush(stderr);
         std::exit(1);
     }
+    if (const QString uri = invalidResourceUri(params); !uri.isEmpty()) {
+        sendError(id, ErrorCode::Invalid_params, QString("Invalid URL: %1").arg(uri));
+        return;
+    }
 
     const auto request = fromJson<PromptRequest>(QJsonValue(params));
     if (!request) {
@@ -720,6 +740,10 @@ void Server::handleResumeSession(const QJsonValue &id, const QJsonObject &params
 
 void Server::handlePromptV2(const QJsonValue &id, const QJsonObject &params)
 {
+    if (const QString uri = invalidResourceUri(params); !uri.isEmpty()) {
+        sendError(id, ErrorCode::Invalid_params, QString("Invalid URL: %1").arg(uri));
+        return;
+    }
     const auto request = V2::fromJson<V2::PromptRequest>(QJsonValue(params));
     if (!request) {
         sendError(id, ErrorCode::Invalid_params, request.error());

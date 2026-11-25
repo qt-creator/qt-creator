@@ -31,6 +31,7 @@
 #include <QJsonArray>
 #include <QLoggingCategory>
 #include <QPointer>
+#include <QUrl>
 
 static Q_LOGGING_CATEGORY(logController, "qtc.acpclient.controller", QtWarningMsg);
 
@@ -354,7 +355,8 @@ void AcpChatController::sendPrompt(const QString &text,
     }
 
     for (const TextContext &ctx : textContexts) {
-        const QString uri = QStringLiteral("context://%1").arg(ctx.name);
+        // Agents refuse a URI that is not a valid URL, such as one with a space in it.
+        const QString uri = "context:///" + QString::fromLatin1(QUrl::toPercentEncoding(ctx.name));
         content << V2::EmbeddedResource().resource(
             V2::TextResourceContents().text(ctx.text).uri(uri));
     }
