@@ -241,6 +241,11 @@ void Server::handleNewSession(const QJsonValue &id, const QJsonObject &params)
         sendError(id, ErrorCode::Invalid_params, request.error());
         return;
     }
+    // Agents refuse to work in a directory that is not absolute.
+    if (!QDir::isAbsolutePath(params.value("cwd").toString())) {
+        sendError(id, ErrorCode::Invalid_params, "cwd must be an absolute path");
+        return;
+    }
     if (m_scenario.requireAuth && !m_authenticated) {
         sendError(id, ErrorCode::Authentication_required, "Authentication required");
         return;
@@ -682,6 +687,11 @@ void Server::handleNewSessionV2(const QJsonValue &id, const QJsonObject &params)
     const auto request = V2::fromJson<V2::NewSessionRequest>(QJsonValue(params));
     if (!request) {
         sendError(id, ErrorCode::Invalid_params, request.error());
+        return;
+    }
+    // Agents refuse to work in a directory that is not absolute.
+    if (!QDir::isAbsolutePath(params.value("cwd").toString())) {
+        sendError(id, ErrorCode::Invalid_params, "cwd must be an absolute path");
         return;
     }
     if (m_scenario.requireAuth && !m_authenticated) {

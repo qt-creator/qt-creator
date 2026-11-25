@@ -22,6 +22,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/fileutils.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -271,12 +272,21 @@ void AcpChatController::disconnectFromServer()
         emit connectionStateChanged(AcpClientObject::State::Disconnected);
 }
 
+// Agents only work in an absolute directory, so one is picked when there is none,
+// such as without a project.
+static FilePath sessionDirectory(const FilePath &workingDirectory)
+{
+    if (!workingDirectory.isEmpty() && workingDirectory.isAbsolutePath())
+        return workingDirectory;
+    return FileUtils::homePath();
+}
+
 void AcpChatController::createNewSession(const FilePath &workingDirectory)
 {
     if (!m_adapter || !m_initialized)
         return;
 
-    m_workingDirectory = workingDirectory;
+    m_workingDirectory = sessionDirectory(workingDirectory);
 
     m_adapter->newSession(m_workingDirectory.toFSPathString(), buildMcpServersJson(),
                           systemPrompt());
@@ -736,7 +746,7 @@ void AcpChatController::loadSession(const QString &sessionId, const FilePath &wo
     if (!m_adapter || !m_initialized)
         return;
 
-    m_workingDirectory = workingDirectory;
+    m_workingDirectory = sessionDirectory(workingDirectory);
 
     m_adapter->resumeSession(sessionId, m_workingDirectory.toFSPathString(),
                              buildMcpServersJson(), systemPrompt());
