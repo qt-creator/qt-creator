@@ -81,7 +81,7 @@ public:
     inline bool matches(const Location &loc) const;
 
     QString functionName;
-    QString fileName;
+    Utils::FilePath fileName;
     quint64 startAddress = 0;
     quint64 endAddress = 0;
 };
@@ -90,7 +90,7 @@ bool FrameKey::matches(const Location &loc) const
 {
     return loc.address() >= startAddress
             && loc.address() <= endAddress
-            && loc.fileName().toUrlishString() == fileName
+            && loc.fileName() == fileName
             && loc.functionName() == functionName;
 }
 
@@ -549,7 +549,7 @@ void DisassemblerAgent::setContents(const DisassemblerLines &rawContents)
         const quint64 endAddress = contents.endAddress();
         if (startAddress) {
             FrameKey key;
-            key.fileName = d->location.fileName().toUrlishString();
+            key.fileName = d->location.fileName();
             key.functionName = d->location.functionName();
             key.startAddress = startAddress;
             key.endAddress = endAddress;
@@ -605,7 +605,8 @@ void DisassemblerAgent::setContentsToDocument(const DisassemblerLines &contents)
         // Make that a proper TextDocument reimplementation.
         d->document->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, true);
         d->document->setProperty(Debugger::Constants::OPENED_WITH_DISASSEMBLY, true);
-        d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE, d->location.fileName().toUrlishString());
+        d->document->setProperty(Debugger::Constants::DISASSEMBLER_SOURCE_FILE,
+                                 d->location.fileName().toVariant());
         d->configureMimeType();
     } else if (besideSource) {
         // In its own split, not in the one the source was just shown in.

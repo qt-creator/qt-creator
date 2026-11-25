@@ -299,14 +299,15 @@ ContextData getLocationContext(TextDocument *document, int lineNumber)
             data.type = LocationByAddress;
             data.address = l.address;
         } else {
-            QString fileName = document->property(Constants::DISASSEMBLER_SOURCE_FILE).toString();
+            const Utils::FilePath fileName = Utils::FilePath::fromVariant(
+                document->property(Constants::DISASSEMBLER_SOURCE_FILE));
             if (!fileName.isEmpty()) {
                 // Possibly one of the  "27 [1] foo = x" lines
                 int pos = line.indexOf('[');
                 int ln = line.left(pos - 1).toInt();
                 if (ln > 0) {
                     data.type = LocationByFile;
-                    data.fileName = Utils::FilePath::fromString(fileName);
+                    data.fileName = fileName;
                     data.textPosition.line = ln;
                 }
             }
