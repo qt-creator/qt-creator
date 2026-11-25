@@ -10,23 +10,16 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/customlanguagemodels.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
-#include <coreplugin/messagemanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/aiassistance.h>
 #include <utils/algorithm.h>
-#include <utils/aspects.h>
-#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QHash>
-#include <QTimer>
-
-#include <memory>
-#include <vector>
 
 using namespace Core;
 using namespace Utils;
@@ -242,91 +235,27 @@ private:
 class ExplainWithAiHandler : public ITaskHandler
 {
 public:
-    ExplainWithAiHandler(const QString &model)
-        : ITaskHandler(createAction(model))
-        , m_model(model)
+    ExplainWithAiHandler()
+        : ITaskHandler(createAction())
     {}
 
 private:
     bool canHandle(const Task &task) const override
     {
-        Q_UNUSED(task)
-        return !availableLanguageModels().isEmpty();
+        return !task.description().isEmpty();
     }
 
     void handle(const Task &task) override
     {
-        const CommandLine cmdLine = commandLineForLanguageModel(m_model);
-        QTC_ASSERT(!cmdLine.isEmpty(), return);
-
-        QString prompt;
-        if (task.origin().isEmpty())
-            prompt += "A software tool has emitted a diagnostic. ";
-        else
-            prompt += QString("The tool \"%1\" has emitted a diagnostic. ").arg(task.origin());
-        prompt += "Please explain what it is about. "
-                  "Be as concise and concrete as possible and try to name the root cause."
-                  "If you don't know the answer, just say so."
-                  "If possible, also provide a solution. "
-                  "Do not think for more than a minute. "
-                  "Here is the error: ###%1##";
-        prompt = prompt.arg(task.description());
-        if (task.file().exists()) {
-            if (const auto contents = task.file().fileContents()) {
-                prompt.append('\n').append(
-                    "Ideally, provide your solution in the form of a diff."
-                    "Here are the contents of the file that the tool complained about: ###%1###."
-                    "The path to the file is ###%2###.");
-                prompt = prompt.arg(QString::fromUtf8(*contents), task.file().toUserOutput());
-            }
-        }
-        const auto process = new Process(this);
-        process->setCommand(cmdLine);
-        process->setWriteData(prompt.toUtf8());
-        process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
-        process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
-        connect(process, &Process::textOnStandardOutput,
-                [](const QString &text) { MessageManager::writeFlashing(text); });
-        connect(process, &Process::done, [process] {
-            MessageManager::writeSilently(
-                process->exitMessage(Process::FailureMessageFormat::WithStdErr));
-            process->deleteLater();
-        });
-        QTimer::singleShot(60000, process, [process] { process->kill(); });
-        MessageManager::writeDisrupting(Tr::tr("Querying %1...").arg(m_model));
-        process->start();
+        AiAssistance::submit(Internal::explainIssueRequest(task));
     }
 
-    static QAction *createAction(const QString &model)
+    static QAction *createAction()
     {
-        const auto action = new QAction(Tr::tr("Get help from %1").arg(model));
-        action->setToolTip(Tr::tr("Ask the %1 LLM to help with this issue.").arg(model));
+        const auto action = new QAction(Tr::tr("Explain with AI..."));
+        action->setToolTip(Tr::tr("Ask an AI to explain this issue and to suggest a solution."));
         return action;
     }
-
-    const QString m_model;
-};
-
-class AiHandlersManager
-{
-public:
-    AiHandlersManager()
-    {
-        QObject::connect(&customLanguageModelsContext(), &BaseAspect::changed,
-                         g_actionParent, [this] { reset(); });
-        reset();
-    }
-
-private:
-    void reset()
-    {
-        m_aiTaskHandlers.clear();
-        for (const QString &model : availableLanguageModels())
-            m_aiTaskHandlers.emplace_back(std::make_unique<ExplainWithAiHandler>(model));
-        updateTaskHandlerActionsState();
-    }
-
-    std::vector<std::unique_ptr<ExplainWithAiHandler>> m_aiTaskHandlers;
 };
 
 } // namespace
@@ -348,9 +277,41 @@ void setupTaskHandlers(
     static const RemoveTaskHandler removeTaskHandler;
     static const ShowInEditorTaskHandler showInEditorTaskHandler;
     static const VcsAnnotateTaskHandler vcsAnnotateTaskHandler;
-    static const AiHandlersManager aiHandlersManager;
+    static const ExplainWithAiHandler explainWithAiHandler;
 
     registerQueuedTaskHandlers();
+}
+
+// Lines around the issue that are quoted for the AI.
+const int explainContextLines = 20;
+
+AiRequest explainIssueRequest(const Task &task)
+{
+    AiRequest request;
+    request.id = "ProjectExplorer.ExplainIssue";
+    request.title = Tr::tr("Explain Issue");
+    if (task.origin().isEmpty())
+        request.prompt = "A software tool has emitted a diagnostic. ";
+    else
+        request.prompt = QString("The tool \"%1\" has emitted a diagnostic. ").arg(task.origin());
+    request.prompt += "Please explain what it is about. "
+                      "Be as concise and concrete as possible and try to name the root cause. "
+                      "If you don't know the answer, just say so. "
+                      "If possible, also provide a solution, ideally in the form of a diff.";
+    request.context.append(AiContextItem::fromText("Diagnostic", task.description()));
+    const FilePath file = task.file();
+    if (!file.isEmpty() && file.exists()) {
+        const int line = task.line();
+        if (line > 0) {
+            Text::Range range;
+            range.begin.line = std::max(1, line - explainContextLines);
+            range.end.line = line + explainContextLines;
+            request.context.append(AiContextItem::fromFile(file, range));
+        } else {
+            request.context.append(AiContextItem::fromFile(file));
+        }
+    }
+    return request;
 }
 
 ITaskHandler *taskHandlerForAction(QAction *action)

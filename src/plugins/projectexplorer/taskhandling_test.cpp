@@ -7,12 +7,15 @@
 
 #include "task.h"
 #include "taskfile.h"
+#include "taskhandlers.h"
 #include "taskmodel.h"
 
+#include <utils/aiassistance.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
 #include <utils/link.h>
 #include <utils/outputformatter.h>
+#include <utils/temporarydirectory.h>
 
 #include <QTest>
 
@@ -32,6 +35,7 @@ private slots:
     void testTaskModelPopulationBenchmark();
     void testLinkedDetails_data();
     void testLinkedDetails();
+    void testExplainIssueRequest();
 };
 
 void TaskHandlingTest::testTaskFiltering()
@@ -198,6 +202,37 @@ void TaskHandlingTest::testLinkedDetails()
     QVERIFY(task.formattedDescription({Task::WithSummary, Task::WithLinks})
                 .contains(QString("summary\nplain detail\n<a href=\"%1\">%2</a>: text")
                               .arg(href.toHtmlEscaped(), linkText)));
+}
+
+// An issue goes to the AI with its description, and with the lines of its file
+// around it, if it has one.
+void TaskHandlingTest::testExplainIssueRequest()
+{
+    const Utils::TemporaryDirectory dir("taskhandling-ai");
+    const Utils::FilePath file = dir.filePath("source.cpp");
+    QStringList lines;
+    for (int i = 1; i <= 50; ++i)
+        lines << QString("line %1").arg(i);
+    QVERIFY(file.writeFileContents(lines.join('\n').toUtf8()));
+
+    Task task(Task::Error, "something is wrong", file, 30, "Test.Explain");
+    task.setOrigin("Clang");
+    const Utils::AiRequest request = explainIssueRequest(task);
+    QCOMPARE(request.id, Utils::Id("ProjectExplorer.ExplainIssue"));
+    QVERIFY(request.prompt.contains("\"Clang\""));
+    QCOMPARE(request.context.size(), 2);
+    QCOMPARE(request.context.at(0).kind, Utils::AiContextItem::Text);
+    QVERIFY(request.context.at(0).text.contains("something is wrong"));
+    QCOMPARE(request.context.at(1).kind, Utils::AiContextItem::File);
+    QCOMPARE(request.context.at(1).filePath, file);
+    QVERIFY(request.context.at(1).range);
+    QCOMPARE(request.context.at(1).range->begin.line, 10);
+    QCOMPARE(request.context.at(1).range->end.line, 50);
+
+    const Task fileless(Task::Warning, "no file", {}, -1, "Test.Explain");
+    const Utils::AiRequest filelessRequest = explainIssueRequest(fileless);
+    QCOMPARE(filelessRequest.context.size(), 1);
+    QVERIFY(filelessRequest.prompt.startsWith("A software tool"));
 }
 
 QObject *createTaskHandlingTest()

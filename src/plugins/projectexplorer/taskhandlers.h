@@ -20,6 +20,7 @@ class QAction;
 QT_END_NAMESPACE
 
 namespace Core { class Context; }
+namespace Utils { class AiRequest; }
 
 namespace ProjectExplorer {
 namespace Internal { void registerQueuedTaskHandlers(); }
@@ -60,6 +61,7 @@ void setupTaskHandlers(
     const GetHandlerTasks &getTasks);
 
 ITaskHandler *taskHandlerForAction(QAction *action);
+Utils::AiRequest explainIssueRequest(const Task &task);
 ITaskHandler *defaultTaskHandler();
 void updateTaskHandlerActionsState();
 
