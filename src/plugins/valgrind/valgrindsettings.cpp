@@ -68,7 +68,7 @@ void SuppressionAspectPrivate::slotAddSuppression()
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
         for (const FilePath &file : files)
-            m_model.appendRow(new QStandardItem(file.toUrlishString()));
+            m_model.appendRow(new QStandardItem(file.toUserOutput()));
         q->guiToVolatileValue();
         globalSettings().lastSuppressionDirectory.setValue(files.at(0).absolutePath());
         //conf->setLastSuppressionDialogHistory(dialog.history());
