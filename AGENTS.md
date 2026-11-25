@@ -103,6 +103,9 @@ pattern: other instances on the machine are not yours.
   `QFont::setPixelSize/setPointSize/setBold` etc.
 - Use `Utils::SpacingTokens` for margins/spacings/paddings. No hard-coded
   pixel numbers.
+- In dialogs and message boxes use button texts that describe the action that
+  is taken when clicking them: For example "Replace" and "Cancel",
+  not "Yes" and "No".
 
 ## Testing rules
 
