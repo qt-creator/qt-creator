@@ -101,15 +101,20 @@
     criteria, select the line and then select \uicontrol {Get Help Online} in the
     context menu.
 
-    To ask an AI to explain the issue on the selected line, select
-    \uicontrol {Get Help from <AI>} in the context menu. To add AIs to the menu,
-    go to \preferences > \uicontrol {AI} > \uicontrol {Custom Language Models}
-    and select \uicontrol {Add}.
+    To ask an AI to explain the issue on the selected line and to suggest a
+    solution, select \uicontrol {Explain with AI} in the context menu, and then
+    select the AI. The AI gets the issue together with the lines of code around
+    it. For more information, see \l {Ask AI for help}.
+
+    To use a language model that you run from the command line, go to
+    \preferences > \uicontrol {AI} > \uicontrol {Custom Language Models} and
+    select \uicontrol {Add}.
 
     \image {qtcreator-preferences-ai-custom-language-models.webp} {Custom Language Model tab in AI preferences}
 
     \sa {View output}, {Add custom output parsers}, {Parse build output},
-    {Show task list files in Issues}, {Analyze code with Clang-Tidy and Clazy}
+    {Show task list files in Issues}, {Analyze code with Clang-Tidy and Clazy},
+    {Ask AI for help}
 */
 
 /*!

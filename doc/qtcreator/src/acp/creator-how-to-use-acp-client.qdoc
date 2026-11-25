@@ -193,6 +193,13 @@
     \inlineimage {icons/plus.png}{Add content} > \uicontrol {Add file} or
     \uicontrol {Add remote file} in \uicontrol Context.
 
+    The context that went along with a message appears as chips above it in
+    the chat. Select a file chip to open the file, and a text chip to view the
+    text in an editor.
+
+    Other parts of \QC can also start a chat with an agent, for example to
+    explain an issue. For more information, see \l {Ask AI for help}.
+
     \section2 Agent's responses
 
     The agent's reply appears in the chat window.

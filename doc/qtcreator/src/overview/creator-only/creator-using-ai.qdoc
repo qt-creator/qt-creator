@@ -43,5 +43,9 @@
         \li \l {Set up \QC MCP server}
     \endtable
 
+    You can also hand tasks to an AI from other parts of \QC, such as to
+    explain an issue in \l Issues or to write a commit message. For more
+    information, see \l {Ask AI for help}.
+
     \sa {Use AI}{How to: Use AI}
 */

@@ -1,0 +1,91 @@
+// Copyright (C) 2026 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-ask-ai.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-ai
+
+    \title Ask AI for help
+
+    Several places in \QC can hand a task to an AI:
+
+    \list
+        \li Explain an issue in \l Issues.
+        \li Write a commit message in the \l {git commit}{Git Commit} view.
+        \li Send the output of an \l {Use external tools}{external tool} to
+            an AI.
+    \endlist
+
+    \section1 Select an AI
+
+    When you start such a task, a dialog lists the AIs that can do it:
+
+    \list
+        \li The agents that you configured in the \l {Use the ACP Client}
+            {ACP Client}.
+        \li The custom language models that you added in \preferences >
+            \uicontrol AI > \uicontrol {Custom Language Models}.
+        \li \uicontrol {Copy to Clipboard}, which copies the task as text, so
+            that you can paste it into an AI that \QC does not know.
+    \endlist
+
+    \image {qtcreator-ai-target-picker.webp} {Dialog for selecting the AI that does a task}
+
+    Select an AI, set its options, such as the model or how much effort it
+    puts into the task, and then select \uicontrol Send. To send the task with
+    the options as they are, double-click the AI.
+
+    An agent offers the options that it reported in its last chat, so start a
+    chat with an agent once to see its options here.
+
+    \QC remembers your choice for each kind of task, and selects it again the
+    next time.
+
+    \section1 What the AI does with the task
+
+    What happens next depends on the AI that you selected:
+
+    \table
+    \header
+        \li AI
+        \li Result
+    \row
+        \li Agent
+        \li A new chat opens in the side panel with the task as its first
+            message. You can continue the chat as usual.
+
+            If the chat asks you to accept terms and conditions first, accept
+            them and start the task again.
+    \row
+        \li Custom language model
+        \li \QC runs the command of the model with the task as input, and shows
+            the answer in \l {View output}{General Messages}.
+    \row
+        \li \uicontrol {Copy to Clipboard}
+        \li The task and its context are on the clipboard as text.
+    \endtable
+
+    A task usually comes with context, such as the lines of code around an
+    issue or the output of a tool. In the chat, the context appears as chips
+    above the message. Select a file chip to open the file, and a text chip to
+    view the text in an editor.
+
+    \image {qtcreator-acp-chat-context.webp} {Context of a task as chips in the chat}
+
+    \section1 Tasks that return an answer
+
+    Some tasks, such as writing a commit message, need the answer back in \QC.
+    The answer goes into the task, such as the commit message, instead of a
+    chat or \uicontrol {General Messages}. Only agents and custom language
+    models can do these tasks, so the dialog does not offer
+    \uicontrol {Copy to Clipboard} for them.
+
+    An agent does such a task without a chat. It cannot ask you for
+    permission to run a tool or for other input, so \QC denies these requests.
+    If the agent requires you to sign in, sign in from a chat with the agent
+    first.
+
+    \sa {Use the ACP Client}, {Issues}, {git commit}, {Use external tools}
+*/

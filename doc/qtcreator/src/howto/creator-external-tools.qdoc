@@ -29,7 +29,7 @@
     additional tools in \preferences > \uicontrol {Environment} >
     \uicontrol {External Tools}.
 
-    \image {qtcreator-external-tools.webp} {External Tools tab in Environment preferences}
+    \image {qtcreator-external-tools.webp} {Tool that sends its output to an AI in the External Tools tab in Environment preferences}
 
     Select \inlineimage {icons/replace.png} {Variables} (\uicontrol {Variables})
     in a field to select from a list of \l{Use \QC variables}{variables} that are
@@ -60,8 +60,9 @@
         \li In the \uicontrol Output field, select how to handle output from the
             tool.
             You can ignore the output, view it in \l{View output}
-            {General Messages}, or replace the selected text with the
-            output in the code editor.
+            {General Messages}, replace the selected text with the
+            output in the code editor, or select \uicontrol {Send to AI} to
+            send it to an AI when the tool finishes.
 
         \li In the \uicontrol {Error output} field, select how to handle error
             messages from the tool.
@@ -88,6 +89,16 @@
 
         \li In the \uicontrol Input field, specify text that is passed as standard
             input to the tool.
+
+        \li If you send the output or error output to an AI, specify what the
+            AI should do with it in the \uicontrol {AI prompt} field. The field
+            is available only then. If you leave it empty, the AI explains the
+            output. You can use
+            \l {Use \QC variables}{\QC variables} in the prompt.
+            When the tool finishes, also with an error, select the AI that
+            gets the output. Until the AI has it, the progress shows in the
+            status bar, where you can cancel it. For more information, see
+            \l {Ask AI for help}.
 
     \endlist
 

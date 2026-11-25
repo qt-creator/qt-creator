@@ -845,8 +845,27 @@
         \li If your project uses signoffs, select \uicontrol {Sign off} to add a
             \e signed-off-by trailer by the author at the end of the commit log
             message.
-        \li In \uicontrol Description, enter a commit message.
         \li In \uicontrol Files, select the files to include in the commit.
+        \li In \uicontrol Description, enter a commit message.
+
+            To have an AI write the message, select
+            \inlineimage {icons/sparklebubble.png} {Generate commit message}
+            next to \uicontrol Description, and then select the AI. The button
+            is available if you set up an agent in the \l {Use the ACP Client}
+            {ACP Client} or a custom language model.
+
+            The AI gets the changes in the selected files, with the message
+            that you entered so far as a draft. It follows the commit message
+            conventions of the repository if it finds them, and keeps trailers,
+            such as \c Change-Id. While the AI works, the progress shows in the
+            status bar. To cancel, select the button again or cancel the
+            progress.
+
+            \image {qtcreator-git-commit-ai.webp} {Commit message from an AI in the Git Commit view}
+
+            The answer replaces the message. To get your message back, press
+            \key {Ctrl+Z} (or \key {Cmd+Z} on \macos). For more information,
+            see \l {Ask AI for help}.
         \li Select \uicontrol {Diff Selected Files} to open the \l{git diff}
             {Git Diff Files} view, where you can view the changes and stage them
             chunk-by-chunk or line-by-line.
