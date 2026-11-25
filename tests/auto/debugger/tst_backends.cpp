@@ -17521,7 +17521,8 @@ void tst_backends::stepsOutOfNativeMixedCppFrameBackIntoQml()
         probe.kind = RefreshKind::QmlStack;
         probe.requestId = 10 + attempt;
         engine->refresh(probe);
-        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)),
+                                 s_qmlStackTimeout);
         beforeStep = responses.value(int(RefreshKind::FullStack)).toString();
         if (beforeStep.contains(cppFrame))
             break;
@@ -17550,7 +17551,7 @@ void tst_backends::stepsOutOfNativeMixedCppFrameBackIntoQml()
     qmlStackRequest.kind = RefreshKind::QmlStack;
     qmlStackRequest.requestId = 1;
     engine->refresh(qmlStackRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_qmlStackTimeout);
     const GdbMi stack = responses.value(int(RefreshKind::FullStack));
     const int afterLine = qmlMarkerLine("qmlstack_inferior.qml", "MARKER: after the native call");
     QCOMPARE(newestQmlLocation(stack), QString("compute:%1").arg(afterLine));
@@ -17632,7 +17633,7 @@ void tst_backends::stepsBackIntoQmlWithoutAQmlBreakpoint()
     probe.kind = RefreshKind::QmlStack;
     probe.requestId = 10;
     engine->refresh(probe);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_qmlStackTimeout);
     const QString beforeStep = responses.value(int(RefreshKind::FullStack)).toString();
     QVERIFY2(beforeStep.contains(cppFrame),
              qPrintable("the inferior did not stop in the C++ method: " + beforeStep));
@@ -17650,7 +17651,7 @@ void tst_backends::stepsBackIntoQmlWithoutAQmlBreakpoint()
     qmlStackRequest.kind = RefreshKind::QmlStack;
     qmlStackRequest.requestId = 1;
     engine->refresh(qmlStackRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_qmlStackTimeout);
     const GdbMi stack = responses.value(int(RefreshKind::FullStack));
     const int afterLine = qmlMarkerLine("qmlstack_inferior.qml", "MARKER: after the native call");
     QVERIFY(afterLine > 0);
@@ -17760,7 +17761,7 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
     stackRequest.kind = RefreshKind::FullStack;
     stackRequest.requestId = 1;
     engine->refresh(stackRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_qmlStackTimeout);
     const QString beforeStep = newestQmlLocation(responses.value(int(RefreshKind::FullStack)));
     QVERIFY2(beforeStep.startsWith("compute:"),
              qPrintable("the step out of the C++ frame did not land in compute(): "
@@ -17784,7 +17785,8 @@ void tst_backends::stepsWithinQmlFrameAfterNativeMixedStepOut()
         afterStep.kind = RefreshKind::FullStack;
         afterStep.requestId = 50 + step;
         engine->refresh(afterStep);
-        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+        QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)),
+                                 s_qmlStackTimeout);
         const GdbMi stack = responses.value(int(RefreshKind::FullStack));
         QVERIFY2(!newestQmlLocation(stack).isEmpty(),
                  qPrintable("the stop after the step has no QML frame: " + stack.toString()));
@@ -18000,7 +18002,7 @@ void tst_backends::stepsFromQmlIntoNativeMixedCppFrame()
     stackRequest.kind = RefreshKind::FullStack;
     stackRequest.requestId = 1;
     engine->refresh(stackRequest);
-    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(int(RefreshKind::FullStack)), s_qmlStackTimeout);
     const QString stack = responses.value(int(RefreshKind::FullStack)).toString();
     QVERIFY2(stackHasFunction(stack, "QmlEntryPoint::process"),
              qPrintable("stepping in from the QML call site should land in "
