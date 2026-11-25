@@ -2431,21 +2431,20 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
     if (archiveName.isEmpty())
         return;
     const QString extension = filters.value(selectedFilter);
-    QFileInfo archive(archiveName.toUrlishString());
-    if (extension != "." + archive.completeSuffix()) {
-        archive = QFileInfo(archive.filePath() + extension);
-    }
+    FilePath archive = archiveName;
+    if (extension != "." + archive.completeSuffix())
+        archive = archive.stringAppended(extension);
 
     if (archive.exists()) {
         if (QMessageBox::warning(ICore::dialogParent(), Tr::tr("Overwrite?"),
             Tr::tr("An item named \"%1\" already exists at this location. "
-               "Do you want to overwrite it?").arg(QDir::toNativeSeparators(archive.absoluteFilePath())),
+               "Do you want to overwrite it?").arg(archive.toUserOutput()),
             QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
             return;
         }
     }
 
-    enqueueCommand({workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()},
+    enqueueCommand({workingDirectory, {"archive", commit, "-o", archive.nativePath()},
                     RunFlag::ShowStdOut});
 }
 
@@ -3506,7 +3505,7 @@ SubmoduleDataMap GitClient::submoduleList(const FilePath &workingDirectory) cons
 
     // if config found submodules
     if (!result.isEmpty()) {
-        QSettings gitmodulesFile(gitmodulesFileName.toUrlishString(), QSettings::IniFormat);
+        QSettings gitmodulesFile(gitmodulesFileName.toFSPathString(), QSettings::IniFormat);
 
         const QStringList submodules = result.keys();
         for (const QString &submoduleName : submodules) {
