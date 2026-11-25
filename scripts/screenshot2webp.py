@@ -11,6 +11,10 @@ their subfolders. Add or update them only as WebP images that this
 script creates. This does not apply to the icons in
 doc/qtcreator/images/icons.
 
+The original capture is an unscaled, lossless image: capture the
+screenshot without scaling it and save it in PNG format. The PNG file
+is only an intermediate format.
+
 Tool
 
   The script encodes SOURCE once with each preset in PRESETS and

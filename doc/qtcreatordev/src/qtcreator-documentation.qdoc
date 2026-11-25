@@ -193,30 +193,36 @@
 
     \section2 Saving Images
 
-    Save images in PNG or WebP format in the \QC project folder in the
-    \c doc/qtcreator/images folder or its subfolders.
+    An image, such as a screenshot, always starts as an unscaled, lossless
+    image. The safest way to get one is to capture the image without scaling
+    it and to save it in PNG format. The PNG file is only an intermediate
+    format. Do not commit it.
 
-    Save screenshots in WebP format. To create a WebP image from the original
-    screenshot, enter the following command from the \QC project folder:
+    Convert the PNG file into the final image in WebP format. To do so, enter
+    the following command from the \QC project folder:
 
     \badcode
-    scripts/screenshot2webp.py <original_screenshot> doc/qtcreator/images/<screenshot_name>.webp
+    scripts/screenshot2webp.py <screenshot_name>.png doc/qtcreator/images/<screenshot_name>.webp
     \endcode
 
-    The script encodes the screenshot with several presets, weighs the file
-    size of each result against how much it differs from the original
-    screenshot, and keeps the best one. It requires
-    \l{https://imagemagick.org}{ImageMagick} 7.
-    Always convert the original screenshot, because lossy presets lose quality
-    with each pass. For more information, enter
-    \c {scripts/screenshot2webp.py --help}.
+    Save the WebP images in the \c doc/qtcreator/images or
+    \c doc/qtcreatordev/images folder or their subfolders.
 
-    Before committing PNG images, optimize them by using an image optimization
-    tool, such as OptiPNG. To invoke it from the \QC project enter the following
-    command:
+    The script encodes the image with several presets, weighs the file
+    size of each result against how much it differs from the PNG file, and
+    keeps the best one. It requires \l{https://imagemagick.org}{ImageMagick} 7.
+    Always convert the PNG file, never a WebP image that the script created
+    earlier, because lossy presets lose quality with each pass. For more
+    information, enter \c {scripts/screenshot2webp.py --help}.
+
+    Icons are the exception: they stay in PNG format, because
+    \c src/tools/icons/recolordocsicons.py recolors and optimizes only PNG
+    files. Before committing icons, optimize them by using an image
+    optimization tool, such as OptiPNG. To invoke it from the \QC project
+    folder, enter the following command:
 
     \badcode
-    optipng -o 7 -strip all doc/images/<screenshot_name>
+    optipng -o 7 -strip all doc/qtcreator/images/icons/<icon_name>.png
     \endcode
 
     \section2 Linking to Youtube Videos
