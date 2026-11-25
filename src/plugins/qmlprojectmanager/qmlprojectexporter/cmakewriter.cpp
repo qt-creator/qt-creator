@@ -145,18 +145,13 @@ QString CMakeWriter::readTemplate(const QString &templatePath)
 
 void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content)
 {
-    QFile fileHandle(path.toUrlishString());
-    if (fileHandle.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QString cpy = content;
-        cpy.replace("\t", "    ");
+    QString cpy = content;
+    cpy.replace("\t", "    ");
 
-        QTextStream stream(&fileHandle);
-        stream << cpy;
-    } else {
+    if (!path.writeFileContents(cpy.toUtf8())) {
         QString text("Failed to write");
         CMakeGenerator::logIssue(ProjectExplorer::Task::Error, text, path);
     }
-    fileHandle.close();
 }
 
 CMakeWriter::CMakeWriter(CMakeGenerator *parent)
@@ -442,11 +437,11 @@ bool CMakeWriter::hasMesh(const NodePtr &node) const
 
 bool CMakeWriter::hasQuick3dImport(const Utils::FilePath &filePath) const
 {
-    QFile f(filePath.toUrlishString());
-    if (!f.open(QIODevice::ReadOnly))
+    const Utils::Result<QByteArray> content = filePath.fileContents();
+    if (!content)
         return false;
 
-    QTextStream stream(&f);
+    QTextStream stream(*content);
     while (!stream.atEnd()) {
         QString line = stream.readLine();
         if (line.contains("{"))

@@ -305,9 +305,9 @@ void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) 
     else
         node->type = Node::Type::Module;
 
-    QFile f(filePath.toUrlishString());
-    QTC_CHECK(f.open(QIODevice::ReadOnly));
-    QTextStream stream(&f);
+    const Result<QByteArray> fileContent = filePath.fileContents();
+    QTC_CHECK(fileContent);
+    QTextStream stream(fileContent.value_or(QByteArray()));
 
     Utils::FilePath dir = filePath.parentDir();
     static const QRegularExpression whitespaceRegex("\\s+");
@@ -324,7 +324,6 @@ void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) 
                 node->singletons.push_back(tmp);
         }
     }
-    f.close();
 
     if (!checkUri(node->uri, node->dir)) {
         QString text("Unexpected uri %1");

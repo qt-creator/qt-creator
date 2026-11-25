@@ -63,17 +63,12 @@ bool QmlProjectFileGenerator::execute()
     const QString fileContent = QmlProjectExporter::CMakeWriter::readTemplate(QMLPROJECT_FILE_TEMPLATE_PATH)
             .arg(contentEntry, imageEntry, jsEntry, assetEntry, importPaths);
 
-    QFile file(m_targetFile.toUrlishString());
-    if (!file.open(QIODevice::WriteOnly))
+    if (!m_targetFile.writeFileContents(fileContent.toUtf8()))
         return false;
-
-    file.reset();
-    file.write(fileContent.toUtf8());
-    file.close();
 
     QMessageBox::information(Core::ICore::dialogParent(),
                              Tr::tr("Project File Generated"),
-                             Tr::tr("File created:") + "\n\n" + m_targetFile.toUrlishString(),
+                             Tr::tr("File created:") + "\n\n" + m_targetFile.toUserOutput(),
                              QMessageBox::Ok);
 
     return true;
@@ -173,7 +168,7 @@ bool QmlProjectFileGenerator::isDirAcceptable(const FilePath &dir, const FilePat
 
     if (uiFileParentDir.isChildOf(dir)) {
         const FilePath relativePath = uiFileParentDir.relativeChildPath(dir);
-        QStringList components = relativePath.toUrlishString().split("/");
+        const QList<QStringView> components = relativePath.pathComponents();
         if (components.size() > 2) {
             QMessageBox::StandardButton sel = QMessageBox::question(Core::ICore::dialogParent(),
                                                   Tr::tr("Problem"),
@@ -231,8 +226,11 @@ const QStringList QmlProjectFileGenerator::findContentDirs(const QStringList &su
     for (const FilePath &fullPath : results) {
         if (fullPath == m_targetDir)
             relativePaths.append(".");
-        else
-            relativePaths.append(fullPath.relativeChildPath(m_targetDir).toUrlishString().split('/').first());
+        else {
+            const FilePath relativePath = fullPath.relativeChildPath(m_targetDir);
+            const QList<QStringView> components = relativePath.pathComponents();
+            relativePaths.append(components.isEmpty() ? QString() : components.first().toString());
+        }
     }
 
     return relativePaths;

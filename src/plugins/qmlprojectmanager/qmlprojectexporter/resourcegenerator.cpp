@@ -105,7 +105,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
             projectPath.pathAppended(project->displayName() + ".qrc"),
             Tr::tr("QML Resource File (*.qrc)"));
 
-        if (qrcFilePath.toUrlishString().isEmpty())
+        if (qrcFilePath.isEmpty())
             return;
 
         bool success = ResourceGenerator::createQrc(project, qrcFilePath);
@@ -119,7 +119,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
         Utils::AsynchronousMessageBox::information(Tr::tr("Success"),
                                                   Tr::tr(
                                                       "Successfully generated QRC resource file.")
-                                                      + "\n" + qrcFilePath.toUrlishString());
+                                                      + "\n" + qrcFilePath.toUserOutput());
     });
 
     // ToDo: move this to QtCreator and add tr to the string then
@@ -141,7 +141,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
             projectPath.pathAppended(project->displayName() + ".qmlrc"),
             "QML Resource File (*.qmlrc);;Resource File (*.rcc)");
 
-        if (qmlrcFilePath.toUrlishString().isEmpty())
+        if (qmlrcFilePath.isEmpty())
             return;
 
         QProgressDialog progress;
@@ -367,14 +367,14 @@ bool ResourceGenerator::runRcc(const FilePath &qmlrcFilePath,
                                    "--threshold",
                                    "30",
                                    "--output",
-                                   qmlrcFilePath.toUrlishString(),
-                                   qrcFilePath.toUrlishString()};
+                                   qmlrcFilePath.nativePath(),
+                                   qrcFilePath.nativePath()};
 
     m_rccProcess.setCommand({rccBinary, arguments});
     m_rccProcess.start();
     if (!m_rccProcess.waitForStarted()) {
         Core::MessageManager::writeDisrupting(
-            Tr::tr("Unable to generate resource file \"%1\".").arg(qmlrcFilePath.toUrlishString()));
+            Tr::tr("Unable to generate resource file \"%1\".").arg(qmlrcFilePath.toUserOutput()));
         return false;
     }
 
