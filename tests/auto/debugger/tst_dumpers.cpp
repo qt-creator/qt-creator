@@ -2783,6 +2783,31 @@ void tst_Dumpers::dumper_data()
                + Check("c4", "(C: 10, M: 20, Y: 30, K: 40, A: 255)", "@QColor");
 
 
+    QTest::newRow("QPalette")
+            << Data("#include <QPalette>\n",
+
+                    "QPalette p(QColor(255, 0, 0));\n"
+                    "p.setResolveMask(0);\n"
+                    "p.setColor(QPalette::Disabled, QPalette::Text, QColor(10, 20, 30));\n"
+                    "p.setColor(QPalette::Active, QPalette::Accent, QColor(0, 0, 255));\n"
+                    "p.setCurrentColorGroup(QPalette::Inactive);\n",
+                    "&p")
+
+               + GuiProfile()
+               + QtVersion(0x60600)
+
+               + Check("p", "2 of 66 set", "@QPalette")
+               + Check("p.currentGroup", "Inactive", "@QPalette::ColorGroup")
+               + Check("p.Active", "1 of 22 set", "")
+               + Check("p.Active.Accent", "(R: 0, G: 0, B: 255, A: 255) #ff0000ff", "@QColor")
+               + Check("p.Active.Text", ValuePattern(".* [(]not set[)]"), "@QColor")
+               + Check("p.Active.NoRole", ValuePattern(".* [(]not set[)]"), "@QColor")
+               + Check("p.Disabled", "1 of 22 set", "")
+               + Check("p.Disabled.Text", "(R: 10, G: 20, B: 30, A: 255) #ff0a141e", "@QColor")
+               + Check("p.Disabled.Accent", ValuePattern(".* [(]not set[)]"), "@QColor")
+               + Check("p.Inactive", "0 of 22 set", "");
+
+
     QTest::newRow("QLinkedList")
             << Data("#include <QLinkedList>\n"
                     "#include <string>\n"

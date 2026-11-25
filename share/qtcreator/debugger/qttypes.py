@@ -217,6 +217,82 @@ def qdump__QColor(d, value):
                      + pixel * (sw * sh))
 
 
+def qdump__QPalette(d, value):
+    # QPalette: 'QPalettePrivate *d; ColorGroup currentGroup;'. QPalettePrivate
+    # comes from a private header, so its layout is spelled out here.
+    if not d.qtVersionAtLeast(0x060000):
+        d.putPlainChildren(value)
+        return
+
+    groupNames = ['Active', 'Disabled', 'Inactive']
+    roleNames = ['WindowText', 'Button', 'Light', 'Midlight', 'Dark', 'Mid',
+                 'Text', 'BrightText', 'ButtonText', 'Base', 'Window', 'Shadow',
+                 'Highlight', 'HighlightedText', 'Link', 'LinkVisited',
+                 'AlternateBase', 'NoRole', 'ToolTipBase', 'ToolTipText',
+                 'PlaceholderText', 'Accent']
+    qtVersion = d.qtVersion()
+    if qtVersion < 0x060600:
+        roleNames = roleNames[:-1]
+    accentRole = 21
+    noRole = 17
+    roleCount = len(roleNames)
+    ptrSize = d.ptrSize()
+    maskAlign = 8 if ptrSize == 8 or d.isMsvcTarget() or d.isArmArchitecture() else 4
+
+    def align(offset, alignment):
+        return (offset + alignment - 1) // alignment * alignment
+
+    priv, currentGroup = value.split('pi')
+    if not priv:
+        d.putValue('<invalid>')
+        return
+
+    # Since 6.4 (and 6.2.6, 6.3.2) the brushes live in a shared 'Data'
+    # behind 'QAtomicInt ref; ResolveMask resolveMask; int detach_no;'.
+    if qtVersion >= 0x060302 or 0x060206 <= qtVersion < 0x060300:
+        resolveMask = d.extractUInt64(priv + maskAlign)
+        data = d.extractPointer(priv + align(maskAlign + 8 + 4, ptrSize))
+        brushes = data + ptrSize  # After QSharedData::ref.
+    else:
+        brushes = priv + ptrSize  # After QAtomicInt ref.
+        resolveMask = d.extractUInt64(
+            brushes + align(len(groupNames) * roleCount * ptrSize, maskAlign))
+
+    # Accent uses the resolve bit of NoRole. NoRole itself counts as never set.
+    def isSet(group, role):
+        if role == noRole:
+            return 0
+        bit = (noRole if role == accentRole else role) + 21 * group
+        return (resolveMask >> bit) & 1
+
+    setCount = sum(isSet(g, r) for g in range(len(groupNames)) for r in range(roleCount))
+    d.putValue('%d of %d set' % (setCount, len(groupNames) * roleCount))
+    d.putExpandable()
+    if d.isExpanded():
+        with Children(d):
+            with SubItem(d, 'currentGroup'):
+                d.putValue(groupNames[currentGroup] if currentGroup < len(groupNames)
+                           else str(currentGroup))
+                d.putType(d.qtNamespace() + 'QPalette::ColorGroup')
+            for group, groupName in enumerate(groupNames):
+                with SubItem(d, groupName):
+                    groupSetCount = sum(isSet(group, r) for r in range(roleCount))
+                    d.putValue('%d of %d set' % (groupSetCount, roleCount))
+                    d.putType(' ')
+                    d.putExpandable()
+                    if d.isExpanded():
+                        with Children(d):
+                            for role, roleName in enumerate(roleNames):
+                                brush = d.extractPointer(
+                                    brushes + (group * roleCount + role) * ptrSize)
+                                with SubItem(d, roleName):
+                                    # QBrushData: 'QAtomicInt ref; BrushStyle style; QColor color;'
+                                    d.putItem(d.createValue(brush + 8, '@QColor'))
+                                    if not isSet(group, role):
+                                        d.putValue(d.currentValue.value + ' (not set)',
+                                                   priority=1)
+
+
 def qform_X_QAbstractItemModel():
     return [DisplayFormat.Simple, DisplayFormat.Enhanced]
 
