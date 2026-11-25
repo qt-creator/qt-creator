@@ -1011,12 +1011,11 @@ void InternalLibraryDetailsController::updateProFile()
 
     const GuardLocker locker(m_ignoreChanges);
 
-    m_rootProjectPath = project->projectDirectory().toUrlishString();
+    m_rootProjectPath = project->projectDirectory();
 
     auto bs = dynamic_cast<QmakeBuildSystem *>(activeBuildSystem(project));
     QTC_ASSERT(bs, return);
 
-    QDir rootDir(m_rootProjectPath);
     const QList<QmakeProFile *> proFiles = bs->rootProFile()->allProFiles();
     for (QmakeProFile *proFile : proFiles) {
         QmakeProjectManager::ProjectType type = proFile->projectType();
@@ -1025,7 +1024,8 @@ void InternalLibraryDetailsController::updateProFile()
 
         const QStringList configVar = proFile->variableValue(Variable::Config);
         if (!configVar.contains(QLatin1String("plugin"))) {
-            const QString relProFilePath = rootDir.relativeFilePath(proFile->filePath().toUrlishString());
+            const QString relProFilePath
+                = proFile->filePath().relativePathFromDir(m_rootProjectPath);
             TargetInformation targetInfo = proFile->targetInformation();
             const QString itemToolTip = QString::fromLatin1("%1 (%2)").arg(targetInfo.target).arg(relProFilePath);
             m_proFiles.append(proFile);
@@ -1081,36 +1081,34 @@ QString InternalLibraryDetailsController::snippet() const
         return QString();
 
 
-    // dir of the root project
-    QDir rootDir(m_rootProjectPath);
-
     // relative path for the project for which we insert the snippet,
     // it's relative to the root project
-    const QString proRelavitePath = rootDir.relativeFilePath(proFile().toUrlishString());
+    const QString proRelavitePath = proFile().relativePathFromDir(m_rootProjectPath);
 
     // project for which we insert the snippet
 
     // the build directory of the active build configuration
-    QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir
+    FilePath rootBuildDir = m_rootProjectPath; // If the project is unconfigured use the project dir
     if (ProjectExplorer::BuildConfiguration *bc = activeBuildConfig(
             ProjectManager::projectForFile(proFile()))) {
-        rootBuildDir.setPath(bc->buildDirectory().toUrlishString());
+        rootBuildDir = bc->buildDirectory();
     }
 
-    // the project for which we insert the snippet inside build tree
-    QFileInfo pfi(rootBuildDir.filePath(proRelavitePath));
     // the project dir for which we insert the snippet inside build tree
-    QDir projectBuildDir(pfi.absolutePath());
+    const FilePath projectBuildDir = rootBuildDir.pathAppended(proRelavitePath).parentDir();
 
     // current project node from combobox
-    QFileInfo fi = proFile().toFileInfo();
-    QDir projectSrcDir(fi.absolutePath());
+    const FilePath projectSrcDir = proFile().parentDir();
 
     // project node which we want to link against
     TargetInformation targetInfo = m_proFiles.at(currentIndex)->targetInformation();
 
-    const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir.toUrlishString()));
-    const QString includeRelativePath = projectSrcDir.relativeFilePath(libraryDetailsWidget()->includePathChooser->filePath().toUrlishString());
+    const QString targetRelativePath
+        = appendSeparator(targetInfo.buildDir.relativePathFromDir(projectBuildDir));
+    const FilePath includePath = libraryDetailsWidget()->includePathChooser->filePath();
+    const QString includeRelativePath = includePath.isRelativePath()
+                                            ? includePath.path()
+                                            : includePath.relativePathFromDir(projectSrcDir);
 
     const bool useSubfolders = libraryDetailsWidget()->useSubfoldersCheckBox->isChecked();
     const bool addSuffix = libraryDetailsWidget()->addSuffixCheckBox->isChecked();

@@ -175,7 +175,7 @@ private:
     void slotCurrentLibraryChanged();
     void updateProFile();
 
-    QString m_rootProjectPath;
+    Utils::FilePath m_rootProjectPath;
     QList<QmakeProFile *> m_proFiles;
 };
 
