@@ -8,9 +8,13 @@
 #include "acpsettings.h"
 #include "chatfontscale.h"
 #include "collapsibleframe.h"
+#include "contextitem.h"
 #include "sessionpickerwidget.h"
 #include "toolcalldetailwidget.h"
 
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/icore.h>
 
@@ -18,6 +22,8 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/elidinglabel.h>
+#include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>
@@ -53,6 +59,7 @@
 #include <QTextDocument>
 #include <QTextLayout>
 #include <QTimer>
+#include <QUuid>
 #include <QVBoxLayout>
 #include <QElapsedTimer>
 
@@ -140,6 +147,65 @@ public:
 
     void appendText(const QString &text) { setText(m_label->text() + text); }
 
+    // The context of the prompt is shown as chips above its text, like in the input.
+    void addAttachment(const UserMessageAttachment &attachment)
+    {
+        if (!m_chipRow) {
+            m_chipRow = new QWidget(this);
+            m_chipRow->setObjectName("userMessageContextChips");
+            Layouting::Flow{}.attachTo(m_chipRow);
+            m_chipRow->layout()->setContentsMargins(0, 0, 0, 0);
+            m_chipRow->layout()->setSpacing(GapHS);
+            auto box = static_cast<QVBoxLayout *>(layout());
+            box->insertWidget(0, m_chipRow);
+            box->insertSpacing(1, GapVXs);
+        }
+        auto chip = new ContextItem(attachment.title, chipIcon(attachment), m_chipRow, true,
+                                    chipIconSize);
+        chip->setObjectName("userMessageContextChip");
+        chip->setRemovable(false);
+        switch (attachment.kind) {
+        case UserMessageAttachment::Text: {
+            chip->setToolTip(attachment.text.left(maxToolTipChars));
+            const QString title = attachment.title;
+            const QByteArray contents = attachment.text.toUtf8();
+            // Clicking again shows the scratch editor that is open already.
+            const QString uniqueId = QUuid::createUuid().toString();
+            connect(chip, &ContextItem::clicked, chip, [title, contents, uniqueId] {
+                // Without an editor, the title picks one, and a title without
+                // a known extension would get the binary editor.
+                QString titlePattern = title;
+                Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+                    Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents, uniqueId);
+                // Highlights the text when its content tells what it is, such as code.
+                const Utils::MimeType mimeType = Utils::mimeTypeForData(contents);
+                if (editor && mimeType.inherits("text/plain")
+                    && !mimeType.matchesName("text/plain")) {
+                    editor->document()->setMimeType(mimeType.name());
+                }
+            });
+            break;
+        }
+        case UserMessageAttachment::Image:
+            chip->setPreviewImage(attachment.image);
+            chip->setCursor(Qt::ArrowCursor);
+            break;
+        case UserMessageAttachment::File:
+            if (attachment.filePath.isEmpty()) {
+                chip->setCursor(Qt::ArrowCursor);
+                break;
+            }
+            chip->setToolTip(attachment.filePath.toUserOutput());
+            connect(chip, &ContextItem::clicked, chip, [filePath = attachment.filePath] {
+                Core::EditorManager::openEditor(filePath);
+            });
+            break;
+        }
+        m_chipRow->layout()->addWidget(chip);
+        m_chips.append(chip);
+        updateGeometry();
+    }
+
     QSize sizeHint() const override
     {
         const QFontMetrics fm = m_label->fontMetrics();
@@ -148,7 +214,11 @@ public:
         int maxLineWidth = 0;
         for (const QString &line : m_label->text().split(QLatin1Char('\n')))
             maxLineWidth = qMax(maxLineWidth, fm.horizontalAdvance(line));
-        const int w = maxLineWidth + lm.left() + lm.right() + cm.left() + cm.right();
+        int w = maxLineWidth + lm.left() + lm.right() + cm.left() + cm.right();
+        int chipsWidth = 0;
+        for (const ContextItem *chip : m_chips)
+            chipsWidth += chip->sizeHint().width() + (chipsWidth > 0 ? GapHS : 0);
+        w = qMax(w, chipsWidth + lm.left() + lm.right());
         return QSize(w, QFrame::sizeHint().height());
     }
 
@@ -162,7 +232,30 @@ protected:
     }
 
 private:
+    static QIcon chipIcon(const UserMessageAttachment &attachment)
+    {
+        switch (attachment.kind) {
+        case UserMessageAttachment::Text:
+            return Core::Icons::MODE_EDIT_FLAT.icon();
+        case UserMessageAttachment::Image:
+            // Scaled for the highest DPI the chip may be rendered at.
+            return QIcon(QPixmap::fromImage(attachment.image.scaled(
+                chipIconSize * 2, chipIconSize * 2, Qt::KeepAspectRatio,
+                Qt::SmoothTransformation)));
+        case UserMessageAttachment::File:
+            break;
+        }
+        return attachment.filePath.isEmpty() ? QIcon()
+                                             : Utils::FileIconProvider::icon(attachment.filePath);
+    }
+
+    static constexpr int chipIconSize = 16;
+    // The tooltip of a text chip only previews the text, the editor shows all of it.
+    static constexpr int maxToolTipChars = 500;
+
     QLabel *m_label = nullptr;
+    QWidget *m_chipRow = nullptr;
+    QList<ContextItem *> m_chips;
 };
 
 // ---------------------------------------------------------------------------
@@ -2126,9 +2219,12 @@ void AcpMessageView::clear()
 // reports while that prompt's turn runs is taken to be the agent's copy of it
 // and is not shown again. This message keeps the text the user typed, as the
 // copy also holds the context that was added to the prompt.
-void AcpMessageView::addUserMessage(const QString &text)
+void AcpMessageView::addUserMessage(const QString &text,
+                                    const QList<UserMessageAttachment> &attachments)
 {
     m_sentUserMessage = createUserMessage(text);
+    for (const UserMessageAttachment &attachment : attachments)
+        m_sentUserMessage->addAttachment(attachment);
     m_autoScroll = true; // reset auto-scroll when user sends a message to ensure they see the response
     scrollToBottom();
 }

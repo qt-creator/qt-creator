@@ -8,6 +8,7 @@
 #include "chatfontscale.h"
 #include "chatinputedit.h"
 #include "configselectpopup.h"
+#include "contextitem.h"
 #include "sessionpickerwidget.h"
 
 #include <coreplugin/coreicons.h>
@@ -105,111 +106,6 @@ protected:
             creatorColor(Theme::Token_Foreground_Muted),
             RadiusM);
     }
-};
-
-class ContextItem : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit ContextItem(const QString &text, const QIcon &icon, QWidget *parent = nullptr,
-                         bool withBorder = true, int iconSize = 16)
-        : QWidget(parent)
-        , m_withBorder(withBorder)
-    {
-        auto *layout = new QHBoxLayout(this);
-        layout->setContentsMargins(PaddingHM, PaddingVXs, PaddingHXs, PaddingVXs);
-        layout->setSpacing(PaddingHXs);
-
-        if (!icon.isNull()) {
-            auto iconLabel = new QLabel;
-            // Render at the device pixel ratio so the preview stays crisp on
-            // high-DPI displays.
-            iconLabel->setPixmap(icon.pixmap(QSize(iconSize, iconSize), devicePixelRatioF()));
-            layout->addWidget(iconLabel);
-        }
-
-        auto label = new QLabel(text);
-        layout->addWidget(label);
-
-        auto closeBtn = new QtcIconButton();
-        closeBtn->setMaximumSize(20, 20);
-        closeBtn->setIcon(Icons::CLOSE_TOOLBAR.icon());
-        closeBtn->setContentsMargins(0, 0, 0, 0);
-        closeBtn->setToolTip(Tr::tr("Remove Context"));
-        connect(closeBtn, &QToolButton::clicked, this, &ContextItem::removeRequested);
-        layout->addWidget(closeBtn);
-        setCursor(Qt::PointingHandCursor);
-    }
-
-    // Enables a rich tooltip that shows the given image at (up to) its original
-    // resolution. The tooltip HTML is built lazily on first hover.
-    void setPreviewImage(const QImage &image) { m_previewImage = image; }
-
-signals:
-    void removeRequested();
-    void clicked();
-
-protected:
-    bool event(QEvent *e) override
-    {
-        if (e->type() == QEvent::ToolTip && !m_previewImage.isNull() && !m_previewBuilt) {
-            buildPreviewTooltip();
-            m_previewBuilt = true;
-        }
-        return QWidget::event(e);
-    }
-
-    void mousePressEvent(QMouseEvent *event) override
-    {
-        // Emit queued: a handler may rebuild the context bar and delete this
-        // widget, so the click must not run while we are still inside the
-        // event (which would return into a deleted 'this').
-        if (event->button() == Qt::LeftButton)
-            QMetaObject::invokeMethod(this, &ContextItem::clicked, Qt::QueuedConnection);
-        QWidget::mousePressEvent(event);
-    }
-
-    void paintEvent(QPaintEvent *) override
-    {
-        if (!m_withBorder)
-            return;
-        QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing);
-        StyleHelper::drawCardBg(
-            &p, rect(), QBrush(), creatorColor(Theme::Token_Foreground_Muted), RadiusS);
-    }
-
-private:
-    void buildPreviewTooltip()
-    {
-        // Show the image at its original resolution, but never larger than the
-        // available screen area so the tooltip stays usable.
-        QSize shown = m_previewImage.size();
-        if (QScreen *s = screen()) {
-            const QSize avail = s->availableSize() * 0.9;
-            if (shown.width() > avail.width() || shown.height() > avail.height())
-                shown.scale(avail, Qt::KeepAspectRatio);
-        }
-
-        QByteArray png;
-        QBuffer buffer(&png);
-        buffer.open(QIODevice::WriteOnly);
-        m_previewImage.save(&buffer, "PNG");
-
-        const QString html
-            = QStringLiteral("<p>%1 x %2</p><img src=\"data:image/png;base64,%3\" "
-                             "width=\"%4\" height=\"%5\">")
-                  .arg(m_previewImage.width())
-                  .arg(m_previewImage.height())
-                  .arg(QString::fromLatin1(png.toBase64()))
-                  .arg(shown.width())
-                  .arg(shown.height());
-        setToolTip(html);
-    }
-
-    bool m_withBorder = true;
-    QImage m_previewImage;
-    bool m_previewBuilt = false;
 };
 
 // Plain text editor with the same font/color setup as the chat input.
@@ -1286,9 +1182,36 @@ void ChatPanel::clearConfigOptions()
     updateSelectPopup();
 }
 
-void ChatPanel::addUserMessage(const QString &text)
+/*!
+    Shows the prompt \a text the user sent, along with the context that went
+    with it: \a files, the current editor if \a includeCurrentEditor is set,
+    \a textContexts and \a imageContexts.
+*/
+void ChatPanel::addUserMessage(const QString &text,
+                               const QList<Utils::FilePath> &files,
+                               bool includeCurrentEditor,
+                               const QList<TextContext> &textContexts,
+                               const QList<ImageContext> &imageContexts)
 {
-    m_messageView->addUserMessage(text);
+    QList<UserMessageAttachment> attachments;
+    if (includeCurrentEditor) {
+        if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
+            const Core::IDocument *document = editor->document();
+            const Utils::FilePath filePath = document->filePath();
+            const QString name = filePath.isEmpty() ? document->displayName()
+                                                    : filePath.fileName();
+            attachments.append({UserMessageAttachment::File, name, {}, filePath, {}});
+        }
+    }
+    for (const Utils::FilePath &file : files)
+        attachments.append({UserMessageAttachment::File, file.fileName(), {}, file, {}});
+    for (const ImageContext &context : imageContexts) {
+        attachments.append(
+            {UserMessageAttachment::Image, context.name, {}, {}, context.image});
+    }
+    for (const TextContext &context : textContexts)
+        attachments.append({UserMessageAttachment::Text, context.name, context.text, {}, {}});
+    m_messageView->addUserMessage(text, attachments);
 }
 
 void ChatPanel::appendUserMessageText(const QString &messageId, const QString &text)

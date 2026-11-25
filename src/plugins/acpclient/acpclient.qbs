@@ -79,6 +79,8 @@ Project {
             "collapsibleframe.h",
             "configselectpopup.cpp",
             "configselectpopup.h",
+            "contextitem.cpp",
+            "contextitem.h",
             "sessionpickerwidget.cpp",
             "sessionpickerwidget.h",
             "toolcalldetailwidget.cpp",

@@ -23,6 +23,7 @@
 #include "chatinputedit.h"
 #include "chatpanel.h"
 #include "collapsibleframe.h"
+#include "contextitem.h"
 #include "configselectpopup.h"
 #include "sessionpickerwidget.h"
 #include "toolcalldetailwidget.h"
@@ -50,6 +51,7 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
@@ -703,6 +705,8 @@ private slots:
     void testAiInteractiveRequest_data();
     void testAiInteractiveRequest();
     void testAiInteractiveRequestInConnectedTab();
+    void testUserMessageAttachments();
+    void testUserMessageShowsCurrentEditor();
 
     // Tier 6: agent registry
     void testRegistryRememberedDenial();
@@ -6726,6 +6730,7 @@ void AcpClientTest::testAiInteractiveRequest()
     AcpPromptRequest request;
     request.prompt = "hello";
     request.configValues = {{"test.model", "big"}};
+    request.textContexts = {{"Standard output", "some output", TextContextScope::None}};
     request.onSent = [&sent](const Utils::Result<> &result) { sent = result; };
     tab->startRequest(info, request);
 
@@ -6739,6 +6744,11 @@ void AcpClientTest::testAiInteractiveRequest()
     const QStringList shownUserMessages = Utils::transform(
         tab->findChildren<QLabel *>("userMessageText"), &QLabel::text);
     QVERIFY2(shownUserMessages.contains("hello"), qPrintable(shownUserMessages.join(", ")));
+    const QList<ContextItem *> chips = tab->findChildren<ContextItem *>("userMessageContextChip");
+    QCOMPARE(chips.size(), 1);
+    QVERIFY(Utils::transform(chips.first()->findChildren<QLabel *>(), &QLabel::text)
+                .contains("Standard output"));
+    QCOMPARE(chips.first()->toolTip(), "some output");
 }
 
 // A request for a tab that is connected already replaces that connection,
@@ -6771,6 +6781,88 @@ void AcpClientTest::testAiInteractiveRequestInConnectedTab()
     QTRY_VERIFY_WITH_TIMEOUT(sent.has_value(), 15000);
     QVERIFY2(*sent, errorOf(*sent).constData());
     QTRY_COMPARE(finished.count(), 1);
+}
+
+// The context that went with a prompt is shown as chips in its bubble, which
+// cannot be removed. A text chip shows its text in a scratch editor.
+void AcpClientTest::testUserMessageAttachments()
+{
+    AcpMessageView view;
+    const QString longText = QString("first line\n") + QString(30000, 'x');
+    const Utils::FilePath file = Utils::FilePath::fromString("/tmp/a.cpp");
+    view.addUserMessage("Look at this",
+                        {{UserMessageAttachment::Text, "Output", longText, {}, {}},
+                         {UserMessageAttachment::File, "a.cpp", {}, file, {}}});
+
+    const QList<ContextItem *> chips = view.findChildren<ContextItem *>("userMessageContextChip");
+    QCOMPARE(chips.size(), 2);
+    const auto chipTexts = [](const ContextItem *chip) {
+        return Utils::transform(chip->findChildren<QLabel *>(), &QLabel::text);
+    };
+    QVERIFY(chipTexts(chips.at(0)).contains("Output"));
+    QVERIFY(chipTexts(chips.at(1)).contains("a.cpp"));
+    QCOMPARE(chips.at(1)->toolTip(), file.toUserOutput());
+    QVERIFY(chips.at(0)->toolTip().startsWith("first line\n"));
+    QVERIFY(chips.at(0)->toolTip().size() < longText.size());
+    for (const ContextItem *chip : chips) {
+        auto closeButton = chip->findChild<QAbstractButton *>();
+        QVERIFY(closeButton);
+        QVERIFY(!closeButton->isVisibleTo(chip));
+    }
+
+    const int documentsBefore = Core::DocumentModel::openedDocuments().size();
+    emit chips.at(0)->clicked();
+    Core::IDocument *scratch = Core::EditorManager::currentDocument();
+    QVERIFY(scratch);
+    const QScopeGuard closeScratch([scratch] {
+        Core::EditorManager::closeDocuments({scratch}, false);
+    });
+    QCOMPARE(scratch->displayName(), "Output");
+    QCOMPARE(scratch->contents(), longText.toUtf8());
+    QVERIFY(scratch->filePath().isEmpty());
+    QVERIFY(!scratch->isModified());
+    // A title without a known extension must not get the binary editor.
+    QVERIFY(qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor()));
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), documentsBefore + 1);
+
+    // Clicking again shows the same scratch editor.
+    emit chips.at(0)->clicked();
+    QCOMPARE(Core::EditorManager::currentDocument(), scratch);
+    QCOMPARE(Core::DocumentModel::openedDocuments().size(), documentsBefore + 1);
+
+    // Content that tells what it is gets its type, for highlighting.
+    const QByteArray snippet = "#include <atomic>\n\nint main() { return 0; }\n";
+    AcpMessageView codeView;
+    codeView.addUserMessage("And this", {{UserMessageAttachment::Text, "Snippet",
+                                          QString::fromUtf8(snippet), {}, {}}});
+    emit codeView.findChild<ContextItem *>("userMessageContextChip")->clicked();
+    Core::IDocument *code = Core::EditorManager::currentDocument();
+    QVERIFY(code && code != scratch);
+    const QScopeGuard closeCode([code] { Core::EditorManager::closeDocuments({code}, false); });
+    QVERIFY(code->mimeType() != "text/plain");
+    QCOMPARE(code->mimeType(), Utils::mimeTypeForData(snippet).name());
+    QVERIFY(!code->isModified());
+}
+
+// The current editor goes along with a typed prompt, so its bubble names it,
+// unless the user removed it from the context.
+void AcpClientTest::testUserMessageShowsCurrentEditor()
+{
+    QString title = "bubble-context.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "text");
+    QVERIFY(editor);
+    const QScopeGuard closeEditor([editor] { Core::EditorManager::closeEditors({editor}, false); });
+    QCOMPARE(Core::EditorManager::currentEditor(), editor);
+
+    ChatPanel panel;
+    panel.addUserMessage("with editor", {}, true);
+    panel.addUserMessage("without editor", {}, false);
+    const QList<ContextItem *> chips = panel.findChildren<ContextItem *>("userMessageContextChip");
+    QCOMPARE(chips.size(), 1);
+    const QStringList chipTexts = Utils::transform(chips.first()->findChildren<QLabel *>(),
+                                                   &QLabel::text);
+    QVERIFY2(chipTexts.contains("bubble-context.txt"), qPrintable(chipTexts.join(", ")));
 }
 
 QObject *createAcpClientTest()

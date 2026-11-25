@@ -97,7 +97,11 @@ public:
     void clearImageContexts();
 
     // Delegate to message view
-    void addUserMessage(const QString &text);
+    void addUserMessage(const QString &text,
+                        const QList<Utils::FilePath> &files = {},
+                        bool includeCurrentEditor = false,
+                        const QList<TextContext> &textContexts = {},
+                        const QList<ImageContext> &imageContexts = {});
     void appendUserMessageText(const QString &messageId, const QString &text);
     void setUserMessageText(const QString &messageId, const std::optional<QString> &text);
     void appendAgentText(const QString &text);

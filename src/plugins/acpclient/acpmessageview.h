@@ -7,9 +7,11 @@
 
 #include <acp/acpv2.h>
 
+#include <utils/filepath.h>
 #include <utils/infolabel.h>
 
 #include <QHash>
+#include <QImage>
 #include <QJsonValue>
 #include <QList>
 #include <QPair>
@@ -41,6 +43,19 @@ class ToolCallDetailWidget;
 class ToolCallGroupWidget;
 class UserMessageWidget;
 
+// Context that went along with a prompt.
+class UserMessageAttachment
+{
+public:
+    enum Kind { Text, File, Image };
+
+    Kind kind = Text;
+    QString title;
+    QString text;
+    Utils::FilePath filePath; // Empty for an editor without a file.
+    QImage image;
+};
+
 QString formatTokenCount(int tokens);
 void applyStatsFormat(QLabel *label);
 
@@ -63,7 +78,8 @@ public:
                       const QString &currency);
 
     void clear();
-    void addUserMessage(const QString &text);
+    void addUserMessage(const QString &text,
+                        const QList<UserMessageAttachment> &attachments = {});
     void appendUserMessageText(const QString &messageId, const QString &text);
     void setUserMessageText(const QString &messageId, const std::optional<QString> &text);
     void appendAgentText(const QString &text);

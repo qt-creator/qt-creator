@@ -423,7 +423,9 @@ AcpChatTab::AcpChatTab(QWidget *parent)
             emit titleChanged();
             return;
         }
-        m_chatPanel->addUserMessage(text);
+        m_chatPanel->addUserMessage(text, m_chatPanel->manualContextFiles(),
+                                    m_chatPanel->includeCurrentEditorContext(),
+                                    m_chatPanel->textContexts(), m_chatPanel->imageContexts());
         m_chatPanel->setPrompting(true);
         m_controller->sendPrompt(
             text, m_chatPanel->manualContextFiles(), m_chatPanel->includeCurrentEditorContext(),
@@ -799,7 +801,8 @@ void AcpChatTab::sendRequest()
         if (!m_request)
             return;
         const AcpPromptRequest request = *m_request;
-        m_chatPanel->addUserMessage(request.prompt);
+        m_chatPanel->addUserMessage(request.prompt, request.files, false,
+                                    request.textContexts, request.imageContexts);
         m_chatPanel->setPrompting(true);
         m_controller->sendPrompt(request.prompt, request.files, false, request.textContexts,
                                  request.imageContexts);
@@ -1030,11 +1033,13 @@ void AcpChatTab::sendPendingPrompt()
     const bool autoStarted = std::exchange(m_autoStartedPromptPending, false);
     if (autoStarted)
         m_autoStartedSession = true;
-    m_chatPanel->addUserMessage(text);
+    const bool includeCurrentEditor = !autoStarted
+                                      && m_chatPanel->includeCurrentEditorContext();
+    m_chatPanel->addUserMessage(text, m_chatPanel->manualContextFiles(), includeCurrentEditor,
+                                m_chatPanel->textContexts(), m_chatPanel->imageContexts());
     m_chatPanel->setPrompting(true);
     m_controller->sendPrompt(
-        text, m_chatPanel->manualContextFiles(),
-        !autoStarted && m_chatPanel->includeCurrentEditorContext(),
+        text, m_chatPanel->manualContextFiles(), includeCurrentEditor,
         m_chatPanel->textContexts(), m_chatPanel->imageContexts());
     m_chatPanel->clearImageContexts();
 }
