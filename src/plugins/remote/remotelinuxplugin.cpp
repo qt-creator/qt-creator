@@ -14,10 +14,15 @@
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
 #include "windowsdevice.h"
+#include "wslconstants.h"
+#include "wsldevice.h"
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/async.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/futuresynchronizer.h>
+#include <utils/hostosinfo.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -54,11 +59,15 @@ public:
     RemoteLinuxPlugin()
     {
         FSEngine::registerDeviceScheme(u"ssh");
+        if (HostOsInfo::isWindowsHost())
+            FSEngine::registerDeviceScheme(Wsl::Constants::WSL_DEVICE_SCHEME);
     }
 
     ~RemoteLinuxPlugin() final
     {
         FSEngine::unregisterDeviceScheme(u"ssh");
+        if (HostOsInfo::isWindowsHost())
+            FSEngine::unregisterDeviceScheme(Wsl::Constants::WSL_DEVICE_SCHEME);
         m_linuxDeviceFactory.reset();
     }
 
@@ -68,6 +77,8 @@ public:
         m_linuxDeviceFactory = std::make_unique<LinuxDeviceFactory>();
         m_windowsDeviceFactory = std::make_unique<WindowsDeviceFactory>();
         m_macDeviceFactory = std::make_unique<MacDeviceFactory>();
+        if (HostOsInfo::isWindowsHost())
+            Wsl::Internal::setupWslDevice();
         setupRemoteLinuxRunConfiguration();
         setupRemoteLinuxCustomRunConfiguration();
         setupRemoteLinuxRunAndDebugSupport();
@@ -83,6 +94,19 @@ public:
         addTest<RemoteRunTest>();
         addTest<WindowsDeviceDetectionTest>();
 #endif
+    }
+
+    void extensionsInitialized() final
+    {
+        if (!HostOsInfo::isWindowsHost())
+            return;
+
+        // Enumerating costs a round trip to the WSL service, which is not
+        // worth holding up the start for. It starts no distribution, so the
+        // devices are there by the time anything asks for one.
+        QFuture<QStringList> future = Utils::asyncRun(&Wsl::Internal::detectWslDistributions);
+        future.then(this, &Wsl::Internal::addMissingWslDevices);
+        Utils::futureSynchronizer()->addFuture(future);
     }
 
 private:

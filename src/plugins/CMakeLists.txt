@@ -84,7 +84,6 @@ add_subdirectory(qmljstools)
 add_subdirectory(scxmleditor)
 add_subdirectory(subversion)
 add_subdirectory(webassembly)
-add_subdirectory(wsl)
 
 # Level 6:
 add_subdirectory(debugger)

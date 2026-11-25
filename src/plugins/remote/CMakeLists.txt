@@ -33,6 +33,11 @@ add_qtc_plugin(Remote
     tarpackagedeploystep.cpp tarpackagedeploystep.h
     windowsdevice.cpp windowsdevice.h
     windowsdevicetester.cpp windowsdevicetester.h
+    wslapi.cpp wslapi.h
+    wslconstants.h
+    wsldevice.cpp wsldevice.h
+    wsldevicewidget.cpp wsldevicewidget.h
+    wsltr.h
 )
 
 extend_qtc_plugin(Remote
@@ -44,6 +49,14 @@ extend_qtc_plugin(Remote
     remoterun_test.h
     windowsdevicedetection_test.cpp
     windowsdevicedetection_test.h
+)
+
+add_qtc_test(tst_wsl_api
+  CONDITION WITH_TESTS
+  DEPENDS Utils
+  SOURCES
+    tests/tst_wsl_api.cpp
+    wslapi.cpp
 )
 
 qtc_add_resources(Remote "images"
