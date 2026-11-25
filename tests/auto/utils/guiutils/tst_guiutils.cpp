@@ -5,8 +5,12 @@
 #include <utils/guiutils.h>
 
 #include <QApplication>
+#include <QGroupBox>
+#include <QPlainTextEdit>
 #include <QTest>
 #include <QTimer>
+#include <QToolButton>
+#include <QVBoxLayout>
 #include <QWidget>
 
 #include <optional>
@@ -23,6 +27,7 @@ private slots:
     void testOnFirstShowRunsImmediatelyWhenVisible();
     void testNonInteractiveMessageBoxTakesDefault();
     void testNonInteractiveAsyncMessageBoxTakesDefault();
+    void testAttachToGroupBoxTitle();
 };
 
 // QWidget::show() delivers the show event synchronously, so none of these needs
@@ -102,6 +107,46 @@ void tst_GuiUtils::testNonInteractiveAsyncMessageBoxTakesDefault()
     QCOMPARE(*button, QMessageBox::No);
     for (QWidget *widget : QApplication::topLevelWidgets())
         QVERIFY(!qobject_cast<QMessageBox *>(widget));
+}
+
+// The widget sits on the line of the title, at the right edge of the editor in the
+// box, and follows the editor when the layout changes.
+void tst_GuiUtils::testAttachToGroupBoxTitle()
+{
+    QWidget container;
+    auto layout = new QVBoxLayout(&container);
+    auto box = new QGroupBox("Description");
+    auto boxLayout = new QVBoxLayout(box);
+    auto editor = new QPlainTextEdit;
+    boxLayout->addWidget(editor);
+    layout->addWidget(box);
+    auto button = new QToolButton(&container);
+    button->setFixedSize(16, 16);
+    attachToGroupBoxTitle(button, box, editor);
+    container.resize(400, 300);
+    container.show();
+    QVERIFY(QTest::qWaitForWindowExposed(&container));
+
+    const auto editorRect = [&] {
+        return QRect(editor->mapTo(&container, QPoint()), editor->size());
+    };
+    const auto buttonRect = [&] { return button->geometry(); };
+    QTRY_COMPARE(buttonRect().right(), editorRect().right());
+    QVERIFY(buttonRect().center().y() < editorRect().top());
+    QVERIFY(buttonRect().center().y() >= box->mapTo(&container, QPoint()).y());
+
+    container.resize(600, 300);
+    QTRY_COMPARE(buttonRect().right(), editorRect().right());
+
+    // The widget keeps its place when it grows.
+    button->setFixedSize(40, 16);
+    QTRY_COMPARE(buttonRect().width(), 40);
+    QTRY_COMPARE(buttonRect().right(), editorRect().right());
+
+    // The widget lives outside the box, so it can outlive it.
+    delete box;
+    button->setFixedSize(24, 16);
+    QCOMPARE(button->width(), 24);
 }
 
 QTEST_MAIN(tst_GuiUtils)

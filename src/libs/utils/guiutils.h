@@ -9,6 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 class QObject;
+class QGroupBox;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -22,6 +23,9 @@ QTCREATOR_UTILS_EXPORT void setWheelScrollingWithoutFocusBlocked(QWidget *widget
 // Settings page widgets in particular are also constructed - and never shown -
 // just to harvest their search keywords.
 QTCREATOR_UTILS_EXPORT void onFirstShow(QWidget *widget, const std::function<void()> &func);
+
+QTCREATOR_UTILS_EXPORT void attachToGroupBoxTitle(QWidget *widget, QGroupBox *box,
+                                                  QWidget *alignRightTo = nullptr);
 
 QTCREATOR_UTILS_EXPORT QWidget *dialogParent();
 QTCREATOR_UTILS_EXPORT void setDialogParentGetter(QWidget *(*getter)());

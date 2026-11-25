@@ -22,9 +22,12 @@
 #include <QListWidget>
 #include <QMenu>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpinBox>
+#include <QStyle>
+#include <QStyleOptionGroupBox>
 #include <QThread>
 #include <QWidget>
 
@@ -335,6 +338,80 @@ void installMarkSettingsDirtyTriggerRecursively(QObject *object)
             continue;
         }
     }
+}
+
+// Keeps a widget on the line of the title of a group box, which no layout can
+// place widgets on.
+class GroupBoxTitlePositioner : public QObject
+{
+public:
+    GroupBoxTitlePositioner(QWidget *widget, QGroupBox *box, QWidget *alignRightTo)
+        : QObject(widget), m_widget(widget), m_box(box), m_alignRightTo(alignRightTo)
+    {
+        // The box keeps its position in its parent when that moves, so every
+        // widget up to the one that holds the widget is watched.
+        for (QWidget *w = box; w && w != widget->parentWidget(); w = w->parentWidget())
+            w->installEventFilter(this);
+        if (alignRightTo)
+            alignRightTo->installEventFilter(this);
+        // Its size changes with what it holds.
+        widget->installEventFilter(this);
+        reposition();
+    }
+
+private:
+    void reposition()
+    {
+        if (!m_box)
+            return;
+        m_widget->adjustSize();
+        QStyleOptionGroupBox option;
+        option.initFrom(m_box);
+        option.text = m_box->title();
+        option.textAlignment = m_box->alignment();
+        option.subControls = QStyle::SC_GroupBoxLabel | QStyle::SC_GroupBoxFrame;
+        option.features = m_box->isFlat() ? QStyleOptionFrame::Flat : QStyleOptionFrame::None;
+        const QRect title = m_box->style()->subControlRect(QStyle::CC_GroupBox, &option,
+                                                           QStyle::SC_GroupBoxLabel, m_box);
+        QWidget *container = m_widget->parentWidget();
+        const QPoint titleCenter = m_box->mapTo(container, title.center());
+        QWidget *rightEdge = m_alignRightTo ? m_alignRightTo.data() : m_box.data();
+        const QPoint right = rightEdge->mapTo(container, QPoint(rightEdge->width(), 0));
+        m_widget->move(right.x() - m_widget->width(), titleCenter.y() - m_widget->height() / 2);
+        m_widget->raise();
+    }
+
+    bool eventFilter(QObject *watched, QEvent *event) final
+    {
+        if (watched == m_widget) {
+            if (event->type() == QEvent::LayoutRequest || event->type() == QEvent::Resize)
+                reposition();
+        } else if (event->type() == QEvent::Resize || event->type() == QEvent::Move
+                   || event->type() == QEvent::LayoutRequest || event->type() == QEvent::Show) {
+            reposition();
+        }
+        return QObject::eventFilter(watched, event);
+    }
+
+    QWidget *m_widget;
+    QPointer<QGroupBox> m_box;
+    QPointer<QWidget> m_alignRightTo;
+};
+
+/*!
+    Keeps \a widget on the line of the title of \a box, at the right edge of
+    \a alignRightTo, or of the box if that is \nullptr.
+
+    No layout can place widgets there. \a widget must be a child of a widget
+    that contains \a box, and not of the box, which would cut off the part of
+    it that reaches above the box.
+*/
+void attachToGroupBoxTitle(QWidget *widget, QGroupBox *box, QWidget *alignRightTo)
+{
+    QTC_ASSERT(widget && box, return);
+    QTC_ASSERT(widget->parentWidget() && widget->parentWidget()->isAncestorOf(box)
+                   && !box->isAncestorOf(widget), return);
+    new GroupBoxTitlePositioner(widget, box, alignRightTo);
 }
 
 } // namespace Utils
