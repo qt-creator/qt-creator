@@ -196,7 +196,7 @@ static void collectPDBfiles(void *fileMemory, IMAGE_DEBUG_DIRECTORY *directoryBa
 
 namespace Debugger::Internal {
 
-bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage)
+bool getPDBFiles(const Utils::FilePath &peExecutableFileName, QStringList *rc, QString *errorMessage)
 {
     HANDLE hFile = NULL;
     HANDLE hFileMap = NULL;
@@ -204,13 +204,14 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
     bool success = false;
 
     rc->clear();
+    const QString fileName = peExecutableFileName.toFSPathString();
     do {
         // Create a memory mapping of the file
-        hFile = CreateFile(reinterpret_cast<const WCHAR*>(peExecutableFileName.utf16()), GENERIC_READ, FILE_SHARE_READ, NULL,
+        hFile = CreateFile(reinterpret_cast<const WCHAR*>(fileName.utf16()), GENERIC_READ, FILE_SHARE_READ, NULL,
                              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile == INVALID_HANDLE_VALUE || hFile == NULL) {
             *errorMessage = QString::fromLatin1("Cannot open \"%1\": %2")
-                            .arg(QDir::toNativeSeparators(peExecutableFileName),
+                            .arg(peExecutableFileName.toUserOutput(),
                                  winErrorMessage(GetLastError()));
             break;
         }
@@ -218,7 +219,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         hFileMap = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
         if (hFileMap == NULL) {
             *errorMessage = QString::fromLatin1("Cannot create file mapping of \"%1\": %2")
-                            .arg(QDir::toNativeSeparators(peExecutableFileName),
+                            .arg(peExecutableFileName.toUserOutput(),
                                  winErrorMessage(GetLastError()));
             break;
         }
@@ -226,7 +227,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
         fileMemory = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 0);
         if (!fileMemory) {
             *errorMessage = QString::fromLatin1("Cannot map \"%1\": %2")
-                            .arg(QDir::toNativeSeparators(peExecutableFileName),
+                            .arg(peExecutableFileName.toUserOutput(),
                                  winErrorMessage(GetLastError()));
             break;
         }
@@ -260,7 +261,7 @@ bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *
 
 namespace Debugger::Internal {
 
-bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage)
+bool getPDBFiles(const Utils::FilePath &peExecutableFileName, QStringList *rc, QString *errorMessage)
 {
     Q_UNUSED(peExecutableFileName)
     rc->clear();

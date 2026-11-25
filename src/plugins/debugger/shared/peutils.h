@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QStringList>
 
 /* Helper functions to extract information from PE Win32 executable
@@ -10,6 +12,6 @@
 namespace Debugger::Internal {
 
 // Return a list of Program-Database (*.pdb) files a PE executable refers to. */
-bool getPDBFiles(const QString &peExecutableFileName, QStringList *rc, QString *errorMessage);
+bool getPDBFiles(const Utils::FilePath &peExecutableFileName, QStringList *rc, QString *errorMessage);
 
 } // namespace Debugger::Internal

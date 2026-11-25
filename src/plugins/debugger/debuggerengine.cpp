@@ -426,10 +426,10 @@ Result<> DebuggerRunParameters::fixupParameters(RunControl *runControl)
         if (m_debugInfoLocation.isEmpty())
             m_debugInfoLocation = m_sysRoot / "/usr/lib/debug";
         if (m_debugSourceLocation.isEmpty()) {
-            const QString base = m_sysRoot.toUrlishString() + "/usr/src/debug/";
-            m_debugSourceLocation.append(base + "qt5base/src/corelib");
-            m_debugSourceLocation.append(base + "qt5base/src/gui");
-            m_debugSourceLocation.append(base + "qt5base/src/network");
+            const FilePath base = m_sysRoot / "/usr/src/debug";
+            m_debugSourceLocation.append((base / "qt5base/src/corelib").path());
+            m_debugSourceLocation.append((base / "qt5base/src/gui").path());
+            m_debugSourceLocation.append((base / "qt5base/src/network").path());
         }
     }
 
@@ -2355,7 +2355,7 @@ void DebuggerEnginePrivate::cleanupViews()
             bool keepIt = true;
             if (document->isModified())
                 keepIt = true;
-            else if (document->filePath().toUrlishString().contains("qeventdispatcher"))
+            else if (document->filePath().contains("qeventdispatcher"))
                 keepIt = false;
             else if (isMemory)
                 keepIt = !closeMemory;
@@ -3595,7 +3595,7 @@ void DebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
                 rp.setSymbolFile(rp.symbolFile().stringAppended(".exe"));
             QString errorMessage;
             QStringList rc;
-            if (getPDBFiles(rp.symbolFile().toUrlishString(), &rc, &errorMessage) && !rc.isEmpty())
+            if (getPDBFiles(rp.symbolFile(), &rc, &errorMessage) && !rc.isEmpty())
                 return;
             if (!errorMessage.isEmpty()) {
                 detailedWarning.append('\n');
