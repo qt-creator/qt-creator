@@ -265,7 +265,9 @@ QmlImpl::QmlImpl(const QmlImplStartData &startData)
 
     m_inferiorProcess.setProcessMode(ProcessMode::Reader);
     connect(&m_inferiorProcess, &Process::readyReadStandardOutput, this, [this] {
-        emit message(m_inferiorProcess.readAllStandardOutput(), AppOutput);
+        const QString output = m_inferiorProcess.readAllStandardOutput();
+        emit message(output, AppOutput);
+        scanRuntimeOutput(output);
     });
     connect(&m_inferiorProcess, &Process::readyReadStandardError, this, [this] {
         const QString output = m_inferiorProcess.readAllStandardError();
@@ -480,6 +482,7 @@ void QmlImpl::launchInferior()
     m_inferiorProcess.setRunData(runData);
     m_inferiorProcess.setRunAsUser(m_startData.runAsUser);
     m_connectDeadline.setRemainingTime(std::chrono::minutes(1));
+    emit message(Tr::tr("Starting %1").arg(runData.command.toUserOutput()), LogMisc);
     m_inferiorProcess.start();
 
     beginConnection();
@@ -818,8 +821,8 @@ void QmlImpl::handleBreakEvent(const QVariantMap &response)
     const int lineNumber = body.value(QLatin1String("sourceLine")).toInt() + 1;
     const QString functionName = body.value(QLatin1String("invocationText")).toString();
 
-    // The break event names no breakpoint at all, so what this stop belongs to
-    // is whatever was put at the location it stopped at.
+    // The service keys its breakpoints by file name and line, so what this stop
+    // belongs to is whatever was put at the location it stopped at.
     const QString stoppedFile = FilePath::fromUrl(QUrl(scriptName)).fileName();
     QStringList hitHere;
     for (auto it = m_activeBreakpointsByResponseId.cbegin();
@@ -1145,6 +1148,8 @@ void QmlImpl::execute(const ExecutionRequest &request)
             break;
         }
         m_interruptRequested = true;
+        emit message(Tr::tr("Waiting for JavaScript engine to interrupt on next statement."),
+                     StatusBar);
         runDirectCommand(INTERRUPT);
         break;
     case ExecutionCommand::StepIn:
@@ -1968,6 +1973,8 @@ void QmlImpl::refresh(const RefreshRequest &request)
             QString function = v8Frame.value(QLatin1String(FUNCTION)).toString();
             if (function.isEmpty())
                 function = v8Frame.value(QLatin1String("func")).toString();
+            if (function.isEmpty())
+                function = Tr::tr("Anonymous Function");
 
             GdbMi frame;
             frame.m_type = GdbMi::Tuple;
