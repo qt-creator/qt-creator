@@ -269,7 +269,7 @@ public:
     void updateErrorFilter();
 
     void loadExternalXmlLogFile();
-    void loadXmlLogFile(const QString &filePath);
+    void loadXmlLogFile(const FilePath &filePath);
 
     void setBusyCursor(bool busy);
 
@@ -880,7 +880,7 @@ void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &ex
     Core::ModeManager::activateMode(Debugger::Constants::MODE_DEBUG);
 
     m_exitMsg = exitMsg;
-    loadXmlLogFile(filePath);
+    loadXmlLogFile(FilePath::fromUserInput(filePath));
 }
 
 void MemcheckTool::loadExternalXmlLogFile()
@@ -893,14 +893,15 @@ void MemcheckTool::loadExternalXmlLogFile()
         return;
 
     m_exitMsg.clear();
-    loadXmlLogFile(filePath.toUrlishString());
+    loadXmlLogFile(filePath);
 }
 
-void MemcheckTool::loadXmlLogFile(const QString &filePath)
+void MemcheckTool::loadXmlLogFile(const FilePath &filePath)
 {
-    QFile logFile(filePath);
+    QFile logFile(filePath.toFSPathString());
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
+        QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1")
+                          .arg(filePath.toUserOutput());
         TaskHub::addTask(Task::DisruptingError, msg, Core::Constants::ANALYZERTASK_ID);
         if (!m_exitMsg.isEmpty())
             PerspectivesView::instance()->showPermanentStatusMessage(m_exitMsg);
