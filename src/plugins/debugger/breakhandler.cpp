@@ -1942,7 +1942,28 @@ void BreakHandler::editBreakpoint(const Breakpoint &bp, QWidget *parent)
     if (!dialog.showDialog(&params, &parts))
         return;
 
-    if (params != bp->requestedParameters()) {
+    const BreakpointParameters &old = bp->requestedParameters();
+    const bool locationChanged = params.type != old.type || params.fileName != old.fileName
+                                 || params.textPosition != old.textPosition
+                                 || params.functionName != old.functionName
+                                 || params.address != old.address
+                                 || params.expression != old.expression
+                                 || params.module != old.module;
+
+    // The engines cannot move an inserted breakpoint, so replace it.
+    if (locationChanged && bp->m_state != BreakpointNew) {
+        if (GlobalBreakpoint gbp = bp->globalBreakpoint()) {
+            gbp->destroyMarker();
+            gbp->deleteBreakpoint();
+            BreakpointManager::createBreakpoint(params);
+        } else {
+            removeBreakpoint(bp);
+            BreakpointManager::createBreakpointForEngine(params, m_engine);
+        }
+        return;
+    }
+
+    if (params != old) {
         if (GlobalBreakpoint gbp = bp->globalBreakpoint()) {
             gbp->setParameters(params);
         } else {
