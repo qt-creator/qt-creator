@@ -127,7 +127,7 @@ HelpManager *HelpManager::instance()
 
 QString HelpManager::collectionFilePath()
 {
-    return ICore::userResourcePath("helpcollection.qhc").toUrlishString();
+    return ICore::userResourcePath("helpcollection.qhc").toFSPathString();
 }
 
 static void onDone(const Async<bool> &task)
