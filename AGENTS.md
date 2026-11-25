@@ -127,6 +127,13 @@ pattern: other instances on the machine are not yours.
 - Use qtc_add_resources for the CMake build, and a "qt.core.resource_data" group
   for the qbs build, as almost all existing plugins already do.
 
+## Documentation screenshots
+
+Whenever you add or change a screenshot in the documentation, convert it
+with `scripts/screenshot2webp.py`. Run
+`python -I scripts/screenshot2webp.py --help` and follow the instructions
+it prints.
+
 ## Code style rules
 
 Condensed from `doc/qtcreatordev/src/coding-style.qdoc`, which is the full

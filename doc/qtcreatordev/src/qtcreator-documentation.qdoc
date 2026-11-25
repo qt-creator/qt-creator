@@ -196,6 +196,21 @@
     Save images in PNG or WebP format in the \QC project folder in the
     \c doc/qtcreator/images folder or its subfolders.
 
+    Save screenshots in WebP format. To create a WebP image from the original
+    screenshot, enter the following command from the \QC project folder:
+
+    \badcode
+    scripts/screenshot2webp.py <original_screenshot> doc/qtcreator/images/<screenshot_name>.webp
+    \endcode
+
+    The script encodes the screenshot with several presets, weighs the file
+    size of each result against how much it differs from the original
+    screenshot, and keeps the best one. It requires
+    \l{https://imagemagick.org}{ImageMagick} 7.
+    Always convert the original screenshot, because lossy presets lose quality
+    with each pass. For more information, enter
+    \c {scripts/screenshot2webp.py --help}.
+
     Before committing PNG images, optimize them by using an image optimization
     tool, such as OptiPNG. To invoke it from the \QC project enter the following
     command:
