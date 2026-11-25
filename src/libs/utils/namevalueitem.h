@@ -49,8 +49,6 @@ private:
                && first.value == second.value;
     }
 
-    QString separator() const;
-
     void apply(NameValueDictionary *dictionary, Operation op) const;
 };
 

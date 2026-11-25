@@ -15,6 +15,7 @@
 #include "target.h"
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -96,8 +97,15 @@ Environment EnvironmentAspect::environment() const
 Environment EnvironmentAspect::expandedEnvironment(const MacroExpander &expander) const
 {
     const Environment env = environment();
-    Environment expandedEnv = env.isComplete() ? Environment(NameValueDictionary(env.osType()))
-                                               : Environment(env.osType());
+    if (!env.isComplete()) {
+        EnvironmentItems items = env.changeItems();
+        for (EnvironmentItem &item : items)
+            item.value = expander.expand(item.value);
+        Environment expandedEnv(env.osType());
+        expandedEnv.modify(items);
+        return expandedEnv;
+    }
+    Environment expandedEnv = Environment::emptyComplete(env.osType());
     env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
         expandedEnv.set(key, expander.expand(value), enabled);
     });
@@ -107,7 +115,9 @@ Environment EnvironmentAspect::expandedEnvironment(const MacroExpander &expander
 Environment EnvironmentAspect::modifiedBaseEnvironment() const
 {
     QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());
-    Environment env = m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment();
+    const IDevice::ConstPtr dev = device();
+    Environment env = m_baseEnvironments.at(m_base).unmodifiedBaseEnvironment(
+        dev ? dev->osType() : HostOsInfo::hostOs());
     for (const EnvironmentModifier &modifier : m_modifiers)
         modifier(env);
     return env;
@@ -197,9 +207,10 @@ QString EnvironmentAspect::currentDisplayName() const
     return m_baseEnvironments[m_base].displayName;
 }
 
-Environment EnvironmentAspect::BaseEnvironment::unmodifiedBaseEnvironment() const
+Environment EnvironmentAspect::BaseEnvironment::unmodifiedBaseEnvironment(
+    Utils::OsType osType) const
 {
-    return getter ? getter() : Environment();
+    return getter ? getter() : Environment::emptyComplete(osType);
 }
 
 EnvironmentChanges EnvironmentAspect::userEnvironmentChanges() const

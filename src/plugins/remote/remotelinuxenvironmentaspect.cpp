@@ -76,7 +76,7 @@ RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(AspectContainer *cont
 {
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), [this] {
         const IDevice::ConstPtr device = this->device();
-        return Environment(NameValueDictionary(device ? device->osType() : OsTypeLinux));
+        return Environment::emptyComplete(device ? device->osType() : OsTypeLinux);
     });
     addPreferredBaseEnvironment(Tr::tr("System Environment"), [this] {
         // Populate the base from the device on first use, so a remote run starts with the

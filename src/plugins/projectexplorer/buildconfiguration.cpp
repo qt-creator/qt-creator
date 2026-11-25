@@ -1083,11 +1083,12 @@ void BuildConfiguration::setBuildDirectorySettingsKey(const Key &key)
 
 Environment BuildConfiguration::baseEnvironment() const
 {
+    const IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
     Environment result;
-    if (useSystemEnvironment()) {
-        ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
+    if (useSystemEnvironment())
         result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
-    }
+    else
+        result = Environment::emptyComplete(devicePtr ? devicePtr->osType() : HostOsInfo::hostOs());
     addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
     project()->additionalEnvironment().modifyEnvironment(result, macroExpander());

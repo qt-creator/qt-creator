@@ -111,15 +111,6 @@ QString EnvironmentItem::toShortSummary(const EnvironmentItems &list, bool multi
                               QLatin1String(multiLine ? "\n" : "; "));
 }
 
-QString EnvironmentItem::separator() const
-{
-    if (const Environment::ListSeparatorProvider &p = Environment::listSeparatorProvider()) {
-        if (const auto sep = p(name))
-            return *sep;
-    }
-    return HostOsInfo::pathListSeparator();
-}
-
 static QString expand(const NameValueDictionary *dictionary, QString value)
 {
     int replaceCount = 0;
@@ -162,7 +153,7 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
         const NameValueDictionary::const_iterator it = dictionary->find(name);
         if (it != dictionary->end()) {
             QString v = it.value();
-            const QString listSep = separator();
+            const QString listSep = Environment::listSeparator(name, dictionary->osType());
             int sepCount = 0;
             if (v.startsWith(listSep))
                 ++sepCount;
@@ -182,7 +173,7 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
         const NameValueDictionary::const_iterator it = dictionary->find(name);
         if (it != dictionary->end()) {
             QString v = it.value();
-            const QString listSep = separator();
+            const QString listSep = Environment::listSeparator(name, dictionary->osType());
             int sepCount = 0;
             if (v.endsWith(listSep))
                 ++sepCount;

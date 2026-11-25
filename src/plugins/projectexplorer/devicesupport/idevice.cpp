@@ -1037,34 +1037,47 @@ Result<Environment> IDevice::inheritedEnvironmentIfKnown() const
 }
 
 /*!
-    Returns how \a env differs from what a process on the device inherits,
-    with values expanded and disabled variables unset. Returns all of \a env
-    if it holds only changes or the inherited environment is not known.
+    Returns the changes that turn what a process on the device inherits into
+    \a env, with values expanded and disabled variables unset.
+
+    If \a env is complete, these are the differences to the inherited
+    environment, or all of \a env if the inherited environment is not known.
+
+    If \a env holds only changes, these are its changes. Its prepends and
+    appends to variables it does not set stay Prepend and Append items. The
+    script that starts the process applies them to the values on the device.
 */
 EnvironmentItems IDevice::environmentChanges(const Environment &env) const
 {
     EnvironmentItems changes;
-    const auto addAll = [&env, &changes] {
+    if (!env.isComplete()) {
+        changes = env.changeItems();
+    } else if (const Result<Environment> inherited = inheritedEnvironmentIfKnown()) {
+        changes = inherited->diff(env);
+    } else {
         env.forEachEntry([&changes](const QString &key, const QString &value, bool enabled) {
             changes.append({key, value, enabled ? EnvironmentItem::SetEnabled
                                                 : EnvironmentItem::SetDisabled});
         });
-    };
-    if (!env.isComplete())
-        addAll();
-    else if (const Result<Environment> inherited = inheritedEnvironmentIfKnown())
-        changes = inherited->diff(env);
-    else
-        addAll();
+    }
 
     EnvironmentItems result;
     for (const EnvironmentItem &item : std::as_const(changes)) {
         if (item.name.trimmed().isEmpty())
             continue;
-        if (item.operation == EnvironmentItem::SetEnabled)
-            result.append({item.name, env.expandVariables(item.value)});
-        else
+        switch (item.operation) {
+        case EnvironmentItem::SetEnabled:
+        case EnvironmentItem::Prepend:
+        case EnvironmentItem::Append:
+            result.append({item.name, env.expandVariables(item.value), item.operation});
+            break;
+        case EnvironmentItem::SetDisabled:
+        case EnvironmentItem::Unset:
             result.append({item.name, {}, EnvironmentItem::Unset});
+            break;
+        case EnvironmentItem::Comment:
+            break;
+        }
     }
     return result;
 }
@@ -1085,6 +1098,41 @@ QString IDevice::unsetScript(const EnvironmentItems &changes)
     if (names.isEmpty())
         return {};
     return "for n in " + names.join(' ') + "; do command unset \"$n\"; done 2>/dev/null;";
+}
+
+/*!
+    Returns a POSIX shell snippet that applies the Prepend and Append items
+    of \a changes to the shell's variables and exports these variables.
+    Items with an invalid name or with a line break in the value are skipped.
+*/
+QString IDevice::listChangesScript(const EnvironmentItems &changes)
+{
+    static const QRegularExpression shellName("^[A-Za-z_][A-Za-z0-9_]*$");
+    QString script;
+    for (const EnvironmentItem &item : changes) {
+        if (item.operation != EnvironmentItem::Prepend
+            && item.operation != EnvironmentItem::Append) {
+            continue;
+        }
+        if (!shellName.match(item.name).hasMatch() || item.value.contains('\n'))
+            continue;
+        const QString &name = item.name;
+        QString sep = Environment::listSeparator(name, OsTypeLinux);
+        QString raw = item.value;
+        if (item.operation == EnvironmentItem::Prepend && raw.endsWith(sep))
+            raw.chop(sep.size());
+        else if (item.operation == EnvironmentItem::Append && raw.startsWith(sep))
+            raw.remove(0, sep.size());
+        const QString value = ProcessArgs::quoteArgUnix(raw);
+        static const QRegularExpression special("([\"\\\\$`])");
+        sep.replace(special, "\\\\1");
+        if (item.operation == EnvironmentItem::Prepend)
+            script += name + '=' + value + "\"${" + name + ":+" + sep + '$' + name + "}\"";
+        else
+            script += name + "=\"${" + name + ":+$" + name + sep + "}\"" + value;
+        script += "; export " + name + ';';
+    }
+    return script;
 }
 
 void IDevice::warmSystemEnvironment() const

@@ -216,7 +216,7 @@ void JavaClassPathTest::testJavaIn()
     const FilePath onPath = writeJava(elsewhere);
     QVERIFY(!onPath.isEmpty());
 
-    Environment environment;
+    Environment environment = Environment::emptyComplete(HostOsInfo::hostOs());
     environment.prependOrSetPath(elsewhere);
     QCOMPARE(javaIn(environment), onPath);
 

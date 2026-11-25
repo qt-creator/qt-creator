@@ -16,6 +16,7 @@ class RemoteRunTest : public QObject
 private slots:
     void initTestCase();
     void testStandardInput();
+    void testEnvironmentListChanges();
     void cleanupTestCase();
 
 private:

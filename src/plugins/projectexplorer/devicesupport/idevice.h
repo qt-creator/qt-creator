@@ -340,6 +340,7 @@ public:
     virtual Utils::Result<Utils::Environment> inheritedEnvironmentIfKnown() const;
     Utils::EnvironmentItems environmentChanges(const Utils::Environment &env) const;
     static QString unsetScript(const Utils::EnvironmentItems &changes);
+    static QString listChangesScript(const Utils::EnvironmentItems &changes);
 
     virtual void aboutToBeRemoved() const;
 

@@ -353,6 +353,17 @@ private slots:
         changed = runEnv(clean);
         QCOMPARE(changed.value("QTC_TEST_ADDED"), "1");
         QVERIFY(!changed.hasKey("PATH"));
+
+        Environment listChanges(OsTypeLinux);
+        listChanges.prependOrSet("PATH", "/qtc-pre");
+        listChanges.appendOrSet("PATH", "/qtc-post");
+        listChanges.set("QTC_TEST_ADDED", "2");
+        changed = runEnv(listChanges);
+        const QString path = changed.value("PATH");
+        QVERIFY2(path.startsWith("/qtc-pre:") && path.endsWith(":/qtc-post")
+                     && path.contains("/usr/bin"),
+                 qPrintable(path));
+        QCOMPARE(changed.value("QTC_TEST_ADDED"), "2");
     }
 };
 

@@ -34,6 +34,8 @@ public:
     explicit Environment(const NameValuePairs &nameValues);
     explicit Environment(const NameValueDictionary &dict);
 
+    static Environment emptyComplete(OsType osType = HostOsInfo::hostOs());
+
     QString value(const QString &key) const;
     QString value_or(const QString &key, const QString &defaultValue) const;
     bool hasKey(const QString &key) const;
@@ -45,6 +47,7 @@ public:
 
     bool hasChanges() const;
     bool isComplete() const;
+    EnvironmentItems changeItems() const;
 
     OsType osType() const;
     QStringList toStringList() const;
@@ -111,6 +114,7 @@ public:
 
     QChar pathListSeparator(PathSeparator sep) const;
     QString listSeparator(const QString &varName, PathSeparator sep) const;
+    static QString listSeparator(const QString &varName, OsType osType);
 
     enum Type {
         SetSystemEnvironment,
@@ -132,7 +136,7 @@ public:
         QString,                                     // UnsetValue (key)
         std::tuple<QString, QString, PathSeparator>, // PrependOrSet (key, value, separator)
         std::tuple<QString, QString, PathSeparator>, // AppendOrSet (key, value, separator)
-        EnvironmentItems,                              // Modify
+        EnvironmentItems,                            // Modify (items from modify(), in order)
         std::monostate,                              // SetupEnglishOutput
         FilePath                                     // SetupSudoAskPass (file path of qtc-askpass or ssh-askpass)
         >;

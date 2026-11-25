@@ -88,7 +88,7 @@ private:
 
     // One possible choice in the Environment aspect.
     struct BaseEnvironment {
-        Utils::Environment unmodifiedBaseEnvironment() const;
+        Utils::Environment unmodifiedBaseEnvironment(Utils::OsType osType) const;
 
         std::function<Utils::Environment()> getter;
         QString displayName;

@@ -865,11 +865,12 @@ void CMakeBuildStep::updateAndEmitEnvironmentChanged()
 
 Environment CMakeBuildStep::baseEnvironment() const
 {
+    const IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
     Environment result;
-    if (!useClearEnvironment()) {
-        ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
+    if (!useClearEnvironment())
         result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
-    }
+    else
+        result = Environment::emptyComplete(devicePtr ? devicePtr->osType() : HostOsInfo::hostOs());
     if (buildConfiguration())
         buildConfiguration()->addToEnvironment(result);
     kit()->addToBuildEnvironment(result);

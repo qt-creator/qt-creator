@@ -95,6 +95,24 @@ static QString environmentScript(const EnvironmentItems &changes, const QString 
         if (item.operation == EnvironmentItem::Unset) {
             script += indent + "[Environment]::SetEnvironmentVariable(" + psQuote(item.name)
                       + ", $null)\n";
+        } else if (item.operation == EnvironmentItem::Prepend
+                   || item.operation == EnvironmentItem::Append) {
+            if (item.value.contains('\n'))
+                continue;
+            const QString sep = Environment::listSeparator(item.name, OsTypeWindows);
+            QString value = item.value;
+            if (item.operation == EnvironmentItem::Prepend && value.endsWith(sep))
+                value.chop(sep.size());
+            else if (item.operation == EnvironmentItem::Append && value.startsWith(sep))
+                value.remove(0, sep.size());
+            const QString current = "[Environment]::GetEnvironmentVariable("
+                                    + psQuote(item.name) + ")";
+            const QString parts = item.operation == EnvironmentItem::Prepend
+                                      ? QString(psQuote(value) + ", " + current)
+                                      : QString(current + ", " + psQuote(value));
+            script += indent + "[Environment]::SetEnvironmentVariable(" + psQuote(item.name)
+                      + ", ((@(" + parts + ") | Where-Object { $_ }) -join " + psQuote(sep)
+                      + "))\n";
         } else if (!item.value.contains('\n')) {
             script += indent + "[Environment]::SetEnvironmentVariable(" + psQuote(item.name)
                       + ", " + psQuote(item.value) + ")\n";

@@ -53,6 +53,17 @@ Environment::Environment(const NameValuePairs &nameValues)
     m_changeItems.append(NameValueDictionary(nameValues));
 }
 
+/*!
+    Returns a complete environment without any variables. Unlike
+    \c Environment(OsType), which only records changes to be applied
+    to an environment determined later, it inherits nothing from the
+    device it is used on.
+*/
+Environment Environment::emptyComplete(OsType osType)
+{
+    return Environment(NameValueDictionary(osType));
+}
+
 Environment::Environment(const NameValueDictionary &dict)
 {
     m_dict.m_osType = dict.osType();
@@ -118,8 +129,141 @@ bool Environment::hasChanges() const
 */
 bool Environment::isComplete() const
 {
-    resolved();
-    return m_fullDict;
+    return anyOf(m_changeItems, [](const Item &item) {
+        return item.index() == SetSystemEnvironment || item.index() == SetFixedDictionary;
+    });
+}
+
+/*!
+    Returns the changes this environment makes to the environment it is
+    applied to. The environment must not be complete. Each variable gets at
+    most one SetEnabled or Unset item.
+
+    A Prepend or Append to a variable that an earlier change sets is merged
+    into that value. If an earlier change unsets the variable, the Prepend or
+    Append becomes a plain set. Otherwise it stays a separate item, and the
+    receiver applies it to its own value of the variable.
+*/
+EnvironmentItems Environment::changeItems() const
+{
+    QTC_ASSERT(!isComplete(), return {});
+
+    const Qt::CaseSensitivity cs = osType() == OsTypeWindows ? Qt::CaseInsensitive
+                                                             : Qt::CaseSensitive;
+    EnvironmentItems result;
+    const auto indexOfSet = [&](const QString &key) {
+        return Utils::indexOf(result, [&](const EnvironmentItem &item) {
+            return item.operation != EnvironmentItem::Prepend
+                && item.operation != EnvironmentItem::Append
+                && item.name.compare(key, cs) == 0;
+        });
+    };
+    const auto set = [&](const QString &key, const QString &value, bool enabled) {
+        Utils::erase(result, [&](const EnvironmentItem &item) {
+            return item.name.compare(key, cs) == 0;
+        });
+        result.append({key, value, enabled ? EnvironmentItem::SetEnabled
+                                           : EnvironmentItem::Unset});
+    };
+    const auto addToList = [&](const QString &key, const QString &value, bool prepend,
+                               PathSeparator sep) {
+        const int index = indexOfSet(key);
+        if (index < 0) {
+            result.append({key, value, prepend ? EnvironmentItem::Prepend
+                                               : EnvironmentItem::Append});
+            return;
+        }
+        EnvironmentItem &item = result[index];
+        if (item.operation != EnvironmentItem::SetEnabled) {
+            item = {key, value};
+        } else if (prepend) {
+            const QString toPrepend = value + listSeparator(key, sep);
+            if (!item.value.startsWith(toPrepend))
+                item.value.prepend(toPrepend);
+        } else {
+            const QString toAppend = listSeparator(key, sep) + value;
+            if (!item.value.endsWith(toAppend))
+                item.value.append(toAppend);
+        }
+    };
+
+    const auto knownValues = [&] {
+        NameValueDictionary known(osType());
+        for (const EnvironmentItem &item : std::as_const(result)) {
+            if (item.operation == EnvironmentItem::SetEnabled)
+                known.set(item.name, item.value);
+        }
+        return known;
+    };
+    const auto expanded = [&](const QString &value) {
+        NameValueDictionary known = knownValues();
+        const QString name = "value";
+        EnvironmentItem{name, value}.apply(&known);
+        return known.value(name);
+    };
+
+    for (const Item &item : std::as_const(m_changeItems)) {
+        switch (item.index()) {
+        case SetValue: {
+            const auto &[key, value, enabled] = std::get<SetValue>(item);
+            set(key, value, enabled);
+            break;
+        }
+        case SetFallbackValue: {
+            const auto &[key, value] = std::get<SetFallbackValue>(item);
+            set(key, value, true);
+            break;
+        }
+        case UnsetValue:
+            set(std::get<UnsetValue>(item), {}, false);
+            break;
+        case PrependOrSet: {
+            const auto &[key, value, sep] = std::get<PrependOrSet>(item);
+            addToList(key, value, true, sep);
+            break;
+        }
+        case AppendOrSet: {
+            const auto &[key, value, sep] = std::get<AppendOrSet>(item);
+            addToList(key, value, false, sep);
+            break;
+        }
+        case Modify:
+            for (const EnvironmentItem &change : std::get<Modify>(item)) {
+                switch (change.operation) {
+                case EnvironmentItem::SetEnabled:
+                    set(change.name, expanded(change.value), true);
+                    break;
+                case EnvironmentItem::SetDisabled:
+                case EnvironmentItem::Unset:
+                    set(change.name, {}, false);
+                    break;
+                case EnvironmentItem::Prepend:
+                case EnvironmentItem::Append: {
+                    const int index = indexOfSet(change.name);
+                    if (index < 0) {
+                        addToList(change.name, expanded(change.value),
+                                  change.operation == EnvironmentItem::Prepend,
+                                  PathSeparator::Auto);
+                        break;
+                    }
+                    NameValueDictionary known = knownValues();
+                    change.apply(&known);
+                    EnvironmentItem &existing = result[index];
+                    existing = {existing.name, known.value(existing.name)};
+                    break;
+                }
+                case EnvironmentItem::Comment:
+                    break;
+                }
+            }
+            break;
+        case SetupEnglishOutput:
+            set("LC_MESSAGES", "en_US.UTF-8", true);
+            set("LANGUAGE", "en_US:en", true);
+            break;
+        }
+    }
+    return result;
 }
 
 OsType Environment::osType() const
@@ -613,6 +757,16 @@ QString Environment::listSeparator(const QString &varName, PathSeparator sep) co
     return pathListSeparator(sep);
 }
 
+QString Environment::listSeparator(const QString &varName, OsType osType)
+{
+    QReadLocker lock(&s_envMutex);
+    if (listSepProvider && *listSepProvider) {
+        if (const auto s = (*listSepProvider)(varName))
+            return *s;
+    }
+    return OsSpecificAspects::pathListSeparator(osType);
+}
+
 /*!
     Returns the value of \a key in \QC's modified system environment.
     \sa Utils::Environment::systemEnvironment
@@ -831,7 +985,7 @@ QString EnvironmentChanges::toShortSummary(MacroExpander *expander, bool multiLi
 {
     if (m_itemsFromUser.isEmpty() && itemsFromFile().isEmpty())
         return Tr::tr("No changes to apply.");
-    Environment env;
+    Environment env = Environment::emptyComplete(HostOsInfo::hostOs());
     modifyEnvironment(env, expander);
     return env.toStringList().join(QLatin1String(multiLine ? "\n" : "; "));
 }
@@ -941,7 +1095,7 @@ Result<Environment> getEnvironmentFromBatFile(const FilePath &batFile)
     const QString output = stdOut.mid(start, end - start);
     const Environment outEnv(output.split('\n', Qt::SkipEmptyParts), OsTypeWindows);
 
-    Environment resultEnv;
+    Environment resultEnv = Environment::emptyComplete(OsTypeWindows);
     resultEnv.modify(inEnv.diff(outEnv, true));
     return resultEnv;
 }

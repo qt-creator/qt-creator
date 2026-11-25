@@ -10,6 +10,7 @@
 using namespace Utils;
 
 Q_DECLARE_METATYPE(Utils::OsType)
+Q_DECLARE_METATYPE(Utils::EnvironmentItem::Operation)
 
 class tst_Environment : public QObject
 {
@@ -50,6 +51,10 @@ private slots:
 
     void find_data();
     void find();
+
+    void listSeparatorOfOs_data();
+    void listSeparatorOfOs();
+    void changeItems();
 
 private:
     Environment env;
@@ -279,7 +284,7 @@ void tst_Environment::environmentFromTextFileComplex()
     f.close();
     EnvironmentChanges changes;
     changes.setFile(FilePath::fromString(f.fileName()), false);
-    Environment env;
+    Environment env = Environment::emptyComplete(HostOsInfo::hostOs());
     changes.modifyEnvironment(env, nullptr);
     QStringList resolved;
     env.forEachEntry([&resolved](const QString &name, const QString &value, bool enabled) {
@@ -469,6 +474,78 @@ void tst_Environment::find()
     if (contains)
         QCOMPARE(res->value, QString("bar"));
 
+}
+
+void tst_Environment::listSeparatorOfOs_data()
+{
+    QTest::addColumn<Utils::OsType>("osType");
+    QTest::addColumn<EnvironmentItem::Operation>("operation");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("lin prepend") << OsTypeLinux << EnvironmentItem::Prepend << "/x:/a";
+    QTest::newRow("lin append") << OsTypeLinux << EnvironmentItem::Append << "/a:/x";
+    QTest::newRow("win prepend") << OsTypeWindows << EnvironmentItem::Prepend << "/x;/a";
+    QTest::newRow("win append") << OsTypeWindows << EnvironmentItem::Append << "/a;/x";
+}
+
+void tst_Environment::listSeparatorOfOs()
+{
+    QFETCH(Utils::OsType, osType);
+    QFETCH(EnvironmentItem::Operation, operation);
+    QFETCH(QString, result);
+
+    Environment env(QStringList("PATH=/a"), osType);
+    env.modify({EnvironmentItem("PATH", "/x", operation)});
+    QCOMPARE(env.value("PATH"), result);
+}
+
+void tst_Environment::changeItems()
+{
+    Environment env(OsTypeWindows);
+    env.prependOrSet("Path", "C:\\a");
+    env.unset("INCLUDE");
+    env.appendOrSet("INCLUDE", "C:\\inc");
+    env.set("LIB", "C:\\lib");
+    env.modify({{"LIB", "C:\\pre", EnvironmentItem::Prepend},
+                {"OTHER", "1", EnvironmentItem::SetDisabled}});
+    env.appendOrSet("PATH", "C:\\z");
+    env.set("lib", "C:\\new");
+
+    QCOMPARE(env.changeItems(),
+             (EnvironmentItems{{"Path", "C:\\a", EnvironmentItem::Prepend},
+                               {"INCLUDE", "C:\\inc"},
+                               {"OTHER", {}, EnvironmentItem::Unset},
+                               {"PATH", "C:\\z", EnvironmentItem::Append},
+                               {"lib", "C:\\new"}}));
+
+    Environment set(OsTypeLinux);
+    set.set("PATH", "/x");
+    set.prependOrSet("PATH", "/a");
+    set.appendOrSet("PATH", "/z");
+    QCOMPARE(set.changeItems(), (EnvironmentItems{{"PATH", "/a:/x:/z"}}));
+
+    const EnvironmentItems prepends{{"PATH", "/a", EnvironmentItem::Prepend},
+                                    {"PATH", "/p:", EnvironmentItem::Prepend}};
+    Environment modifiedSet(OsTypeLinux);
+    modifiedSet.set("PATH", "/a:/x");
+    modifiedSet.modify(prepends);
+    Environment complete({"PATH=/a:/x"}, OsTypeLinux);
+    complete.modify(prepends);
+    QCOMPARE(complete.value("PATH"), "/p:/a:/a:/x");
+    QCOMPARE(modifiedSet.changeItems(), (EnvironmentItems{{"PATH", "/p:/a:/a:/x"}}));
+
+    for (const OsType osType : {OsTypeLinux, OsTypeWindows}) {
+        Environment modified(osType);
+        modified.set("QTDIR", "/qt");
+        modified.modify({{"BIN", "${QTDIR}/bin"},
+                         {"PATH", "$(QTDIR)/bin", EnvironmentItem::Prepend},
+                         {"LIBS", "${BIN}/lib", EnvironmentItem::Append}});
+        QCOMPARE(modified.changeItems(),
+                 (EnvironmentItems{{"QTDIR", "/qt"},
+                                   {"BIN", "/qt/bin"},
+                                   {"PATH", "/qt/bin", EnvironmentItem::Prepend},
+                                   {"LIBS", "/qt/bin/lib", EnvironmentItem::Append}}));
+    }
 }
 
 QTEST_GUILESS_MAIN(tst_Environment)

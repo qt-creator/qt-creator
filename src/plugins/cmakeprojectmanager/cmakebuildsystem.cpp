@@ -4813,7 +4813,7 @@ private slots:
         QVERIFY(java.ensureExistingFile());
         QVERIFY(java.setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner));
 
-        Environment env;
+        Environment env = Environment::emptyComplete(HostOsInfo::hostOs());
         env.prependOrSetPath(binDirectory);
 
         // What find_package(Java) found is the runtime the jars were built

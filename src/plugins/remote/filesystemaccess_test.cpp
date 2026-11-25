@@ -287,6 +287,15 @@ void FileSystemAccessTest::testProcessEnvironment()
     const Environment fromRunSettings = run(aspect.expandedEnvironment(*globalMacroExpander()));
     QCOMPARE(fromRunSettings.value("PWD"), dir.path());
     QVERIFY(!fromRunSettings.hasKey("HOME"));
+
+    EnvironmentAspect unknownBase;
+    unknownBase.addPreferredBaseEnvironment("System", [] { return Environment(OsTypeLinux); });
+    unknownBase.addModifier([](Environment &env) { env.prependOrSet("QTC_TEST_LIST", "/qtc"); });
+    const EnvironmentItems items
+        = unknownBase.expandedEnvironment(*globalMacroExpander()).changeItems();
+    QCOMPARE(items.size(), 1);
+    QCOMPARE(items.first().operation, EnvironmentItem::Prepend);
+    QCOMPARE(items.first().value, "/qtc");
 }
 
 void FileSystemAccessTest::testDirStatus()

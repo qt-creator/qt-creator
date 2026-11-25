@@ -799,6 +799,18 @@ void WindowsDeviceDetectionTest::testProcessEnvironment()
     const Environment cleaned = run(clean);
     QCOMPARE(cleaned.value("QTC_TEST_ADDED"), "1");
     QVERIFY(!cleaned.hasKey("OS"));
+
+    Environment listChanges(OsTypeWindows);
+    listChanges.prependOrSet("Path", "C:\\qtc-pre");
+    listChanges.appendOrSet("Path", "C:\\qtc-post");
+    listChanges.prependOrSet("QTC_TEST_UNSET", "C:\\only");
+    const Environment listed = run(listChanges);
+    const QString path = listed.value("Path");
+    QVERIFY2(path.startsWith("C:\\qtc-pre;") && path.endsWith(";C:\\qtc-post")
+                 && path.contains("System32", Qt::CaseInsensitive),
+             qPrintable(path));
+    QCOMPARE(listed.value("QTC_TEST_UNSET"), "C:\\only");
+    QVERIFY(listed.hasKey("OS"));
 }
 
 void WindowsDeviceDetectionTest::testLocalPortForwardOptions_data()

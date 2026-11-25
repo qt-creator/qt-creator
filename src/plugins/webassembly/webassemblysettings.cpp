@@ -38,7 +38,7 @@ WebAssemblySettings &settings()
 
 static QString environmentDisplay(const FilePath &sdkRoot)
 {
-    Environment env;
+    Environment env = Environment::emptyComplete(sdkRoot.osType());
     WebAssemblyEmSdk::addToEnvironment(sdkRoot, env);
     QString result;
     auto h4 = [](const QString &text) { return QString("<h4>" + text + "</h4>"); };

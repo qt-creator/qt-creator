@@ -11,7 +11,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/environment.h>
 #include <utils/outputformat.h>
+#include <utils/qtcprocess.h>
 #include <utils/result.h>
 
 #include <QSignalSpy>
@@ -92,6 +94,38 @@ void RemoteRunTest::testStandardInput()
     runControl.closeStandardInput();
     QVERIFY(!runControl.acceptsStandardInput());
     QTRY_VERIFY2_WITH_TIMEOUT(!stoppedSpy.isEmpty(), qPrintable(messages), Timeout);
+}
+
+// A process started with an environment that holds only changes still gets the variables
+// it inherits on the device. Prepends and appends extend the inherited values.
+void RemoteRunTest::testEnvironmentListChanges()
+{
+    QVERIFY(m_device);
+
+    Environment changes(OsTypeLinux);
+    changes.prependOrSet("PATH", "/qtc-pre");
+    changes.appendOrSet("PATH", "/qtc-post");
+    changes.prependOrSet("QTC_TEST_UNSET", "/only");
+    changes.set("QTC_TEST_SET", "/x");
+    changes.prependOrSet("QTC_TEST_SET", "/p");
+
+    Process proc;
+    proc.setCommand({m_device->filePath("/bin/sh"),
+                     {"-c", "echo \"$PATH|$QTC_TEST_UNSET|$QTC_TEST_SET|$HOME\""}});
+    proc.setEnvironment(changes);
+    proc.runBlocking(std::chrono::seconds(30));
+    QVERIFY2(proc.result() == ProcessResult::FinishedWithSuccess,
+             qPrintable(proc.verboseExitMessage()));
+
+    const QStringList parts = proc.cleanedStdOut().trimmed().split('|');
+    QCOMPARE(parts.size(), 4);
+    const QString path = parts.at(0);
+    QVERIFY2(path.startsWith("/qtc-pre:") && path.endsWith(":/qtc-post")
+                 && path.contains("/usr/bin"),
+             qPrintable(path));
+    QCOMPARE(parts.at(1), "/only");
+    QCOMPARE(parts.at(2), "/p:/x");
+    QVERIFY(!parts.at(3).isEmpty());
 }
 
 } // Remote::Internal

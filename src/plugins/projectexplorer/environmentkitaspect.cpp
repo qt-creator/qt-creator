@@ -267,7 +267,7 @@ KitAspectFactory::ItemList EnvironmentKitAspectFactory::toUserOutput(const Kit *
     const auto addIfNotEmpty = [&](const QString &displayName,
                                    const EnvironmentChanges &changes) {
         if (changes.hasItems()) {
-            Environment env;
+            Environment env = Environment::emptyComplete(HostOsInfo::hostOs());
             changes.modifyEnvironment(env, k->macroExpander());
             list.emplaceBack(displayName, env.toStringList().join("<br>"));
         }

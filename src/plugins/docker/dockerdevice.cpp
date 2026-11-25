@@ -614,16 +614,24 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     if (withPty)
         dockerCmd.addArg("-t");
 
-    QString unset;
+    QString prologue;
     if (env) {
-        // "docker exec" skips the image's entry point, so pass everything.
-        env->forEachEntry([&](const QString &key, const QString &value, bool enabled) {
-            if (enabled) {
-                dockerCmd.addArg("-e");
-                dockerCmd.addArg(key + "=" + env->expandVariables(value));
+        const EnvironmentItems changes = q->environmentChanges(*env);
+        if (env->isComplete()) {
+            // "docker exec" skips the image's entry point, so pass everything.
+            env->forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+                if (enabled) {
+                    dockerCmd.addArg("-e");
+                    dockerCmd.addArg(key + "=" + env->expandVariables(value));
+                }
+            });
+        } else {
+            for (const EnvironmentItem &item : changes) {
+                if (item.operation == EnvironmentItem::SetEnabled)
+                    dockerCmd.addArgs({"-e", item.name + "=" + item.value});
             }
-        });
-        unset = IDevice::unsetScript(q->environmentChanges(*env));
+        }
+        prologue = IDevice::unsetScript(changes) + IDevice::listChangesScript(changes);
     }
 
     if (workDir && !workDir->isEmpty())
@@ -658,7 +666,7 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
         script = testType;
     }
 
-    QString combined = unset;
+    QString combined = prologue;
     ProcessArgs::addArg(&combined, script.executable().path());
     ProcessArgs::addArgs(&combined, script.arguments());
     dockerCmd.addArg(combined);

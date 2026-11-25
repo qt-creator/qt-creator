@@ -699,6 +699,8 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     const EnvironmentItems envChanges = m_device->environmentChanges(q->m_setup.m_environment);
     if (const QString unset = IDevice::unsetScript(envChanges); !unset.isEmpty())
         inner.addArgs(unset, CommandLine::Raw);
+    if (const QString lists = IDevice::listChangesScript(envChanges); !lists.isEmpty())
+        inner.addArgs(lists, CommandLine::Raw);
 
     const FilePath &workingDirectory = q->m_setup.rawWorkingDirectory();
     if (!workingDirectory.isEmpty()) {
@@ -713,7 +715,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     }
 
     for (const EnvironmentItem &item : envChanges) {
-        if (item.operation != EnvironmentItem::Unset && !item.value.contains('\n')) {
+        if (item.operation == EnvironmentItem::SetEnabled && !item.value.contains('\n')) {
             inner.addArgs(item.name + "=" + ProcessArgs::quoteArgUnix(item.value),
                           CommandLine::Raw);
         }

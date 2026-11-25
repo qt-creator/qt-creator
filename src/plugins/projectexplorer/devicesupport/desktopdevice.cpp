@@ -472,8 +472,7 @@ export LD_LIBRARY_PATH=/opt/lib
         f.close();
         EnvironmentChanges changes;
         changes.setFile(FilePath::fromString(f.fileName()), true);
-        Environment baseEnv;
-        baseEnv.set("LD_LIBRARY_PATH", "/usr/local/lib");
+        Environment baseEnv({"LD_LIBRARY_PATH=/usr/local/lib"}, HostOsInfo::hostOs());
         changes.modifyEnvironment(baseEnv, nullptr);
         QCOMPARE(
             baseEnv.toStringList(),
@@ -481,6 +480,113 @@ export LD_LIBRARY_PATH=/opt/lib
                 "LD_LIBRARY_PATH=/opt/lib:/usr/local/lib",
                 "VAL1=base_foo",
                 "VAL2=base_bar"}));
+    }
+
+    void testListChangesScript()
+    {
+        if (!HostOsInfo::isAnyUnixHost())
+            QSKIP("Only applies on Unix hosts");
+
+        Environment changes(OsTypeLinux);
+        changes.prependOrSet("QTC_TEST_LIST", "/a");
+        changes.appendOrSet("QTC_TEST_LIST", "/z");
+        changes.prependOrSet("QTC_TEST_UNSET", "/only");
+        changes.set("QTC_TEST_SET", "/x");
+        changes.prependOrSet("QTC_TEST_SET", "/p");
+
+        const IDevice::ConstPtr device = DeviceManager::defaultDesktopDevice();
+        QVERIFY(device);
+        const EnvironmentItems items = device->environmentChanges(changes);
+        QCOMPARE(items,
+                 (EnvironmentItems{{"QTC_TEST_LIST", "/a", EnvironmentItem::Prepend},
+                                   {"QTC_TEST_LIST", "/z", EnvironmentItem::Append},
+                                   {"QTC_TEST_UNSET", "/only", EnvironmentItem::Prepend},
+                                   {"QTC_TEST_SET", "/p:/x"}}));
+
+        Environment env = Environment::systemEnvironment();
+        env.set("QTC_TEST_LIST", "/m");
+        env.unset("QTC_TEST_UNSET");
+        Process process;
+        process.setEnvironment(env);
+        process.setCommand({"/bin/sh",
+                            {"-c",
+                             IDevice::listChangesScript(items)
+                                 + " echo \"$QTC_TEST_LIST|$QTC_TEST_UNSET\""}});
+        process.runBlocking();
+        QCOMPARE(process.cleanedStdOut().trimmed(), QString("/a:/m:/z|/only"));
+    }
+
+    void testListChangesScriptRedundantSeparator()
+    {
+        if (!HostOsInfo::isAnyUnixHost())
+            QSKIP("Only applies on Unix hosts");
+
+        const EnvironmentItems items{{"QTC_TEST_LIST", "/a:", EnvironmentItem::Prepend},
+                                     {"QTC_TEST_LIST", ":/z", EnvironmentItem::Append}};
+        Environment env = Environment::systemEnvironment();
+        env.set("QTC_TEST_LIST", "/m");
+        Process process;
+        process.setEnvironment(env);
+        process.setCommand({"/bin/sh",
+                            {"-c",
+                             IDevice::listChangesScript(items) + " echo \"$QTC_TEST_LIST\""}});
+        process.runBlocking();
+        QCOMPARE(process.cleanedStdOut().trimmed(), QString("/a:/m:/z"));
+    }
+
+    void testListChangesScriptSeparator()
+    {
+        if (!HostOsInfo::isAnyUnixHost())
+            QSKIP("Only applies on Unix hosts");
+
+        const Environment::ListSeparatorProvider old = Environment::listSeparatorProvider();
+        Environment::setListSeparatorProvider([](const QString &name) -> std::optional<QString> {
+            if (name == "QTC_TEST_FLAGS")
+                return QString(" ");
+            return std::nullopt;
+        });
+        const EnvironmentItems items{{"QTC_TEST_FLAGS", "-g", EnvironmentItem::Append},
+                                     {"QTC_TEST_FLAGS", "-Wall", EnvironmentItem::Prepend}};
+
+        Environment env = Environment::systemEnvironment();
+        env.set("QTC_TEST_FLAGS", "-O2");
+        Process process;
+        process.setEnvironment(env);
+        process.setCommand({"/bin/sh",
+                            {"-c",
+                             IDevice::listChangesScript(items) + " echo \"$QTC_TEST_FLAGS\""}});
+        process.runBlocking();
+        Environment::setListSeparatorProvider(old);
+        QCOMPARE(process.cleanedStdOut().trimmed(), QString("-Wall -O2 -g"));
+    }
+
+    void testCleanEnvironmentUnsetsInherited()
+    {
+        class InheritingDevice : public DesktopDevice
+        {
+        public:
+            Result<Environment> inheritedEnvironmentIfKnown() const override
+            {
+                if (!known)
+                    return ResultError("unknown");
+                return Environment({"QTC_TEST_INHERITED=1", "QTC_TEST_KIT=old"}, OsTypeLinux);
+            }
+            bool known = true;
+        };
+
+        Environment clean = Environment::emptyComplete(OsTypeLinux);
+        clean.set("QTC_TEST_KIT", "new");
+        clean.prependOrSet("QTC_TEST_KIT_PATH", "/kit");
+
+        InheritingDevice device;
+        QCOMPARE(device.environmentChanges(clean),
+                 (EnvironmentItems{{"QTC_TEST_INHERITED", {}, EnvironmentItem::Unset},
+                                   {"QTC_TEST_KIT", "new", EnvironmentItem::SetEnabled},
+                                   {"QTC_TEST_KIT_PATH", "/kit", EnvironmentItem::SetEnabled}}));
+
+        device.known = false;
+        const EnvironmentItems unknown = device.environmentChanges(clean);
+        QVERIFY(!unknown.contains({"QTC_TEST_INHERITED", {}, EnvironmentItem::Unset}));
     }
 
     void testBatFile()
@@ -498,8 +604,7 @@ set PATH=C:\Program Files\MyTool;%PATH%
         f.close();
         EnvironmentChanges changes;
         changes.setFile(FilePath::fromString(f.fileName()), true);
-        Environment baseEnv;
-        baseEnv.set("PATH", "C:\\Program\\ Files\\LLVM\\bin");
+        Environment baseEnv({"PATH=C:\\Program\\ Files\\LLVM\\bin"}, HostOsInfo::hostOs());
         changes.modifyEnvironment(baseEnv, nullptr);
         QCOMPARE(
             baseEnv.toStringList(),

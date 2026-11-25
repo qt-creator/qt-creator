@@ -279,6 +279,18 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
     return true;
 }
 
+// In an incomplete environment, a prepend or append cannot see the inherited value.
+// A local process would get only the added part. (Remote devices apply such items
+// in their own shell.)
+static QProcessEnvironment localProcessEnvironment(const Environment &env)
+{
+    QTC_CHECK(env.isComplete() || !anyOf(env.changeItems(), [](const EnvironmentItem &item) {
+        return item.operation == EnvironmentItem::Prepend
+            || item.operation == EnvironmentItem::Append;
+    }));
+    return env.toProcessEnvironment();
+}
+
 static FilePath resolve(const FilePath &workingDir, const FilePath &filePath)
 {
     if (filePath.isAbsolutePath())
@@ -382,7 +394,7 @@ public:
             return;
         }
 
-        QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
+        QProcessEnvironment penv = localProcessEnvironment(m_setup.m_environment);
         if (penv.isEmpty())
             penv = Environment::systemEnvironment().toProcessEnvironment();
         const QStringList senv = penv.toStringList();
@@ -513,7 +525,7 @@ private:
                                                 m_setup.m_createConsoleOnWindows,
                                                 m_setup.m_forceDefaultErrorMode);
 
-        const QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
+        const QProcessEnvironment penv = localProcessEnvironment(m_setup.m_environment);
         if (!penv.isEmpty())
             m_process->setProcessEnvironment(penv);
         m_process->setWorkingDirectory(m_setup.fixedWorkingDirectory().path());
