@@ -152,7 +152,7 @@ void AutotestUnitTests::testASecondSessionFindsTheSameTests()
         QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
         CppEditor::Tests::ProjectOpenerAndCloser projectManager;
         QVERIFY(projectManager.open(projectFilePath, m_kit));
-        QVERIFY(parserSpy.wait(20000));
+        QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
         QVERIFY(modelUpdateSpy.wait());
         QCOMPARE(m_model->autoTestsCount(), 1);
     }
@@ -165,7 +165,7 @@ void AutotestUnitTests::testASecondSessionFindsTheSameTests()
     QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, m_kit));
-    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     QVERIFY(modelUpdateSpy.wait());
 
     QCOMPARE(m_model->autoTestsCount(), 1);
@@ -219,7 +219,7 @@ void AutotestUnitTests::testATestInAFileTheIndexerDoesNotDeliverIsFound()
     QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, m_kit));
-    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     QVERIFY(modelUpdateSpy.wait());
     QCOMPARE(count(), expectedCount);
 
@@ -228,7 +228,7 @@ void AutotestUnitTests::testATestInAFileTheIndexerDoesNotDeliverIsFound()
     parserSpy.clear();
     modelUpdateSpy.clear();
     m_model->parser()->updateTestTree();
-    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     QVERIFY(modelUpdateSpy.wait());
 
     QCOMPARE(count(), expectedCount);
@@ -247,7 +247,7 @@ void AutotestUnitTests::testCodeParser()
 
     QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
     QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
-    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     QVERIFY(modelUpdateSpy.wait());
 
     if (m_isQt4)
@@ -304,7 +304,7 @@ void AutotestUnitTests::testCodeParserSwitchStartup()
 
         QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
         QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
-        QVERIFY(parserSpy.wait(20000));
+        QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
         QVERIFY(modelUpdateSpy.wait());
 
         QCOMPARE(m_model->autoTestsCount(), expectedAutoTestsCount.at(i));
@@ -354,7 +354,7 @@ void AutotestUnitTests::testCodeParserGTest()
 
     QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
     QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
-    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     QVERIFY(modelUpdateSpy.wait());
 
     QCOMPARE(m_model->gtestNamesCount(), 13);
@@ -444,7 +444,7 @@ void AutotestUnitTests::testCodeParserBoostTest()
 
     QSignalSpy parserSpy(m_model->parser(), &TestCodeParser::parsingFinished);
     QSignalSpy modelUpdateSpy(m_model, &TestTreeModel::sweepingDone);
-    QVERIFY(parserSpy.wait(20000));
+    QVERIFY(parserSpy.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     QVERIFY(modelUpdateSpy.wait());
 
     QCOMPARE(m_model->boostTestNamesCount(), 5);
