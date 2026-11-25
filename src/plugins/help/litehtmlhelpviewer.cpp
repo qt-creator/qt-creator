@@ -317,12 +317,16 @@ void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, std::optional<int> v
         // We do not expect the documentation to support dark themes, so start with light palette.
         // We override this if we find Qt's dark style
         setLight(this);
-        const Utils::MimeType mimeType = Utils::mimeTypeForFile(url.fileName(),
-                                                                Utils::MimeMatchMode::MatchExtension);
-        if (QImageReader::supportedMimeTypes().contains(mimeType.name().toUtf8()))
-            m_viewer->setHtml(QString("<img src=\"%1\"/>").arg(QString::fromUtf8(url.toEncoded())));
-        else
+        const Utils::MimeType mimeType
+            = Utils::mimeTypeForFile(url.fileName(), Utils::MimeMatchMode::MatchExtension);
+        if (QImageReader::supportedMimeTypes().contains(mimeType.name().toUtf8())) {
+            m_viewer->setHtml(QString("<html><head><title>%1</title></head>"
+                                      "<body><img src=\"%2\"/></body></html>")
+                                  .arg(url.fileName().toHtmlEscaped(),
+                                       QString::fromUtf8(url.toEncoded())));
+        } else {
             m_viewer->setHtml(QString::fromUtf8(getData(url, this)));
+        }
     }
     if (vscroll)
         m_viewer->verticalScrollBar()->setValue(*vscroll);
@@ -332,31 +336,52 @@ void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, std::optional<int> v
     emit titleChanged();
 }
 
-void LiteHtmlHelpViewer::showContextMenu(const QPoint &pos, const QUrl &url)
+void LiteHtmlHelpViewer::showContextMenu(const QPoint &pos, const QUrl &url, const QUrl &imageUrl)
 {
     QMenu menu(nullptr);
 
-    QAction *copyAnchorAction = nullptr;
-    if (!url.isEmpty() && url.isValid()) {
+    const auto addOpenActions = [this, &menu](const QUrl &url,
+                                              const QString &newPageText,
+                                              const QString &windowText) {
         if (isActionVisible(HelpViewer::Action::NewPage)) {
-            QAction *action = menu.addAction(Tr::tr(Constants::TR_OPEN_LINK_AS_NEW_PAGE));
-            connect(action, &QAction::triggered, this, [this, url]() {
+            connect(menu.addAction(newPageText), &QAction::triggered, this, [this, url] {
                 emit newPageRequested(url);
             });
         }
         if (isActionVisible(HelpViewer::Action::ExternalWindow)) {
-            QAction *action = menu.addAction(Tr::tr(Constants::TR_OPEN_LINK_IN_WINDOW));
-            connect(action, &QAction::triggered, this, [this, url]() {
+            connect(menu.addAction(windowText), &QAction::triggered, this, [this, url] {
                 emit externalPageRequested(url);
             });
         }
-        copyAnchorAction = menu.addAction(Tr::tr("Copy Link"));
-    } else if (!m_viewer->selectedText().isEmpty()) {
-        connect(menu.addAction(Tr::tr("Copy")), &QAction::triggered, this, &HelpViewer::copy);
-    }
+    };
+    const auto addCopyLinkAction = [&menu](const QUrl &url, const QString &text) {
+        connect(menu.addAction(text), &QAction::triggered, &menu, [url] {
+            QGuiApplication::clipboard()->setText(url.toString());
+        });
+    };
 
-    if (copyAnchorAction == menu.exec(m_viewer->mapToGlobal(pos)))
-        QGuiApplication::clipboard()->setText(url.toString());
+    const bool hasLink = !url.isEmpty() && url.isValid();
+    const bool hasImage = !imageUrl.isEmpty() && imageUrl.isValid();
+    if (hasLink) {
+        addOpenActions(url,
+                       Tr::tr(Constants::TR_OPEN_LINK_AS_NEW_PAGE),
+                       Tr::tr(Constants::TR_OPEN_LINK_IN_WINDOW));
+        addCopyLinkAction(url, Tr::tr("Copy Link"));
+    }
+    if (hasImage) {
+        if (hasLink)
+            menu.addSeparator();
+        addOpenActions(imageUrl, Tr::tr("Open Image as New Page"), Tr::tr("Open Image in Window"));
+        connect(menu.addAction(Tr::tr("Copy Image")), &QAction::triggered, this, [this, imageUrl] {
+            QGuiApplication::clipboard()->setImage(QImage::fromData(getData(imageUrl, this)));
+        });
+        addCopyLinkAction(imageUrl, Tr::tr("Copy Image Link"));
+    }
+    if (!hasLink && !hasImage && !m_viewer->selectedText().isEmpty())
+        connect(menu.addAction(Tr::tr("Copy")), &QAction::triggered, this, &HelpViewer::copy);
+
+    if (!menu.isEmpty())
+        menu.exec(m_viewer->mapToGlobal(pos));
 }
 
 LiteHtmlHelpViewer::HistoryItem LiteHtmlHelpViewer::currentHistoryItem() const

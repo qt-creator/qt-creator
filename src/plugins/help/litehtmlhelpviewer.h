@@ -55,7 +55,7 @@ private:
     void goForward(int count);
     void goBackward(int count);
     void setSourceInternal(const QUrl &url, std::optional<int> vscroll = std::nullopt);
-    void showContextMenu(const QPoint &pos, const QUrl &url);
+    void showContextMenu(const QPoint &pos, const QUrl &url, const QUrl &imageUrl);
 
     struct HistoryItem
     {
