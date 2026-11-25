@@ -6,7 +6,6 @@
 
 #include <utils/qtcprocess.h>
 
-#include <QDir>
 #include <QRegularExpression>
 #include <QXmlStreamReader>
 
@@ -70,12 +69,14 @@ McuPackageXmlVersionDetector::McuPackageXmlVersionDetector(const QString &filePa
 
 QString McuPackageXmlVersionDetector::parseVersion(const FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath.toUrlishString(), m_filePattern).entryInfoList();
-    for (const auto &xmlFile : files) {
-        QFile sdkXmlFile = QFile(xmlFile.absoluteFilePath());
-        if (!sdkXmlFile.open(QFile::OpenModeFlag::ReadOnly))
+    const auto files = packagePath.dirEntries(
+        FileFilter({m_filePattern}, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot),
+        DirSortFlag::Name);
+    for (const FilePath &xmlFile : files) {
+        const Result<QByteArray> contents = xmlFile.fileContents();
+        if (!contents)
             return {};
-        QXmlStreamReader xmlReader(&sdkXmlFile);
+        QXmlStreamReader xmlReader(*contents);
         while (xmlReader.readNext()) {
             if (xmlReader.name() == m_versionElement) {
                 const QString versionString
@@ -97,8 +98,10 @@ McuPackageDirectoryEntriesVersionDetector::McuPackageDirectoryEntriesVersionDete
 
 QString McuPackageDirectoryEntriesVersionDetector::parseVersion(const FilePath &packagePath) const
 {
-    const auto files = QDir(packagePath.toUrlishString(), m_filePattern).entryInfoList();
-    for (const auto &entry : files) {
+    const auto files = packagePath.dirEntries(
+        FileFilter({m_filePattern}, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot),
+        DirSortFlag::Name);
+    for (const FilePath &entry : files) {
         const QString matched = matchRegExp(entry.fileName(), m_versionRegExp);
         if (!matched.isEmpty())
             return matched;

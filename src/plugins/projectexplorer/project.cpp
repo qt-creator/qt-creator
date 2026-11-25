@@ -2284,9 +2284,9 @@ private slots:
             qDebug() << copyResult.error();
         QVERIFY(copyResult);
 
-        const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files | QDir::Dirs);
-        for (const QFileInfo &f : files)
-            QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
+        const FilePaths files = projectDir.dirEntries(DirFilterFlag::Files | DirFilterFlag::Dirs);
+        for (const FilePath &f : files)
+            f.setPermissions(f.permissions() | QFile::WriteUser);
         const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended("generic-project.creator"));
         QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
         QVERIFY(theProject.project()->configureAsExampleProject(kit));
@@ -2370,9 +2370,9 @@ private slots:
             if (!result)
                 qDebug() << result.error();
             QVERIFY(result);
-            const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files);
-            for (const QFileInfo &f : files)
-                QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
+            const FilePaths files = projectDir.dirEntries(DirFilterFlag::Files);
+            for (const FilePath &f : files)
+                f.setPermissions(f.permissions() | QFile::WriteUser);
         }
 
         // Load Project.

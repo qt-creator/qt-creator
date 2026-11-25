@@ -1514,7 +1514,11 @@ QString getTemplateDialog(const FilePath &projectPath)
 {
     const FilePath templatesPath = projectPath.pathAppended("templates");
 
-    const QStringList templateFiles = QDir(templatesPath.toUrlishString()).entryList({"*.qml"});
+    const QStringList templateFiles = Utils::transform(
+        templatesPath.dirEntries(
+            FileFilter({"*.qml"}, DirFilterFlag::AllEntries | DirFilterFlag::NoDotAndDotDot),
+            DirSortFlag::Name),
+        &FilePath::fileName);
 
     QStringList names;
 
