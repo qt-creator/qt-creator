@@ -2413,6 +2413,8 @@ private slots:
     void testRewrapParagraph();
     void testRewrapSelection_data();
     void testRewrapSelection();
+    void testRewrapKeepsCursor_data();
+    void testRewrapKeepsCursor();
 };
 
 void RewrapParagraphTest::testRewrapParagraph_data()
@@ -2702,6 +2704,78 @@ void RewrapParagraphTest::testRewrapSelection()
     editorWidget->rewrapParagraph();
 
     QCOMPARE(editorWidget->textDocument()->plainText(), expected);
+
+    Core::EditorManager::closeEditors({editor}, false);
+}
+
+void RewrapParagraphTest::testRewrapKeepsCursor_data()
+{
+    // The "|" marks the cursor position.
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("beforeWord")
+        << "Pretend this is a |really long line of text that is definitely much wider than "
+           "the eighty column wrap boundary somewhere over here now\n"
+        << "Pretend this is a |really long line of text that is definitely much wider than\n"
+           "the eighty column wrap boundary somewhere over here now\n";
+
+    QTest::newRow("insideWordThatWraps")
+        << "Pretend this is a really long line of text that is definitely much wider than "
+           "the eig|hty column wrap boundary somewhere over here now\n"
+        << "Pretend this is a really long line of text that is definitely much wider than\n"
+           "the eig|hty column wrap boundary somewhere over here now\n";
+
+    QTest::newRow("afterWordBeforeWrap")
+        << "Pretend this is a really long line of text that is definitely much wider than| "
+           "the eighty column wrap boundary somewhere over here now\n"
+        << "Pretend this is a really long line of text that is definitely much wider than|\n"
+           "the eighty column wrap boundary somewhere over here now\n";
+
+    QTest::newRow("joinedLines")
+        << "one two\nthree |four\n"
+        << "one two three |four\n";
+
+    QTest::newRow("lineComment")
+        << "// one\n// two\n// three\n// fo|ur\n"
+        << "// one two three fo|ur\n";
+
+    QTest::newRow("blankLineAfter")
+        << "one two\nthree four\n|\n"
+        << "one two three four\n|\n";
+}
+
+void RewrapParagraphTest::testRewrapKeepsCursor()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
+
+    const int inputPosition = int(input.indexOf('|'));
+    const int expectedPosition = int(expected.indexOf('|'));
+    input.remove(inputPosition, 1);
+    expected.remove(expectedPosition, 1);
+
+    QString title = "rewrap.txt";
+    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, input.toUtf8());
+    QVERIFY(editor);
+    auto baseEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(baseEditor);
+    TextEditorWidget *editorWidget = baseEditor->editorWidget();
+    QVERIFY(editorWidget);
+
+    MarginSettingsData margin = editorWidget->marginSettings();
+    margin.m_marginColumn = 80;
+    editorWidget->setMarginSettings(margin);
+
+    QTextCursor cursor = editorWidget->textCursor();
+    cursor.setPosition(inputPosition);
+    editorWidget->setTextCursor(cursor);
+
+    editorWidget->rewrapParagraph();
+
+    QCOMPARE(editorWidget->textDocument()->plainText(), expected);
+    QCOMPARE(editorWidget->textCursor().position(), expectedPosition);
 
     Core::EditorManager::closeEditors({editor}, false);
 }

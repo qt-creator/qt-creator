@@ -11439,9 +11439,29 @@ static bool carriesText(const QString &text)
     return text.contains(anyLettersOrNumbers);
 }
 
+// The positions of the characters that make up the words of a paragraph,
+// skipping the whitespace between them and the prefix that each line repeats.
+static QList<int> wordCharacterPositions(const QString &text, const QString &linePrefix)
+{
+    QList<int> positions;
+    for (int i = 0; i < text.size(); ++i) {
+        if (!linePrefix.isEmpty() && (i == 0 || text.at(i - 1) == QChar::ParagraphSeparator)
+                && QStringView(text).mid(i).startsWith(linePrefix)) {
+            i += linePrefix.size() - 1;
+            continue;
+        }
+        const QChar ch = text.at(i);
+        if (!ch.isSpace() || ch == QChar::Nbsp)
+            positions.append(i);
+    }
+    return positions;
+}
+
 // Reflows the paragraph that holds the cursor's block and returns the number of
-// the block that paragraph starts at.
-static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSettingsData &ts)
+// the block that paragraph starts at. A position given in \a position is mapped
+// to where it lands in the reflowed text, or to -1 if outside the paragraph.
+static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSettingsData &ts,
+                             int *position = nullptr)
 {
     // The leader of a "///", "/**", or "/*!" comment, or of a "*"-led
     // continuation line inside one.
@@ -11626,6 +11646,10 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
 
 
     QString selectedText = cursor.selectedText();
+    const int paragraphStart = cursor.selectionStart();
+    const int paragraphEnd = cursor.selectionEnd();
+    const QString linePrefix = commonPrefix;
+    const QList<int> wordCharsBefore = wordCharacterPositions(selectedText, linePrefix);
 
     // Preserve initial indent level.or common prefix.
     QString spacing;
@@ -11697,6 +11721,27 @@ static int rewrapParagraphAt(QTextCursor cursor, int paragraphWidth, const TabSe
     result.append(QChar::ParagraphSeparator);
 
     cursor.insertText(result);
+
+    // Keep the position at the same character of the same word. A position
+    // right after a word character stays after it, any other one moves to the
+    // start of the next word.
+    if (position && *position >= paragraphStart && *position < paragraphEnd) {
+        const int offset = *position - paragraphStart;
+        const QList<int> wordCharsAfter = wordCharacterPositions(result, linePrefix);
+        const auto it = std::lower_bound(wordCharsBefore.begin(), wordCharsBefore.end(), offset);
+        const int index = int(it - wordCharsBefore.begin());
+        int restored = 0;
+        if (index > 0 && wordCharsBefore.at(index - 1) == offset - 1)
+            restored = wordCharsAfter.value(index - 1) + 1;
+        else if (index < wordCharsAfter.size())
+            restored = wordCharsAfter.at(index);
+        else if (!wordCharsAfter.isEmpty())
+            restored = wordCharsAfter.last() + 1;
+        *position = paragraphStart + restored;
+    } else if (position) {
+        *position = -1;
+    }
+
     return firstBlockNumber;
 }
 
@@ -11726,7 +11771,13 @@ void TextEditorWidget::rewrapParagraph()
                 number = rewrapParagraphAt(QTextCursor(block), paragraphWidth, ts);
         }
     } else {
-        rewrapParagraphAt(selection, paragraphWidth, ts);
+        int position = selection.position();
+        rewrapParagraphAt(selection, paragraphWidth, ts, &position);
+        if (position >= 0) {
+            QTextCursor restored = textCursor();
+            restored.setPosition(position);
+            setTextCursor(restored);
+        }
     }
 
     editBlock.endEditBlock();
