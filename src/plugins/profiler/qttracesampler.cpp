@@ -171,7 +171,7 @@ QtTraceSampler::~QtTraceSampler() = default;
 
 QString QtTraceSampler::displayName() const
 {
-    return Tr::tr("Qt Tracepoints");
+    return Tr::tr("Qt Tracing");
 }
 
 // Whether the target's Qt carries tracepoints cannot be seen from here -- it is

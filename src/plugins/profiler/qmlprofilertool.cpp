@@ -79,17 +79,17 @@ QmlProfilerTool::QmlProfilerTool()
     d->startAction.setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
     connect(&d->startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
 
-    const QString description = Tr::tr("The QML Profiler can be used to find performance "
+    const QString description = Tr::tr("QML profiling can be used to find performance "
                                        "bottlenecks in applications using QML.");
 
-    d->runAction.setText(Tr::tr("QML Profiler"));
+    d->runAction.setText(Tr::tr("QML Profiling"));
     d->runAction.setToolTip(description);
     connect(&d->runAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
     connect(&d->startAction, &QAction::changed, this, [this] {
         d->runAction.setEnabled(d->startAction.isEnabled());
     });
 
-    d->attachAction.setText(Tr::tr("QML Profiler (Attach to Waiting Application)"));
+    d->attachAction.setText(Tr::tr("QML Profiling (Attach to Waiting Application)"));
     d->attachAction.setToolTip(description);
     connect(&d->attachAction, &QAction::triggered,
             this, &QmlProfilerTool::attachToWaitingApplication);
@@ -118,7 +118,7 @@ QmlProfilerTool::QmlProfilerTool()
     updateSaveAction();
 
     d->options = ActionManager::createMenu("Analyzer.Menu.QMLOptions");
-    d->options->menu()->setTitle(Tr::tr("QML Profiler Options"));
+    d->options->menu()->setTitle(Tr::tr("QML Profiling Options"));
     d->options->menu()->setEnabled(true);
     ActionContainer *menu = ActionManager::actionContainer(M_DEBUG_ANALYZER);
 
@@ -206,11 +206,11 @@ void QmlProfilerTool::updateRunActions()
                       && backend->stateManager()->currentState() != QmlProfilerStateManager::Idle;
     if (busy) {
         d->startAction.setEnabled(false);
-        d->startAction.setToolTip(Tr::tr("A QML Profiler analysis is still in progress."));
+        d->startAction.setToolTip(Tr::tr("A QML profiling run is still in progress."));
     } else {
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-        d->startAction.setToolTip(canRun ? Tr::tr("Start QML Profiler analysis.")
+        d->startAction.setToolTip(canRun ? Tr::tr("Start QML profiling.")
                                          : canRun.error());
         d->startAction.setEnabled(canRun.has_value());
     }
@@ -341,7 +341,7 @@ void QmlProfilerTool::showNonmodalWarning(const QString &warningMsg)
 {
     auto noExecWarning = new QMessageBox(ICore::dialogParent());
     noExecWarning->setIcon(QMessageBox::Warning);
-    noExecWarning->setWindowTitle(Tr::tr("QML Profiler"));
+    noExecWarning->setWindowTitle(Tr::tr("QML Profiling"));
     noExecWarning->setText(warningMsg);
     noExecWarning->setStandardButtons(QMessageBox::Ok);
     noExecWarning->setDefaultButton(QMessageBox::Ok);

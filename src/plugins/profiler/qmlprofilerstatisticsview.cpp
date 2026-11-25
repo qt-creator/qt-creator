@@ -472,7 +472,7 @@ void QmlProfilerStatisticsRelativesView::jumpToItem(int typeIndex)
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerStatisticsView *statisticsView,
                                          int typeId,
                                          const FilePath &fileName, int lineNumber)
-    : TextMark(fileName, lineNumber, {Tr::tr("QML Profiler"), Constants::TEXT_MARK_CATEGORY})
+    : TextMark(fileName, lineNumber, {Tr::tr("QML Profiling"), Constants::TEXT_MARK_CATEGORY})
     , m_statisticsView(statisticsView)
 {
     addTypeId(typeId);

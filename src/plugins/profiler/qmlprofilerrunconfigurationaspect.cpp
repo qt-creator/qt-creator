@@ -18,7 +18,7 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(BuildConfig
     setProjectSettings(new QmlProfilerSettings);
     setGlobalSettings(&Internal::globalSettings(), Constants::SETTINGS);
     setId(Constants::SETTINGS);
-    setDisplayName(Tr::tr("QML Profiler Settings"));
+    setDisplayName(Tr::tr("QML Profiling Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
     setConfigWidgetCreator([this] { return createRunConfigAspectWidget(this); });

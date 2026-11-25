@@ -72,7 +72,7 @@ PerfProfilerTool::PerfProfilerTool()
 
     const Id subMenu = "Analyzer.Menu.PerfOptions";
     ActionContainer *options = ActionManager::createMenu(subMenu);
-    options->menu()->setTitle(Tr::tr("Performance Analyzer Options"));
+    options->menu()->setTitle(Tr::tr("CPU Sampling Options"));
     options->menu()->setEnabled(true);
 
     ActionContainer *menu = ActionManager::actionContainer(Core::Constants::M_DEBUG_ANALYZER);
@@ -125,7 +125,7 @@ PerfProfilerTool::PerfProfilerTool()
 
     QAction *action = nullptr;
     ActionBuilder(this, Constants::PerfProfilerLocalActionId)
-        .setText(Tr::tr("Performance Analyzer"))
+        .setText(Tr::tr("CPU Sampling"))
         .bindContextAction(&action)
         .setToolTip(Tr::tr("Finds performance bottlenecks."))
         .addToContainer(Core::Constants::M_DEBUG_ANALYZER, Core::Constants::G_ANALYZER_TOOLS)
@@ -191,7 +191,7 @@ void PerfProfilerTool::onWorkerCreation(RunControl *runControl)
 {
     const int run = ++d->runCount;
     d->liveDocument = openLiveTrace(TraceFormat::Perf,
-                                    Tr::tr("Performance Analysis %1").arg(run),
+                                    Tr::tr("CPU Sampling %1").arg(run),
                                     QString("PerfProfiler.Run.%1").arg(run));
     PerfProfilerTraceBackend *backend = liveBackend();
     QTC_ASSERT(backend, return);
@@ -264,7 +264,7 @@ PerfProfilerTraceBackend *PerfProfilerTool::openLoadedTrace()
 {
     const int run = ++d->runCount;
     d->liveDocument = openLiveTrace(TraceFormat::Perf,
-                                    Tr::tr("Performance Analysis %1").arg(run),
+                                    Tr::tr("CPU Sampling %1").arg(run),
                                     QString("PerfProfiler.Load.%1").arg(run));
     return liveBackend();
 }

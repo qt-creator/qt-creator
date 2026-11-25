@@ -64,9 +64,8 @@ void QtTraceSamplerTest::testSessionFileSelectsProviders()
 }
 
 // Makes `recorder` record with this backend, and hands it over. Selected by id
-// rather than by the display name selectBackend() matches, which is translated:
-// these run inside a Creator instance, whose language is not this test's to
-// choose.
+// rather than by display name, which is translated: these run inside a Creator
+// instance, whose language is not this test's to choose.
 static Sampler *selectQtTraceBackend(ProfilerRecorder &recorder)
 {
     const int index = recorder.backendIds().indexOf(Id(SamplerIds::QtTrace));

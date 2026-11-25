@@ -317,19 +317,10 @@ private:
             return fail(wrongState, u"A recording is already running."_s);
 
         const QString spec = params.value("backend"_L1).toString();
-        const QList<Id> ids = m_recorder.backendIds();
-        int index = -1;
-        for (qsizetype i = 0; i < ids.size(); ++i) {
-            // The whole id, or its last part: "CallStack" for "Profiler.Sampler.CallStack".
-            const QString id = ids.at(i).toString();
-            if (id == spec || id.endsWith(u'.' + spec, Qt::CaseInsensitive))
-                index = int(i);
-        }
-        if (index < 0 && !m_recorder.selectBackend(spec))
+        if (!m_recorder.selectBackend(spec))
             return fail(invalidParams, u"Unknown backend \"%1\"."_s.arg(spec));
-        if (index >= 0)
-            m_recorder.setCurrentBackend(index);
-        Sampler *backend = m_recorder.backendById(ids.at(m_recorder.currentBackend()));
+        Sampler *backend = m_recorder.backendById(
+            m_recorder.backendIds().at(m_recorder.currentBackend()));
         SamplerSettings *settings = backend ? backend->settings() : nullptr;
 
         const QJsonObject options = params.value("options"_L1).toObject();

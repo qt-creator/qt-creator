@@ -28,7 +28,7 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
     QDialog(parent),
     d(new QmlProfilerAttachDialogPrivate)
 {
-    setWindowTitle(Tr::tr("Start QML Profiler"));
+    setWindowTitle(Tr::tr("Start QML Profiling"));
 
     d->kitChooser = new KitChooser(this);
     d->kitChooser->setKitPredicate([](const Kit *kit) {

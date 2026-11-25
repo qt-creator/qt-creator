@@ -44,9 +44,10 @@
             \li Starts profiling the selected application.
                 Takes a full command line, such as \c {/path/to/app --arg}.
         \row
-            \li \c {-b, --backend <name>}
+            \li \c {-b, --backend <backend>}
             \li Starts profiling using the selected tool.
-                Matched by name using case-insensitive substring match.
+                Matched by id, such as \c QtTrace or \c Profiler.Sampler.QtTrace,
+                and then by name using case-insensitive substring match.
         \row
             \li \c {--record-for <seconds>}
             \li Sets the time to record trace for the launched application using

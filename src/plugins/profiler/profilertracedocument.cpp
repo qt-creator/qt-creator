@@ -99,7 +99,7 @@ ProfilerTraceDocument::ProfilerTraceDocument(Id editorId, TraceFormat format)
         // session cannot be paused to ask, so offer to save rather than to cancel.
         connect(qml, &QmlProfilerTraceBackend::saveBeforeRecordingRequested, this, [this] {
             const auto answer = QMessageBox::warning(
-                QApplication::activeWindow(), Tr::tr("QML Profiler"),
+                QApplication::activeWindow(), Tr::tr("QML Profiling"),
                 Tr::tr("Starting a new profiling session will discard the previous data, "
                        "including unsaved notes.\nDo you want to save the data first?"),
                 QMessageBox::Save, QMessageBox::Discard);

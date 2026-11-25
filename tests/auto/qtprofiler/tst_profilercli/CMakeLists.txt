@@ -6,15 +6,32 @@ file(RELATIVE_PATH TEST_RELATIVE_LIBEXEC_PATH "/${RELATIVE_TEST_PATH}" "/${IDE_L
 # its DLLs on the test's PATH on Windows (see qtc_windows_runtime_path()).
 find_package(elfutils QUIET)
 
+# The GUI tool takes the same --backend, and is checked here too when it is built.
+set(qtprofiler_defines "")
+if (TARGET qtprofiler)
+  if (APPLE)
+    set(qtprofiler_path "${IDE_APP_PATH}/Qt Profiler.app/Contents/MacOS/Qt Profiler")
+  else()
+    set(qtprofiler_path "${IDE_LIBEXEC_PATH}/qtprofiler")
+  endif()
+  file(RELATIVE_PATH TEST_RELATIVE_QTPROFILER_PATH "/${RELATIVE_TEST_PATH}" "/${qtprofiler_path}")
+  set(qtprofiler_defines "TEST_RELATIVE_QTPROFILER_PATH=\"${TEST_RELATIVE_QTPROFILER_PATH}\"")
+endif()
+
 add_qtc_test(tst_qtprofiler_cli
   CONDITION TARGET qtprofiler-cli
-  DEFINES "TEST_RELATIVE_LIBEXEC_PATH=\"${TEST_RELATIVE_LIBEXEC_PATH}\""
+  DEFINES
+    "TEST_RELATIVE_LIBEXEC_PATH=\"${TEST_RELATIVE_LIBEXEC_PATH}\""
+    ${qtprofiler_defines}
   SOURCES tst_profilercli.cpp
 )
 
 # add_qtc_test creates the target only when the test is enabled.
 if (TARGET tst_qtprofiler_cli)
   add_dependencies(tst_qtprofiler_cli qtprofiler-cli)
+  if (TARGET qtprofiler)
+    add_dependencies(tst_qtprofiler_cli qtprofiler)
+  endif()
 endif()
 
 # Names the DLL a tool that cannot be loaded is missing.

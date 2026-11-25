@@ -134,7 +134,7 @@ CallStackSampler::~CallStackSampler() = default;
 
 QString CallStackSampler::displayName() const
 {
-    return Tr::tr("Call-Stack Sampler");
+    return Tr::tr("CPU Sampling");
 }
 
 bool CallStackSampler::isAvailable(QString *error) const

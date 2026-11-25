@@ -57,8 +57,10 @@ public:
 
     int currentBackend() const;
     void setCurrentBackend(int index);
-    // Selects the backend whose display name contains `name`, case-insensitively.
-    // Returns false if none matches.
+    // Selects a backend by its id, whole or its last part ("CallStack" for
+    // "Profiler.Sampler.CallStack"), or else by a part of its display name, all
+    // case-insensitively. The id comes first because it stays the same across
+    // renames and UI languages. Returns false if none matches.
     bool selectBackend(const QString &name);
 
     // The current backend's own configuration controls, or null when it has

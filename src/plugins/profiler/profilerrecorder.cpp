@@ -362,6 +362,14 @@ void ProfilerRecorder::setCurrentBackend(int index)
 bool ProfilerRecorder::selectBackend(const QString &name)
 {
     for (int i = 0; i < int(d->offered.size()); ++i) {
+        const QString id = d->backends[d->offered[i]]->id().toString();
+        if (id.compare(name, Qt::CaseInsensitive) == 0
+            || id.endsWith(u'.' + name, Qt::CaseInsensitive)) {
+            setCurrentBackend(i);
+            return true;
+        }
+    }
+    for (int i = 0; i < int(d->offered.size()); ++i) {
         if (d->backends[d->offered[i]]->displayName().contains(name, Qt::CaseInsensitive)) {
             setCurrentBackend(i);
             return true;

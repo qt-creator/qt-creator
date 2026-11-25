@@ -17,7 +17,7 @@ PerfRunConfigurationAspect::PerfRunConfigurationAspect(BuildConfiguration *bc)
     setProjectSettings(new PerfSettings(bc->target()));
     setGlobalSettings(&Profiler::globalSettings(), Constants::PerfSettingsId);
     setId(Constants::PerfSettingsId);
-    setDisplayName(Tr::tr("Performance Analyzer Settings"));
+    setDisplayName(Tr::tr("CPU Sampling Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
     setConfigWidgetCreator([this] { return createRunConfigAspectWidget(this); });

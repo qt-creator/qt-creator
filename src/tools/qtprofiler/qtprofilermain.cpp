@@ -56,13 +56,13 @@ int main(int argc, char *argv[])
 
     QCommandLineParser parser;
     parser.setApplicationDescription(
-        "A tool for analyzing QML profiler, Performance Analyzer, Chrome Trace Format and Common Trace Format traces.");
+        "A tool for analyzing QML profiling, CPU sampling, Chrome Trace Format and Common Trace Format traces.");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument(
         "tracefile(s)",
         "QML trace (*.qtd, *.qzt), "
-        "Performance Analyzer trace (*.ptq), "
+        "CPU sampling trace (*.ptq), "
         "Chrome Trace Format file (*.json), "
         "Common Trace Format trace directory (or its metadata file).");
     QCommandLineOption exitOnError(QStringList({"e", "exit-on-error"}),
@@ -88,8 +88,9 @@ int main(int argc, char *argv[])
                               "command");
     parser.addOption(launch);
     QCommandLineOption backend(QStringList({"b", "backend"}),
-                               "Recording backend to use, matched by name (e.g. \"QML\").",
-                               "name");
+                               "Recording backend to use, by id (e.g. \"QtTrace\") or "
+                               "part of its name.",
+                               "backend");
     parser.addOption(backend);
     QCommandLineOption recordFor(QStringList({"record-for"}),
                                  "Start recording on launch and stop after <seconds>, then show "

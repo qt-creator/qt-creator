@@ -68,8 +68,8 @@ CombinedSamplerSettings::CombinedSamplerSettings()
             executable,
             arguments,
             workingDirectory,
-            Layouting::Group { title(Tr::tr("CPU Sampler")), cpuOptions },
-            Layouting::Group { title(Tr::tr("QML Profiler")), Column { features } },
+            Layouting::Group { title(Tr::tr("CPU Sampling")), cpuOptions },
+            Layouting::Group { title(Tr::tr("QML Profiling")), Column { features } },
             noMargin,
         };
     });
@@ -150,7 +150,7 @@ CombinedSampler::~CombinedSampler() = default;
 
 QString CombinedSampler::displayName() const
 {
-    return Tr::tr("CPU Sampler + QML Profiler");
+    return Tr::tr("CPU Sampling + QML Profiling");
 }
 
 bool CombinedSampler::isAvailable(QString *error) const

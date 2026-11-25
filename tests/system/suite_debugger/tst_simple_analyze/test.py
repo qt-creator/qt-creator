@@ -60,7 +60,7 @@ def performTest(workingDir, projectName, availableConfigs):
             test.fatal("Compile had errors... Skipping current build config")
             continue
         switchViewTo(ViewConstants.PROFILER)
-        selectFromCombo(":Profiler_AnalyzerBackendComboBox", "QML Profiler")
+        selectFromCombo(":Profiler_AnalyzerBackendComboBox", "QML Profiling")
         targetCombo = waitForObject(":Profiler_TargetComboBox")
         test.compare(targetCombo.currentText, "Startup Project")
 

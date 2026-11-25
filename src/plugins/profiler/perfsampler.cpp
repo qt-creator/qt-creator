@@ -397,7 +397,7 @@ PerfSampler::~PerfSampler() = default;
 
 QString PerfSampler::displayName() const
 {
-    return Tr::tr("Perf Sampler");
+    return Tr::tr("CPU Sampling");
 }
 
 bool PerfSampler::isAvailable(QString *error) const

@@ -437,7 +437,7 @@ bool QmlProfilerTraceBackend::checkForUnsavedNotes()
 {
     if (!isModified())
         return true;
-    return QMessageBox::warning(QApplication::activeWindow(), Tr::tr("QML Profiler"),
+    return QMessageBox::warning(QApplication::activeWindow(), Tr::tr("QML Profiling"),
                                 Tr::tr("You are about to discard the profiling data, including "
                                        "unsaved notes. Do you want to continue?"),
                                 QMessageBox::Yes, QMessageBox::No)

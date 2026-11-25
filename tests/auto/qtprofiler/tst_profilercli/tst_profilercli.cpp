@@ -27,6 +27,17 @@ static QString cliPath()
     return QDir::cleanPath(path);
 }
 
+#ifdef TEST_RELATIVE_QTPROFILER_PATH
+// The GUI tool, qtprofiler.
+static QString guiPath()
+{
+    QString path = QCoreApplication::applicationDirPath() + '/' + TEST_RELATIVE_QTPROFILER_PATH;
+    if (QSysInfo::productType() == "windows")
+        path += ".exe";
+    return QDir::cleanPath(path);
+}
+#endif
+
 static QByteArray peekChannel(QProcess &process, QProcess::ProcessChannel channel)
 {
     const QProcess::ProcessChannel previous = process.readChannel();
@@ -343,6 +354,48 @@ private slots:
                  describe(process).constData());
         const QByteArray errors = process.readAllStandardError();
         QVERIFY2(!errors.contains("survived the hang-up"), errors.constData());
+    }
+
+    void guiSelectsBackendById_data()
+    {
+        QTest::addColumn<QString>("backend");
+        QTest::addColumn<bool>("known");
+        QTest::newRow("last part of the id") << u"QtTrace"_s << true;
+        QTest::newRow("whole id") << u"Profiler.Sampler.QtTrace"_s << true;
+        QTest::newRow("other case") << u"qttrace"_s << true;
+        QTest::newRow("unknown") << u"NoSuchBackend"_s << false;
+    }
+
+    // The GUI tool's --backend takes the ids that qtprofiler-cli takes, which
+    // stay the same when a backend is renamed or the UI is translated.
+    void guiSelectsBackendById()
+    {
+#ifndef TEST_RELATIVE_QTPROFILER_PATH
+        QSKIP("qtprofiler is not built.");
+#else
+        QFETCH(QString, backend);
+        QFETCH(bool, known);
+        QVERIFY2(QFileInfo(guiPath()).isExecutable(), qPrintable(guiPath()));
+
+        // Keeps the tool off the user's own settings.
+        QTemporaryDir home;
+        QVERIFY(home.isValid());
+        QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
+        environment.insert(u"QT_QPA_PLATFORM"_s, u"offscreen"_s);
+        environment.insert(u"HOME"_s, home.path());
+        environment.insert(u"XDG_CONFIG_HOME"_s, home.path());
+        environment.insert(u"APPDATA"_s, home.path());
+
+        // An invalid --record-for is refused right after the backend is
+        // selected, so the tool exits before it opens its window.
+        QProcess process;
+        process.setProcessEnvironment(environment);
+        process.start(guiPath(), {u"--backend"_s, backend, u"--record-for"_s, u"0"_s});
+        QVERIFY2(process.waitForFinished(5 * waitMs), describe(process).constData());
+        const QByteArray errors = process.readAllStandardError();
+        QVERIFY2(errors.contains("Unknown backend") != known, errors.constData());
+        QVERIFY2(errors.contains("--record-for expects") == known, errors.constData());
+#endif
     }
 
     void shutdownExits()

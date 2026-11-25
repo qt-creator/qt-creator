@@ -176,7 +176,7 @@ QmlProfilerSampler::~QmlProfilerSampler() = default;
 
 QString QmlProfilerSampler::displayName() const
 {
-    return Tr::tr("QML Profiler");
+    return Tr::tr("QML Profiling");
 }
 
 bool QmlProfilerSampler::isAvailable(QString *error) const

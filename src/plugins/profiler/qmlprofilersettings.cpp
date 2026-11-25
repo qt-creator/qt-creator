@@ -167,7 +167,7 @@ public:
     QmlProfilerSettingsPage()
     {
         setId(Constants::SETTINGS);
-        setDisplayName(Tr::tr("QML Profiler"));
+        setDisplayName(Tr::tr("QML Profiling"));
         setCategory("T.Analyzer");
         setSettingsProvider([] { return &globalSettings(); });
     }
