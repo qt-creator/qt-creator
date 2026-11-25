@@ -365,6 +365,8 @@ BaseTreeView::BaseTreeView(QWidget *parent)
 
 BaseTreeView::~BaseTreeView()
 {
+    if (d->m_settingsTimer.isActive() && model() && model()->columnCount() > 0)
+        d->doSaveState();
     delete d;
 }
 

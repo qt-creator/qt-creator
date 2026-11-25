@@ -5,6 +5,7 @@
 #include <utils/qtcsettings.h>
 
 #include <QHeaderView>
+#include <QMouseEvent>
 #include <QStandardItemModel>
 #include <QTemporaryDir>
 #include <QTest>
@@ -17,6 +18,7 @@ class tst_BaseTreeView : public QObject
 
 private slots:
     void restoreColumnWidthsWhenModelComesFirst();
+    void saveWhenDestroyedEarly();
 };
 
 void tst_BaseTreeView::restoreColumnWidthsWhenModelComesFirst()
@@ -34,6 +36,29 @@ void tst_BaseTreeView::restoreColumnWidthsWhenModelComesFirst()
     view.setSettings(&settings, "View");
 
     QCOMPARE(view.header()->sectionSize(1), 123);
+}
+
+void tst_BaseTreeView::saveWhenDestroyedEarly()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    QtcSettings settings(dir.filePath("settings.ini"), QSettings::IniFormat);
+
+    QStandardItemModel model(1, 2);
+    auto view = new BaseTreeView;
+    view->setModel(&model);
+    view->setSettings(&settings, "View");
+
+    // A drag on the header is what marks the next resize as the user's.
+    QWidget *headerViewport = view->header()->viewport();
+    QMouseEvent move(QEvent::MouseMove, QPointF(1, 1), headerViewport->mapToGlobal(QPointF(1, 1)),
+                     Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(headerViewport, &move);
+    view->header()->resizeSection(0, 150);
+
+    delete view;
+
+    QCOMPARE(settings.value("View/Columns").toList(), (QVariantList{0, 150}));
 }
 
 QTEST_MAIN(tst_BaseTreeView)
