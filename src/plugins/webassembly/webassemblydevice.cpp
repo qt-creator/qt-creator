@@ -70,7 +70,7 @@ static void askUserAboutEmSdkSetup()
 
     InfoBarEntry info(setupWebAssemblyEmSdk,
                       Tr::tr("Setup Emscripten SDK for WebAssembly? "
-                             "To do it later, select Edit > Preferences > Devices > WebAssembly."),
+                             "To do it later, select Edit > Preferences > SDKs > WebAssembly."),
                       InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Set up WebAssembly?"));
     info.setInfoType(InfoLabelType::Information);
