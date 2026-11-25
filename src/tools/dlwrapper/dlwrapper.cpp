@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 
     const auto setupProcess = [&](QProcess &process) {
         CommandLine c = cmdLine;
-        c.setExecutable(extractedDir / cmdLine.executable().toUrlishString());
+        c.setExecutable(extractedDir / cmdLine.executable().path());
         process.setProgram(c.executable().toFSPathString());
         process.setArguments(c.splitArguments());
         process.setWorkingDirectory(extractedDir.toFSPathString());
