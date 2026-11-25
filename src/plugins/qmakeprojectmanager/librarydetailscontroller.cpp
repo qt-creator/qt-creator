@@ -617,8 +617,8 @@ AddLibraryWizard::LinkageType NonInternalLibraryDetailsController::suggestedLink
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
     if (libraryPlatformType() != OsTypeWindows) {
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
-            if (fi.suffix() == QLatin1String("a"))
+            if (libraryDetailsWidget()->libraryPathChooser->filePath().suffix()
+                    == QLatin1String("a"))
                 type = AddLibraryWizard::StaticLinkage;
             else
                 type = AddLibraryWizard::DynamicLinkage;
@@ -632,8 +632,8 @@ AddLibraryWizard::MacLibraryType NonInternalLibraryDetailsController::suggestedM
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
     if (libraryPlatformType() == OsTypeMac) {
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
-            if (fi.suffix() == QLatin1String("framework"))
+            if (libraryDetailsWidget()->libraryPathChooser->filePath().suffix()
+                    == QLatin1String("framework"))
                 type = AddLibraryWizard::FrameworkType;
             else
                 type = AddLibraryWizard::LibraryType;
@@ -646,17 +646,15 @@ QString NonInternalLibraryDetailsController::suggestedIncludePath() const
 {
     QString includePath;
     if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
-        includePath = fi.absolutePath();
-        QFileInfo dfi(includePath);
+        FilePath includeDir = libraryDetailsWidget()->libraryPathChooser->filePath().parentDir();
         // TODO: Win: remove debug or release folder first if appropriate
-        if (dfi.fileName() == QLatin1String("lib")) {
-            QDir dir = dfi.absoluteDir();
-            includePath = dir.absolutePath();
-            QDir includeDir(dir.absoluteFilePath(QLatin1String("include")));
-            if (includeDir.exists())
-                includePath = includeDir.absolutePath();
+        if (includeDir.fileName() == QLatin1String("lib")) {
+            includeDir = includeDir.parentDir();
+            const FilePath includeSubDir = includeDir.pathAppended("include");
+            if (includeSubDir.exists())
+                includeDir = includeSubDir;
         }
+        includePath = includeDir.absoluteFilePath().path();
     }
     return includePath;
 }
@@ -723,13 +721,12 @@ void NonInternalLibraryDetailsController::handleLibraryPathChange()
         bool subfoldersEnabled = true;
         bool removeSuffixEnabled = true;
         if (libraryDetailsWidget()->libraryPathChooser->isValid()) {
-            QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
-            QFileInfo dfi(fi.absolutePath());
-            const QString parentFolderName = dfi.fileName().toLower();
+            const FilePath lib = libraryDetailsWidget()->libraryPathChooser->filePath();
+            const QString parentFolderName = lib.parentDir().fileName().toLower();
             if (parentFolderName != QLatin1String("debug") &&
                 parentFolderName != QLatin1String("release"))
                 subfoldersEnabled = false;
-            const QString baseName = fi.completeBaseName();
+            const QString baseName = lib.completeBaseName();
 
             if (baseName.isEmpty() || baseName.at(baseName.size() - 1).toLower() != QLatin1Char('d'))
                 removeSuffixEnabled = false;
@@ -759,24 +756,23 @@ bool NonInternalLibraryDetailsController::isComplete() const
 
 QString NonInternalLibraryDetailsController::snippet() const
 {
-    QString libPath = libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString();
-    QFileInfo fi(libPath);
+    const FilePath libPath = libraryDetailsWidget()->libraryPathChooser->filePath();
     QString libName;
     const bool removeSuffix = isWindowsGroupVisible()
             && libraryDetailsWidget()->removeSuffixCheckBox->isChecked();
     if (libraryPlatformType() == OsTypeWindows) {
-        libName = fi.completeBaseName();
+        libName = libPath.completeBaseName();
         if (removeSuffix && !libName.isEmpty()) // remove last letter which needs to be "d"
             libName = libName.left(libName.size() - 1);
-        if (fi.completeSuffix() == QLatin1String("a")) // the mingw lib case
+        if (libPath.completeSuffix() == QLatin1String("a")) // the mingw lib case
             libName = libName.mid(3); // cut the "lib" prefix
     } else if (libraryPlatformType() == OsTypeMac) {
         if (macLibraryType() == AddLibraryWizard::FrameworkType)
-            libName = fi.completeBaseName();
+            libName = libPath.completeBaseName();
         else
-            libName = fi.completeBaseName().mid(3); // cut the "lib" prefix
+            libName = libPath.completeBaseName().mid(3); // cut the "lib" prefix
     } else {
-        libName = fi.completeBaseName().mid(3); // cut the "lib" prefix
+        libName = libPath.completeBaseName().mid(3); // cut the "lib" prefix
     }
 
     bool useSubfolders = false;
@@ -798,14 +794,13 @@ QString NonInternalLibraryDetailsController::snippet() const
     if (isIncludePathVisible()) { // generate also the path to lib
         QFileInfo pfi = proFile().toFileInfo();
         QDir pdir = pfi.absoluteDir();
-        QString absoluteLibraryPath = fi.absolutePath();
-        if (libraryPlatformType() == OsTypeWindows && useSubfolders) { // drop last subfolder which needs to be "debug" or "release"
-            QFileInfo libfi(absoluteLibraryPath);
-            absoluteLibraryPath = libfi.absolutePath();
-        }
+        FilePath libraryDir = libPath.parentDir();
+        if (libraryPlatformType() == OsTypeWindows && useSubfolders) // drop last subfolder which needs to be "debug" or "release"
+            libraryDir = libraryDir.parentDir();
+        const QString absoluteLibraryPath = libraryDir.absoluteFilePath().path();
         targetRelativePath = appendSeparator(pdir.relativeFilePath(absoluteLibraryPath));
 
-        const QString includePath = libraryDetailsWidget()->includePathChooser->filePath().toUrlishString();
+        const QString includePath = libraryDetailsWidget()->includePathChooser->filePath().path();
         if (!includePath.isEmpty())
             includeRelativePath = pdir.relativeFilePath(includePath);
     }
@@ -917,13 +912,12 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
     bool removeSuffixEnabled = true;
     if (libraryPlatformType() == OsTypeWindows
             && libraryDetailsWidget()->libraryPathChooser->isValid()) {
-        QFileInfo fi(libraryDetailsWidget()->libraryPathChooser->filePath().toUrlishString());
-        QFileInfo dfi(fi.absolutePath());
-        const QString parentFolderName = dfi.fileName().toLower();
+        const FilePath lib = libraryDetailsWidget()->libraryPathChooser->filePath();
+        const QString parentFolderName = lib.parentDir().fileName().toLower();
         if (parentFolderName != QLatin1String("debug") &&
                 parentFolderName != QLatin1String("release"))
             subfoldersEnabled = false;
-        const QString baseName = fi.completeBaseName();
+        const QString baseName = lib.completeBaseName();
 
         if (baseName.isEmpty() || baseName.at(baseName.size() - 1).toLower() != QLatin1Char('d'))
             removeSuffixEnabled = false;
