@@ -463,7 +463,7 @@ void AndroidSettingsWidget::updateNdkList()
     const FilePaths customNdks = AndroidConfig::getCustomNdkList();
     for (const FilePath &ndk : customNdks) {
         if (AndroidConfig::isValidNdk(ndk)) {
-            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk.toUrlishString()));
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk.toUserOutput()));
         } else {
             AndroidConfig::removeCustomNdk(ndk);
         }
@@ -480,8 +480,8 @@ void AndroidSettingsWidget::addCustomNdkItem()
 
     if (AndroidConfig::isValidNdk(ndkPath)) {
         AndroidConfig::addCustomNdk(ndkPath);
-        if (m_ndkListWidget->findItems(ndkPath.toUrlishString(), Qt::MatchExactly).isEmpty()) {
-            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath.toUrlishString()));
+        if (m_ndkListWidget->findItems(ndkPath.toUserOutput(), Qt::MatchExactly).isEmpty()) {
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath.toUserOutput()));
         }
     } else if (!ndkPath.isEmpty()) {
         QMessageBox::warning(

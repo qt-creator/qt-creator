@@ -266,7 +266,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
             &DirectoryFilter::updateOptionButtons,
             Qt::DirectConnection);
     m_dialog->directoryList->clear();
-    m_dialog->directoryList->addItems(Utils::transform(m_directories, &FilePath::toUrlishString));
+    m_dialog->directoryList->addItems(Utils::transform(m_directories, &FilePath::toUserOutput));
     m_dialog->nameLabel->setVisible(m_isCustomFilter);
     m_dialog->nameEdit->setVisible(m_isCustomFilter);
     m_dialog->directoryLabel->setVisible(m_isCustomFilter);
@@ -299,7 +299,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         if (oldCount != newCount)
             directoriesChanged = true;
         for (int i = 0; i < newCount; ++i) {
-            m_directories.append(FilePath::fromString(m_dialog->directoryList->item(i)->text()));
+            m_directories.append(FilePath::fromUserInput(m_dialog->directoryList->item(i)->text()));
             if (!directoriesChanged && m_directories.at(i) != oldDirectories.at(i))
                 directoriesChanged = true;
         }

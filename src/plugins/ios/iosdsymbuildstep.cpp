@@ -206,7 +206,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
     auto commandLabel = new QLabel(Tr::tr("Command:"), widget);
 
     auto commandLineEdit = new QLineEdit(widget);
-    commandLineEdit->setText(command().toUrlishString());
+    commandLineEdit->setText(command().toUserOutput());
 
     auto argumentsTextEdit = new QPlainTextEdit(widget);
     argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
@@ -242,7 +242,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
 
     connect(commandLineEdit, &QLineEdit::editingFinished, this,
             [this, commandLineEdit, resetDefaultsButton, updateDetails] {
-        setCommand(FilePath::fromString(commandLineEdit->text()));
+        setCommand(FilePath::fromUserInput(commandLineEdit->text()));
         resetDefaultsButton->setEnabled(!isDefault());
         updateDetails();
     });
@@ -251,7 +251,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
             [this, commandLineEdit, resetDefaultsButton, argumentsTextEdit, updateDetails] {
         setCommand(defaultCommand());
         setArguments(defaultArguments());
-        commandLineEdit->setText(command().toUrlishString());
+        commandLineEdit->setText(command().toUserOutput());
         argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
         resetDefaultsButton->setEnabled(!isDefault());
         updateDetails();

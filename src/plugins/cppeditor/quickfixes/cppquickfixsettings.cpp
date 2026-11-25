@@ -531,13 +531,13 @@ bool CppQuickFixProjectsSettings::useCustomSettings()
             msgBox.setText(Tr::tr("Quick Fix settings are saved in a file. Existing settings file "
                                   "\"%1\" found. Should this file be used or a "
                                   "new one be created?")
-                               .arg(m_settingsFile.toUrlishString()));
+                               .arg(m_settingsFile.toUserOutput()));
             QPushButton *cancel = msgBox.addButton(QMessageBox::Cancel);
             cancel->setToolTip(Tr::tr("Switch Back to Global Settings"));
             QPushButton *useExisting = msgBox.addButton(Tr::tr("Use Existing"), QMessageBox::AcceptRole);
-            useExisting->setToolTip(m_settingsFile.toUrlishString());
+            useExisting->setToolTip(m_settingsFile.toUserOutput());
             QPushButton *createNew = msgBox.addButton(Tr::tr("Create New"), QMessageBox::ActionRole);
-            createNew->setToolTip(defaultLocation.toUrlishString());
+            createNew->setToolTip(defaultLocation.toUserOutput());
             msgBox.exec();
             if (msgBox.clickedButton() == createNew) {
                 m_settingsFile = defaultLocation;
