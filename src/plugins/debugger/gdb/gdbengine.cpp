@@ -869,6 +869,10 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
             showMessage("UNSAFE STATE FOR QUEUED COMMAND. EXECUTING IMMEDIATELY");
     }
 
+    // A temporary stop resumes the inferior in the direction it ran.
+    if ((cmd.flags & RunRequest) && !(cmd.flags & ConsoleCommand))
+        m_runningReverse = cmd.function.endsWith(" --reverse");
+
     bool isPythonCommand = true;
     if ((cmd.flags & NativeCommand) || cmd.function.contains('-') || cmd.function.contains(' '))
         isPythonCommand = false;
@@ -1221,19 +1225,7 @@ void GdbEngine::executeCommand(const QString &command,
         return;
     }
 
-    struct ExecutionCommand { const char *name; int minimumLength; };
-    static const ExecutionCommand executionCommands[] = {
-        {"continue", 1}, {"step", 1}, {"next", 1}, {"stepi", 5}, {"nexti", 5},
-        {"finish", 3}, {"until", 1}, {"advance", 3}, {"jump", 1}, {"signal", 3},
-        {"reverse-continue", 9}, {"reverse-step", 12}, {"reverse-stepi", 13},
-        {"reverse-next", 12}, {"reverse-nexti", 13}, {"reverse-finish", 9}
-    };
-    const bool changesExecutionState
-        = QStringList{"fg", "si", "ni", "rc", "rs", "rsi", "rn", "rni", "rf"}.contains(verb)
-          || Utils::anyOf(executionCommands, [&verb](const ExecutionCommand &entry) {
-                 return verb.size() >= entry.minimumLength
-                        && QLatin1StringView(entry.name).startsWith(verb);
-             });
+    const bool changesExecutionState = isExecutionVerb(verb);
 
     if (changesExecutionState && state() != InferiorStopOk) {
         outputHandler(Tr::tr("Execution commands require a stopped inferior."),
@@ -1244,6 +1236,7 @@ void GdbEngine::executeCommand(const QString &command,
     int flags = NativeCommand | ConsoleCommand;
     if (changesExecutionState) {
         flags |= RunRequest | NeedsFlush;
+        m_runningReverse = isReverseExecutionVerb(verb);
         setTokenBarrier();
         notifyInferiorRunRequested();
     } else {
@@ -1481,10 +1474,11 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         showMessage("HANDLING QUEUED COMMANDS AFTER TEMPORARY STOP", LogMisc);
         DebuggerCommandSequence seq = m_onStop;
         m_onStop = DebuggerCommandSequence();
+        const bool wasReverse = m_runningReverse;
         for (const DebuggerCommand &cmd : seq.commands())
             runCommand(cmd);
         if (seq.wantContinue())
-            continueInferiorInternal();
+            continueInferiorInternal(wasReverse);
         return;
     }
 
@@ -2089,7 +2083,7 @@ bool GdbEngine::hasCapability(unsigned cap) const
 }
 
 
-void GdbEngine::continueInferiorInternal()
+void GdbEngine::continueInferiorInternal(bool reverse)
 {
     CHECK_STATE(InferiorStopOk);
     notifyInferiorRunRequested();
@@ -2097,6 +2091,9 @@ void GdbEngine::continueInferiorInternal()
     CHECK_STATE(InferiorRunRequested);
     if (isNativeMixedActiveFrame())
         runCommand({"executeContinue", RunRequest, CB(handleExecuteContinue)});
+    else if (reverse)
+        runCommand({"-exec-continue --reverse", RunRequest | NeedsFlush,
+                    CB(handleExecuteContinue)});
     else
         runCommand({"-exec-continue", RunRequest | NeedsFlush, CB(handleExecuteContinue)});
 }
@@ -2105,7 +2102,7 @@ void GdbEngine::continueInferior()
 {
     CHECK_STATE(InferiorStopOk);
     setTokenBarrier();
-    continueInferiorInternal();
+    continueInferiorInternal(isReverseDebugging());
 }
 
 void GdbEngine::executeStepIn(bool byInstruction)
@@ -2195,7 +2192,9 @@ void GdbEngine::executeStepOut()
         //  40^error,msg="\"finish\" not meaningful in the outermost frame."
         // However, this message does not seem to get flushed before
         // anything else happen - i.e. "never". Force some extra output.
-        runCommand({"-exec-finish", RunRequest|NeedsFlush, CB(handleExecuteContinue)});
+        const QString cmd = isReverseDebugging() ? QString("-exec-finish --reverse")
+                                                 : QString("-exec-finish");
+        runCommand({cmd, RunRequest|NeedsFlush, CB(handleExecuteContinue)});
     }
 }
 
@@ -4660,7 +4659,8 @@ void GdbEngine::setupInferior()
         // A non-stop target lets gdb use displaced stepping instead, while the
         // MI keeps presenting all-stop.
         // Servers behind a pipe, like vgdb, have no non-stop support.
-        m_targetNonStop = settings().targetNonStop() && m_gdbVersion >= 120000
+        m_targetNonStop = settings().targetNonStop() && rp.targetSupportsNonStop()
+                          && m_gdbVersion >= 120000
                           && rp.toolChainAbi().os() == Abi::LinuxOS
                           && !rp.remoteChannel().startsWith('|');
         if (m_targetNonStop)
@@ -5089,6 +5089,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        checkTargetReverseSupport();
         const QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
@@ -5105,6 +5106,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        checkTargetReverseSupport();
         const QString commands = settings().gdbPostAttachCommands();
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
@@ -5136,6 +5138,14 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
     } else if (!retryWithoutTargetNonStop(response)) {
         notifyInferiorSetupFailedHelper(msgConnectFailed(response));
     }
+}
+
+void GdbEngine::checkTargetReverseSupport()
+{
+    runCommand({"show remote reverse-continue-packet", [this](const DebuggerResponse &response) {
+        if (response.consoleStreamOutput.contains("currently enabled"))
+            setTargetHasReverseHistory(true);
+    }});
 }
 
 void GdbEngine::handleTargetExtendedAttach(const DebuggerResponse &response)

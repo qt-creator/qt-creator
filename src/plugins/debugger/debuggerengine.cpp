@@ -1079,6 +1079,7 @@ public:
 
     bool m_busy = false;
     bool m_isDying = false;
+    bool m_targetHasReverseHistory = false;
 
     QAction m_detachAction;
     QAction m_continueAction{Tr::tr("Continue")};
@@ -2326,16 +2327,19 @@ void DebuggerEnginePrivate::updateState()
 void DebuggerEnginePrivate::updateReverseActions()
 {
     const bool stopped = m_state == InferiorStopOk;
-    const bool reverseEnabled = settings().enableReverseDebugging();
+    const bool reverseEnabled = settings().enableReverseDebugging() || m_targetHasReverseHistory;
     const bool canReverse = reverseEnabled && m_engine->hasCapability(ReverseSteppingCapability);
-    const bool doesRecord = m_recordForReverseOperationAction.isChecked();
+    const bool doesRecord = m_targetHasReverseHistory
+                            || m_recordForReverseOperationAction.isChecked();
 
-    m_recordForReverseOperationAction.setVisible(canReverse);
+    m_recordForReverseOperationAction.setVisible(canReverse && !m_targetHasReverseHistory);
     m_recordForReverseOperationAction.setEnabled(canReverse && stopped);
     m_recordForReverseOperationAction.setIcon(doesRecord
                                               ? ProjectExplorer::Icons::RECORD_ON.icon()
                                               : ProjectExplorer::Icons::RECORD_OFF.icon());
 
+    if (!doesRecord)
+        m_operateInReverseDirectionAction.setChecked(false);
     m_operateInReverseDirectionAction.setVisible(canReverse);
     m_operateInReverseDirectionAction.setEnabled(canReverse && stopped && doesRecord);
     m_operateInReverseDirectionAction.setIcon(Icons::DIRECTION_BACKWARD.icon());
@@ -2738,6 +2742,14 @@ qint64 DebuggerEngine::inferiorPid() const
 bool DebuggerEngine::isReverseDebugging() const
 {
     return d->m_operateInReverseDirectionAction.isChecked();
+}
+
+// Targets like rr's replay server have the whole history already, so the
+// reverse direction works without asking the debugger to record.
+void DebuggerEngine::setTargetHasReverseHistory(bool hasHistory)
+{
+    d->m_targetHasReverseHistory = hasHistory;
+    d->updateReverseActions();
 }
 
 void DebuggerEngine::handleBeginOfRecordingReached()

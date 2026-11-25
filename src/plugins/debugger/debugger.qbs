@@ -72,6 +72,7 @@ QtcPlugin {
             "remotedebuggerconfiguration.cpp", "remotedebuggerconfiguration.h",
             "remotedebuggerdebugsupport.cpp", "remotedebuggerdebugsupport.h",
             "registerhandler.cpp", "registerhandler.h",
+            "rrsupport.cpp", "rrsupport.h",
             "sourceagent.cpp", "sourceagent.h",
             "sourcefileshandler.cpp", "sourcefileshandler.h",
             "sourceutils.cpp", "sourceutils.h",

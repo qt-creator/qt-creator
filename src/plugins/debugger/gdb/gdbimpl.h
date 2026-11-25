@@ -84,6 +84,10 @@ public:
     bool isSet(GdbImplFlag flag) const { return flags.testFlag(flag); }
 };
 
+// Whether a console command resumes the inferior, and whether it runs it backwards.
+bool isExecutionVerb(const QString &verb);
+bool isReverseExecutionVerb(const QString &verb);
+
 class DEBUGGER_EXPORT GdbImpl final : public DebuggerEngineInterface
 {
     Q_OBJECT
@@ -176,6 +180,7 @@ private:
     void applyIndexCacheSetting();
     void runUserStartupCommands();
     void runPostAttachCommands();
+    void checkTargetReverseSupport();
     void restartWatchdog();
     bool usesOutputCollector() const;
     void requestInferiorInterrupt();
@@ -221,6 +226,7 @@ private:
     bool m_runCommandPending = false;
     bool m_interruptOnceRunning = false;
     bool m_resumingFromTemporaryStop = false;
+    bool m_runningReverse = false;
     QList<DebuggerCommand> m_onStopCommands;
     bool m_onStopWantContinue = false;
     bool m_temporaryStopRequested = false;

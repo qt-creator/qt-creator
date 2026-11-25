@@ -174,6 +174,9 @@ public:
     void setUseTargetAsync(bool on) { m_useTargetAsync = on; }
     bool useTargetAsync() const { return m_useTargetAsync; }
 
+    void setTargetSupportsNonStop(bool on) { m_targetSupportsNonStop = on; }
+    bool targetSupportsNonStop() const { return m_targetSupportsNonStop; }
+
     void addSearchDirectory(const Utils::FilePath &dir) { m_additionalSearchDirectories.append(dir); }
     Utils::FilePaths additionalSearchDirectories() const { return m_additionalSearchDirectories; }
 
@@ -420,6 +423,7 @@ private:
     bool m_useContinueInsteadOfRun = false; // If connected to a hw debugger run is not possible but continue is used
     bool m_useCtrlCStub = false; // For QNX debugging.
     bool m_useTargetAsync = false;
+    bool m_targetSupportsNonStop = true;
     bool m_continueAfterAttach = false;
     bool m_isSnapshot = false; // Set if created internally.
     QString m_javaDebugChannel;
@@ -672,6 +676,7 @@ public:
     qint64 inferiorPid() const;
 
     bool isReverseDebugging() const;
+    void setTargetHasReverseHistory(bool hasHistory);
     void handleBeginOfRecordingReached();
     void handleRecordingFailed();
     void handleRecordReverse(bool);

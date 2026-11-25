@@ -29,6 +29,8 @@ public:
     Utils::IntegerAspect debugInfoDTimeout{this};
     Utils::StringAspect gdbStartupCommands{this};
     Utils::StringAspect gdbPostAttachCommands{this};
+    Utils::FilePathAspect rrExecutable{this};
+    Utils::StringAspect rrRecordArguments{this};
 
     Utils::BoolAspect targetAsync{this};
     Utils::BoolAspect targetNonStop{this};

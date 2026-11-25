@@ -285,6 +285,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
             this, &GenericDebuggerEngine::handleStopReasonReported);
     connect(m_backend.get(), &DebuggerEngineInterface::recordingFailed,
             this, &GenericDebuggerEngine::handleRecordingFailed);
+    connect(m_backend.get(), &DebuggerEngineInterface::targetHasReverseHistory,
+            this, [this] { setTargetHasReverseHistory(true); });
     connect(m_backend.get(), &DebuggerEngineInterface::debuggerCommandDone,
             this, &GenericDebuggerEngine::handleDebuggerCommandDone);
     connect(m_backend.get(), &DebuggerEngineInterface::notResponding,

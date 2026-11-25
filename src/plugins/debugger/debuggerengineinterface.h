@@ -396,6 +396,9 @@ signals:
     // Recording for reverse execution stopped the inferior because it could not go on.
     void recordingFailed();
 
+    // The target keeps the execution history itself, like rr's replay server.
+    void targetHasReverseHistory();
+
     void watchpointTriggered(const QString &responseId, const QString &expression,
                              const QString &oldValue, const QString &newValue);
 

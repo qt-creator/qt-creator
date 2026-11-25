@@ -12,6 +12,7 @@
 
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcsettings.h>
 
 #include <QLabel>
@@ -240,6 +241,20 @@ GdbSettings::GdbSettings()
        "It exhibits unpredictable behavior when going backwards over system "
        "calls and is very likely to destroy your debugging session.</p></body></html>"));
 
+    rrExecutable.setSettingsKey(debugModeGroup, "RrExecutable");
+    rrExecutable.setDefaultValue("rr");
+    rrExecutable.setExpectedKind(PathChooserKind::Command);
+    rrExecutable.setHistoryCompleter("Debugger.Rr.Command.History");
+    rrExecutable.setLabelText(Tr::tr("rr executable:"));
+    rrExecutable.setToolTip(Tr::tr("The rr record and replay tool used by "
+                                   "\"Record with rr\" and \"Replay rr Recording\"."));
+
+    rrRecordArguments.setSettingsKey(debugModeGroup, "RrRecordArguments");
+    rrRecordArguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    rrRecordArguments.setLabelText(Tr::tr("Additional arguments for rr record:"));
+    rrRecordArguments.setToolTip(Tr::tr("For example, \"--bind-to-cpu=0\" on CPUs with "
+                                        "cores of different types."));
+
     gdbWatchdogTimeout.setSettingsKey(debugModeGroup, "WatchdogTimeout");
     gdbWatchdogTimeout.setDefaultValue(40);
     gdbWatchdogTimeout.setSuffix(Tr::tr("sec"));
@@ -279,6 +294,8 @@ GdbSettings::GdbSettings()
                 Row { debugInfoDMode, st },
                 Row { debugInfoDUrls },
                 Row { debugInfoDTimeout, st },
+                Row { rrExecutable },
+                Row { rrRecordArguments },
                 st
             }
         };

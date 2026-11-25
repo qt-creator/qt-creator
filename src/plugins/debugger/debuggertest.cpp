@@ -43,6 +43,7 @@
 #include "lldb/lldbengine.h"
 #include "genericdebuggerengine.h"
 #include "registerhandler.h"
+#include "rrsupport.h"
 #include "shared/hostutils.h"
 #include "stackframe.h"
 #include "commonoptionspage.h"
@@ -126,6 +127,7 @@
 #include <QTextBlock>
 #include <QTreeView>
 #include <QTimer>
+#include <QToolButton>
 #include <QVersionNumber>
 #include <QtEndian>
 
@@ -163,6 +165,8 @@ private slots:
 
     void testDebuggerMatching_data();
     void testDebuggerMatching();
+    void testRrLaunchLine();
+    void testRrTraceRoot();
     void testDeviceDetectionDoesNotBlock();
     void testDeviceDetectionFailedExtraction();
     void testDeviceDetectionKnownItemRemoved();
@@ -388,6 +392,10 @@ private slots:
     void testAFailedConnectionAsksWhetherToRetry();
     void testConsoleEntryExpandsThroughTheBackend();
     void testQuitDuringSetupAbortsTheBackend();
+    void testStoppingTheRecordingEndsTheReverseDirection();
+    void testReplayTargetOffersTheReverseDirection();
+    void testReplayTargetRunsBackwards_data();
+    void testReplayTargetRunsBackwards();
     void testABackendOnACompanionsDebuggeeFollowsTheCompanion();
     void testInspectorToolsGoThroughTheBackend();
     void testInspectorTreeFollowsTheSettings();
@@ -1149,6 +1157,54 @@ void DebuggerUnitTests::testDebuggerMatching_data()
             << QStringList("x86-windows-msys-pe-32bit")
             << QString::fromLatin1("x86-windows-msvc2010-pe-64bit")
             << int(DebuggerItem::DoesNotMatch);
+}
+
+void DebuggerUnitTests::testRrLaunchLine()
+{
+    const QString head = "Launch gdb with\n  gdb '-l' '10000' '-ex' "
+                         "'target extended-remote 127.0.0.1:50505'";
+
+    // The executable is not quoted.
+    auto line = parseRrLaunchLine(head + " /home/u/trace/app\n");
+    QVERIFY(line);
+    QCOMPARE(line->channel, "127.0.0.1:50505");
+    QCOMPARE(line->executable, FilePath::fromUserInput("/home/u/trace/app"));
+
+    line = parseRrLaunchLine(head + " '/home/u/trace/app'\n");
+    QVERIFY(line);
+    QCOMPARE(line->executable, FilePath::fromUserInput("/home/u/trace/app"));
+
+    // The line must be complete before it counts.
+    QVERIFY(!parseRrLaunchLine(head + " /home/u/tra"));
+    QVERIFY(!parseRrLaunchLine(head + " /home/u/trace/app"));
+    QVERIFY(!parseRrLaunchLine("Launch gdb with\n"));
+}
+
+void DebuggerUnitTests::testRrTraceRoot()
+{
+    Environment env;
+    env.set("_RR_TRACE_DIR", "/tmp/rr-traces");
+    env.set("XDG_DATA_HOME", "/tmp/rr-data");
+    QCOMPARE(rrTraceRoot(env), FilePath::fromUserInput("/tmp/rr-traces"));
+
+    QTemporaryDir home;
+    QVERIFY(home.isValid());
+    const FilePath homePath = FilePath::fromUserInput(home.path());
+    QTemporaryDir dataHome;
+    QVERIFY(dataHome.isValid());
+    const FilePath xdg = FilePath::fromUserInput(dataHome.path()) / "rr";
+    env.set("HOME", home.path());
+    env.set("XDG_DATA_HOME", dataHome.path());
+    env.unset("_RR_TRACE_DIR");
+
+    // Without any rr directory the XDG one is the default.
+    QCOMPARE(rrTraceRoot(env), xdg);
+
+    // The legacy directory counts only while the XDG one does not exist.
+    QVERIFY((homePath / ".rr").createDir());
+    QCOMPARE(rrTraceRoot(env), homePath / ".rr");
+    QVERIFY(xdg.createDir());
+    QCOMPARE(rrTraceRoot(env), xdg);
 }
 
 void DebuggerUnitTests::testDebuggerMatching()
@@ -4700,14 +4756,18 @@ class RecordingBackend : public DebuggerEngineInterface
 {
 public:
     explicit RecordingBackend(DebuggerExtraCapabilities extraCapabilities = {},
-                              bool needsRunningCompanion = false)
-        : DebuggerEngineInterface(setupData(extraCapabilities, needsRunningCompanion))
+                              bool needsRunningCompanion = false,
+                              unsigned capabilities = 0)
+        : DebuggerEngineInterface(setupData(extraCapabilities, needsRunningCompanion,
+                                            capabilities))
     {}
 
     static DebuggerEngineSetupData setupData(DebuggerExtraCapabilities extraCapabilities,
-                                             bool needsRunningCompanion)
+                                             bool needsRunningCompanion,
+                                             unsigned capabilities)
     {
         DebuggerEngineSetupData data;
+        data.capabilities = capabilities;
         data.extraCapabilities = extraCapabilities;
         data.needsRunningCompanion = needsRunningCompanion;
         data.startModes = DebuggerStartModeFlag::Launch;
@@ -4785,8 +4845,13 @@ public:
     int connectionRetries = 0;
     void shutdownInferior(ShutdownMode) override {}
     void shutdownEngine() override {}
-    void execute(const ExecutionRequest &request) override { executed.append(request.command); }
+    void execute(const ExecutionRequest &request) override
+    {
+        executed.append(request.command);
+        lastExecuted = request;
+    }
     QList<ExecutionCommand> executed;
+    ExecutionRequest lastExecuted;
     void companionOutput(const QString &output) override { companionOutputs.append(output); }
     QStringList companionOutputs;
     void showInspectorTree(bool shown) override { inspectorTreeShown << shown; }
@@ -5011,6 +5076,116 @@ void DebuggerUnitTests::testQuitDuringSetupAbortsTheBackend()
 
     emit backend->inferiorEvent(InferiorEvent::EngineSetupFailed);
     QCOMPARE(finished.count(), 1);
+}
+
+// The actions behind the tool bar buttons that show them, as the user clicks them.
+static QList<QAction *> toolBarActions(const QString &text)
+{
+    QList<QAction *> found;
+    const QWidgetList widgets = QApplication::allWidgets();
+    for (QWidget *widget : widgets) {
+        auto button = qobject_cast<QToolButton *>(widget);
+        if (button && button->defaultAction() && button->defaultAction()->text() == text)
+            found.append(button->defaultAction());
+    }
+    return found;
+}
+
+static QAction *toolBarAction(const QString &text)
+{
+    const QList<QAction *> found = toolBarActions(text);
+    return found.size() == 1 ? found.first() : nullptr;
+}
+
+static const char s_recordText[] = "Record Information to Allow Reversal of Direction";
+static const char s_reverseText[] = "Operate in Reverse Direction";
+
+// Without the recording there is nothing to go back through, so Continue and
+// Step Out go forward again once it stops.
+void DebuggerUnitTests::testStoppingTheRecordingEndsTheReverseDirection()
+{
+    BoolAspect &enableReverse = settings().enableReverseDebugging;
+    const QScopeGuard restoreReverse([&enableReverse, enabled = enableReverse()] {
+        enableReverse.setValue(enabled);
+    });
+    enableReverse.setValue(true);
+
+    auto backend = new RecordingBackend({}, false, ReverseSteppingCapability);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+    engine->start();
+    engine->setState(InferiorStopOk, true);
+
+    QAction *record = toolBarAction(s_recordText);
+    QAction *reverse = toolBarAction(s_reverseText);
+    QVERIFY(record);
+    QVERIFY(reverse);
+    QVERIFY(record->isVisible());
+    QVERIFY(!reverse->isEnabled());
+
+    record->trigger();
+    QVERIFY(backend->lastExecuted.command == ExecutionCommand::RecordReverse);
+    QVERIFY(backend->lastExecuted.flag);
+    reverse->trigger();
+    QVERIFY(engine->isReverseDebugging());
+    engine->handleExecContinue();
+    QVERIFY(backend->lastExecuted.command == ExecutionCommand::Continue);
+    QVERIFY(backend->lastExecuted.reverse);
+
+    record->trigger();
+    QVERIFY(backend->lastExecuted.command == ExecutionCommand::RecordReverse);
+    QVERIFY(!backend->lastExecuted.flag);
+    QVERIFY(!engine->isReverseDebugging());
+    QVERIFY(!reverse->isEnabled());
+    engine->handleExecContinue();
+    QVERIFY(backend->lastExecuted.command == ExecutionCommand::Continue);
+    QVERIFY(!backend->lastExecuted.reverse);
+    engine->handleExecStepOut();
+    QVERIFY(backend->lastExecuted.command == ExecutionCommand::StepOut);
+    QVERIFY(!backend->lastExecuted.reverse);
+
+    engine->setState(DebuggerFinished, true);
+}
+
+// A target that keeps the history itself, like rr's replay server, goes back
+// without the debugger recording, also when the settings leave reversing off.
+void DebuggerUnitTests::testReplayTargetOffersTheReverseDirection()
+{
+    BoolAspect &enableReverse = settings().enableReverseDebugging;
+    const QScopeGuard restoreReverse([&enableReverse, enabled = enableReverse()] {
+        enableReverse.setValue(enabled);
+    });
+    enableReverse.setValue(false);
+
+    auto backend = new RecordingBackend({}, false, ReverseSteppingCapability);
+    auto engine = new GenericDebuggerEngine("test", backend);
+    const QScopeGuard deleteEngine([engine] { delete engine; });
+    engine->setRunParameters({});
+    engine->setDevice({});
+    engine->start();
+    engine->setState(InferiorStopOk, true);
+
+    QAction *record = toolBarAction(s_recordText);
+    QAction *reverse = toolBarAction(s_reverseText);
+    QVERIFY(record);
+    QVERIFY(reverse);
+    QVERIFY(!reverse->isVisible());
+
+    emit backend->targetHasReverseHistory();
+    QVERIFY(!record->isVisible());
+    QVERIFY(reverse->isVisible());
+    QVERIFY(reverse->isEnabled());
+
+    reverse->trigger();
+    QVERIFY(engine->isReverseDebugging());
+    engine->handleExecStepOut();
+    QVERIFY(backend->lastExecuted.command == ExecutionCommand::StepOut);
+    QVERIFY(backend->lastExecuted.reverse);
+    QVERIFY(!backend->executed.contains(ExecutionCommand::RecordReverse));
+
+    engine->setState(DebuggerFinished, true);
 }
 
 static QMessageBox *openRetryConnectionBox()
@@ -6044,6 +6219,14 @@ public:
         params.enabled = true;
         m_breakpoint = BreakpointManager::createBreakpoint(params);
 
+        QString channel;
+        if (m_startServer) {
+            const Result<QString> started = m_startServer(m_executable);
+            if (!started)
+                return started.error();
+            channel = *started;
+        }
+
         const QList<QPointer<DebuggerEngine>> before = EngineManager::engines();
         m_runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         m_runControl->setKit(kit);
@@ -6051,6 +6234,14 @@ public:
         rp.setInferior(ProcessRunData{CommandLine{m_executable}, dir});
         if (m_gdbDap)
             rp.setCppEngineType(GdbDapEngineType);
+        if (m_startServer) {
+            // As the rr replay attaches.
+            rp.setStartMode(AttachToRemoteServer);
+            rp.setUseContinueInsteadOfRun(true);
+            rp.setTargetSupportsNonStop(false);
+            rp.setRemoteChannel(channel);
+            rp.setSymbolFile(m_executable);
+        }
         QObject::connect(m_runControl, &RunControl::stopped,
                          &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
         m_stoppedConnection = QObject::connect(m_runControl, &RunControl::stopped,
@@ -6096,6 +6287,13 @@ public:
 
     // Runs the session with gdb's DAP mode instead of its machine interface.
     void useGdbDap() { m_gdbDap = true; }
+    // Attaches to a server that startServer starts for the built program and
+    // whose channel it returns, instead of running the program.
+    void attachToServer(const std::function<Result<QString>(const FilePath &)> &startServer)
+    {
+        m_startServer = startServer;
+    }
+    bool hasEnded() const { return m_stopped; }
     // Why start() did not get to a session that it could test.
     QString skipReason() const { return m_skipReason; }
 
@@ -6124,6 +6322,7 @@ private:
     GlobalBreakpoints m_keptBreakpoints;
     bool m_warnedAboutBreakpoints = false;
     bool m_gdbDap = false;
+    std::function<Result<QString>(const FilePath &)> m_startServer;
     QString m_skipReason;
     int m_line = 0;
 };
@@ -6625,6 +6824,213 @@ static void addBackendRowsWithGdbDap()
     QTest::newRow("engine") << false << false;
     QTest::newRow("generic") << true << false;
     QTest::newRow("gdb-dap") << false << true;
+}
+
+static QByteArray rspPacket(const QByteArray &payload)
+{
+    uchar sum = 0;
+    for (const char c : payload)
+        sum += uchar(c);
+    return '$' + payload + '#' + QByteArray::number(sum, 16).rightJustified(2, '0');
+}
+
+// Hands each complete packet at the front of a stream to relay and returns what
+// is to be passed on. Anything outside a packet, like acks, passes as it is.
+static QByteArray relayRspPackets(QByteArray &stream,
+                                  const std::function<QByteArray(const QByteArray &,
+                                                                 const QByteArray &)> &relay)
+{
+    QByteArray out;
+    while (!stream.isEmpty()) {
+        const qsizetype start = stream.indexOf('$');
+        if (start < 0) {
+            out += stream;
+            stream.clear();
+            break;
+        }
+        out += stream.left(start);
+        stream.remove(0, start);
+        const qsizetype end = stream.indexOf('#');
+        if (end < 0 || stream.size() < end + 3)
+            break;
+        out += relay(stream.mid(1, end - 1), stream.left(end + 3));
+        stream.remove(0, end + 3);
+    }
+    return out;
+}
+
+// Stands between gdb and a gdbserver and passes the server off as one that
+// keeps the history of the program, like rr's replay server. A request to go
+// backwards stops the program where it is, and is counted. While holding, the
+// request runs until gdb interrupts it.
+class ReverseReplayProxy : public QObject
+{
+public:
+    explicit ReverseReplayProxy(quint16 serverPort)
+        : m_serverPort(serverPort)
+    {
+        m_listener.listen(QHostAddress::LocalHost);
+        connect(&m_listener, &QTcpServer::newConnection, this, &ReverseReplayProxy::accept);
+    }
+
+    quint16 port() const { return m_listener.serverPort(); }
+
+    QByteArrayList reversePackets;
+    bool holding = false;
+
+private:
+    void accept()
+    {
+        m_gdb = m_listener.nextPendingConnection();
+        m_server.connectToHost(QHostAddress::LocalHost, m_serverPort);
+        if (!m_server.waitForConnected(10000)) {
+            m_gdb->close();
+            return;
+        }
+        connect(m_gdb, &QTcpSocket::readyRead, this, [this] {
+            m_fromGdb += m_gdb->readAll();
+            QByteArray toServer = relayRspPackets(m_fromGdb, [this](const QByteArray &payload,
+                                                                    const QByteArray &packet) {
+                if (payload != "bc" && payload != "bs")
+                    return packet;
+                reversePackets.append(payload);
+                m_reverseRunning = holding;
+                m_gdb->write(holding ? QByteArray("+") : '+' + rspPacket("S05"));
+                return QByteArray();
+            });
+            if (m_reverseRunning && toServer.contains('\x03')) {
+                toServer.replace('\x03', QByteArray());
+                m_reverseRunning = false;
+                m_gdb->write(rspPacket("S02"));
+            }
+            m_server.write(toServer);
+        });
+        connect(&m_server, &QTcpSocket::readyRead, this, [this] {
+            m_fromServer += m_server.readAll();
+            m_gdb->write(relayRspPackets(m_fromServer, [](const QByteArray &payload,
+                                                          const QByteArray &packet) {
+                if (!payload.contains("PacketSize="))
+                    return packet;
+                // gdb acks the made up stop reply then, which keeps it apart
+                // from the packets that follow it.
+                QByteArrayList features = payload.split(';');
+                features.removeAll("QStartNoAckMode+");
+                features << "ReverseContinue+" << "ReverseStep+";
+                return rspPacket(features.join(';'));
+            }));
+        });
+        connect(m_gdb, &QTcpSocket::disconnected, &m_server, &QTcpSocket::disconnectFromHost);
+        connect(&m_server, &QTcpSocket::disconnected, m_gdb, &QTcpSocket::disconnectFromHost);
+    }
+
+    QTcpServer m_listener;
+    QTcpSocket m_server;
+    QTcpSocket *m_gdb = nullptr;
+    quint16 m_serverPort = 0;
+    QByteArray m_fromGdb;
+    QByteArray m_fromServer;
+    bool m_reverseRunning = false;
+};
+
+void DebuggerUnitTests::testReplayTargetRunsBackwards_data()
+{
+    addBackendRows();
+}
+
+// gdb finds out that the target keeps a history, and Continue and Step Out then
+// ask the target to go backwards, also when the settings leave reversing off.
+void DebuggerUnitTests::testReplayTargetRunsBackwards()
+{
+    QFETCH(bool, generic);
+    if (!HostOsInfo::isLinuxHost())
+        QSKIP("The stand-in for a replay server is a gdbserver on Linux.");
+    Kit *kit = nullptr;
+    if (const QString reason = preCheckStepTests(&kit); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+    if (DebuggerKitAspect::engineType(kit) != GdbEngineType)
+        QSKIP("The debugger of the kit is not gdb.");
+    const FilePath gdbServer = FilePath("gdbserver").searchInPath();
+    if (!gdbServer.isExecutableFile())
+        QSKIP("There is no gdbserver.");
+    BackendUnderTest backend(generic);
+    if (const QString reason = backend.reasonItIsNotUnderTest(); !reason.isEmpty())
+        QSKIP(qPrintable(reason));
+
+    BoolAspect &enableReverse = settings().enableReverseDebugging;
+    const QScopeGuard restoreReverse([&enableReverse, enabled = enableReverse()] {
+        enableReverse.setValue(enabled);
+    });
+    enableReverse.setValue(false);
+
+    Process server;
+    std::unique_ptr<ReverseReplayProxy> proxy;
+    SteppingSession session;
+    session.attachToServer([&](const FilePath &executable) -> Result<QString> {
+        server.setCommand({gdbServer, {"--once", "127.0.0.1:0", executable.nativePath()}});
+        server.start();
+        static const QRegularExpression listening("Listening on port (\\d+)");
+        QString output;
+        QRegularExpressionMatch match;
+        QTest::qWaitFor([&] {
+            output += server.readAllStandardError();
+            match = listening.match(output);
+            return match.hasMatch() || server.state() == ProcessState::NotRunning;
+        }, 30000);
+        if (!match.hasMatch())
+            return ResultError("gdbserver did not start: " + output);
+        proxy = std::make_unique<ReverseReplayProxy>(match.captured(1).toUShort());
+        return QString("127.0.0.1:%1").arg(proxy->port());
+    });
+    const QString problem = session.start("MARKER: in-callee");
+    QVERIFY2(problem.isEmpty(), qPrintable(problem));
+    DebuggerEngine *engine = session.engine();
+
+    // Engines of earlier sessions keep their buttons, disabled.
+    const QList<QAction *> offered = Utils::filtered(toolBarActions(s_reverseText),
+                                                     [](QAction *action) {
+        return action->isVisible() && action->isEnabled();
+    });
+    QCOMPARE(offered.size(), 1);
+    offered.first()->trigger();
+    QVERIFY(engine->isReverseDebugging());
+
+    // Going forward instead ends the program or stops it in main, and the
+    // proxy sees no request then.
+    const auto wentBack = [&](qsizetype requests) {
+        return QTest::qWaitFor([&] {
+            return session.hasEnded()
+                   || (proxy->reversePackets.size() == requests
+                       && engine->state() == InferiorStopOk);
+        }, 30000) && !session.hasEnded();
+    };
+    engine->handleExecContinue();
+    QVERIFY(wentBack(1));
+    QCOMPARE(proxy->reversePackets.first(), "bc");
+    engine->handleExecStepOut();
+    QVERIFY(wentBack(2));
+
+    // A breakpoint set meanwhile needs the inferior stopped for a moment. It
+    // goes on backwards afterwards, or runs to its end.
+    proxy->holding = true;
+    const auto runsBack = [&](qsizetype requests) {
+        return QTest::qWaitFor([&] {
+            return session.hasEnded()
+                   || (proxy->reversePackets.size() == requests
+                       && engine->state() == InferiorRunOk);
+        }, 30000) && !session.hasEnded();
+    };
+    engine->handleExecContinue();
+    QVERIFY(runsBack(3));
+    BreakpointParameters params;
+    params.type = BreakpointByFunction;
+    params.functionName = "main";
+    const GlobalBreakpoint gbp = BreakpointManager::createBreakpoint(params);
+    QVERIFY(gbp);
+    const QScopeGuard removeBreakpoint([gbp] { gbp->removeBreakpointFromModel(); });
+    QVERIFY2(runsBack(4), "the inferior did not go on backwards after a temporary stop");
+    QCOMPARE(proxy->reversePackets.last(), "bc");
+    engine->handleExecInterrupt();
+    QVERIFY(QTest::qWaitFor([&] { return engine->state() == InferiorStopOk; }, 30000));
 }
 
 // One thread stops at a breakpoint while another, created after it, runs on

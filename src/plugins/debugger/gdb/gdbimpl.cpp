@@ -29,6 +29,28 @@ using namespace Utils;
 
 namespace Debugger::Internal {
 
+bool isReverseExecutionVerb(const QString &verb)
+{
+    return verb.startsWith("reverse-")
+           || QStringList{"rc", "rs", "rsi", "rn", "rni", "rf"}.contains(verb);
+}
+
+bool isExecutionVerb(const QString &verb)
+{
+    struct ExecutionCommand { const char *name; int minimumLength; };
+    static const ExecutionCommand executionCommands[] = {
+        {"continue", 1}, {"step", 1}, {"next", 1}, {"stepi", 5}, {"nexti", 5},
+        {"finish", 3}, {"until", 1}, {"advance", 3}, {"jump", 1}, {"signal", 3},
+        {"reverse-continue", 9}, {"reverse-step", 12}, {"reverse-stepi", 13},
+        {"reverse-next", 12}, {"reverse-nexti", 13}, {"reverse-finish", 9}
+    };
+    return QStringList{"fg", "si", "ni", "rc", "rs", "rsi", "rn", "rni", "rf"}.contains(verb)
+           || Utils::anyOf(executionCommands, [&verb](const ExecutionCommand &entry) {
+                  return verb.size() >= entry.minimumLength
+                         && QLatin1StringView(entry.name).startsWith(verb);
+              });
+}
+
 static QString breakLocation(const ContextData &context)
 {
     if (context.address)
@@ -560,6 +582,14 @@ void GdbImpl::handleShowVersion(const DebuggerResponse &response)
                       &m_gdbVersion, &gdbBuildVersion, &isMacGdb, &m_isQnxGdb);
 }
 
+void GdbImpl::checkTargetReverseSupport()
+{
+    runCommand({"show remote reverse-continue-packet", [this](const DebuggerResponse &response) {
+        if (response.consoleStreamOutput.contains("currently enabled"))
+            emit targetHasReverseHistory();
+    }});
+}
+
 void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
 {
     const auto &remoteData = std::get<AttachToRemoteServerData>(m_startData.inferiorStartData);
@@ -574,6 +604,7 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
         for (const QString &command : m_startData.userCommands.afterConnect)
             runCommand({command, DebuggerCommand::NativeCommand});
         runPostAttachCommands();
+        checkTargetReverseSupport();
         // The server handed the inferior over stopped, and a target that is
         // loaded already is resumed rather than run.
         const bool resume = m_startData.isSet(GdbImplFlag::ContinueInsteadOfRun);
@@ -593,6 +624,7 @@ void GdbImpl::handleTargetRemote(const DebuggerResponse &response)
     for (const QString &command : m_startData.userCommands.afterConnect)
         runCommand({command, DebuggerCommand::NativeCommand});
     runPostAttachCommands();
+    checkTargetReverseSupport();
     if (remoteData.attachPid.isValid()) {
         m_attachPhase = AttachPhase::AwaitingConnect;
         runCommand({"attach " + QString::number(remoteData.attachPid.pid()),
@@ -1893,6 +1925,9 @@ void GdbImpl::executeDebuggerCommand(const QString &command,
                                const WatchItemData &inspectorItem)
 {
     Q_UNUSED(inspectorItem)
+    const QString verb = command.simplified().section(' ', 0, 0).toLower();
+    if (isExecutionVerb(verb))
+        m_runningReverse = isReverseExecutionVerb(verb);
     DebuggerCommand cmd(command, DebuggerCommand::NativeCommand
                                      | DebuggerCommand::NeedsTemporaryStop);
     cmd.callback = [this](const DebuggerResponse &response) {
@@ -1915,6 +1950,7 @@ void GdbImpl::runRunRequestCommand(const QString &function, int flags,
                                    const QString &instructionWise)
 {
     const bool silent = std::exchange(m_resumingFromTemporaryStop, false);
+    m_runningReverse = function.endsWith(" --reverse");
     if (!silent)
         emit inferiorEvent(InferiorEvent::RunRequested);
     m_runCommandPending = true;
@@ -2397,7 +2433,8 @@ void GdbImpl::handleOutputLine(const QString &line)
                             DebuggerCommand::NeedsTemporaryStop,
                            [this](const DebuggerResponse &response) {
                     m_interpreterBreakpointsPending = response.data["pending"].toInt() > 0;
-                    runCommand({"-exec-continue", [this](const DebuggerResponse &reply) {
+                    runCommand({withDirection(m_runningReverse, "-exec-continue"),
+                                [this](const DebuggerResponse &reply) {
                         m_inferiorRunning = reply.resultClass == ResultRunning;
                     }});
                 }});
@@ -2508,7 +2545,7 @@ void GdbImpl::handleOutputLine(const QString &line)
                     runCommandNow(queuedCommand);
                 if (ours) {
                     m_resumingFromTemporaryStop = true;
-                    runRunRequestCommand("-exec-continue");
+                    runRunRequestCommand(withDirection(m_runningReverse, "-exec-continue"));
                 }
                 break;
             } else {

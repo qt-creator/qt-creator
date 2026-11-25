@@ -136,6 +136,7 @@ private: ////////// General Interface //////////
     bool m_lruFailure = false;
     bool m_xmlSupportWarned = false;
     bool m_sawTerminateMessage = false;
+    bool m_runningReverse = false;
 
     ////////// Gdb Output, State & Capability Handling //////////
 
@@ -173,7 +174,7 @@ private: ////////// General Interface //////////
     void executeStepOut() final;
     void executeStepOver(bool byInstruction) final;
 
-    void continueInferiorInternal();
+    void continueInferiorInternal(bool reverse = false);
     void continueInferior() final;
     void interruptInferior() final;
 
@@ -374,6 +375,7 @@ private: ////////// General Interface //////////
     void handleSetTargetAsync(const DebuggerResponse &response);
     void handleTargetRemote(const DebuggerResponse &response);
     void handleTargetExtendedRemote(const DebuggerResponse &response);
+    void checkTargetReverseSupport();
     void handleTargetExtendedAttach(const DebuggerResponse &response);
     void handleTargetQnx(const DebuggerResponse &response);
     void handleSetNtoExecutable(const DebuggerResponse &response);

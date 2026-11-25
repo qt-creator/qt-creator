@@ -24,6 +24,7 @@
 #include "peripheralregisterhandler.h"
 #include "remotedebuggerconfiguration.h"
 #include "remotedebuggerdebugsupport.h"
+#include "rrsupport.h"
 #include "shared/coredumputils.h"
 #include "shared/hostutils.h"
 #include "sourceutils.h"
@@ -948,6 +949,8 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
           "Debugger.AttachToRemoteServer");
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, MENU_GROUP_SPECIAL);
+
+    setupRrSupport();
 
     if (HostOsInfo::isWindowsHost()) {
         cmd = ActionManager::registerAction(&m_startRemoteCdbAction,
