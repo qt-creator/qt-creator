@@ -10,8 +10,10 @@
 #include "icore.h"
 #include "idocument.h"
 #include "messagemanager.h"
+#include "progressmanager/taskprogress.h"
 
 #include <utils/aggregate.h>
+#include <utils/aiassistance.h>
 #include <utils/fileutils.h>
 #include <utils/globaltasktree.h>
 #include <utils/macroexpander.h>
@@ -38,6 +40,7 @@ const char kExecutable[] = "executable";
 const char kPath[] = "path";
 const char kArguments[] = "arguments";
 const char kInput[] = "input";
+const char kAiPrompt[] = "aiprompt";
 const char kWorkingDirectory[] = "workingdirectory";
 const char kBaseEnvironmentId[] = "baseEnvironmentId";
 const char kEnvironment[] = "environment";
@@ -48,6 +51,7 @@ const char kError[] = "error";
 const char kOutputShowInPane[] = "showinpane";
 const char kOutputReplaceSelection[] = "replaceselection";
 const char kOutputIgnore[] = "ignore";
+const char kOutputSendToAi[] = "sendtoai";
 const char kModifiesDocument[] = "modifiesdocument";
 const char kYes[] = "yes";
 const char kNo[] = "no";
@@ -108,6 +112,15 @@ QString ExternalTool::arguments() const
 QString ExternalTool::input() const
 {
     return m_data.input;
+}
+
+/*!
+    Returns the prompt that goes along with the output of the tool to an AI,
+    if the output or the error output is sent there. It may contain variables.
+*/
+QString ExternalTool::aiPrompt() const
+{
+    return m_data.aiPrompt;
 }
 
 FilePath ExternalTool::workingDirectory() const
@@ -305,6 +318,11 @@ void ExternalTool::setInput(const QString &input)
     m_data.input = input;
 }
 
+void ExternalTool::setAiPrompt(const QString &prompt)
+{
+    m_data.aiPrompt = prompt;
+}
+
 void ExternalTool::setWorkingDirectory(const FilePath &workingDirectory)
 {
     m_data.workingDirectory = workingDirectory;
@@ -374,8 +392,11 @@ static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *rea
         *value = ExternalTool::ReplaceSelection;
     } else if (output == QLatin1String(kOutputIgnore)) {
         *value = ExternalTool::Ignore;
+    } else if (output == QLatin1String(kOutputSendToAi)) {
+        *value = ExternalTool::SendToAi;
     } else {
-        reader->raiseError("Allowed values for output attribute are 'showinpane','replaceselection','ignore'");
+        reader->raiseError("Allowed values for output attribute are "
+                           "'showinpane','replaceselection','ignore','sendtoai'");
         return false;
     }
     return true;
@@ -446,6 +467,12 @@ Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const 
                         break;
                     }
                     tool->setInput(reader.readElementText());
+                } else if (reader.name() == QLatin1String(kAiPrompt)) {
+                    if (!tool->m_data.aiPrompt.isEmpty()) {
+                        reader.raiseError("only one <aiprompt> element allowed");
+                        break;
+                    }
+                    tool->setAiPrompt(reader.readElementText());
                 } else if (reader.name() == QLatin1String(kWorkingDirectory)) {
                     if (!tool->workingDirectory().isEmpty()) {
                         reader.raiseError("only one <workingdirectory> element allowed");
@@ -521,6 +548,8 @@ static QString stringForOutputHandling(ExternalTool::OutputHandling handling)
         return QLatin1String(kOutputShowInPane);
     case ExternalTool::ReplaceSelection:
         return QLatin1String(kOutputReplaceSelection);
+    case ExternalTool::SendToAi:
+        return QLatin1String(kOutputSendToAi);
     }
     return QString();
 }
@@ -554,6 +583,8 @@ Result<> ExternalTool::save() const
             out.writeTextElement(kArguments, arguments());
         if (!input().isEmpty())
             out.writeTextElement(kInput, input());
+        if (!aiPrompt().isEmpty())
+            out.writeTextElement(kAiPrompt, aiPrompt());
         if (!workingDirectory().isEmpty())
             out.writeTextElement(kWorkingDirectory, workingDirectory().toUrlishString());
         if (baseEnvironmentProviderId().isValid())
@@ -590,6 +621,7 @@ bool ExternalTool::operator==(const ExternalTool &other) const
            && m_data.executables == other.m_data.executables
            && m_data.arguments == other.m_data.arguments
            && m_data.input == other.m_data.input
+           && m_data.aiPrompt == other.m_data.aiPrompt
            && m_data.workingDirectory == other.m_data.workingDirectory
            && m_data.baseEnvironmentProviderId == other.m_data.baseEnvironmentProviderId
            && m_data.environment == other.m_data.environment
@@ -610,9 +642,14 @@ struct ExecuteData
     FilePath m_resolvedExecutable;
     QString m_resolvedArguments;
     QString m_resolvedInput;
+    QString m_resolvedAiPrompt;
     FilePath m_resolvedWorkingDirectory;
     Environment m_resolvedEnvironment;
     QString m_processOutput;
+    QString m_aiOutput;
+    QString m_aiErrorOutput;
+    QString m_command;
+    QString m_exitMessage;
     FilePath m_expectedFilePath;
 };
 
@@ -653,6 +690,7 @@ Result<> ExecuteData::resolve()
 
     m_resolvedArguments = *args;
     m_resolvedInput = expander->expand(m_tool.input());
+    m_resolvedAiPrompt = expander->expand(m_tool.aiPrompt());
     m_resolvedWorkingDirectory = expander->expand(m_tool.workingDirectory());
     return ResultOk;
 }
@@ -672,6 +710,8 @@ void ExecuteData::readStandardOutput(const QString &output)
         MessageManager::writeSilently(stripNewline(output));
     else if (m_tool.outputHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
+    else if (m_tool.outputHandling() == ExternalTool::SendToAi)
+        m_aiOutput.append(output);
 }
 
 void ExecuteData::readStandardError(const QString &error)
@@ -682,6 +722,36 @@ void ExecuteData::readStandardError(const QString &error)
         MessageManager::writeSilently(stripNewline(error));
     else if (m_tool.errorHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(error);
+    else if (m_tool.errorHandling() == ExternalTool::SendToAi)
+        m_aiErrorOutput.append(error);
+}
+
+static bool sendsToAi(const ExternalTool &tool)
+{
+    return tool.outputHandling() == ExternalTool::SendToAi
+           || tool.errorHandling() == ExternalTool::SendToAi;
+}
+
+static AiRequest aiRequest(const ExecuteData &data)
+{
+    AiRequest request;
+    request.id = Id("Core.ExternalTool.").withSuffix(data.m_tool.id());
+    request.title = Tr::tr("Send Output of \"%1\" to AI").arg(data.m_tool.displayName());
+    request.prompt = data.m_resolvedAiPrompt;
+    if (request.prompt.trimmed().isEmpty()) {
+        request.prompt = QString("The external tool \"%1\" was run as `%2`. Explain what its "
+                                 "output means. Point out problems it reports and suggest how "
+                                 "to solve them.")
+                             .arg(data.m_tool.displayName(), data.m_command);
+    }
+    request.workingDirectory = data.m_resolvedWorkingDirectory;
+    request.context.append(
+        AiContextItem::fromText("Command", data.m_command + '\n' + data.m_exitMessage));
+    if (data.m_tool.outputHandling() == ExternalTool::SendToAi)
+        request.context.append(AiContextItem::fromText("Standard output", data.m_aiOutput));
+    if (data.m_tool.errorHandling() == ExternalTool::SendToAi)
+        request.context.append(AiContextItem::fromText("Standard error", data.m_aiErrorOutput));
+    return request;
 }
 
 void ExternalTool::execute() const
@@ -743,19 +813,44 @@ void ExternalTool::execute() const
 
         if (data->m_tool.modifiesCurrentDocument())
             DocumentManager::unexpectFileChange(data->m_expectedFilePath);
+        data->m_command = process.commandLine().toUserOutput();
+        data->m_exitMessage = process.exitMessage();
         const auto write = data->m_tool.outputHandling() == ExternalTool::ShowInPane
                                ? QOverload<const QString &>::of(MessageManager::writeFlashing)
                                : QOverload<const QString &>::of(MessageManager::writeSilently);
         write(message);
     };
 
+    const auto onAiSetup = [storage](AiRequestRunner &runner) {
+        const ExecuteData *data = storage.activeStorage();
+        if (!sendsToAi(data->m_tool))
+            return SetupResult::StopWithSuccess;
+        runner.setRequest(aiRequest(*data));
+        return SetupResult::Continue;
+    };
+
     const Group recipe {
         storage,
         onGroupSetup(onSetup),
-        ProcessTask(onProcessSetup, onProcessDone)
+        Group {
+            // The output of a tool that fails is worth sending, too.
+            finishAllAndSuccess,
+            ProcessTask(onProcessSetup, onProcessDone)
+        },
+        AiRequestTask(onAiSetup)
     };
 
-    GlobalTaskTree::start(recipe);
+    // Sending to an AI waits for the user to pick one, which the progress shows.
+    const bool showProgress = sendsToAi(*this);
+    const QString title = Tr::tr("Sending Output of \"%1\" to AI").arg(displayName());
+    const auto onTreeSetup = [showProgress, title](QTaskTree &taskTree) {
+        if (!showProgress)
+            return;
+        auto progress = new TaskProgress(&taskTree);
+        progress->setDisplayName(title);
+        progress->setId("Core.ExternalTool.SendToAi");
+    };
+    GlobalTaskTree::start(recipe, onTreeSetup);
 }
 
 } // namespace Core

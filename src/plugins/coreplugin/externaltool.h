@@ -21,7 +21,8 @@ public:
     enum OutputHandling {
         Ignore,
         ShowInPane,
-        ReplaceSelection
+        ReplaceSelection,
+        SendToAi
     };
 
     ExternalTool();
@@ -40,6 +41,7 @@ public:
     Utils::FilePaths executables() const;
     QString arguments() const;
     QString input() const;
+    QString aiPrompt() const;
     Utils::FilePath workingDirectory() const;
 
     // Referenced macro variables that resolve to an empty value in the current
@@ -79,6 +81,7 @@ public:
     void setExecutables(const Utils::FilePaths &executables);
     void setArguments(const QString &arguments);
     void setInput(const QString &input);
+    void setAiPrompt(const QString &prompt);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setBaseEnvironmentProviderId(Utils::Id id);
     void setEnvironmentUserChanges(const Utils::EnvironmentChanges &items);
@@ -96,6 +99,7 @@ private:
         Utils::FilePaths executables;
         QString arguments;
         QString input;
+        QString aiPrompt;
         Utils::FilePath workingDirectory;
         Utils::Id baseEnvironmentProviderId;
         Utils::EnvironmentChanges environment;

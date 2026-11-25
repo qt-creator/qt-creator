@@ -457,7 +457,11 @@ private:
     QComboBox *m_errorOutputBehavior;
     QCheckBox *m_modifiesDocumentCheckbox;
     QPlainTextEdit *m_inputText;
+    QLabel *m_aiPromptLabel;
+    QPlainTextEdit *m_aiPrompt;
     QComboBox *m_baseEnvironment;
+
+    void updateAiPromptEnabled();
 };
 
 static QString outputBehaviorToolTip(const QString &question)
@@ -466,7 +470,9 @@ static QString outputBehaviorToolTip(const QString &question)
         Tr::tr("Ignore: Do nothing with it."),
         Tr::tr("Show in General Messages: Show it in the General Messages view."),
         Tr::tr("Replace Selection: Replace the current selection in the current document "
-               "with it.")};
+               "with it."),
+        Tr::tr("Send to AI: Send it to an AI of your choice, together with the AI prompt, "
+               "when the tool finished.")};
     return "<p>" + question + "</p><ul><li>" + items.join("</li><li>") + "</li></ul>";
 }
 
@@ -527,6 +533,7 @@ ExternalToolConfig::ExternalToolConfig()
     m_outputBehavior->addItem(Tr::tr("Ignore"));
     m_outputBehavior->addItem(Tr::tr("Show in General Messages"));
     m_outputBehavior->addItem(Tr::tr("Replace Selection"));
+    m_outputBehavior->addItem(Tr::tr("Send to AI"));
 
     auto errorOutputLabel = new QLabel(Tr::tr("Error output:"));
     errorOutputLabel->setToolTip(
@@ -536,6 +543,7 @@ ExternalToolConfig::ExternalToolConfig()
     m_errorOutputBehavior->addItem(Tr::tr("Ignore"));
     m_errorOutputBehavior->addItem(Tr::tr("Show in General Messages"));
     m_errorOutputBehavior->addItem(Tr::tr("Replace Selection"));
+    m_errorOutputBehavior->addItem(Tr::tr("Send to AI"));
 
     m_environmentLabel = new QLabel;
     m_environmentLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -558,6 +566,13 @@ ExternalToolConfig::ExternalToolConfig()
     m_inputText->setSizePolicy(sizePolicy3);
     m_inputText->setLineWrapMode(QPlainTextEdit::NoWrap);
 
+    m_aiPromptLabel = new QLabel(Tr::tr("AI prompt:"));
+    m_aiPromptLabel->setToolTip(Tr::tr("What the AI should do with the output that is sent to "
+                                       "it. Leave empty to have the output explained."));
+    m_aiPrompt = new QPlainTextEdit(m_infoWidget);
+    m_aiPrompt->setPlaceholderText(Tr::tr("Explain the output."));
+    m_aiPrompt->setToolTip(m_aiPromptLabel->toolTip());
+
     m_baseEnvironment = new QComboBox(m_infoWidget);
     m_baseEnvironment->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
@@ -575,7 +590,8 @@ ExternalToolConfig::ExternalToolConfig()
         Tr::tr("Base environment:"), m_baseEnvironment, br,
         Tr::tr("Environment:"),  m_environmentLabel, environmentButton, br,
         empty, m_modifiesDocumentCheckbox, br,
-        inputLabel, m_inputText
+        inputLabel, m_inputText, br,
+        m_aiPromptLabel, m_aiPrompt
     }.attachTo(m_infoWidget);
 
     Column {
@@ -604,6 +620,7 @@ ExternalToolConfig::ExternalToolConfig()
     chooser->addSupportedWidget(m_arguments);
     chooser->addSupportedWidget(m_workingDirectory->lineEdit());
     chooser->addSupportedWidget(m_inputText);
+    chooser->addSupportedWidget(m_aiPrompt);
 
     fillBaseEnvironmentComboBox(m_baseEnvironment);
 
@@ -631,6 +648,12 @@ ExternalToolConfig::ExternalToolConfig()
             this, &ExternalToolConfig::updateCurrentItem);
     connect(m_inputText, &QPlainTextEdit::textChanged,
             this, &ExternalToolConfig::updateCurrentItem);
+    connect(m_aiPrompt, &QPlainTextEdit::textChanged,
+            this, &ExternalToolConfig::updateCurrentItem);
+    connect(m_outputBehavior, &QComboBox::currentIndexChanged,
+            this, &ExternalToolConfig::updateAiPromptEnabled);
+    connect(m_errorOutputBehavior, &QComboBox::currentIndexChanged,
+            this, &ExternalToolConfig::updateAiPromptEnabled);
 
     connect(m_revertButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::revertCurrentItem);
@@ -654,6 +677,16 @@ ExternalToolConfig::ExternalToolConfig()
 
     installMarkSettingsDirtyTriggerRecursively(this);
     installMarkSettingsDirtyTrigger(m_inputText);
+    installMarkSettingsDirtyTrigger(m_aiPrompt);
+    updateAiPromptEnabled();
+}
+
+void ExternalToolConfig::updateAiPromptEnabled()
+{
+    const bool enabled = m_outputBehavior->currentIndex() == ExternalTool::SendToAi
+                         || m_errorOutputBehavior->currentIndex() == ExternalTool::SendToAi;
+    m_aiPromptLabel->setEnabled(enabled);
+    m_aiPrompt->setEnabled(enabled);
 }
 
 void ExternalToolConfig::setTools(const QMap<QString, QList<ExternalTool *> > &tools)
@@ -723,6 +756,7 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     tool->setErrorHandling(ExternalTool::OutputHandling(m_errorOutputBehavior->currentIndex()));
     tool->setModifiesCurrentDocument(m_modifiesDocumentCheckbox->checkState());
     tool->setInput(m_inputText->toPlainText());
+    tool->setAiPrompt(m_aiPrompt->toPlainText());
 }
 
 void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
@@ -737,6 +771,7 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
         m_arguments->clear();
         m_workingDirectory->setFilePath({});
         m_inputText->clear();
+        m_aiPrompt->clear();
         m_infoWidget->setEnabled(false);
         m_environment.clear();
         return;
@@ -759,6 +794,10 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
     {
         QSignalBlocker blocker(m_inputText);
         m_inputText->setPlainText(tool->input());
+    }
+    {
+        QSignalBlocker blocker(m_aiPrompt);
+        m_aiPrompt->setPlainText(tool->aiPrompt());
     }
 
     m_description->setCursorPosition(0);

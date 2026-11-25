@@ -11,18 +11,29 @@
 #include "editormanager/ieditor.h"
 #include "externaltool.h"
 #include "externaltoolmanager.h"
+#include "progressmanager/progressmanager.h"
 
 #include <utils/aggregate.h>
+#include <utils/aiassistance.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
 #include <utils/plaintextedit/plaintextedit.h>
+#include <utils/temporarydirectory.h>
 
 #include <QAction>
+#include <QApplication>
+#include <QDialog>
+#include <QListWidget>
 #include <QMenu>
 #include <QScopeGuard>
+#include <QSignalSpy>
+#include <QPointer>
 #include <QTest>
+
+#include <memory>
 
 using namespace Utils;
 
@@ -36,6 +47,7 @@ public:
     enum Field { Executable, Arguments, Input, WorkingDirectory, Environment };
 
 private slots:
+    void cleanup();
     void testEmptyVariables_data();
     void testEmptyVariables();
     void testUnresolvedVariables_data();
@@ -44,6 +56,10 @@ private slots:
     void testFallbackExecutables();
     void testActionStateFollowsTheCommand();
     void testReplaceSelectionNeedsAWritableEditor();
+    void testSendToAiRoundTrip();
+    void testSendToAiSubmitsOutput();
+    void testSendToAiAfterFailure();
+    void testSendToAiCanceledByProgress();
 };
 
 // Every field of the command is scanned, so dropping one of them from the scan
@@ -255,6 +271,195 @@ void ExternalToolTest::testReplaceSelectionNeedsAWritableEditor()
     edit->setReadOnly(false);
     QVERIFY(QMetaObject::invokeMethod(menu->menu(), "aboutToShow"));
     QVERIFY(action->isEnabled());
+}
+
+// Sending the output to an AI and the prompt for it survive saving and loading.
+void ExternalToolTest::testSendToAiRoundTrip()
+{
+    const QByteArray xml = R"(<?xml version="1.0" encoding="UTF-8"?>
+<externaltool id="Test.SendToAi">
+    <description>Sends to AI</description>
+    <displayname>Send To AI</displayname>
+    <category>Test</category>
+    <executable output="sendtoai" error="showinpane">
+        <path>tool</path>
+        <aiprompt>Review %{CurrentDocument:FilePath}</aiprompt>
+    </executable>
+</externaltool>
+)";
+    const Result<ExternalTool *> parsed = ExternalTool::createFromXml(xml);
+    QVERIFY2(parsed, parsed ? "" : qPrintable(parsed.error()));
+    const std::unique_ptr<ExternalTool> tool(*parsed);
+    QCOMPARE(tool->outputHandling(), ExternalTool::SendToAi);
+    QCOMPARE(tool->errorHandling(), ExternalTool::ShowInPane);
+    QCOMPARE(tool->aiPrompt(), "Review %{CurrentDocument:FilePath}");
+
+    const TemporaryDirectory dir("externaltool-ai");
+    const FilePath file = dir.filePath("tool.xml");
+    tool->setFilePath(file);
+    const Result<> saved = tool->save();
+    QVERIFY2(saved, saved ? "" : qPrintable(saved.error()));
+    const Result<ExternalTool *> loaded = ExternalTool::createFromFile(file);
+    QVERIFY2(loaded, loaded ? "" : qPrintable(loaded.error()));
+    const std::unique_ptr<ExternalTool> reloaded(*loaded);
+    reloaded->setFilePath(file);
+    QVERIFY(*reloaded == *tool);
+}
+
+class RecordingAiProvider final : public AiProvider
+{
+public:
+    RecordingAiProvider()
+        : AiProvider("Test.RecordingAiProvider", "Recording")
+    {
+        AiTarget target;
+        target.id = "record";
+        target.displayName = "Record Request";
+        setTargets({target});
+    }
+
+    void execute(const AiRequest &request, const AiTargetSelection &, AiResponse *response) final
+    {
+        requests.append(request);
+        response->reportFinished(QString());
+    }
+
+    QList<AiRequest> requests;
+};
+
+static QDialog *visibleDialog()
+{
+    for (QWidget *widget : QApplication::topLevelWidgets()) {
+        if (auto dialog = qobject_cast<QDialog *>(widget); dialog && dialog->isVisible())
+            return dialog;
+    }
+    return nullptr;
+}
+
+const char sendToAiProgressId[] = "Core.ExternalTool.SendToAi";
+
+static void pickRecordingTarget()
+{
+    QDialog *dialog = nullptr;
+    QTRY_VERIFY_WITH_TIMEOUT((dialog = visibleDialog()), 10000);
+    auto list = dialog->findChild<QListWidget *>();
+    QVERIFY(list);
+    const QList<QListWidgetItem *> items = list->findItems("Record Request", Qt::MatchExactly);
+    QCOMPARE(items.size(), 1);
+    list->setCurrentItem(items.first());
+    dialog->accept();
+}
+
+static std::unique_ptr<ExternalTool> sendToAiTool(const QString &arguments)
+{
+    auto tool = std::make_unique<ExternalTool>();
+    tool->setId("Test.SendToAiTool");
+    tool->setDisplayName("Test Send To AI Tool");
+    tool->setExecutables({FilePath::fromString("/bin/sh")});
+    tool->setArguments(arguments);
+    tool->setOutputHandling(ExternalTool::SendToAi);
+    tool->setErrorHandling(ExternalTool::SendToAi);
+    return tool;
+}
+
+static QString contextText(const AiRequest &request, const QString &name)
+{
+    for (const AiContextItem &item : request.context) {
+        if (item.name == name)
+            return item.text;
+    }
+    return {};
+}
+
+// The channels that go to the AI are collected and sent along with the expanded
+// prompt once the tool finished; the others are not.
+void ExternalToolTest::testSendToAiSubmitsOutput()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The tool is a POSIX shell command.");
+
+    RecordingAiProvider provider;
+    auto tool = std::make_unique<ExternalTool>();
+    tool->setId("Test.SendToAiTool");
+    tool->setDisplayName("Test Send To AI Tool");
+    tool->setExecutables({FilePath::fromString("/bin/sh")});
+    tool->setArguments("-c \"echo to-stdout; echo to-stderr >&2\"");
+    tool->setOutputHandling(ExternalTool::SendToAi);
+    tool->setErrorHandling(ExternalTool::Ignore);
+    tool->setAiPrompt("Check this in %{IDE:ResourcePath}");
+    QSignalSpy started(ProgressManager::instance(), &ProgressManager::taskStarted);
+    QSignalSpy ended(ProgressManager::instance(), &ProgressManager::allTasksFinished);
+    tool->execute();
+    // The run shows its progress until the AI has the request.
+    QVERIFY(started.contains({QVariant::fromValue(Id(sendToAiProgressId))}));
+
+    pickRecordingTarget();
+    if (QTest::currentTestFailed())
+        return;
+
+    QTRY_COMPARE(provider.requests.size(), 1);
+    QTRY_VERIFY(ended.contains({QVariant::fromValue(Id(sendToAiProgressId))}));
+    const AiRequest &request = provider.requests.first();
+    QCOMPARE(request.id, Id("Core.ExternalTool.Test.SendToAiTool"));
+    QVERIFY2(!request.prompt.contains("%{"), qPrintable(request.prompt));
+    QVERIFY2(request.prompt.startsWith("Check this in "), qPrintable(request.prompt));
+    QVERIFY2(contextText(request, "Standard output").contains("to-stdout"),
+             qPrintable(contextText(request, "Standard output")));
+    QVERIFY(!contextText(request, "Standard output").contains("to-stderr"));
+    QVERIFY(contextText(request, "Command").contains("/bin/sh"));
+    QVERIFY(Utils::allOf(request.context, [](const AiContextItem &item) {
+        return item.name != "Standard error";
+    }));
+}
+
+// A test that fails early must not leave its run, or its dialog, to the next one.
+void ExternalToolTest::cleanup()
+{
+    ProgressManager::cancelTasks(sendToAiProgressId);
+    while (QDialog *dialog = visibleDialog())
+        dialog->reject();
+}
+
+// The output of a tool that fails is what one wants explained the most.
+void ExternalToolTest::testSendToAiAfterFailure()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The tool is a POSIX shell command.");
+
+    RecordingAiProvider provider;
+    const auto tool = sendToAiTool("-c \"echo something broke >&2; exit 3\"");
+    tool->execute();
+    pickRecordingTarget();
+    if (QTest::currentTestFailed())
+        return;
+
+    QTRY_COMPARE(provider.requests.size(), 1);
+    const AiRequest &request = provider.requests.first();
+    QVERIFY2(contextText(request, "Standard error").contains("something broke"),
+             qPrintable(contextText(request, "Standard error")));
+    QVERIFY2(contextText(request, "Command").contains("3"),
+             qPrintable(contextText(request, "Command")));
+}
+
+// Canceling the progress while the user picks an AI ends the run without a
+// request.
+void ExternalToolTest::testSendToAiCanceledByProgress()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The tool is a POSIX shell command.");
+
+    RecordingAiProvider provider;
+    const auto tool = sendToAiTool("-c \"echo output\"");
+    QSignalSpy ended(ProgressManager::instance(), &ProgressManager::allTasksFinished);
+    tool->execute();
+    QDialog *dialog = nullptr;
+    QTRY_VERIFY_WITH_TIMEOUT((dialog = visibleDialog()), 10000);
+    QPointer<QDialog> dialogGuard(dialog);
+
+    ProgressManager::cancelTasks(sendToAiProgressId);
+    QTRY_VERIFY(ended.contains({QVariant::fromValue(Id(sendToAiProgressId))}));
+    QTRY_VERIFY(dialogGuard.isNull() || !dialogGuard->isVisible());
+    QVERIFY(provider.requests.isEmpty());
 }
 
 QObject *createExternalToolTest()
