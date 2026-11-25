@@ -488,8 +488,7 @@ void ClassViewParserTest::testASecondSessionShowsTheSameClasses()
 }
 
 // Opens a project of a header and a source and removes the source from the snapshot,
-// so that only reading it on request can show its class. Returns once reading on
-// request works, which it does only after the project is fully indexed.
+// so that only reading it on request can show its class.
 static bool openProjectWithSourceOutsideSnapshot(
     CppEditor::Tests::ProjectOpenerAndCloser &projectMgr, const FilePath &projectDir,
     FilePath *projectFile, FilePath *source)
@@ -499,23 +498,26 @@ static bool openProjectWithSourceOutsideSnapshot(
         return false;
     *projectFile = projectDir / "p.pro";
     *source = projectDir / "written.cpp";
-    const FilePath probe = projectDir / "probe.cpp";
     if (!(projectDir / "declared.h").writeFileContents("class Declared {};\n")
         || !source->writeFileContents("class Written {};\n")
-        || !probe.writeFileContents({})
         || !projectFile->writeFileContents("TEMPLATE = app\nTARGET = p\nHEADERS = declared.h\n"
-                                           "SOURCES = written.cpp probe.cpp\n")) {
+                                           "SOURCES = written.cpp\n")) {
         return false;
     }
     QSignalSpy refreshed(CppEditor::CppModelManager::instance(),
                          &CppEditor::CppModelManager::sourceFilesRefreshed);
-    if (!projectMgr.open(*projectFile, kit) || (refreshed.isEmpty() && !refreshed.wait(30000)))
+    if (!projectMgr.open(*projectFile, kit))
         return false;
-    CppEditor::Tests::removeFromSnapshot({*source, probe});
-    return QTest::qWaitFor([&probe] {
-        return bool(CppEditor::CppModelManager::document(
-            probe, CppEditor::DocumentLookup::ReadIfNeeded));
-    });
+    // The signal also comes for passes of other projects.
+    const bool indexed = QTest::qWaitFor([&refreshed, source] {
+        return Utils::contains(refreshed, [source](const QList<QVariant> &arguments) {
+            return arguments.first().value<QSet<FilePath>>().contains(*source);
+        });
+    }, 30000);
+    if (!indexed)
+        return false;
+    CppEditor::Tests::removeFromSnapshot({*source});
+    return true;
 }
 
 void ClassViewParserTest::testClassesOfAFileTheIndexerDoesNotDeliverAreShown()

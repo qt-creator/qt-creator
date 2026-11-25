@@ -57,6 +57,9 @@ private slots:
     void testAFileJustOverTheSizeLimitIsNotIndexed();
     void testAFileTheIndexerDoesNotDeliverIsReadOnRequest();
     void testAFileIsNotReadOnRequestWhileItsProjectIsBeingIndexed();
+    void testAProjectIsFullyIndexedWhenTheEndOfItsIndexingIsReported_data();
+    void testAProjectIsFullyIndexedWhenTheEndOfItsIndexingIsReported();
+    void testOnlyTheLastOfTwoProjectUpdatesIsReported();
     void testReadingOnRequestKeepsTheDocumentsThatAreThere();
     void testReadingOnRequestFollowsTheIndexersRules_data();
     void testReadingOnRequestFollowsTheIndexersRules();

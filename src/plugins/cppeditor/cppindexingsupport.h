@@ -46,9 +46,9 @@ CPPEDITOR_EXPORT void searchForSymbols(QPromise<Utils::SearchResultItem> &promis
 
 CPPEDITOR_EXPORT bool isFindErrorsIndexingActive();
 
-CPPEDITOR_EXPORT QFuture<void> refreshSourceFiles(
-    const std::function<QSet<Utils::FilePath>()> &sourceFiles,
-    CppModelManager::ProgressNotificationMode mode);
+// The result is the set of files the pass reads, known once it has started.
+CPPEDITOR_EXPORT QFuture<QSet<Utils::FilePath>> refreshSourceFiles(
+    const std::function<QSet<Utils::FilePath>()> &sourceFiles);
 
 } // namespace CppEditor::Internal
 

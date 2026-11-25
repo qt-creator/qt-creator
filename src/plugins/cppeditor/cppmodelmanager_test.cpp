@@ -6,6 +6,7 @@
 #include "baseeditordocumentprocessor.h"
 #include "builtineditordocumentparser.h"
 #include "cppcodemodelsettings.h"
+#include "cppeditorconstants.h"
 #include "cppindexingsupport.h"
 #include "cppindexqueries.h"
 #include "cpplocatordata.h"
@@ -19,6 +20,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cplusplus/LookupContext.h>
 
@@ -2383,6 +2385,102 @@ void ModelManagerTest::testAFileIsNotReadOnRequestWhileItsProjectIsBeingIndexed(
     pass.waitForFinished();
     QCoreApplication::processEvents();
     QVERIFY(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+}
+
+void ModelManagerTest::testAProjectIsFullyIndexedWhenTheEndOfItsIndexingIsReported_data()
+{
+    QTest::addColumn<bool>("viaTheTask");
+
+    QTest::newRow("end of the indexing task") << true;
+    QTest::newRow("sourceFilesRefreshed()") << false;
+}
+
+void ModelManagerTest::testAProjectIsFullyIndexedWhenTheEndOfItsIndexingIsReported()
+{
+    QFETCH(bool, viaTheTask);
+
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath source = projectDir / "indexed.cpp";
+    QVERIFY(source.writeFileContents("class Indexed {};\n"));
+
+    const auto project = helper.createProject("test_modelmanager_fully_indexed_when_reported",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto part = ProjectPart::create(project->projectFilePath(), rpp, {},
+                                          {{source, ProjectFile::CXXSource}});
+
+    // Only a fully indexed project has its files read on request.
+    std::optional<bool> readableOnRequest;
+    const auto check = [&] {
+        if (readableOnRequest)
+            return;
+        helper.removeFromSnapshot({source});
+        readableOnRequest = bool(CppModelManager::document(source, DocumentLookup::ReadIfNeeded));
+    };
+    QObject receiver;
+    if (viaTheTask) {
+        connect(Core::ProgressManager::instance(), &Core::ProgressManager::allTasksFinished,
+                &receiver, [&](Id type) {
+                    if (type == Constants::TASK_INDEX)
+                        check();
+                });
+    } else {
+        connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed,
+                &receiver, [&](const QSet<FilePath> &files) {
+                    if (files.contains(source))
+                        check();
+                });
+    }
+
+    CppModelManager::updateProjectInfo(
+        ProjectInfo::create({project, KitInfo(nullptr), {}, {}}, {part}));
+    QTRY_VERIFY(readableOnRequest);
+    QVERIFY2(*readableOnRequest,
+             "the project did not count as fully indexed when the end of its indexing was "
+             "reported");
+}
+
+void ModelManagerTest::testOnlyTheLastOfTwoProjectUpdatesIsReported()
+{
+    ModelManagerTestHelper helper;
+
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const FilePath projectDir = tmpDir.filePath();
+    const FilePath first = projectDir / "first.cpp";
+    const FilePath second = projectDir / "second.cpp";
+    QVERIFY(first.writeFileContents("class First {};\n"));
+    QVERIFY(second.writeFileContents("class Second {};\n"));
+
+    const auto project = helper.createProject("test_modelmanager_last_update_reported",
+                                              projectDir / "p.pro");
+    RawProjectPart rpp;
+    rpp.setQtVersion(Utils::QtMajorVersion::None);
+    const auto projectInfo = [&](const ProjectFiles &files) {
+        return ProjectInfo::create({project, KitInfo(nullptr), {}, {}},
+                                   {ProjectPart::create(project->projectFilePath(), rpp, {},
+                                                        files)});
+    };
+    const ProjectFile firstFile(first, ProjectFile::CXXSource);
+    const ProjectFile secondFile(second, ProjectFile::CXXSource);
+
+    // The second update cancels the pass of the first one, whether that is still running
+    // or not, as the end of a pass is reported only once the event loop runs.
+    QSignalSpy refreshed(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed);
+    QFuture<void> canceledPass = CppModelManager::updateProjectInfo(projectInfo({firstFile}));
+    QFuture<void> lastPass
+        = CppModelManager::updateProjectInfo(projectInfo({firstFile, secondFile}));
+    canceledPass.waitForFinished();
+    lastPass.waitForFinished();
+    QCoreApplication::processEvents();
+
+    QCOMPARE(refreshed.count(), 1);
+    QCOMPARE(refreshed.first().first().value<QSet<FilePath>>(), (QSet<FilePath>{first, second}));
 }
 
 void ModelManagerTest::testReadingOnRequestKeepsTheDocumentsThatAreThere()

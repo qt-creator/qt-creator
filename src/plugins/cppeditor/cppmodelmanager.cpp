@@ -64,6 +64,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -1396,11 +1397,12 @@ static QSet<FilePath> filteredFilesRemoved(const QSet<FilePath> &files,
     return result;
 }
 
-QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFiles,
-                                                 ProgressNotificationMode mode)
+// Neither reported nor shown in the progress manager yet, see
+// scheduleIndexingEndReport() and showIndexingProgress().
+static QFuture<QSet<FilePath>> startIndexing(const QSet<FilePath> &sourceFiles)
 {
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
-        return QFuture<void>();
+        return {};
 
     std::unordered_map<Project *, QSet<FilePath>> sourcesPerProject;
     for (const FilePath &fp : sourceFiles)
@@ -1418,10 +1420,38 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
         return result;
     };
 
+    return Internal::refreshSourceFiles(filteredFiles);
+}
+
+// Once the pass has finished, reports its end as sourceFilesRefreshed(). A canceled pass
+// refreshed only part of its files and is not reported.
+static void scheduleIndexingEndReport(const QFuture<QSet<FilePath>> &future)
+{
+    if (!future.isValid())
+        return;
+    Utils::onFinished(future, CppModelManager::instance(),
+                      [](const QFuture<QSet<FilePath>> &future) {
+        if (!future.isCanceled())
+            CppModelManager::finishedRefreshingSourceFiles(future.result());
+    });
+}
+
+// Reports the end of indexing as the end of TASK_INDEX, which some plugins react to.
+static void showIndexingProgress(const QFuture<QSet<FilePath>> &future)
+{
+    if (future.isValid())
+        ProgressManager::addTask(future, Tr::tr("Parsing C/C++ Files"), Constants::TASK_INDEX);
+}
+
+QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFiles,
+                                                 ProgressNotificationMode mode)
+{
+    const QFuture<QSet<FilePath>> future = startIndexing(sourceFiles);
+    scheduleIndexingEndReport(future);
     // "ReservedProgressNotification" should be shown if there is more than one source file.
-    if (sourceFiles.size() > 1)
-        mode = ForcedProgressNotification;
-    return Internal::refreshSourceFiles(filteredFiles, mode);
+    if (mode == ForcedProgressNotification || sourceFiles.size() > 1)
+        showIndexingProgress(future);
+    return QFuture<void>(future);
 }
 
 ProjectInfoList CppModelManager::projectInfos()
@@ -1759,14 +1789,18 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
     }
 
     // Trigger reindexing
-    const QFuture<void> indexingFuture = updateSourceFiles(filesToReindex,
-                                                           ForcedProgressNotification);
+    const QFuture<QSet<FilePath>> indexingFuture = startIndexing(filesToReindex);
 
     // It's safe to do this here, as only the UI thread writes to the map and no other thread
     // uses the indexer value.
-    d->setupWatcher(indexingFuture, project, projectData, m_instance);
+    d->setupWatcher(QFuture<void>(indexingFuture), project, projectData, m_instance);
 
-    return indexingFuture;
+    // Only now: watchers learn of the end in the order they were set up, and the project
+    // must count as fully indexed when the end of indexing is reported.
+    scheduleIndexingEndReport(indexingFuture);
+    showIndexingProgress(indexingFuture);
+
+    return QFuture<void>(indexingFuture);
 }
 
 ProjectPart::ConstPtr CppModelManager::projectPartForId(const QString &projectPartId)
