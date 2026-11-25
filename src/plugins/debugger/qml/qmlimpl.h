@@ -93,6 +93,9 @@ private:
         QString exp;
     };
     void refreshLocals(const RefreshRequest &request);
+    void evaluateIntoItem(GdbMi item, const QString &iname, const QString &exp,
+                          const std::shared_ptr<RefreshCollector> &pending,
+                          const std::function<void()> &finishLeg);
     void handleScopeReply(const QVariantMap &response,
                           const std::shared_ptr<RefreshCollector> &pending,
                           const std::function<void()> &finishLeg);
@@ -175,7 +178,8 @@ private:
     int serviceNumberFor(const QString &responseId) const;
     Utils::FilePath toLocalFile(const QString &scriptName) const;
     void handleBreakEvent(const QVariantMap &response);
-    void reportBreakpointHit(const QString &responseId, int hits);
+    void reportBreakpointHit(const QString &responseId, int hits,
+                             const QString &functionName);
     class TracepointHit
     {
     public:
@@ -189,6 +193,7 @@ private:
     void reportTracepointHit(const QString &responseId, const std::function<void()> &finished);
     void finishTracepointHit(const std::shared_ptr<TracepointHit> &hit);
     void handleExceptionEvent(const QVariantMap &response);
+    void clearRunToLineBreakpoints();
 
     void sendDisconnect();
     void beginConnection();
@@ -241,6 +246,10 @@ private:
     std::optional<RefreshRequest> m_deferredWatchers;
     // The locals fetch, kept for RepeatLastCommand.
     std::optional<RefreshRequest> m_lastLocalsRequest;
+    // The service numbers of the breakpoints a run to a line put in place.
+    QList<int> m_runToLineBreakpoints;
+    Utils::FilePath m_runToLineFile;
+    int m_runToLineLine = 0;
     bool m_inferiorRunning = false;
     bool m_inferiorExited = false;
     bool m_interruptRequested = false;

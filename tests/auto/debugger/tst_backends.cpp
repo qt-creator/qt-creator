@@ -2547,6 +2547,14 @@ private slots:
     void mapsAQmlScriptUrlToAProjectFile();
     void printsAnEvaluatedQmlObjectAsATree_data() { addBackendRows(); }
     void printsAnEvaluatedQmlObjectAsATree();
+    void removesTheQmlRunToLineBreakpointAfterTheStop_data() { addBackendRows(); }
+    void removesTheQmlRunToLineBreakpointAfterTheStop();
+    void keepsTheQmlBreakpointOnTheRunToLineTarget_data() { addBackendRows(); }
+    void keepsTheQmlBreakpointOnTheRunToLineTarget();
+    void stopsAtTheRunToLineTargetWithAnIgnoreCount_data() { addBackendRows(); }
+    void stopsAtTheRunToLineTargetWithAnIgnoreCount();
+    void expandsTheQmlReceiver_data() { addBackendRows(); }
+    void expandsTheQmlReceiver();
     void forwardsQmlConsoleMessages_data() { addBackendRows(); }
     void forwardsQmlConsoleMessages();
     void evaluatesWhileTheQmlApplicationRuns_data() { addBackendRows(); }
@@ -2625,6 +2633,7 @@ private slots:
 
 private:
     void addBackendRows();
+    void runToQmlLineOverUserBreakpoint(Backend backend, int ignoreCount);
     void warmUpBackends();
     void buildOtherWordWidthInferior(const FilePath &compiler, InferiorTestData &data);
     void buildDebugCrtInferior(const FilePath &compiler, const Utils::Environment &environment,
@@ -18614,6 +18623,164 @@ void tst_backends::printsAnEvaluatedQmlObjectAsATree()
     engine->executeDebuggerCommand("noSuchName", {});
     QTRY_VERIFY_WITH_TIMEOUT(!items.isEmpty(), s_timeout);
     QCOMPARE(items.first()["type"].data(), QString("error"));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// The breakpoint a run to a line puts in place is gone once the run ended, so a
+// later pass over the line runs through it. A hit of a real breakpoint names
+// the function it stopped in.
+void tst_backends::removesTheQmlRunToLineBreakpointAfterTheStop()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("The other backends leave a run to a line to the debugger.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const InferiorTestData testData = inferiorTestData(backend);
+
+    debuggerBackend->clearEvents();
+    ExecutionRequest runToLineRequest;
+    runToLineRequest.command = ExecutionCommand::RunToLine;
+    runToLineRequest.context.type = LocationByFile;
+    runToLineRequest.context.fileName = testData.source;
+    runToLineRequest.context.textPosition.line = testData.secondBreakpointLine;
+    debuggerBackend->execute(runToLineRequest);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "RunToLine never signaled a stop", s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), testData.secondBreakpointLine);
+
+    QList<GdbMi> modifications;
+    connect(engine, &DebuggerEngineInterface::breakpointModified, this,
+            [&modifications](const GdbMi &data) { modifications.append(data); });
+
+    // The next call of compute() hits the breakpoint, and the one after that
+    // passes the line the run went to before it comes back to the breakpoint.
+    for (int pass = 0; pass < 2; ++pass) {
+        debuggerBackend->clearEvents();
+        debuggerBackend->execute({ExecutionCommand::Continue});
+        QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                  "Continue never signaled a stop", s_timeout);
+        QCOMPARE(debuggerBackend->stoppedLine(), testData.breakpointLine);
+    }
+
+    QVERIFY(!modifications.isEmpty());
+    const GdbMi hit = modifications.first().childAt(0);
+    QCOMPARE(hit["func"].data(), QString("compute"));
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+// A run to a line that has a breakpoint of the user's must not take that
+// breakpoint along when the run ended, and must end at the line even where
+// that breakpoint would have skipped the stop.
+void tst_backends::runToQmlLineOverUserBreakpoint(Backend backend, int ignoreCount)
+{
+    if (backend != Backend::Qml)
+        QSKIP("The other backends leave a run to a line to the debugger.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+    const InferiorTestData testData = inferiorTestData(backend);
+
+    QHash<quint64, bool> insertResults;
+    connect(engine, &DebuggerEngineInterface::breakpointEvent, this,
+            [&insertResults](quint64 requestId, BreakpointOp op, bool ok, const GdbMi &) {
+        if (op == BreakpointOp::Insert)
+            insertResults[requestId] = ok;
+    });
+    BreakpointChangeRequest request;
+    request.op = BreakpointOp::Insert;
+    request.requestId = 1;
+    request.params.type = BreakpointByFileAndLine;
+    request.params.fileName = testData.source;
+    request.params.textPosition.line = testData.secondBreakpointLine;
+    request.params.enabled = true;
+    request.params.ignoreCount = ignoreCount;
+    engine->changeBreakpoint(request);
+    QTRY_VERIFY_WITH_TIMEOUT(insertResults.contains(1), s_timeout);
+    QVERIFY2(insertResults.value(1), "breakpoint insert failed");
+
+    debuggerBackend->clearEvents();
+    ExecutionRequest runToLineRequest;
+    runToLineRequest.command = ExecutionCommand::RunToLine;
+    runToLineRequest.context.type = LocationByFile;
+    runToLineRequest.context.fileName = testData.source;
+    runToLineRequest.context.textPosition.line = testData.secondBreakpointLine;
+    debuggerBackend->execute(runToLineRequest);
+    QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                              "RunToLine never signaled a stop", s_timeout);
+    QCOMPARE(debuggerBackend->stoppedLine(), testData.secondBreakpointLine);
+
+    if (ignoreCount == 0) {
+        const int expectedLines[] = {testData.breakpointLine, testData.secondBreakpointLine};
+        for (const int expectedLine : expectedLines) {
+            debuggerBackend->clearEvents();
+            debuggerBackend->execute({ExecutionCommand::Continue});
+            QTRY_VERIFY2_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::SpontaneousStop),
+                                      "Continue never signaled a stop", s_timeout);
+            QCOMPARE(debuggerBackend->stoppedLine(), expectedLine);
+        }
+    }
+
+    debuggerBackend->clearEvents();
+    engine->shutdownEngine();
+    QTRY_VERIFY_WITH_TIMEOUT(debuggerBackend->contains(InferiorEvent::EngineShutdownFinished),
+                             s_timeout);
+}
+
+void tst_backends::keepsTheQmlBreakpointOnTheRunToLineTarget()
+{
+    QFETCH(Backend, backend);
+    runToQmlLineOverUserBreakpoint(backend, 0);
+}
+
+void tst_backends::stopsAtTheRunToLineTargetWithAnIgnoreCount()
+{
+    QFETCH(Backend, backend);
+    runToQmlLineOverUserBreakpoint(backend, 5);
+}
+
+// The frame names its receiver by a handle alone. What the object holds is
+// still what the user expands "this" for.
+void tst_backends::expandsTheQmlReceiver()
+{
+    QFETCH(Backend, backend);
+
+    if (backend != Backend::Qml)
+        QSKIP("Only the qml backend reports the receiver as a local.");
+
+    std::unique_ptr<DebuggerBackend> debuggerBackend = launchAndStopAtBreakpoint(backend);
+    QVERIFY(debuggerBackend);
+    DebuggerEngineInterface *engine = debuggerBackend->engine();
+
+    QHash<quint64, GdbMi> responses;
+    connect(engine, &DebuggerEngineInterface::refreshDataReceived, this,
+            [&responses](quint64 requestId, RefreshKind, const GdbMi &data) {
+        responses[requestId] = data;
+    });
+
+    RefreshRequest request;
+    request.kind = RefreshKind::Locals;
+    request.requestId = 130;
+    request.expandedINames = {"local.this"};
+    engine->refresh(request);
+    QTRY_VERIFY_WITH_TIMEOUT(responses.contains(130), s_timeout);
+    const GdbMi data = responses.value(130);
+    const GdbMi receiver = findItemByIName(data, "local.this");
+    QVERIFY2(receiver.isValid(), qPrintable(data.toString()));
+    QVERIFY2(receiver["numchild"].data().toInt() > 0, qPrintable(receiver.toString()));
+    QVERIFY2(containsChildNamed(data, "local.this", "globalValue"), qPrintable(data.toString()));
 
     debuggerBackend->clearEvents();
     engine->shutdownEngine();
