@@ -191,9 +191,8 @@ void IconWidget::loadIcon(const FilePath &manifestDir)
 
     const Utils::FilePath targetPath = getTargetPath(manifestDir);
 
-    const QString p = targetPath.toUrlishString();
-    if (QFile::exists(p)) {
-        QPixmap pix(p);
+    if (targetPath.exists()) {
+        QPixmap pix(targetPath.toFSPathString());
         if (!pix.isNull()) {
             m_pixmap = pix.scaled(m_pixmapSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             setPixmap(m_pixmap.scaled(m_displaySize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -222,7 +221,7 @@ Result<void> IconWidget::saveIcon(const FilePath &manifestDir)
             return Utils::ResultError(
                 Tr::tr("Failed to save pixmap data to file \"%1\".").arg(targetPath.toUserOutput()));
         }
-        if (QFile::exists(targetPath.toUrlishString()))
+        if (targetPath.exists())
             return Utils::ResultOk;
         return Utils::ResultError(
             Tr::tr("Icon file \"%1\" does not exist after writing and closing.")
@@ -407,10 +406,10 @@ bool Android::Internal::IconContainerWidget::initialize(TextEditor::TextEditorWi
             if (iconFile.isEmpty())
                 return;
 
-            const QString filePath = iconFile.toUrlishString();
-            QPixmap basePix(filePath);
+            QPixmap basePix(iconFile.toFSPathString());
             if (basePix.isNull()) {
-                qWarning() << "Selected master icon could not be loaded:" << filePath;
+                qWarning() << "Selected master icon could not be loaded:"
+                           << iconFile.toUserOutput();
                 return;
             }
 

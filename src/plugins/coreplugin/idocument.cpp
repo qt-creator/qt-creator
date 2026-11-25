@@ -11,8 +11,6 @@
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
 
-#include <QFile>
-
 #include <memory>
 #include <optional>
 
@@ -679,7 +677,7 @@ void IDocument::setRestoredFrom(const Utils::FilePath &path)
 void IDocument::removeAutoSaveFile()
 {
     if (!d->autoSavePath.isEmpty()) {
-        QFile::remove(d->autoSavePath.toUrlishString());
+        d->autoSavePath.removeFile();
         d->autoSavePath.clear();
         if (d->restored) {
             d->restored = false;

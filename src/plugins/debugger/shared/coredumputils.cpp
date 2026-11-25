@@ -10,7 +10,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QFile>
 #include <QProcess>
 #include <QStandardPaths>
 
@@ -62,7 +61,7 @@ Group lastCoreRecipe(const Storage<LastCore> &storage)
         // Copy core to /tmp and uncompress (unless it already exists on 2nd invocation).
         const QString tmpCorePath = QDir::tempPath() + '/' + storage->coreFile.fileName();
         const auto tmpCore = Utils::FilePath::fromString(tmpCorePath);
-        if (!tmpCore.exists() && !QFile::copy(storage->coreFile.toUrlishString(), tmpCorePath))
+        if (!tmpCore.exists() && !storage->coreFile.copyFile(tmpCore))
             return SetupResult::StopWithError;
 
         const QString uncompressedCorePath = tmpCorePath.sliced(0, tmpCorePath.size() - 4);
