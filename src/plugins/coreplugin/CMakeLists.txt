@@ -18,6 +18,8 @@ add_qtc_plugin(Core
     actionmanager/commandmappings.h
     actionsfilter.cpp
     actionsfilter.h
+    aitaskbutton.cpp
+    aitaskbutton.h
     basefilewizard.cpp
     basefilewizard.h
     basefilewizardfactory.cpp
@@ -310,6 +312,8 @@ extend_qtc_plugin(Core
   SOURCES
     actionmanager/actionmanager_test.cpp
     actionmanager/actionmanager_test.h
+    aitaskbutton_test.cpp
+    aitaskbutton_test.h
     documentmanager_test.cpp
     documentmanager_test.h
     basetextdocument_test.cpp

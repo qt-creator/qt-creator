@@ -61,6 +61,8 @@ QtcPlugin {
         files: [
             "actionsfilter.cpp",
             "actionsfilter.h",
+            "aitaskbutton.cpp",
+            "aitaskbutton.h",
             "basefilewizard.cpp",
             "basefilewizard.h",
             "basefilewizardfactory.cpp",
@@ -313,6 +315,8 @@ QtcPlugin {
         files: [
             "actionmanager/actionmanager_test.cpp",
             "actionmanager/actionmanager_test.h",
+            "aitaskbutton_test.cpp",
+            "aitaskbutton_test.h",
             "basetextdocument_test.cpp",
             "basetextdocument_test.h",
             "documentmanager_test.cpp",
