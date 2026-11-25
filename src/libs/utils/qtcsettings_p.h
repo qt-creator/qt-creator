@@ -6,6 +6,7 @@
 #include "qtcsettings.h"
 
 class QtProfilerCliSettings;
+class tst_AiAssistance;
 class tst_PluginManager;
 class tst_StyledBar;
 int main(int, char *[]);
@@ -17,6 +18,7 @@ class QTCREATOR_UTILS_EXPORT SettingsSetup final
     // Restrict access to items that need it.
     friend int ::main(int, char*[]);
     friend class ::QtProfilerCliSettings;
+    friend class ::tst_AiAssistance;
     friend class ::tst_PluginManager;
     friend class ::tst_StyledBar;
 

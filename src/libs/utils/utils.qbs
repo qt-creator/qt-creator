@@ -65,6 +65,8 @@ QtcLibrary {
         "action.h",
         "aggregate.cpp",
         "aggregate.h",
+        "aiassistance.cpp",
+        "aiassistance.h",
         "algorithm.h",
         "ansiescapecodehandler.cpp",
         "ansiescapecodehandler.h",

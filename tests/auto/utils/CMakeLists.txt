@@ -1,3 +1,4 @@
+add_subdirectory(aiassistance)
 add_subdirectory(ansiescapecodehandler)
 add_subdirectory(aspects)
 add_subdirectory(async)

@@ -3,6 +3,7 @@ import qbs
 Project {
     name: "Utils autotests"
     references: [
+        "aiassistance/aiassistance.qbs",
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "aspects/aspects.qbs",
         "async/async.qbs",
