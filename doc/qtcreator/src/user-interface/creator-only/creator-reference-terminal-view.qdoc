@@ -36,11 +36,39 @@
             in the context menu or select \key {Ctrl+A}.
 
         \li To open links in a browser, files in the editor, or folders in the
-            \l Projects view, hover over them, and select \key Ctrl.
+            \l {File System} view, hold \key Ctrl (or \key Cmd on \macos) and
+            select them. To copy the target of a link instead, hold
+            \key {Ctrl+Shift} (or \key {Cmd+Shift} on \macos).
+
+            Programs can also mark text as a link. For example, GCC links the
+            warning options in its output to its manual when you pass
+            \c {-fdiagnostics-urls=always} to it.
 
         \li To \l{Search in current file}{search} through the output, select
             \key {Ctrl+F}.
     \endlist
+
+    \section1 View pictures in the terminal
+
+    Programs can print pictures into the terminal in the sixel format, for
+    example \c img2sixel or \c {chafa -f sixels}.
+
+    On Windows, the console host that comes with Windows passes on only the
+    text. To view the pictures, go to \preferences > \uicontrol Terminal >
+    \uicontrol {Console Host}, and select \uicontrol {Download...} to download
+    a newer console host from Microsoft. Then open a new terminal.
+
+    \section1 Paste text
+
+    If the text that you paste has control characters, such as line breaks,
+    and the program running in the terminal did not announce that it can
+    handle them, \QC asks before pasting the text. Such a paste can run
+    commands that the text only appears to contain. To paste without asking,
+    go to \preferences > \uicontrol Terminal, and clear
+    \uicontrol {Confirm pasting control characters}.
+
+    Programs can replace the contents of the clipboard only if you select
+    \uicontrol {Allow programs to set the clipboard}.
 
     \section1 Run \QC commands from the terminal
 
@@ -63,14 +91,17 @@
 
     \section1 Set keyboard shortcut preferences
 
-    Most of the \QC keyboard shortcuts are disabled in the terminal, except the
-    ones for opening terminal preferences or the locator and quitting \QC. To
-    keep \QC keyboard shortcuts from interfering in the terminal, select
-    \inlineimage {icons/keyboardlock.png} {Qt Creator shortcuts take precedence.}.
+    By default, the \QC keyboard shortcuts take precedence in the terminal. To
+    keep them from interfering in the terminal, select
+    \inlineimage {icons/keyboardlock.png} {Block shortcuts in terminal}
+    (\uicontrol {Block shortcuts in terminal}). The keyboard shortcuts for
+    opening preferences, finding text, maximizing the output view, and opening
+    and switching terminals still work.
 
     To send the escape key to the terminal instead of closing the terminal,
-    select \uicontrol {Shift+Esc}. To set this as default behavior, go to
-    \preferences > \uicontrol Terminal > \uicontrol {Block shortcuts in terminal}.
+    press \key {Shift+Esc}. To always send it, select \uicontrol {Shift+Esc}
+    on the toolbar, or go to \preferences > \uicontrol Terminal, and select
+    \uicontrol {Send escape key to terminal}.
 
     \image {qtcreator-preferences-terminal.webp} {Terminal preferences}
 
