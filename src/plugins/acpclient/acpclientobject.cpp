@@ -246,10 +246,12 @@ void AcpClientObject::handleNotification(const QString &method, const QJsonObjec
 
     if (method == QLatin1String("session/update")) {
         auto notif = fromJson<SessionNotification>(QJsonValue(params));
+        // The protocol adapter parses the update for the version in use, so an update
+        // of a newer version only fails this parse, and is not lost.
         if (notif)
             emit sessionUpdate(notif->sessionId(), notif->update());
         else
-            qCWarning(logClient) << "Invalid session notification:" << params;
+            qCDebug(logClient) << "Not a v1 session notification:" << params;
     } else if (method == QLatin1String("$/cancel_request")) {
         auto notif = fromJson<CancelRequestNotification>(QJsonValue(params));
         if (!notif) {
