@@ -13,11 +13,24 @@
     With the profiling support in CMake 3.18, and later, you can find out where
     CMake is spending time configuring your project.
 
-    To view profiling information in the
-    \uicontrol {Chrome Trace Format Visualizer}, select \uicontrol Analyze >
-    \uicontrol {CMake Profiler}.
+    To profile the configuration of the startup project, select
+    \uicontrol Analyze > \uicontrol {CMake Profiler}. \QC runs CMake with
+    profiling for the active build configuration, and opens the trace in the
+    \uicontrol Profile mode.
 
-    \image {qtcreator-cmake-profiler.webp} {CMake profiling information in Chrome Trace Format Visualizer}
+    \image {qtcreator-cmake-profiler.webp} {CMake profiling information in the Profile mode}
+
+    The timeline shows the CMake commands that ran, each below the command that
+    called it. The commands of the top-level \c CMakeLists.txt are in the second
+    row, below \c configure. The widest bars took the most time.
+
+    Select a command to see its arguments and the file and line that called it.
+    \QC opens that file at that line next to the trace.
+
+    The \uicontrol Statistics view lists how often each command ran and how long
+    it took.
+
+    Each run of the CMake Profiler replaces the trace of the previous run.
 
     \sa {CMake}, {Chrome Trace Format Visualizer}
 */
