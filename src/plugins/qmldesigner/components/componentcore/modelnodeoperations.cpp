@@ -1510,7 +1510,7 @@ static QString fromCamelCase(const QString &s)
     return result;
 }
 
-QString getTemplateDialog(const FilePath &projectPath)
+FilePath getTemplateDialog(const FilePath &projectPath)
 {
     const FilePath templatesPath = projectPath.pathAppended("templates");
 
@@ -1566,7 +1566,7 @@ QString getTemplateDialog(const FilePath &projectPath)
     QObject::connect(browseButton, &QPushButton::clicked, dialog, [setTemplate, &projectPath]() {
         const QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
                                                              Tr::tr("Browse Template"),
-                                                             projectPath.toUrlishString(),
+                                                             projectPath.toFSPathString(),
                                                              "*.qml");
         if (!newFile.isEmpty())
             setTemplate(newFile);
@@ -1590,12 +1590,17 @@ QString getTemplateDialog(const FilePath &projectPath)
 
     dialog->exec();
 
-    if (!result.isEmpty() && !QFileInfo::exists(result)) {
-        result = templateFiles.at(names.indexOf(result));
-        result = templatesPath.pathAppended(result).toUrlishString();
-    }
+    if (result.isEmpty())
+        return {};
 
-    return result;
+    const FilePath picked = FilePath::fromUserInput(result);
+    if (picked.exists())
+        return picked;
+
+    const int index = names.indexOf(result);
+    if (index < 0)
+        return {};
+    return templatesPath.pathAppended(templateFiles.at(index));
 }
 
 void mergeWithTemplate(const SelectionContext &selectionContext,
@@ -1605,10 +1610,10 @@ void mergeWithTemplate(const SelectionContext &selectionContext,
     const FilePath projectPath = FilePath::fromString(
         baseDirectory(selectionContext.view()->model()->fileUrl()));
 
-    const QString templateFile = getTemplateDialog(projectPath);
+    const FilePath templateFile = getTemplateDialog(projectPath);
 
-    if (QFileInfo::exists(templateFile)) {
-        StylesheetMerger::styleMerge(FilePath::fromString(templateFile),
+    if (templateFile.exists()) {
+        StylesheetMerger::styleMerge(templateFile,
                                      selectionContext.view()->model(),
                                      modulesStorage,
                                      externalDependencies);
@@ -1862,7 +1867,7 @@ void openOldEffectMaker(const QString &filePath)
         arguments << filePath;
         if (effectPath.fileContents()->isEmpty())
             arguments << "--create";
-        arguments << "--exportpath" << effectResPath.toUrlishString();
+        arguments << "--exportpath" << effectResPath.nativePath();
 
         if (env.osType() == OsTypeMac)
             env.set("QSG_RHI_BACKEND", "metal");
