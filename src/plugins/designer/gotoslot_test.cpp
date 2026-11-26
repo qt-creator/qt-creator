@@ -21,7 +21,6 @@
 
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegrationInterface>
-#include <QElapsedTimer>
 #include <QStringList>
 #include <QTest>
 
@@ -169,31 +168,20 @@ public:
         QCOMPARE(EditorManager::currentDocument()->filePath(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
-        // Wait for updated documents
-        for (TextEditor::BaseTextEditor *editor : std::as_const(editors)) {
-            QElapsedTimer t;
-            t.start();
-            const FilePath filePath = editor->document()->filePath();
-            if (auto parser = BuiltinEditorDocumentParser::get(filePath)) {
-                while (t.elapsed() < 2000) {
-                    if (Document::Ptr document = parser->document()) {
-                        if (document->editorRevision() == 2)
-                            break;
-                    }
-                    QApplication::processEvents();
-                }
-            }
-        }
-
-        // Compare
         const auto cppDocumentParser = BuiltinEditorDocumentParser::get(cppFile);
         QVERIFY(cppDocumentParser);
-        const Document::Ptr cppDocument = cppDocumentParser->document();
-        QVERIFY(cppDocument->editorRevision() >= 2);
-        QVERIFY(checkDiagsnosticMessages(cppDocument));
-
         const auto hDocumentParser = BuiltinEditorDocumentParser::get(hFile);
         QVERIFY(hDocumentParser);
+        const auto isReparsed = [](const BuiltinEditorDocumentParser::Ptr &parser) {
+            const Document::Ptr document = parser->document();
+            return document && document->editorRevision() >= 2;
+        };
+        QTRY_VERIFY(isReparsed(cppDocumentParser));
+        QTRY_VERIFY(isReparsed(hDocumentParser));
+
+        // Compare
+        const Document::Ptr cppDocument = cppDocumentParser->document();
+        QVERIFY(checkDiagsnosticMessages(cppDocument));
         const Document::Ptr hDocument = hDocumentParser->document();
         QVERIFY(checkDiagsnosticMessages(hDocument));
 
