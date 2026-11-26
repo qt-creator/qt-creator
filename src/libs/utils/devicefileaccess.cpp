@@ -1348,10 +1348,18 @@ static bool localFileSystemSupportsAtomicSaveFile(const FilePath &path)
     QTC_ASSERT(path.isLocal(), return true);
 #ifdef Q_OS_WIN
 
-    // Use the reconstituted local path so this keeps working once the WSL
-    // server moves from the path into the host part of a "unc" scheme.
-    if (localPathString(path).startsWith("//wsl."))
+    // A network share can follow a symlink on the server side, so the client sees
+    // a plain file, and a rename over it replaces the link instead of writing
+    // through it. Use the reconstituted local path so this keeps working once the
+    // WSL server moves from the path into the host part of a "unc" scheme.
+    const QString localPath = localPathString(path);
+    if (localPath.startsWith("//"))
         return false;
+    if (localPath.size() >= 2 && localPath.at(1) == ':') {
+        const QString root = localPath.left(2) + '\\';
+        if (GetDriveTypeW((const wchar_t *) root.utf16()) == DRIVE_REMOTE)
+            return false;
+    }
 
     const HANDLE handle = CreateFile(
         (wchar_t *) path.nativePath().utf16(),
