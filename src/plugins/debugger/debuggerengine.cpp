@@ -3785,6 +3785,24 @@ Result<std::unique_ptr<TemporaryFilePath>> copyDumperScripts(const FilePath &deb
     return copy;
 }
 
+// Where a debugger reads the dumper scripts: here for a local one, else from a
+// copy on its device. If it cannot be copied there, they are piped in.
+DumperScriptsLocation dumperScriptsLocation(const FilePath &debugger)
+{
+    DumperScriptsLocation location{ICore::resourcePath("debugger")};
+    if (debugger.isLocal())
+        return location;
+    Result<std::unique_ptr<TemporaryFilePath>> copy = copyDumperScripts(debugger);
+    if (copy) {
+        location.copy = std::move(*copy);
+        location.dir = location.copy->filePath();
+    } else {
+        location.copyError = copy.error();
+        location.pipe = true;
+    }
+    return location;
+}
+
 Result<FilePath> DebuggerEngine::copyDebuggerHelpers()
 {
     Result<std::unique_ptr<TemporaryFilePath>> remoteDir

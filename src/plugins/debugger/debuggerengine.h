@@ -910,6 +910,19 @@ void adaptDebuggerFontSize(QWidget *widget);
 Utils::Result<std::unique_ptr<Utils::TemporaryFilePath>> copyDumperScripts(
     const Utils::FilePath &debugger);
 
+class DumperScriptsLocation
+{
+public:
+    Utils::FilePath dir;
+    bool pipe = false;
+    // Why the scripts could not be copied to the debugger's device.
+    QString copyError;
+    // A copy of the scripts on the debugger's device, alive while the session is.
+    std::shared_ptr<Utils::TemporaryFilePath> copy;
+};
+
+DumperScriptsLocation dumperScriptsLocation(const Utils::FilePath &debugger);
+
 } // namespace Internal
 } // namespace Debugger
 

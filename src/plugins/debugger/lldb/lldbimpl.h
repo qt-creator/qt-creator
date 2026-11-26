@@ -145,7 +145,6 @@ private:
     void reportInferiorExitIfComplete();
     void reportEngineSetupOk();
     void reportEngineSetupFailed();
-    enum class DumperPipe { Initial, Reload };
     Utils::Result<QStringList> pipeDumperScripts(DumperPipe mode);
 
     LldbImplStartData m_startData;

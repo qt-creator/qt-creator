@@ -114,28 +114,15 @@ static LldbImplStartData lldbImplStartData(const DebuggerRunParameters &rp)
     setupDebugInfoDEnvironment(debuggerRunData.environment);
     if (!rp.runAsUser().isEmpty())
         ProjectExplorer::RunControl::provideAskPassEntry(debuggerRunData.environment);
-    FilePath dumperScriptsDir = ICore::resourcePath("debugger");
-    std::shared_ptr<TemporaryFilePath> dumperScriptsCopy;
-    bool pipeDumperScripts = false;
-    QString dumperScriptsCopyError;
-    if (!debuggerRunData.command.executable().isLocal()) {
-        Result<std::unique_ptr<TemporaryFilePath>> copy
-            = copyDumperScripts(debuggerRunData.command.executable());
-        if (copy) {
-            dumperScriptsCopy = std::move(*copy);
-            dumperScriptsDir = dumperScriptsCopy->filePath();
-        } else {
-            dumperScriptsCopyError = copy.error();
-            pipeDumperScripts = true;
-        }
-    }
+    const DumperScriptsLocation dumperScripts
+        = dumperScriptsLocation(debuggerRunData.command.executable());
     return {
         .debuggerRunData = debuggerRunData,
         .inferiorStartData = lldbInferiorStartData(rp),
-        .dumperScriptsDir = dumperScriptsDir,
-        .pipeDumperScripts = pipeDumperScripts,
-        .dumperScriptsCopyError = dumperScriptsCopyError,
-        .dumperScriptsCopy = dumperScriptsCopy,
+        .dumperScriptsDir = dumperScripts.dir,
+        .pipeDumperScripts = dumperScripts.pipe,
+        .dumperScriptsCopyError = dumperScripts.copyError,
+        .dumperScriptsCopy = dumperScripts.copy,
         .loadInitFile = settings().loadGdbInit(),
         .nativeMixedDebugging = rp.isNativeMixedDebugging(),
         .breakOnMain = rp.breakOnMain(),

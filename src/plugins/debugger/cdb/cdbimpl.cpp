@@ -2587,26 +2587,15 @@ void CdbImpl::loadConfiguredDumpers()
 Result<QStringList> CdbImpl::pipeDumperModules(DumperPipe mode)
 {
     const bool reload = mode == DumperPipe::Reload;
-    Result<QList<PipedDumperModule>> modules
-        = pipedDumperModules(m_startData.dumperScriptsDir, "cdbbridge");
-    if (!modules)
-        return ResultError(modules.error());
-    const FilePath &extraDumperFile = m_startData.extraDumperFile;
-    QString extraName;
-    if (extraDumperFile.isReadableFile()) {
-        if (const Result<QByteArray> source = extraDumperFile.fileContents()) {
-            extraName = extraDumperFile.completeBaseName();
-            modules->append({extraName, *source});
-        } else {
-            emit message("CdbImpl: " + source.error(), LogWarning);
-        }
-    }
+    const Result<PipedDumperScripts> scripts = pipedDumperScripts(
+        m_startData.dumperScriptsDir, "cdbbridge", m_startData.extraDumperFile, mode);
+    if (!scripts)
+        return ResultError(scripts.error());
+    if (!scripts->extraDumperFileError.isEmpty())
+        emit message("CdbImpl: " + scripts->extraDumperFileError, LogWarning);
     runCommand({"import sys, types", ScriptCommand});
     QStringList typeModules;
-    for (const PipedDumperModule &module : std::as_const(*modules)) {
-        const bool isTypes = module.name.endsWith("types") || module.name == extraName;
-        if (reload && !isTypes)
-            continue;
+    for (const PipedDumperModule &module : scripts->modules) {
         emit message("CdbImpl: sending " + module.name + " to the cdb server", LogMisc);
         const QString pyName = cdbPythonString(module.name);
         runCommand({QLatin1String(reload
@@ -2629,7 +2618,7 @@ Result<QStringList> CdbImpl::pipeDumperModules(DumperPipe mode)
         };
         runCommand(exec);
         runCommand({"sys.modules[" + pyName + "] = module", ScriptCommand});
-        if (isTypes)
+        if (module.isTypes)
             typeModules.append(pyName);
     }
     return typeModules;

@@ -1333,51 +1333,22 @@ void LldbImpl::createSnapshot(quint64 requestId)
     runCommand(cmd);
 }
 
-// A reload runs the type modules again into the module objects the bridge
-// already holds, as importlib finds no files for them.
 Result<QStringList> LldbImpl::pipeDumperScripts(DumperPipe mode)
 {
-    const bool reload = mode == DumperPipe::Reload;
-    Result<QList<PipedDumperModule>> modules
-        = pipedDumperModules(m_startData.dumperScriptsDir, "lldbbridge");
-    if (!modules)
-        return ResultError(modules.error());
-    const FilePath &extraDumperFile = m_startData.extraDumperFile;
-    QString extraName;
-    FilePath extraSource;
-    if (extraDumperFile.isReadableFile()) {
-        if (const Result<QByteArray> source = extraDumperFile.fileContents()) {
-            extraName = extraDumperFile.completeBaseName();
-            extraSource = extraDumperFile;
-            modules->append({extraName, *source});
-        } else {
-            emit message(source.error(), LogWarning);
-        }
-    }
+    const Result<PipedDumperScripts> scripts = pipedDumperScripts(
+        m_startData.dumperScriptsDir, "lldbbridge", m_startData.extraDumperFile, mode);
+    if (!scripts)
+        return ResultError(scripts.error());
+    if (!scripts->extraDumperFileError.isEmpty())
+        emit message(scripts->extraDumperFileError, LogWarning);
     runCommand({"script import sys, types", DebuggerCommand::NativeCommand});
     QStringList typeModules;
-    for (const PipedDumperModule &module : std::as_const(*modules)) {
-        const bool isTypes = module.name.endsWith("types") || module.name == extraName;
-        if (reload && !isTypes)
-            continue;
-        const FilePath source = module.name == extraName
-                                    ? extraSource
-                                    : m_startData.dumperScriptsDir / (module.name + ".py");
-        emit message("Reading " + source.toUserOutput(), LogInput);
-        const QStringList commands{
-            QLatin1String(reload ? "module = sys.modules.get('%1') or types.ModuleType('%1')"
-                                 : "module = types.ModuleType('%1')").arg(module.name),
-            QString("module.__file__ = '%1'").arg(source.path()),
-            QString("code = bytes.fromhex('%1').decode('utf-8')")
-                .arg(QString::fromLatin1(module.source.toHex())),
-            QString("exec(code, module.__dict__)"),
-            QString("sys.modules['%1'] = module").arg(module.name)};
-        for (const QString &command : commands)
-            runCommand({"script " + command, DebuggerCommand::NativeCommand});
-        if (isTypes)
-            typeModules.append('\'' + module.name + '\'');
-        else if (module.name != "lldbbridge")
-            runCommand({"script import " + module.name, DebuggerCommand::NativeCommand});
+    for (const PipedDumperModule &module : scripts->modules) {
+        emit message("Reading " + module.file.toUserOutput(), LogInput);
+        for (const QString &statement : pipedDumperStatements(module, "lldbbridge", mode))
+            runCommand({"script " + statement, DebuggerCommand::NativeCommand});
+        if (module.isTypes)
+            typeModules.append(pythonStringLiteral(module.name));
     }
     return typeModules;
 }

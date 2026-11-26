@@ -246,6 +246,7 @@ private slots:
     void testCdbImplDebuggeeOutput();
     void testCdbImplExtensionCommandLines();
     void testCdbImplPipedDumperModules();
+    void testPipedDumperScripts();
     void testCdbImplBreakpointInsertCommand();
     void testCdbImplBreakpointModuleScope();
     void testCdbImplDisassemblyRange();
@@ -3639,6 +3640,65 @@ void DebuggerUnitTests::testCdbImplPipedDumperModules()
         QFAIL(qPrintable(partial.error()));
     QCOMPARE(Utils::transform(*partial, &PipedDumperModule::name),
              QStringList({"utils", "cdbbridge"}));
+}
+
+void DebuggerUnitTests::testPipedDumperScripts()
+{
+    QTemporaryDir tempDir;
+    QVERIFY(tempDir.isValid());
+    const FilePath dir = FilePath::fromString(tempDir.path());
+    QVERIFY(dir.pathAppended("loadorder_gdbbridge.txt")
+                .writeFileContents("utils\nqttypes\n***bridge***\n"));
+    QVERIFY(dir.pathAppended("utils.py").writeFileContents("pass\n"));
+    QVERIFY(dir.pathAppended("qttypes.py").writeFileContents("pass\n"));
+    QVERIFY(dir.pathAppended("gdbbridge.py").writeFileContents("pass\n"));
+    const FilePath extra = dir.pathAppended("it's mine.py");
+    QVERIFY(extra.writeFileContents("x = 1\n"));
+
+    const Result<PipedDumperScripts> initial
+        = pipedDumperScripts(dir, "gdbbridge", extra, DumperPipe::Initial);
+    if (!initial)
+        QFAIL(qPrintable(initial.error()));
+    QVERIFY(initial->extraDumperFileError.isEmpty());
+    QCOMPARE(Utils::transform(initial->modules, &PipedDumperModule::name),
+             QStringList({"utils", "qttypes", "gdbbridge", "it's mine"}));
+    QCOMPARE(Utils::transform(initial->modules, &PipedDumperModule::isTypes),
+             QList<bool>({false, true, false, true}));
+    QCOMPARE(initial->modules.at(0).file, dir / "utils.py");
+    QCOMPARE(initial->modules.at(3).file, extra);
+    QCOMPARE(initial->modules.at(3).source, QByteArray("x = 1\n"));
+
+    const Result<PipedDumperScripts> reload
+        = pipedDumperScripts(dir, "gdbbridge", extra, DumperPipe::Reload);
+    if (!reload)
+        QFAIL(qPrintable(reload.error()));
+    QCOMPARE(Utils::transform(reload->modules, &PipedDumperModule::name),
+             QStringList({"qttypes", "it's mine"}));
+
+    const Result<PipedDumperScripts> noExtra
+        = pipedDumperScripts(dir, "gdbbridge", dir / "missing.py", DumperPipe::Initial);
+    if (!noExtra)
+        QFAIL(qPrintable(noExtra.error()));
+    QCOMPARE(noExtra->modules.size(), 3);
+    QVERIFY(!pipedDumperScripts(dir / "nonexistent", "gdbbridge", extra, DumperPipe::Initial));
+
+    const QStringList utils
+        = pipedDumperStatements(initial->modules.at(0), "gdbbridge", DumperPipe::Initial);
+    QCOMPARE(utils.first(), "module = types.ModuleType('utils')");
+    QCOMPARE(utils.at(2), "code = bytes.fromhex('706173730a').decode('utf-8')");
+    QCOMPARE(utils.last(), "import utils");
+    const QStringList bridge
+        = pipedDumperStatements(initial->modules.at(2), "gdbbridge", DumperPipe::Initial);
+    QCOMPARE(bridge.last(), "sys.modules['gdbbridge'] = module");
+
+    // A quote in a name or path must not end the string literal.
+    const QStringList mine
+        = pipedDumperStatements(reload->modules.at(1), "gdbbridge", DumperPipe::Reload);
+    QCOMPARE(mine.first(),
+             "module = sys.modules.get('it\\'s mine') or types.ModuleType('it\\'s mine')");
+    QVERIFY(mine.at(1).endsWith("it\\'s mine.py'"));
+    QCOMPARE(mine.last(), "sys.modules['it\\'s mine'] = module");
+    QCOMPARE(pythonStringLiteral("it's mine"), "'it\\'s mine'");
 }
 
 void DebuggerUnitTests::testCdbImplBreakpointInsertCommand()

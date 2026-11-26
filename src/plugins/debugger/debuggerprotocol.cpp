@@ -1415,9 +1415,71 @@ Utils::Result<QList<PipedDumperModule>> pipedDumperModules(
             qWarning().noquote() << source.error();
             continue;
         }
-        modules.append({name, *source});
+        modules.append({name, *source, dumperScriptsDir / (name + ".py"), name.endsWith("types")});
     }
     return modules;
+}
+
+// The dumper scripts for one pipe into a debugger. The extra dumper file the
+// user configured counts as a type module. A reload sends the type modules only.
+Utils::Result<PipedDumperScripts> pipedDumperScripts(
+    const Utils::FilePath &dumperScriptsDir,
+    const QString &bridgeModuleName,
+    const Utils::FilePath &extraDumperFile,
+    DumperPipe mode)
+{
+    Utils::Result<QList<PipedDumperModule>> modules
+        = pipedDumperModules(dumperScriptsDir, bridgeModuleName);
+    if (!modules)
+        return Utils::ResultError(modules.error());
+    PipedDumperScripts scripts;
+    if (extraDumperFile.isReadableFile()) {
+        if (const Utils::Result<QByteArray> source = extraDumperFile.fileContents())
+            modules->append({extraDumperFile.completeBaseName(), *source, extraDumperFile, true});
+        else
+            scripts.extraDumperFileError = source.error();
+    }
+    for (PipedDumperModule &module : *modules) {
+        if (mode == DumperPipe::Initial || module.isTypes)
+            scripts.modules.append(std::move(module));
+    }
+    return scripts;
+}
+
+QString pythonStringLiteral(const QString &text)
+{
+    QString literal = "'";
+    for (const QChar c : text) {
+        if (c == '\\' || c == '\'')
+            literal += '\\';
+        if (c.unicode() < 0x20)
+            literal += QString("\\x%1").arg(int(c.unicode()), 2, 16, QChar('0'));
+        else
+            literal += c;
+    }
+    return literal + '\'';
+}
+
+// The Python statements that make one piped module importable, for a debugger
+// that takes one statement per command. They expect sys and types imported.
+// A reload runs a module again into the module object the bridge already
+// holds, as importlib finds no file for it.
+QStringList pipedDumperStatements(
+    const PipedDumperModule &module, const QString &bridgeModuleName, DumperPipe mode)
+{
+    const QString name = pythonStringLiteral(module.name);
+    QStringList statements{
+        QLatin1String(mode == DumperPipe::Reload
+                          ? "module = sys.modules.get(%1) or types.ModuleType(%1)"
+                          : "module = types.ModuleType(%1)").arg(name),
+        "module.__file__ = " + pythonStringLiteral(module.file.path()),
+        QString("code = bytes.fromhex('%1').decode('utf-8')")
+            .arg(QString::fromLatin1(module.source.toHex())),
+        "exec(code, module.__dict__)",
+        QString("sys.modules[%1] = module").arg(name)};
+    if (!module.isTypes && module.name != bridgeModuleName)
+        statements.append("import " + module.name);
+    return statements;
 }
 
 } // Debugger::Internal

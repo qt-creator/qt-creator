@@ -327,7 +327,6 @@ private:
     void finishServiceSafePoint();
     void loadConfiguredDumpers();
     void setupScripting();
-    enum class DumperPipe { Initial, Reload };
     Utils::Result<QStringList> pipeDumperModules(DumperPipe mode);
     void flushPendingBridgeWork();
     void adjustOperateByInstruction(bool operateByInstruction);

@@ -429,10 +429,33 @@ class DEBUGGER_EXPORT PipedDumperModule
 public:
     QString name;
     QByteArray source;
+    Utils::FilePath file;
+    bool isTypes = false;
 };
 
 DEBUGGER_EXPORT Utils::Result<QList<PipedDumperModule>> pipedDumperModules(
     const Utils::FilePath &dumperScriptsDir, const QString &bridgeModuleName);
+
+enum class DumperPipe { Initial, Reload };
+
+class DEBUGGER_EXPORT PipedDumperScripts
+{
+public:
+    QList<PipedDumperModule> modules;
+    // Why the extra dumper file was left out, empty if it was not.
+    QString extraDumperFileError;
+};
+
+DEBUGGER_EXPORT Utils::Result<PipedDumperScripts> pipedDumperScripts(
+    const Utils::FilePath &dumperScriptsDir,
+    const QString &bridgeModuleName,
+    const Utils::FilePath &extraDumperFile,
+    DumperPipe mode);
+
+DEBUGGER_EXPORT QString pythonStringLiteral(const QString &text);
+
+DEBUGGER_EXPORT QStringList pipedDumperStatements(
+    const PipedDumperModule &module, const QString &bridgeModuleName, DumperPipe mode);
 
 } // Debugger::Internal
 
