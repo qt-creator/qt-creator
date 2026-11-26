@@ -518,6 +518,20 @@ static const ObjectValue *isMember(const ScopeChain &scopeChain,
     return owningObject;
 }
 
+// The documentation has no entries for signal handlers. "onTextChanged" is documented
+// as the signal "textChanged", or only as the property "text".
+static QStringList helpMemberNames(const QString &name)
+{
+    QStringList names = {name};
+    if (name.size() > 2 && name.startsWith("on") && name.at(2).isUpper()) {
+        const QString signal = name.at(2).toLower() + name.mid(3);
+        names.append(signal);
+        if (signal.size() > 7 && signal.endsWith("Changed"))
+            names.append(signal.chopped(7));
+    }
+    return names;
+}
+
 bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                                   const Document::Ptr &qmlDocument,
                                   AST::Node *node)
@@ -534,7 +548,8 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
             }
         }
 
-        // otherwise, it's probably a property
+        // otherwise, it's probably a property, or a signal handler
+        const QStringList memberNames = helpMemberNames(name);
         const ObjectValue *lastScope;
         scope->lookupMember(name, scopeChain.context(), &lastScope);
         PrototypeIterator iter(scope, scopeChain.context());
@@ -544,17 +559,19 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
             const QString className = cur->className();
             if (!className.isEmpty()) {
                 moduleName = getModuleName(scopeChain, qmlDocument, cur);
-                const QStringList helpIdCandidates = {"QML." + moduleName + '.' + className
-                                                          + "::" + name,
-                                                      "QML." + className + "::" + name,
-                                                      className + "::" + name};
-                const HelpItem helpItem(helpIdCandidates,
-                                        qmlDocument->fileName(),
-                                        name,
-                                        HelpItem::QmlProperty);
-                if (helpItem.isValid()) {
-                    setLastHelpItemIdentified(helpItem);
-                    return true;
+                for (const QString &memberName : memberNames) {
+                    const QStringList helpIdCandidates
+                        = {"QML." + moduleName + '.' + className + "::" + memberName,
+                           "QML." + className + "::" + memberName,
+                           className + "::" + memberName};
+                    const HelpItem helpItem(helpIdCandidates,
+                                            qmlDocument->fileName(),
+                                            memberName,
+                                            HelpItem::QmlProperty);
+                    if (helpItem.isValid()) {
+                        setLastHelpItemIdentified(helpItem);
+                        return true;
+                    }
                 }
             }
 
