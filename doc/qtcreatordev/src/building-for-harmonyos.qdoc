@@ -108,8 +108,12 @@
             the package requests, and download it as a \c .p7b file.
     \endlist
 
-    The two profiles can share the certificate and the keystore. If you
-    register another device later, create the profiles again.
+    The two profiles can share the certificate and the keystore. To sign
+    \c qtcrunner.hap with a key of its own, also pass
+    \c --runner-keystore, \c --runner-key-alias, and
+    \c --runner-keystore-password-file. Each of them defaults to the value
+    for \c qtcreator.hap. If you register another device later, create the
+    profiles again.
 
     \section1 Building the Packages
 

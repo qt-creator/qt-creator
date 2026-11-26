@@ -17,7 +17,8 @@ host tools only and is built locally. The inputs are mounted read-only:
   downloads a pinned one,
 - optionally the signing profile, certificate and keystore, and a file with
   the passphrase of the keystore, and the profile and certificate for the
-  runner, whose bundle name is a different one,
+  runner, whose bundle name is a different one. The runner uses the same
+  keystore unless it is given one of its own,
 - this checkout, as the Qt Creator sources and the scripts.
 
 The stages, each a script beside this one, and what they leave in --path:
@@ -98,6 +99,15 @@ def main() -> int:
                         help="signing profile for the runner, .p7b")
     parser.add_argument("--runner-certificate", type=absolute,
                         help="signing certificate for the runner, .cer")
+    parser.add_argument("--runner-keystore", type=absolute,
+                        help="keystore with the key for the runner, .p12. The one of "
+                             "--keystore by default")
+    parser.add_argument("--runner-key-alias",
+                        help="alias of the key for the runner. The one of --key-alias by "
+                             "default")
+    parser.add_argument("--runner-keystore-password-file", type=absolute,
+                        help="file holding the passphrase of the runner's keystore and key. "
+                             "The one of --keystore-password-file by default")
     parser.add_argument("--runner-bundle",
                         help="bundle name of the runner, the one its profile is for")
     parser.add_argument("--mcp-port", type=int,
@@ -178,19 +188,22 @@ def main() -> int:
             inside = "/inputs/{}/{}".format(option.lstrip("-"), value.name)
             mounts[inside] = value
             commands["hap"] += [option, inside]
-            # The runner is signed with the same key, under a profile of its own.
-            if args.runner_profile and option.startswith("--keystore"):
-                commands["runner"] += [option, inside]
-    for option, value in [("--profile", args.runner_profile),
-                          ("--certificate", args.runner_certificate)]:
+    # The runner has a profile of its own, and uses Qt Creator's key unless it is given one.
+    runner_signing = [("--profile", args.runner_profile),
+                      ("--certificate", args.runner_certificate)]
+    if args.runner_profile:
+        runner_signing += [("--keystore", args.runner_keystore or args.keystore),
+                           ("--keystore-password-file", args.runner_keystore_password_file
+                            or args.keystore_password_file)]
+    for option, value in runner_signing:
         if value:
             inside = "/inputs/runner-{}/{}".format(option.lstrip("-"), value.name)
             mounts[inside] = value
             commands["runner"] += [option, inside]
     if args.key_alias:
         commands["hap"] += ["--key-alias", args.key_alias]
-        if args.runner_profile:
-            commands["runner"] += ["--key-alias", args.key_alias]
+    if args.runner_profile and (args.runner_key_alias or args.key_alias):
+        commands["runner"] += ["--key-alias", args.runner_key_alias or args.key_alias]
     if args.runner_bundle:
         commands["runner"] += ["--bundle", args.runner_bundle]
     if args.bundle:
