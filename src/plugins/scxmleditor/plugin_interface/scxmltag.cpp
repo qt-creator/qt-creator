@@ -611,10 +611,11 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
     }
 
     // Read children states
+    QString content;
     QXmlStreamReader::TokenType token = xml.readNext();
     while (token != QXmlStreamReader::EndElement) {
         if (token == QXmlStreamReader::Characters)
-            m_content = xml.text().toString().trimmed();
+            content += xml.text();
         else if (token == QXmlStreamReader::StartElement) {
             if (m_tagType != Metadata && m_tagType != MetadataItem && xml.qualifiedName().toString() == "qt:editorinfo") {
                 // Read editorinfos
@@ -656,6 +657,7 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
 
         token = xml.readNext();
     }
+    m_content = content.trimmed();
 
     // Create initial state of the scxml (root)
     if (m_tagType == Scxml && !scxmlInitial.isEmpty()) {

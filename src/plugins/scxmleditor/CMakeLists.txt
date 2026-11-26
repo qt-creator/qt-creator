@@ -98,3 +98,9 @@ qtc_add_resources(ScxmlEditor "images"
   BASE "common"
   FILES ${images}
 )
+
+extend_qtc_plugin(ScxmlEditor
+  CONDITION WITH_TESTS
+  SOURCES
+    scxmleditor_test.cpp scxmleditor_test.h
+)

@@ -7,6 +7,10 @@
 
 #include <coreplugin/designmode.h>
 
+#ifdef WITH_TESTS
+#include "scxmleditor_test.h"
+#endif
+
 namespace ScxmlEditor::Internal {
 
 class ScxmlEditorPlugin final : public ExtensionSystem::IPlugin
@@ -18,6 +22,10 @@ private:
     void initialize() final
     {
         setupScxmlEditor(this);
+
+#ifdef WITH_TESTS
+        addTestCreator(createScxmlEditorTest);
+#endif
     }
 
     void extensionsInitialized() final

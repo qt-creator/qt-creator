@@ -141,4 +141,11 @@ QtcPlugin {
             "warningprovider.h",
         ]
     }
+
+    QtcTestFiles {
+        files: [
+            "scxmleditor_test.cpp",
+            "scxmleditor_test.h",
+        ]
+    }
 }

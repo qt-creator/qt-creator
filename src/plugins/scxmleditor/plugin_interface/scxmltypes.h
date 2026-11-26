@@ -322,7 +322,7 @@ const scxmltag_type_t scxml_datamodel = {
 
 const scxmltag_type_t scxml_data = {
     "data",
-    false,
+    true,
     scxml_data_attributes,
     sizeof(scxml_data_attributes) / sizeof(scxml_data_attributes[0])
 };
@@ -343,7 +343,7 @@ const scxmltag_type_t scxml_donedata = {
 
 const scxmltag_type_t scxml_content = {
     "content",
-    false,
+    true,
     scxml_content_attributes,
     sizeof(scxml_content_attributes) / sizeof(scxml_content_attributes[0])
 };
