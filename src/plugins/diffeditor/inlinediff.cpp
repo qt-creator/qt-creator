@@ -39,6 +39,8 @@
 #include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/plaintextedit/texteditorlayout.h>
 #include <utils/qtcassert.h>
 #include <utils/qtdesignwidgets.h>
@@ -70,6 +72,7 @@
 #include <QPointer>
 #include <QScrollBar>
 #include <QSplitter>
+#include <QTextBlock>
 #include <QTextDocument>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -643,13 +646,28 @@ const Utils::Id INLINE_DIFF_COLLAPSE_CATEGORY("DiffEditor.InlineDiff.Collapse");
 // is a pure insertion/removal that sits above startLine on this side.
 using ChangeIntervals = QList<QPair<int, int>>;
 
+// The lines naming what each change is in, as found by findLines.
+static QList<int> declarationLines(const ChangeIntervals &changes,
+                                   const std::function<QList<int>(int)> &findLines)
+{
+    QList<int> lines;
+    for (const QPair<int, int> &change : changes) {
+        // a change that starts with a declaration, like an added function, is in
+        // that one, not in the one above
+        lines.append(findLines(change.second > 0 ? change.first : change.first - 1));
+    }
+    return lines;
+}
+
 // The 1-based line runs (inclusive) that can be collapsed on one side: the
 // unchanged lines outside the context around any change, with the last line
 // always kept visible so every run has a visible anchor line below it. The
-// declaration each change is in stays visible as well, so a change never loses
-// the name of its function to a placeholder.
+// kept lines stay visible as well, so a change never loses the name of its
+// function to a placeholder.
 static QList<QPair<int, int>> collapsibleRuns(const ChangeIntervals &changes,
-                                              const QTextDocument *document, int context)
+                                              const QTextDocument *document,
+                                              int context,
+                                              const QList<int> &keptLines)
 {
     const int blockCount = document->blockCount();
     if (blockCount <= 0)
@@ -666,13 +684,10 @@ static QList<QPair<int, int>> collapsibleRuns(const ChangeIntervals &changes,
             keepRange(change.first, change.first + change.second - 1);
         else // a pure insertion/removal sits between startLine - 1 and startLine
             keepRange(change.first - 1, change.first);
-        // a change that starts with a declaration, like an added function, is in
-        // that one, not in the one above
-        const int searchFrom = change.second > 0 ? change.first : change.first - 1;
-        if (const int declaration = inlineDiffDeclarationLine(document, searchFrom);
-            declaration > 0) {
+    }
+    for (const int declaration : keptLines) {
+        if (declaration > 0 && declaration <= blockCount)
             keep[declaration] = true;
-        }
     }
 
     QList<QPair<int, int>> runs;
@@ -770,6 +785,27 @@ int inlineDiffDeclarationLine(const QTextDocument *document, int lastLine)
             return line;
     }
     return 0;
+}
+
+QList<int> inlineDiffEnclosingFoldLines(const QTextDocument *document, int line)
+{
+    QTC_ASSERT(document, return {});
+    QTextBlock block = document->findBlockByNumber(qMin(line, document->blockCount()) - 1);
+    if (!block.isValid())
+        return {};
+    QList<int> lines;
+    if (TextBlockUserData::canFold(block))
+        lines.append(block.blockNumber() + 1);
+    // a fold starting at a line above contains every following line that is
+    // nested deeper than that line
+    int minIndent = TextBlockUserData::foldingIndent(block);
+    for (block = block.previous(); block.isValid() && minIndent > 0; block = block.previous()) {
+        if (const int indent = TextBlockUserData::foldingIndent(block); indent < minIndent) {
+            lines.append(block.blockNumber() + 1);
+            minIndent = indent;
+        }
+    }
+    return lines;
 }
 
 namespace {
@@ -965,8 +1001,12 @@ private:
         // collapses into a single placeholder above the anchor line.
         if (!m_model.computed)
             return;
-        const QList<QPair<int, int>> editorRuns = collapsibleRuns(
-            editorChanges(m_model), m_editor->document(), m_contextLines);
+        const ChangeIntervals changes = editorChanges(m_model);
+        const QList<QPair<int, int>> editorRuns
+            = collapsibleRuns(changes,
+                              m_editor->document(),
+                              m_contextLines,
+                              declarationLines(changes, declarationLineFunction()));
 
         const bool collapseBaseline = m_baselineActive && m_baseline;
         const int baselineBlockCount = collapseBaseline ? m_baseline->document()->blockCount() : 0;
@@ -993,6 +1033,40 @@ private:
             m_units.append(unit);
         }
         reposition();
+    }
+
+    // How to find the lines naming what a change is in, which are kept visible
+    // with the change. The highlighter's folds give the sections, blocks or
+    // objects around it for any language it knows, from the innermost one out
+    // to the function, class or top level heading. For C and C++ git's rule is
+    // better: the C++ highlighter starts the fold of a function on the last line
+    // of its signature, git's rule finds the line with its name. Git's rule also
+    // stands in where no fold encloses the change, as in languages whose
+    // definitions fold little or nothing, or before the highlighter is through.
+    // Highlighting changes formats, which updates the diff and with it the
+    // collapsed runs, so the folds it finds are used once it is through.
+    std::function<QList<int>(int)> declarationLineFunction() const
+    {
+        const QTextDocument *document = m_editor->document();
+        const Utils::MimeType mimeType = Utils::mimeTypeForName(
+            m_editor->textDocument()->mimeType());
+        using namespace Utils::Constants;
+        for (const char *cFamily : {C_SOURCE_MIMETYPE, C_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE,
+                                    CPP_HEADER_MIMETYPE, OBJECTIVE_C_SOURCE_MIMETYPE,
+                                    OBJECTIVE_CPP_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE}) {
+            if (mimeType.inherits(QLatin1String(cFamily))) {
+                return [document](int line) {
+                    return QList<int>{inlineDiffDeclarationLine(document, line)};
+                };
+            }
+        }
+        return [document](int line) {
+            if (const QList<int> folds = inlineDiffEnclosingFoldLines(document, line);
+                !folds.isEmpty()) {
+                return folds;
+            }
+            return QList<int>{inlineDiffDeclarationLine(document, line)};
+        };
     }
 
     // Code folding is a document level flag, so the editor side of the side by

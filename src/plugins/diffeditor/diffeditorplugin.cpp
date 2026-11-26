@@ -29,6 +29,8 @@
 #include <extensionsystem/iplugin.h>
 
 #include <texteditor/displaysettings.h>
+#include <texteditor/textdocumentlayout.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -38,6 +40,7 @@
 #include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/plaintextedit/plaintextedit.h>
 #include <utils/widgets.h>
@@ -705,6 +708,7 @@ private slots:
     void testInlineDiffCollapseUnchangedFile();
     void testInlineDiffIgnoreWhitespace();
     void testInlineDiffDeclarationLine();
+    void testInlineDiffEnclosingFoldLines();
     void testInlineDiffCollapseKeepsDeclaration_data();
     void testInlineDiffCollapseKeepsDeclaration();
     void testInlineDiffFoldedRows();
@@ -4322,6 +4326,53 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffDeclarationLine()
     QCOMPARE(inlineDiffDeclarationLine(&templated, 1), 1);
 }
 
+// Outside C and C++ the lines kept with a change are where the folds the
+// highlighter found around it start, which in Markdown are the headings of the
+// sections it is in.
+void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffEnclosingFoldLines()
+{
+    IEditor *editor = EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+        nullptr,
+        "Intro text\n"            // 1
+        "# Title\n"               // 2
+        "\n"                      // 3
+        "pattern: value\n"        // 4
+        "## Section\n"            // 5
+        "text\n"                  // 6
+        "```sh\n"                 // 7
+        "# a shell comment\n"     // 8
+        "```\n"                   // 9
+        "#nospace is no heading\n" // 10
+        "# Other\n"               // 11
+        "text\n");                // 12
+    auto textEditor = qobject_cast<BaseTextEditor *>(editor);
+    QVERIFY(textEditor);
+    const QScopeGuard close([editor] { EditorManager::closeEditors({editor}, false); });
+    textEditor->editorWidget()->configureGenericHighlighter(
+        Utils::mimeTypeForName("text/markdown"));
+    const QTextDocument *document = textEditor->textDocument()->document();
+    // the last fold is the one the highlighter gets to last
+    QTRY_VERIFY(TextBlockUserData::canFold(document->findBlockByNumber(10)));
+
+    using Lines = QList<int>;
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 1), Lines());
+    // a heading is the start of its own section
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 2), Lines({2}));
+    // a line starting in column 0 does not start a section, which git's rule
+    // for code would pick
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 4), Lines({2}));
+    QCOMPARE(inlineDiffDeclarationLine(document, 4), 4);
+    // every section the line is in, innermost first
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 6), Lines({5, 2}));
+    // a fenced code block is a fold of its own, and a comment in it is no
+    // heading, nor is a word after a #
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 8), Lines({7, 5, 2}));
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 10), Lines({5, 2}));
+    // a heading of the same level ends both sections
+    QCOMPARE(inlineDiffEnclosingFoldLines(document, 12), Lines({11}));
+}
+
 static QList<int> inlineDiffLineRange(int first, int last)
 {
     QList<int> lines;
@@ -4338,6 +4389,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
     QTest::addColumn<QStringList>("editorLines");
     QTest::addColumn<QList<int>>("hiddenLines");
     QTest::addColumn<int>("declarationLine");
+    QTest::addColumn<QString>("fileName");
+    // the syntax definition the file gets only once it is collapsed
+    QTest::addColumn<QString>("laterDefinition");
 
     const QStringList baselineLines{
         "void A()", "{", "    a();", "    a();", "    a();", "    a();", "    a();",
@@ -4352,7 +4406,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
             << baselineLines << editorLines
             << (inlineDiffLineRange(1, 12) + inlineDiffLineRange(14, 16)
                 + inlineDiffLineRange(24, 30))
-            << 13;
+            << 13 << QString("collapse.cpp") << QString();
     }
     {
         QStringList editorLines = baselineLines;
@@ -4362,7 +4416,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
             << baselineLines << editorLines
             << (inlineDiffLineRange(1, 12) + inlineDiffLineRange(14, 17)
                 + inlineDiffLineRange(26, 32))
-            << 13;
+            << 13 << QString("collapse.cpp") << QString();
     }
     {
         QStringList editorLines = baselineLines;
@@ -4371,7 +4425,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
             << baselineLines << editorLines
             << (inlineDiffLineRange(1, 12) + inlineDiffLineRange(14, 15)
                 + inlineDiffLineRange(24, 29))
-            << 13;
+            << 13 << QString("collapse.cpp") << QString();
     }
     {
         // an added function names itself, not the long one above it
@@ -4383,7 +4437,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
         QTest::newRow("added function")
             << baselineLines << editorLines
             << (inlineDiffLineRange(1, 22) + inlineDiffLineRange(33, 34))
-            << 26;
+            << 26 << QString("collapse.cpp") << QString();
     }
 
     // A declaration over several lines: the line with the function name is the
@@ -4412,7 +4466,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
             << lines << changedFile(lines, 21)
             << (inlineDiffLineRange(1, 13) + inlineDiffLineRange(15, 17)
                 + inlineDiffLineRange(25, 31))
-            << 14;
+            << 14 << QString("collapse.cpp") << QString();
     }
     {
         const QStringList lines = functionFile(
@@ -4424,7 +4478,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
             << lines << changedFile(lines, 23)
             << (inlineDiffLineRange(1, 13) + inlineDiffLineRange(15, 19)
                 + inlineDiffLineRange(27, 33))
-            << 14;
+            << 14 << QString("collapse.cpp") << QString();
     }
     {
         const QStringList lines = functionFile(
@@ -4437,7 +4491,67 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
             << lines << changedFile(lines, 24)
             << (inlineDiffLineRange(1, 14) + inlineDiffLineRange(16, 20)
                 + inlineDiffLineRange(28, 34))
-            << 15;
+            << 15 << QString("collapse.cpp") << QString();
+    }
+
+    // Outside C and C++ every fold around the change keeps its first line: the
+    // function and the block in a brace language, the headings in Markdown,
+    // where git's rule would pick "pattern: value" instead.
+    {
+        QStringList lines{"# Title", ""};
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("- intro %1").arg(i));
+        lines << "## Section" << "pattern: value";
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("- item %1").arg(i));
+        lines << "original line";
+        for (int i = 1; i <= 6; ++i)
+            lines.append(QString("- tail %1").arg(i));
+        QStringList editorLines = lines;
+        editorLines[24] = "changed line";
+        QTest::newRow("markdown sections")
+            << lines << editorLines
+            << (inlineDiffLineRange(2, 12) + inlineDiffLineRange(14, 21)
+                + inlineDiffLineRange(29, 30))
+            << 13 << QString("collapse.md") << QString();
+    }
+    // a file collapsed before the highlighter found its folds is collapsed
+    // again once it has
+    {
+        QStringList lines{"# Title", ""};
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("- intro %1").arg(i));
+        lines << "## Section" << "pattern: value";
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("- item %1").arg(i));
+        lines << "original line";
+        for (int i = 1; i <= 6; ++i)
+            lines.append(QString("- tail %1").arg(i));
+        QStringList editorLines = lines;
+        editorLines[24] = "changed line";
+        QTest::newRow("folds after the collapse")
+            << lines << editorLines
+            << (inlineDiffLineRange(2, 12) + inlineDiffLineRange(14, 21)
+                + inlineDiffLineRange(29, 30))
+            << 13 << QString("collapse.txt") << QString("Markdown");
+    }
+    {
+        QStringList lines{"class Demo {", "    void run() {"};
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("        int a%1 = %1;").arg(i));
+        lines << "        for (int i = 0; i < 3; ++i) {";
+        for (int i = 1; i <= 10; ++i)
+            lines.append(QString("            int b%1 = %1;").arg(i));
+        lines << "            original();" << "        }" << "    }" << "}";
+        for (int i = 1; i <= 6; ++i)
+            lines.append(QString("// tail %1").arg(i));
+        QStringList editorLines = lines;
+        editorLines[23] = "            changed();";
+        QTest::newRow("java method and block")
+            << lines << editorLines
+            << (inlineDiffLineRange(3, 12) + inlineDiffLineRange(14, 20)
+                + inlineDiffLineRange(28, 32))
+            << 2 << QString("Collapse.java") << QString();
     }
 }
 
@@ -4449,6 +4563,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
     QFETCH(QStringList, editorLines);
     QFETCH(QList<int>, hiddenLines);
     QFETCH(int, declarationLine);
+    QFETCH(QString, fileName);
+    QFETCH(QString, laterDefinition);
 
     const InlineDiffViewGuard inlineDiffViewGuard;
     // no trailing newline: the last line is the one every placeholder anchors on
@@ -4457,7 +4573,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
 
     QTemporaryDir temporaryDir;
     QVERIFY(temporaryDir.isValid());
-    const FilePath sourceFile = FilePath::fromString(temporaryDir.path()) / "collapse.cpp";
+    const FilePath sourceFile = FilePath::fromString(temporaryDir.path()) / fileName;
     QVERIFY(sourceFile.writeFileContents(editorText.toUtf8()));
     IEditor *sourceEditor = EditorManager::openEditor(sourceFile);
     QVERIFY(sourceEditor);
@@ -4473,7 +4589,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
         callback(baselineText);
     };
 
-    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline, "collapse.cpp");
+    IEditor *diffEditor = openInlineDiffEditor(sourceDocument, baseline, fileName);
     QVERIFY(diffEditor);
     setInlineDiffViewMode(diffEditor, InlineDiffViewMode::Inline);
     TextEditorWidget *diffWidget
@@ -4512,8 +4628,17 @@ void DiffEditor::Internal::DiffEditorPlugin::testInlineDiffCollapseKeepsDeclarat
     }
     QVERIFY(expectedVisible.contains(declarationLine));
 
-    QTRY_COMPARE(placeholderCount(diffWidget), runCount);
-    QCOMPARE(visibleLines(diffWidget), expectedVisible);
+    if (!laterDefinition.isEmpty()) {
+        QTRY_VERIFY(placeholderCount(diffWidget) > 0);
+        QTRY_VERIFY(sourceDocument->syntaxHighlighter()
+                    && sourceDocument->syntaxHighlighter()->syntaxHighlighterUpToDate());
+        QVERIFY(!visibleLines(diffWidget).contains(declarationLine));
+        QVERIFY(sourceTextEditor->editorWidget()->configureGenericHighlighter(laterDefinition));
+    }
+    // outside C and C++ the lines kept depend on the folds, which come in with
+    // the highlighting after the first collapse
+    QTRY_COMPARE(visibleLines(diffWidget), expectedVisible);
+    QCOMPARE(placeholderCount(diffWidget), runCount);
 
     // the baseline side of the side by side view hides the matching lines, so
     // the declaration stays visible there too

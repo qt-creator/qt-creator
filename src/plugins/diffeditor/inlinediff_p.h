@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QList>
 #include <QString>
 
 QT_BEGIN_NAMESPACE
@@ -19,6 +20,12 @@ namespace DiffEditor {
 // The closest line at or above lastLine (1-based) that starts a declaration, the
 // way git picks the function name for a hunk header; 0 when there is none.
 int inlineDiffDeclarationLine(const QTextDocument *document, int lastLine);
+
+// The lines (1-based) starting the folds that contain line, innermost first,
+// which may include line itself; empty when it is in no fold. The folds are
+// those of the document's highlighter, e.g. the sections under the headings of
+// a Markdown file.
+QList<int> inlineDiffEnclosingFoldLines(const QTextDocument *document, int line);
 
 enum class InlineDiffViewMode { Inline, SideBySide };
 
