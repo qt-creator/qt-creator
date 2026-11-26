@@ -1155,6 +1155,8 @@ static QString itemPath(const QModelIndex &index)
 static void collectItems(const QAbstractItemModel *model, const QModelIndex &parent,
                          QList<QModelIndex> *out)
 {
+    if (!model)
+        return;
     const int rows = model->rowCount(parent);
     for (int row = 0; row < rows; ++row) {
         const QModelIndex index = model->index(row, 0, parent);
