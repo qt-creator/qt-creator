@@ -172,6 +172,19 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     strippedModuleName.remove(anyVersion);
     helpIdPieces.prepend(strippedModuleName);
     helpIdPieces.prepend("QML");
+
+    // qdoc registers "QML.<module><major>.<type>" for modules documented with a version,
+    // and "QML.<type>" is ambiguous if two modules have a type of that name.
+    if (const CppComponentValue *cppValue = value_cast<CppComponentValue>(value)) {
+        const int major = cppValue->componentVersion().majorVersion();
+        if (!strippedModuleName.isEmpty() && major >= 0
+            && major != LanguageUtils::ComponentVersion::MaxVersion) {
+            helpIdCandidates += QString("QML.%1%2.%3")
+                                    .arg(strippedModuleName)
+                                    .arg(major)
+                                    .arg(qName.join('.'));
+        }
+    }
     helpIdCandidates += helpIdPieces.join('.');
 
     if (helpIdPieces.size() > 3) {
