@@ -113,7 +113,7 @@ static Result<QMap<qint64, QString>> getLocalProcessDataUsingPs(
     const FilePath &ps, const QString &column)
 {
     Process process;
-    process.setCommand({ps, {"-e", "-o", "pid," + column}});
+    process.setCommand({ps, {"-A", "-o", "pid," + column}});
     process.runBlocking();
     if (!process.errorString().isEmpty()) {
         return ResultError(
@@ -149,8 +149,12 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
     // cmdLines are full command lines, usually with absolute path,
     // exeNames only the file part of the executable's path.
     using namespace Qt::Literals;
+    // On macOS "comm" is argv[0]. The BSDs and busybox do not know "exe",
+    // their "comm" is the (possibly truncated) command name.
     const QString exeNameColumn = deviceRoot.osType() == OsTypeMac ? "comm"_L1 : "exe"_L1;
-    const Result<QMap<qint64, QString>> exeNames = getLocalProcessDataUsingPs(ps, exeNameColumn);
+    Result<QMap<qint64, QString>> exeNames = getLocalProcessDataUsingPs(ps, exeNameColumn);
+    if (!exeNames && exeNameColumn != "comm"_L1)
+        exeNames = getLocalProcessDataUsingPs(ps, "comm");
     if (!exeNames)
         return ResultError(exeNames.error());
 
