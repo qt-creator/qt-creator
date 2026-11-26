@@ -80,6 +80,7 @@ private:
         GdbMi items;
         QSet<QString> expandedINames;
         QSet<int> seenDebugIds;
+        QSet<int> debugIdsWithProperties;
         QString partialVariable;
     };
     std::shared_ptr<RefreshCollector> makeCollector(const RefreshRequest &request);
@@ -264,6 +265,8 @@ private:
     QHash<quint32, InspectorCallback> m_inspectorCallbackForQueryId;
     QList<QmlDebug::EngineReference> m_qmlEngines;
     QHash<int, QString> m_inameForDebugId;
+    // Collapsed objects are watched too, but only these show their properties.
+    QSet<int> m_debugIdsWithProperties;
     QHash<int, QmlDebug::FileReference> m_sourceForDebugId;
     QHash<int, int> m_engineIdForDebugId;
     // The watch the client handed out for each object, by the object's debug id.

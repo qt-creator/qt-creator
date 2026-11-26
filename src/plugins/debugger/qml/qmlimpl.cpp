@@ -521,6 +521,7 @@ void QmlImpl::resetTransientState()
     m_serviceNumberByResponseId.clear();
     m_qmlEngines.clear();
     m_inameForDebugId.clear();
+    m_debugIdsWithProperties.clear();
     m_sourceForDebugId.clear();
     m_engineIdForDebugId.clear();
     m_objectWatches.clear();
@@ -1309,6 +1310,10 @@ std::function<void()> QmlImpl::legFinisher(const std::shared_ptr<RefreshCollecto
             for (const int debugId : std::as_const(pending->seenDebugIds))
                 addObjectWatch(debugId);
             removeObjectWatchesExcept(pending->seenDebugIds);
+            if (pending->partialVariable.isEmpty())
+                m_debugIdsWithProperties = pending->debugIdsWithProperties;
+            else
+                m_debugIdsWithProperties.unite(pending->debugIdsWithProperties);
         }
         GdbMi all;
         all.m_type = GdbMi::Tuple;
@@ -1739,6 +1744,7 @@ void QmlImpl::appendObjectItems(const QmlDebug::ObjectReference &object,
     const QList<QmlDebug::PropertyReference> properties = object.properties();
     if (!properties.isEmpty()) {
         const QString propertiesIName = iname + ".[properties]";
+        pending->debugIdsWithProperties.insert(debugId);
         pending->items.addChild(watchItem(propertiesIName, Tr::tr("Properties"), {}, {},
                                          QStringLiteral("list"), int(properties.size()),
                                          debugId));
@@ -1906,6 +1912,8 @@ void QmlImpl::handleObjectCreated(int engineId, int objectId, int parentId)
 void QmlImpl::handlePropertyValueChanged(int debugId, const QByteArray &name,
                                          const QVariant &value)
 {
+    if (!m_debugIdsWithProperties.contains(debugId))
+        return;
     const QString objectIName = m_inameForDebugId.value(debugId);
     if (objectIName.isEmpty())
         return;
