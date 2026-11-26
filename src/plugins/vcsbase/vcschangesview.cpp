@@ -20,6 +20,7 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtdesignwidgets.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -1058,12 +1059,6 @@ void ChangesView::openContextMenu(const QPoint &point)
         return t.vc->supportsOperation(IVersionControl::AddOperation);
     });
 
-    if (!anyDeleted) {
-        menu.addAction(Tr::tr("Open File"), this, [targets] {
-            for (const Target &t : targets)
-                EditorManager::openEditor(t.absolutePath);
-        });
-    }
     // Diff, Log and Annotate inspect a single file.
     if (single && !allUntracked) {
         const Target t = targets.first();
@@ -1111,7 +1106,7 @@ void ChangesView::openContextMenu(const QPoint &point)
     }
     if (single) {
         const Target t = targets.first();
-        const FilePath relativePath = FilePath::fromString(t.status.relativePath);
+        const FilePath relativePath = FilePath::fromString(trimBack(t.status.relativePath, '/'));
         if (t.status.state != VcsFileState::Untracked) {
             menu.addAction(Tr::tr("Log"), this, [t, relativePath] {
                 t.vc->vcsLog(t.repository, relativePath);
@@ -1131,6 +1126,16 @@ void ChangesView::openContextMenu(const QPoint &point)
             menu.addSeparator();
             t.vc->vcsFillFileActionMenu(&menu, t.repository, relativePath, t.status.state);
         }
+    }
+
+    // The common actions, including "Open", only make sense for files and
+    // directories that exist.
+    if (!anyDeleted) {
+        menu.addSeparator();
+        Core::EditorManager::addContextMenuActions(
+            &menu,
+            Utils::transform(targets, [](const Target &t) { return t.absolutePath.cleanPath(); }),
+            Core::EditorManager::HideVersionControl);
     }
 
     // Refresh the affected repositories after any action that may have altered
