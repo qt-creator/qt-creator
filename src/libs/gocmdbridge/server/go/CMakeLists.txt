@@ -13,6 +13,12 @@ endif()
 
 set(ALL_CMDBRIDGE_PLATFORMS "")
 
+# Each "go build" already runs one compiler per CPU, and running all of them at
+# once with a fresh module cache makes them all download the same modules in
+# parallel. Together that has failed Windows builds with spurious write and
+# download errors.
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS cmdbridge_go=1)
+
 function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
     foreach(ARCHITECTURE ${ARCHITECTURES})
         foreach(PLATFORM ${PLATFORMS})
@@ -33,6 +39,7 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
                 COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} CGO_ENABLED=0 ${GO_BIN} build ${VENDOR_MODE_OPTION} -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
                 DEPENDS ${SOURCES}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                JOB_POOL cmdbridge_go
                 COMMENT "Building ${TARGET_NAME}"
                 VERBATIM
             )

@@ -33,6 +33,11 @@ Module {
          if (!architecture)
              throw "go.architecture must be set"
     }
+    // See src/libs/gocmdbridge/server/go/CMakeLists.txt.
+    JobLimit {
+        jobPool: "go"
+        jobCount: 1
+    }
     FileTagger {
         patterns: [ "*.go", "go.mod", "go.sum" ]
         fileTags: [ "go_src" ]
@@ -61,6 +66,7 @@ Module {
             cmd.workingDirectory = FileInfo.path(inputs["go_src"][0].filePath);
             cmd.description = "building (with go) " + output.fileName;
             cmd.highlight = "compiler";
+            cmd.jobPool = "go";
             cmd.relevantEnvironmentVariables = ["GOARCH", "GOOS", "CGO_ENABLED"];
             commands.push(cmd);
             if ((product.go.upxFilePath !== undefined && File.exists(product.go.upxFilePath))
