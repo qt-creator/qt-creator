@@ -4601,7 +4601,19 @@ void GdbEngine::setupInferior()
     } else if (rp.isLocalAttachEngine()) {
         // Task 254674 does not want to remove them
         //qq->breakHandler()->removeAllBreakpoints();
-        handleInferiorPrepared();
+        if (rp.debugger().command.executable().osType() == OsTypeLinux) {
+            // Without privileges, gdb cannot read the executable of a process in another
+            // mount namespace through its "target:" sysroot, but /proc/<pid>/exe works.
+            const QString exe = QString("/proc/%1/exe").arg(rp.attachPid().pid());
+            runCommand({"-file-exec-and-symbols \"" + exe + '"',
+                        [this](const DebuggerResponse &response) {
+                            if (response.resultClass != ResultDone)
+                                showMessage(response.data["msg"].data());
+                            handleInferiorPrepared();
+                        }});
+        } else {
+            handleInferiorPrepared();
+        }
 
     } else if (isRemoteEngine()) {
 

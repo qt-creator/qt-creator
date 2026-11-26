@@ -326,7 +326,13 @@ GdbImpl::GdbImpl(const GdbImplStartData &startData)
 
         if (const auto *attachData = std::get_if<AttachToProcessData>(&m_startData.inferiorStartData)) {
             m_attachPhase = AttachPhase::AwaitingConnect;
-            runCommand({"attach " + QString::number(attachData->pid.pid()),
+            const qint64 pid = attachData->pid.pid();
+            if (m_startData.debuggerRunData.command.executable().osType() == OsTypeLinux) {
+                // Without privileges, gdb cannot read the executable of a process in another
+                // mount namespace through its "target:" sysroot, but /proc/<pid>/exe works.
+                runCommand({"-file-exec-and-symbols \"/proc/" + QString::number(pid) + "/exe\""});
+            }
+            runCommand({"attach " + QString::number(pid),
                        [this](const DebuggerResponse &response) {
                 handleLocalAttach(response);
             }});
