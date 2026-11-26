@@ -2547,7 +2547,15 @@ void CdbImpl::armInterpreterHooks()
         const QString hookId = nextBreakpointId();
         m_internalBreakpointIds.insert(hookId);
         m_interpreterResolverIds.insert(hookId);
-        runCommand({QString("ba%1 w1 %2!qtHookData+@$ptrsize*5").arg(hookId, qtCore), NoFlags});
+        m_hookDataWatch = QString("ba%1 w1 %2!qtHookData+@$ptrsize*5").arg(hookId, qtCore);
+        runCommand({m_hookDataWatch, NoFlags});
+        if (isAttach())
+            return;
+        // A data watch set at the initial break does not fire on its own. Set
+        // again once the program runs code of its own, it does.
+        m_hookDataRearmId = nextBreakpointId();
+        m_internalBreakpointIds.insert(m_hookDataRearmId);
+        runCommand({"bp" + m_hookDataRearmId + " /1 $exentry", NoFlags});
     }});
 }
 
@@ -2751,6 +2759,8 @@ void CdbImpl::restartSession()
     m_pythonVersion = 0;
     m_currentFrameIndex = 0;
     m_interpreterResolverIds.clear();
+    m_hookDataWatch.clear();
+    m_hookDataRearmId.clear();
     m_interpreterMessageIds.clear();
     m_interpreterMessageWatchArmed = false;
     m_interpreterStepArmed = false;
@@ -4102,6 +4112,16 @@ void CdbImpl::handleExtensionMessage(char type, int token, const QString &what,
                 && stopData["breakpointId"].data() == m_serviceSafePointId) {
             handleServiceSafePoint(stopData);
             return;
+        }
+        if (!m_hookDataRearmId.isEmpty()
+                && stopData["breakpointId"].data() == m_hookDataRearmId) {
+            m_internalBreakpointIds.remove(m_hookDataRearmId);
+            m_hookDataRearmId.clear();
+            runCommand({m_hookDataWatch, NoFlags});
+            if (!m_interruptRequested) {
+                resumeFromInternalStop();
+                return;
+            }
         }
         if (ownBreakIn) {
             // Ours, to get a command in: the client never learns about it. What the

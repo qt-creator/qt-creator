@@ -448,6 +448,8 @@ private:
     unsigned m_pythonVersion = 0;
     int m_currentFrameIndex = 0;
     QSet<QString> m_interpreterResolverIds;
+    QString m_hookDataWatch;
+    QString m_hookDataRearmId;
     QSet<QString> m_interpreterMessageIds;
     QList<std::function<void()>> m_pendingBridgeWork;
     bool m_bridgeProbeDone = false;
