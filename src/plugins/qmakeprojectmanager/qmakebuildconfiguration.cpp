@@ -118,6 +118,7 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         updateCacheAndEmitEnvironmentChanged();
     });
 
+    m_lastKitState = LastKitState(kit());
     connect(this, &BuildConfiguration::kitChanged, this, &QmakeBuildConfiguration::kitChangedSlot);
     MacroExpander *expander = macroExpander();
     expander->registerVariable("Qmake:Makefile", "Qmake makefile", [this]() -> QString {

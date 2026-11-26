@@ -30,6 +30,7 @@
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
@@ -1766,6 +1767,7 @@ private slots:
     void testLibraryTargetFiles();
     void testBinariesForSourceFile();
     void testAReparseKeepsTheCompilerFlags();
+    void testAKitUpdateWithoutRelevantChangeKeepsTheParse();
 };
 
 void QmakeProjectTest::testLibraryTargetFiles()
@@ -1936,6 +1938,44 @@ void QmakeProjectTest::testAReparseKeepsTheCompilerFlags()
     QVERIFY(parsingFinished.wait(60000));
     QVERIFY(parsed());
     QCOMPARE(buildSystem->rootProFile()->variableValue(Variable::CppFlags), flagsBefore);
+}
+
+void QmakeProjectTest::testAKitUpdateWithoutRelevantChangeKeepsTheParse()
+{
+    TemporaryDirectory tmpDir("qtc-qmake-kitupdate-XXXXXX");
+    QVERIFY(tmpDir.isValid());
+    const FilePath proFilePath = tmpDir.filePath("app.pro");
+    QVERIFY(writeProject(tmpDir.path(), "app.pro", "TEMPLATE = app\nSOURCES = main.cpp\n",
+                         "main.cpp"));
+
+    const OpenProjectResult opened = ProjectExplorerPlugin::openProject(proFilePath);
+    if (!opened)
+        QSKIP(qPrintable(opened.errorMessage()));
+    Project * const project = opened.project();
+    const QScopeGuard unload([project] { ProjectExplorerPlugin::unloadProject(project); });
+    Kit * const kit = KitManager::kit([&proFilePath](const Kit *k) {
+        return k->isValid() && QtKitAspect::qtVersion(k) && ToolchainKitAspect::cxxToolchain(k)
+               && BuildConfigurationFactory::find(k, proFilePath);
+    });
+    if (!kit)
+        QSKIP("No kit with Qt and a C++ toolchain can build qmake projects");
+    QVERIFY(project->configureAsExampleProject(kit));
+
+    const auto buildSystem = qobject_cast<QmakeBuildSystem *>(project->activeBuildSystem());
+    QVERIFY(buildSystem);
+    const auto parsed = [buildSystem] {
+        QmakeProFile * const root = buildSystem->rootProFile();
+        return root && root->validParse() && !root->parseInProgress();
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(parsed(), 60000);
+
+    // As when the device announces an update after detecting its tools. The Qt version,
+    // toolchain, sysroot and mkspec stay the same, so the parse stays valid.
+    // Right after startup, this can pass even with the defect: the detection at startup may
+    // then deliver its update only after the build configurations were created, and that
+    // update is the one that would trigger the parse.
+    DeviceManager::announceDeviceUpdate(BuildDeviceKitAspect::deviceId(kit));
+    QVERIFY2(parsed(), "the project was parsed again after an unrelated kit update");
 }
 
 QObject *createQmakeProjectTest()
