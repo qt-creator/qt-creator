@@ -79,14 +79,16 @@ private:
     QString m_activeGroupId;
 };
 
-int SnippetsTableModel::rowCount(const QModelIndex &) const
+int SnippetsTableModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.isValid())
+        return 0;
     return SnippetsCollection::instance()->totalActiveSnippets(m_activeGroupId);
 }
 
-int SnippetsTableModel::columnCount(const QModelIndex &) const
+int SnippetsTableModel::columnCount(const QModelIndex &parent) const
 {
-    return 2;
+    return parent.isValid() ? 0 : 2;
 }
 
 Qt::ItemFlags SnippetsTableModel::flags(const QModelIndex &index) const
