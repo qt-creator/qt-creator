@@ -463,7 +463,8 @@ void ClassViewParserTest::testASecondSessionShowsTheSameClasses()
                              &CppEditor::CppModelManager::sourceFilesRefreshed);
         CppEditor::Tests::ProjectOpenerAndCloser projectMgr;
         QVERIFY(projectMgr.open(projectFile, kit));
-        QVERIFY(!refreshed.isEmpty() || refreshed.wait(30000));
+        QVERIFY(!refreshed.isEmpty()
+                || refreshed.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
         driven.tree = {};
         driven.parser.addProject(projectFile, "Test",
                                  projectMgr.projects().first()->files(Project::SourceFiles));
@@ -479,7 +480,7 @@ void ClassViewParserTest::testASecondSessionShowsTheSameClasses()
                          &CppEditor::CppModelManager::sourceFilesRefreshed);
     CppEditor::Tests::ProjectOpenerAndCloser projectMgr;
     QVERIFY(projectMgr.open(projectFile, kit));
-    QVERIFY(!refreshed.isEmpty() || refreshed.wait(30000));
+    QVERIFY(!refreshed.isEmpty() || refreshed.wait(CppEditor::Tests::TestCase::defaultTimeOutInMs));
     driven.tree = {};
     driven.parser.addProject(projectFile, "Test",
                              projectMgr.projects().first()->files(Project::SourceFiles));
@@ -513,7 +514,7 @@ static bool openProjectWithSourceOutsideSnapshot(
         return Utils::contains(refreshed, [source](const QList<QVariant> &arguments) {
             return arguments.first().value<QSet<FilePath>>().contains(*source);
         });
-    }, 30000);
+    }, CppEditor::Tests::TestCase::defaultTimeOutInMs);
     if (!indexed)
         return false;
     CppEditor::Tests::removeFromSnapshot({*source});
