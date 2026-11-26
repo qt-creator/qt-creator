@@ -19,7 +19,7 @@
 
     \list 1
         \li Go to \uicontrol {View} > \uicontrol {Views} > \uicontrol {States}.
-            \image {qmldesigner-transitions.png} {States view.}
+            \image {qmldesigner-transitions.webp} {States view.}
         \li In \uicontrol {When Condition}, select \imageedit.
         \li In \uicontrol {Binding Editor}, specify a \l [QtQuick]{State::when}
             {when} property for the state.
