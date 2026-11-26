@@ -109,6 +109,10 @@ public:
     static void updateSuggestionFormats(const QTextBlock &block, const FontSettingsData &fontSettings);
     static KSyntaxHighlighting::State syntaxState(const QTextBlock &block);
     static void setSyntaxState(const QTextBlock &block, KSyntaxHighlighting::State state);
+    static QList<int> openFoldingRegions(const QTextBlock &block);
+    static void setOpenFoldingRegions(const QTextBlock &block, const QList<int> &regions);
+    static QList<int> carriedOverFoldingRegions(const QTextBlock &block);
+    static void setCarriedOverFoldingRegions(const QTextBlock &block, const QList<int> &regions);
 
     /* Set the code folding level.
      *
@@ -143,6 +147,10 @@ public:
     }
 
 private:
+    class SyntaxData;
+    static SyntaxData *syntaxData(const QTextBlock &block);
+    static void releaseSyntaxDataIfEmpty(const QTextBlock &block);
+
     TextMarks m_marks;
     int m_foldingIndent : 16 = 0;
     int m_braceDepth : 16 = 0;
@@ -155,7 +163,7 @@ private:
     uint m_spellChecked : 1 = false;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData = nullptr;
-    std::unique_ptr<KSyntaxHighlighting::State> m_syntaxState;
+    std::unique_ptr<SyntaxData> m_syntaxData;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
     std::unique_ptr<TextSuggestion> m_suggestion;

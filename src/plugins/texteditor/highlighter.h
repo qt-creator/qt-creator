@@ -35,6 +35,11 @@ protected:
 private:
     bool definitionMarksProse(const KSyntaxHighlighting::Format &format);
 
+    // the ids of the folding regions open at the current point of the block,
+    // innermost last, starting with those carried over from the block above
+    QList<int> m_openFoldingRegions;
+    int m_carriedOverRegions = 0;
+    int m_lineFoldingIndent = 0;
     QHash<int, TextStyle> m_markdownFormats;
     std::optional<QSet<int>> m_proseMarkingFormats;
 };

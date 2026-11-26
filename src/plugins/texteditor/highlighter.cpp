@@ -109,14 +109,28 @@ void Highlighter::highlightBlock(const QString &text)
     }
     QTextBlock block = currentBlock();
     const QTextBlock previousBlock = block.previous();
-    TextBlockUserData::setBraceDepth(block, TextBlockUserData::braceDepth(previousBlock));
+    m_openFoldingRegions = TextBlockUserData::openFoldingRegions(previousBlock);
+    TextBlockUserData::setCarriedOverFoldingRegions(block, m_openFoldingRegions);
+    m_carriedOverRegions = int(m_openFoldingRegions.size());
+    m_lineFoldingIndent = m_carriedOverRegions;
+    TextBlockUserData::setBraceDepth(block, m_carriedOverRegions);
+    setFoldingIndent(block, m_lineFoldingIndent);
     KSyntaxHighlighting::State previousLineState = TextBlockUserData::syntaxState(previousBlock);
     KSyntaxHighlighting::State oldState = TextBlockUserData::syntaxState(block);
+    const QList<int> oldOpenFoldingRegions = TextBlockUserData::openFoldingRegions(block);
     setFoldingStartIncluded(block, false);
     setFoldingEndIncluded(block, false);
     KSyntaxHighlighting::State state = highlightLine(text, previousLineState);
-    if (oldState != state) {
+    // The brace depth only tells how many regions are open, not which ones an
+    // end in the next block closes. Joining two lines keeps the data of the
+    // first one, so the next block may also have started from other regions
+    // than this block stored before.
+    const QTextBlock nextBlock = block.next();
+    const bool nextBlockStale = nextBlock.isValid()
+        && TextBlockUserData::carriedOverFoldingRegions(nextBlock) != m_openFoldingRegions;
+    if (oldState != state || oldOpenFoldingRegions != m_openFoldingRegions || nextBlockStale) {
         TextBlockUserData::setSyntaxState(block, state);
+        TextBlockUserData::setOpenFoldingRegions(block, m_openFoldingRegions);
         // Toggles the LSB of current block's userState. It forces rehighlight of next block.
         setCurrentBlockState(currentBlockState() ^ 1);
     }
@@ -131,10 +145,6 @@ void Highlighter::highlightBlock(const QString &text)
         pos++;
     }
     TextBlockUserData::setParentheses(currentBlock(), parentheses);
-
-    const QTextBlock nextBlock = block.next();
-    if (nextBlock.isValid())
-        setFoldingIndent(nextBlock, TextBlockUserData::braceDepth(block));
 
     formatSpaces(text);
     spellCheck(text);
@@ -296,18 +306,31 @@ void Highlighter::applyFolding(int offset,
     const bool fromStart = TabSettingsData::firstNonSpace(text) == offset;
     const bool toEnd = (offset + length) == (text.size() - TabSettingsData::trailingWhitespaces(text));
     if (region.type() == KSyntaxHighlighting::FoldingRegion::Begin) {
-        const int newBraceDepth = TextBlockUserData::braceDepth(block) + 1;
+        m_openFoldingRegions.append(region.id());
+        const int newBraceDepth = int(m_openFoldingRegions.size());
         TextBlockUserData::setBraceDepth(block, newBraceDepth);
         qCDebug(highlighterLog) << "Found folding start from '" << offset << "' to '" << length
                                 << "' resulting in the bracedepth '" << newBraceDepth << "' in :";
         qCDebug(highlighterLog) << text;
         // if there is only a folding begin marker in the line move the current block into the fold
         if (fromStart && toEnd && length <= 1) {
-            setFoldingIndent(block, TextBlockUserData::braceDepth(block));
+            setFoldingIndent(block, newBraceDepth);
             setFoldingStartIncluded(block, true);
         }
     } else if (region.type() == KSyntaxHighlighting::FoldingRegion::End) {
-        const int newBraceDepth = qMax(0, TextBlockUserData::braceDepth(block) - 1);
+        // Like KSyntaxHighlighting, an end closes the innermost open region of
+        // its own kind and leaves any others open. One that closes nothing is
+        // ignored: e.g. Markdown ends the regions of all subheadings on every
+        // heading, whether they are open or not.
+        const int index = int(m_openFoldingRegions.lastIndexOf(region.id()));
+        if (index < 0) {
+            qCDebug(highlighterLog) << "Ignoring folding end from '" << offset << "' to '"
+                                    << length << "' that closes no open region in :";
+            qCDebug(highlighterLog) << text;
+            return;
+        }
+        m_openFoldingRegions.remove(index);
+        const int newBraceDepth = int(m_openFoldingRegions.size());
         qCDebug(highlighterLog) << "Found folding end from '" << offset << "' to '" << length
                                 << "' resulting in the bracedepth '" << newBraceDepth << "' in :";
         qCDebug(highlighterLog) << text;
@@ -315,8 +338,13 @@ void Highlighter::applyFolding(int offset,
         // if the folding end is at the end of the line move the current block into the fold
         if (toEnd)
             setFoldingEndIncluded(block, true);
-        else
-            setFoldingIndent(block, TextBlockUserData::braceDepth(block));
+        // The block is in the regions that were open before it and that it does
+        // not close. The regions it opened itself always follow those.
+        if (index < m_carriedOverRegions) {
+            --m_carriedOverRegions;
+            if (!toEnd)
+                setFoldingIndent(block, --m_lineFoldingIndent);
+        }
     }
 }
 

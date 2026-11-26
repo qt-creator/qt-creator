@@ -9,6 +9,7 @@
 #include "highlighterhelper.h"
 #include "syntaxhighlighter.h"
 #include "textdocument.h"
+#include "textdocumentlayout.h"
 #include "texteditor.h"
 
 #include <coreplugin/coreconstants.h>
@@ -18,6 +19,7 @@
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
+#include <QRegularExpression>
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTest>
@@ -51,6 +53,11 @@ private slots:
     void testMarkdownColors_data();
     void testMarkdownColors();
     void testMarkdownColorScheme();
+    void testFolding_data();
+    void testFolding();
+    void testFoldingAfterEdit();
+    void testFoldingAfterEditAboveHeading_data();
+    void testFoldingAfterEditAboveHeading();
     void cleanupTestCase();
 
 private:
@@ -390,6 +397,149 @@ void GenerigHighlighterTests::testMarkdownColorScheme()
         QVERIFY(reloaded.loadColorScheme(file, descriptions));
         QCOMPARE(reloaded.formatFor(C_MARKDOWN_HEADING), settings.formatFor(C_MARKDOWN_HEADING));
     }
+}
+
+static QList<int> foldingIndents(const QTextDocument &document)
+{
+    QList<int> indents;
+    for (QTextBlock block = document.firstBlock(); block.isValid(); block = block.next())
+        indents.append(TextBlockUserData::foldingIndent(block));
+    return indents;
+}
+
+void GenerigHighlighterTests::testFolding_data()
+{
+    QTest::addColumn<QString>("definition");
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QList<int>>("indents");
+
+    // a section ends at the next heading of its level or above, and a comment
+    // in a fenced code block is no heading
+    QTest::newRow("markdown sections") << "Markdown"
+                                       << "Intro\n"
+                                          "# Title\n"
+                                          "\n"
+                                          "pattern: value\n"
+                                          "## Section\n"
+                                          "text\n"
+                                          "```sh\n"
+                                          "# a shell comment\n"
+                                          "```\n"
+                                          "#nospace\n"
+                                          "# Other\n"
+                                          "text"
+                                       << QList<int>{0, 0, 1, 1, 1, 2, 2, 3, 3, 2, 0, 1};
+    // a subheading that skips a level is closed by the one in between
+    QTest::newRow("markdown skipped level") << "Markdown"
+                                            << "# T\n"
+                                               "### x\n"
+                                               "a\n"
+                                               "## y\n"
+                                               "b"
+                                            << QList<int>{0, 1, 2, 1, 2};
+    // a heading closes a subsection open from before it, and not the
+    // section it opens itself
+    QTest::newRow("markdown starts with a subheading") << "Markdown"
+                                                       << "## A\n"
+                                                          "a\n"
+                                                          "# C\n"
+                                                          "c"
+                                                       << QList<int>{0, 1, 0, 1};
+    // regions of one kind nest as before
+    QTest::newRow("json") << "JSON"
+                          << "{\n"
+                             "  \"a\": [\n"
+                             "    1\n"
+                             "  ]\n"
+                             "}"
+                          << QList<int>{1, 1, 2, 2, 1};
+}
+
+void GenerigHighlighterTests::testFolding()
+{
+    QFETCH(QString, definition);
+    QFETCH(QString, text);
+    QFETCH(QList<int>, indents);
+
+    QTextDocument document;
+    Highlighter highlighter;
+    highlighter.setDocument(&document);
+    highlighter.setDefinition(HighlighterHelper::definitionForName(definition));
+    highlighter.setSpellCheckLanguage({});
+    document.setPlainText(text);
+    highlighter.rehighlight();
+
+    QTRY_COMPARE(foldingIndents(document), indents);
+}
+
+// Turning "# A" into "## A" leaves as many regions open after it, but no longer
+// the one "## B" lies in: B now closes A instead of nesting in it.
+void GenerigHighlighterTests::testFoldingAfterEdit()
+{
+    QTextDocument document;
+    Highlighter highlighter;
+    highlighter.setDocument(&document);
+    highlighter.setDefinition(HighlighterHelper::definitionForName("Markdown"));
+    highlighter.setSpellCheckLanguage({});
+    document.setPlainText("# A\na\n## B\nb");
+    highlighter.rehighlight();
+    QTRY_COMPARE(foldingIndents(document), QList<int>({0, 1, 1, 2}));
+
+    QTextCursor cursor(&document);
+    cursor.insertText("#");
+    QTRY_COMPARE(foldingIndents(document), QList<int>({0, 1, 0, 1}));
+
+    // Joining two lines keeps the data of the first block, so the joined block
+    // can end in the regions it stored before while the next block started
+    // from those of the line that was joined into it.
+    document.setPlainText("# A\na\n## B\nb");
+    highlighter.rehighlight();
+    QTRY_COMPARE(foldingIndents(document), QList<int>({0, 1, 1, 2}));
+
+    cursor = QTextCursor(document.findBlockByNumber(1));
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    cursor.deleteChar();
+    QCOMPARE(document.toPlainText(), QString("# A\na## B\nb"));
+    QTRY_COMPARE(foldingIndents(document), QList<int>({0, 1, 1}));
+}
+
+void GenerigHighlighterTests::testFoldingAfterEditAboveHeading_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("editedLine");
+    QTest::addColumn<QList<int>>("indents");
+
+    QTest::newRow("same level") << "# A\na\n# B\nb" << "a" << QList<int>{0, 1, 0, 1};
+    QTest::newRow("closing a subsection") << "# A\na\n## B\nb\n# C\nc" << "b"
+                                          << QList<int>{0, 1, 1, 2, 0, 1};
+}
+
+// Typing in the last line of a section highlights that line alone, as its
+// state stays the same. The heading below keeps the depth it found itself.
+void GenerigHighlighterTests::testFoldingAfterEditAboveHeading()
+{
+    QFETCH(QString, text);
+    QFETCH(QString, editedLine);
+    QFETCH(QList<int>, indents);
+
+    QTextDocument document;
+    Highlighter highlighter;
+    highlighter.setDocument(&document);
+    highlighter.setDefinition(HighlighterHelper::definitionForName("Markdown"));
+    highlighter.setSpellCheckLanguage({});
+    document.setPlainText(text);
+    highlighter.rehighlight();
+    QTRY_COMPARE(foldingIndents(document), indents);
+
+    const QTextBlock block = document.find(QRegularExpression("^" + editedLine + "$")).block();
+    QVERIFY(block.isValid());
+    QTextCursor cursor(block);
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    cursor.insertText("x");
+    // the edited line is highlighted again once it carries the format of the
+    // text it gained
+    QTRY_VERIFY(highlighter.syntaxHighlighterUpToDate());
+    QCOMPARE(foldingIndents(document), indents);
 }
 
 void GenerigHighlighterTests::cleanupTestCase()

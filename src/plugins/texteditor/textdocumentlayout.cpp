@@ -18,6 +18,17 @@ namespace TextEditor {
 
 CodeFormatterData::~CodeFormatterData() = default;
 
+// What the generic highlighter carries from the end of a block into the next one.
+class TextBlockUserData::SyntaxData
+{
+public:
+    KSyntaxHighlighting::State state;
+    // the ids of the folding regions open at the end of the block, innermost last
+    QList<int> openFoldingRegions;
+    // the ids of the folding regions open at the start of the block
+    QList<int> carriedOverFoldingRegions;
+};
+
 TextBlockUserData::TextBlockUserData() = default;
 
 TextBlockUserData::~TextBlockUserData()
@@ -610,19 +621,79 @@ void TextBlockUserData::updateSuggestionFormats(const QTextBlock &block,
     }
 }
 
+TextBlockUserData::SyntaxData *TextBlockUserData::syntaxData(const QTextBlock &block)
+{
+    TextBlockUserData *data = userData(block);
+    if (!data)
+        return nullptr;
+    if (!data->m_syntaxData)
+        data->m_syntaxData = std::make_unique<SyntaxData>();
+    return data->m_syntaxData.get();
+}
+
+void TextBlockUserData::releaseSyntaxDataIfEmpty(const QTextBlock &block)
+{
+    TextBlockUserData *data = textUserData(block);
+    if (data && data->m_syntaxData && data->m_syntaxData->state == KSyntaxHighlighting::State()
+        && data->m_syntaxData->openFoldingRegions.isEmpty()
+        && data->m_syntaxData->carriedOverFoldingRegions.isEmpty()) {
+        data->m_syntaxData.reset();
+    }
+}
+
 KSyntaxHighlighting::State TextBlockUserData::syntaxState(const QTextBlock &block)
 {
-    if (TextBlockUserData *userData = textUserData(block); userData && userData->m_syntaxState)
-        return *userData->m_syntaxState;
+    if (TextBlockUserData *userData = textUserData(block); userData && userData->m_syntaxData)
+        return userData->m_syntaxData->state;
     return {};
 }
 
 void TextBlockUserData::setSyntaxState(const QTextBlock &block, KSyntaxHighlighting::State state)
 {
-    if (state != KSyntaxHighlighting::State())
-        userData(block)->m_syntaxState = std::make_unique<KSyntaxHighlighting::State>(state);
-    else if (auto data = textUserData(block))
-        data->m_syntaxState.reset();
+    if (state != KSyntaxHighlighting::State()) {
+        if (SyntaxData *data = syntaxData(block))
+            data->state = state;
+    } else if (auto data = textUserData(block); data && data->m_syntaxData) {
+        data->m_syntaxData->state = state;
+        releaseSyntaxDataIfEmpty(block);
+    }
+}
+
+QList<int> TextBlockUserData::openFoldingRegions(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block); userData && userData->m_syntaxData)
+        return userData->m_syntaxData->openFoldingRegions;
+    return {};
+}
+
+void TextBlockUserData::setOpenFoldingRegions(const QTextBlock &block, const QList<int> &regions)
+{
+    if (!regions.isEmpty()) {
+        if (SyntaxData *data = syntaxData(block))
+            data->openFoldingRegions = regions;
+    } else if (auto data = textUserData(block); data && data->m_syntaxData) {
+        data->m_syntaxData->openFoldingRegions.clear();
+        releaseSyntaxDataIfEmpty(block);
+    }
+}
+
+QList<int> TextBlockUserData::carriedOverFoldingRegions(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block); userData && userData->m_syntaxData)
+        return userData->m_syntaxData->carriedOverFoldingRegions;
+    return {};
+}
+
+void TextBlockUserData::setCarriedOverFoldingRegions(const QTextBlock &block,
+                                                     const QList<int> &regions)
+{
+    if (!regions.isEmpty()) {
+        if (SyntaxData *data = syntaxData(block))
+            data->carriedOverFoldingRegions = regions;
+    } else if (auto data = textUserData(block); data && data->m_syntaxData) {
+        data->m_syntaxData->carriedOverFoldingRegions.clear();
+        releaseSyntaxDataIfEmpty(block);
+    }
 }
 
 void TextBlockUserData::setFoldingStartIncluded(const QTextBlock &block, bool included)
