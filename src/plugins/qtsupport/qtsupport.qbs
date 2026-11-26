@@ -12,6 +12,7 @@ QtcPlugin {
     cpp.defines: base.concat([
                                  "QMAKE_LIBRARY",
                                  "QMAKE_BUILTIN_PRFS",
+                                 "QMAKE_OVERRIDE_PRFS",
                              ])
     Properties {
         condition: qbs.targetOS.contains("windows")

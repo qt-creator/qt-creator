@@ -1753,6 +1753,7 @@ void QmakeBuildSystem::buildHelper(BuildAction action, bool isFileBuild, QmakePr
 #include <utils/temporarydirectory.h>
 
 #include <QScopeGuard>
+#include <QSignalSpy>
 #include <QTest>
 
 namespace QmakeProjectManager::Internal {
@@ -1764,6 +1765,7 @@ class QmakeProjectTest final : public QObject
 private slots:
     void testLibraryTargetFiles();
     void testBinariesForSourceFile();
+    void testAReparseKeepsTheCompilerFlags();
 };
 
 void QmakeProjectTest::testLibraryTargetFiles()
@@ -1895,6 +1897,45 @@ void QmakeProjectTest::testBinariesForSourceFile()
     QCOMPARE(viaMain.first().completeBaseName(), "app");
 
     QVERIFY(buildSystem->binariesForSourceFile(tmpDir.filePath("app/none.cpp")).isEmpty());
+}
+
+void QmakeProjectTest::testAReparseKeepsTheCompilerFlags()
+{
+    TemporaryDirectory tmpDir("qtc-qmake-reparse-XXXXXX");
+    QVERIFY(tmpDir.isValid());
+    const FilePath proFilePath = tmpDir.filePath("app.pro");
+    QVERIFY(writeProject(tmpDir.path(), "app.pro", "TEMPLATE = app\nSOURCES = main.cpp\n",
+                         "main.cpp"));
+
+    const OpenProjectResult opened = ProjectExplorerPlugin::openProject(proFilePath);
+    if (!opened)
+        QSKIP(qPrintable(opened.errorMessage()));
+    Project * const project = opened.project();
+    const QScopeGuard unload([project] { ProjectExplorerPlugin::unloadProject(project); });
+    Kit * const kit = KitManager::kit([&proFilePath](const Kit *k) {
+        return k->isValid() && QtKitAspect::qtVersion(k) && ToolchainKitAspect::cxxToolchain(k)
+               && BuildConfigurationFactory::find(k, proFilePath);
+    });
+    if (!kit)
+        QSKIP("No kit with Qt and a C++ toolchain can build qmake projects");
+    QVERIFY(project->configureAsExampleProject(kit));
+
+    const auto buildSystem = qobject_cast<QmakeBuildSystem *>(project->activeBuildSystem());
+    QVERIFY(buildSystem);
+    const auto parsed = [buildSystem] {
+        QmakeProFile * const root = buildSystem->rootProFile();
+        return root && root->validParse() && !root->parseInProgress();
+    };
+    QTRY_VERIFY_WITH_TIMEOUT(parsed(), 60000);
+    const QStringList flagsBefore = buildSystem->rootProFile()->variableValue(Variable::CppFlags);
+
+    // The re-parse reads back what the first one stored in the stash file, among which is the
+    // compiler's default language version. Losing it would add a -std flag for C++17.
+    QSignalSpy parsingFinished(buildSystem, &BuildSystem::parsingFinished);
+    buildSystem->scheduleUpdateAllNowOrLater();
+    QVERIFY(parsingFinished.wait(60000));
+    QVERIFY(parsed());
+    QCOMPARE(buildSystem->rootProFile()->variableValue(Variable::CppFlags), flagsBefore);
 }
 
 QObject *createQmakeProjectTest()

@@ -11,6 +11,7 @@ Product {
             "PROPARSER_THREAD_SAFE",
             "PROEVALUATOR_THREAD_SAFE",
             "PROEVALUATOR_CUMULATIVE",
+            "PROEVALUATOR_DUAL_VFS",
             "PROEVALUATOR_SETENV",
         ]
         cpp.includePaths: exportingProduct.sourceDirectory + "/.."
