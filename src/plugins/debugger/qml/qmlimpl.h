@@ -122,6 +122,7 @@ private:
                                  const std::shared_ptr<RefreshCollector> &pending,
                                  const std::function<void()> &finishLeg);
     void addObjectWatch(int debugId);
+    void removeObjectWatchesExcept(const QSet<int> &debugIds);
     void rebuildInspectorTree();
     void handleObjectCreated(int engineId, int objectId, int parentId);
     void handlePropertyValueChanged(int debugId, const QByteArray &name, const QVariant &value);
@@ -265,11 +266,13 @@ private:
     QHash<int, QString> m_inameForDebugId;
     QHash<int, QmlDebug::FileReference> m_sourceForDebugId;
     QHash<int, int> m_engineIdForDebugId;
-    QSet<QString> m_expandedInspectorINames;
-    QList<int> m_objectWatches;
+    // The watch the client handed out for each object, by the object's debug id.
+    QHash<int, quint32> m_objectWatches;
     QHash<int, int> m_knownDelegateIds;
     int m_validatedDelegateId = -1;
     int m_engineQueryRetriesLeft = 50;
     QTimer *m_objectCreatedTimer = nullptr;
+
+    friend class DebuggerUnitTests;
 };
 } // namespace Debugger::Internal

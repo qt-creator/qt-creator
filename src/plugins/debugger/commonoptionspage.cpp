@@ -206,7 +206,7 @@ CommonSettings::CommonSettings()
         = Tr::tr("Runs the debugger through the new engine-independent front end "
                  "instead of the engine's own implementation. The new backends are "
                  "incomplete, so expect missing views and unhandled situations. "
-                 "LLDB, CDB, UVSC, and the Python debugger use their new backends whatever "
+                 "LLDB, CDB, UVSC, QML, and the Python debugger use their new backends whatever "
                  "this setting says. "
                  "The QTC_USE_GENERIC_DEBUGGER environment variable overrides "
                  "this setting.");

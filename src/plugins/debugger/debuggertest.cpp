@@ -37,7 +37,7 @@
 #include "mcpsupport_p.h"
 #include "moduleshandler.h"
 #include "qml/qmlengine.h"
-#include "qml/qmlinspectoragent.h"
+#include "qml/qmlimpl.h"
 #include "gdb/gdbengine.h"
 #include "gdb/gdbsettings.h"
 #include "lldb/lldbengine.h"
@@ -10397,8 +10397,6 @@ static std::optional<int> inspectedProperty(DebuggerEngine *engine, const QStrin
 
 void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
 {
-    if (DebuggerEngine::isUsingGenericDebugger())
-        QSKIP("The generic debugger has no QmlInspectorAgent to check.");
     Kit *kit = kitWithAQt();
     if (!kit)
         QSKIP("This test needs a kit with a Qt to run qml from.");
@@ -10449,7 +10447,12 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
         return engine && engine->state() == InferiorRunOk;
     }, 60000);
     QVERIFY2(running, "the QML session never came up");
-    const QmlInspectorAgent &agent = static_cast<QmlEngine *>(engine.data())->inspectorAgent();
+    const QmlImpl &impl = *static_cast<QmlImpl *>(
+        static_cast<GenericDebuggerEngine *>(engine.data())->m_backend.get());
+    const auto settled = [&impl] {
+        return !impl.m_objectCreatedTimer->isActive()
+               && impl.m_inspectorCallbackForQueryId.isEmpty();
+    };
 
     std::optional<int> firstTick;
     QVERIFY2(QTest::qWaitFor([&] {
@@ -10472,7 +10475,7 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
                && inspectedProperty(engine, "nested", "tick");
     }, 30000), "the nested object never showed its properties");
     const int nestedId = inspectedItem(engine, "nested", "tick")->id;
-    const quint32 nestedWatch = agent.m_objectWatches.value(nestedId);
+    const quint32 nestedWatch = impl.m_objectWatches.value(nestedId);
     QVERIFY(nestedWatch);
 
     // Parentless objects live in an item of their own below their engine, not
@@ -10487,58 +10490,15 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
     QVERIFY(orphan->parent()->iname.endsWith(".[parentless]"));
     QVERIFY(orphan->parent()->parent()->parent() == inspectRoot);
 
-    // A child of an expanded object is inserted at once, without waiting for
-    // the throttled rebuild. The rebuild starts by emptying the inspector tree,
-    // and its answer comes after that of the direct fetch, so the child must
-    // show up before the tree is emptied. Let the rebuilds from the startup
-    // finish first.
-    QVERIFY2(QTest::qWaitFor([&agent] {
-        return !agent.m_delayQueryTimer.isActive() && agent.m_rootContextQueryIds.isEmpty();
-    }, 30000), "the rebuild never finished");
-    const auto lateChildShown = [&] {
-        const WatchItem *holder = inspectRoot->findAnyChild(named("holder"));
-        return holder && holder->findAnyChild(named("lateChild"));
-    };
-    WatchModelBase *model = engine->watchHandler()->model();
-    bool cleared = false;
-    bool shownBeforeClear = false;
-    QObject guard;
-    connect(model, &QAbstractItemModel::rowsInserted, &guard, [&] {
-        if (!cleared && lateChildShown())
-            shownBeforeClear = true;
-    });
-    connect(model, &QAbstractItemModel::rowsAboutToBeRemoved, &guard,
-            [&](const QModelIndex &parent) {
-                if (model->itemForIndex(parent) == inspectRoot)
-                    cleared = true;
-            });
+    // A new child of an expanded object shows up with the next rebuild.
+    QVERIFY2(QTest::qWaitFor(settled, 30000), "the rebuild never finished");
     WatchItem *spawning = inspectedItem(engine, "root", "spawning");
     QVERIFY(spawning);
     engine->assignValueInDebugger(spawning, "spawning", "true");
-    QVERIFY2(QTest::qWaitFor([&] { return shownBeforeClear || cleared; }, 30000),
-             "neither the child of the expanded object nor a rebuild showed up");
-    QVERIFY2(shownBeforeClear, "the child of the expanded object waited for the rebuild");
-
-    // A rebuild that comes due while the answers to the previous one are still
-    // on their way must wait for them instead of dropping them.
-    const auto rebuildDone = [&agent] {
-        return !agent.m_delayQueryTimer.isActive() && !agent.m_rebuildPending
-               && agent.m_rootContextQueryIds.isEmpty();
-    };
-    QVERIFY2(QTest::qWaitFor(rebuildDone, 30000), "the rebuild never finished");
-    auto &mutableAgent = const_cast<QmlInspectorAgent &>(agent);
-    mutableAgent.queryEngineContext();
-    const QList<quint32> pendingQueries = agent.m_rootContextQueryIds;
-    QVERIFY(!pendingQueries.isEmpty());
-    mutableAgent.rebuildObjectTree();
-    QCOMPARE(agent.m_rootContextQueryIds, pendingQueries);
-    QVERIFY2(QTest::qWaitFor([&agent] { return agent.m_rootContextQueryIds.isEmpty(); }, 30000),
-             "the pending rebuild never finished");
-    QVERIFY2(agent.m_delayQueryTimer.isActive(), "the rebuild that came due was dropped");
-    const qint64 rebuilt = agent.m_lastRebuild.msecsSinceReference();
     QVERIFY2(QTest::qWaitFor([&] {
-        return rebuildDone() && agent.m_lastRebuild.msecsSinceReference() != rebuilt;
-    }, 30000), "the rebuild that came due was never run");
+        const WatchItem *holder = inspectRoot->findAnyChild(named("holder"));
+        return holder && holder->findAnyChild(named("lateChild"));
+    }, 30000), "the child of the expanded object never showed up");
 
     // Each churn destroys an object whose child is watched as well. The watches
     // of the destroyed ones must go away. How many watches the live objects
@@ -10555,11 +10515,11 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
         const WatchItem *churned = root ? root->findAnyChild([](TreeItem *item) {
             return static_cast<WatchItem *>(item)->name == "churnedOrphan";
         }) : nullptr;
-        if (!churned || !agent.m_objectWatches.contains(churned->id))
+        if (!churned || !impl.m_objectWatches.contains(churned->id))
             return false;
         churnedWatches.insert(churned->id);
         churned->forAllChildren([&](WatchItem *item) {
-            if (agent.m_objectWatches.contains(item->id))
+            if (impl.m_objectWatches.contains(item->id))
                 churnedWatches.insert(item->id);
         });
         return true;
@@ -10574,24 +10534,29 @@ void DebuggerUnitTests::testInspectorFollowsParentlessObjects()
         return churn && *churn >= *firstChurn + 16;
     }, 30000), "the churn count stopped moving in Locals");
     for (const int id : std::as_const(churnedWatches)) {
-        if (agent.m_objectWatches.contains(id))
+        if (impl.m_objectWatches.contains(id))
             QFAIL(qPrintable(QString("the destroyed object %1 kept its watch").arg(id)));
     }
-    QCOMPARE(agent.m_objectWatches.value(nestedId), nestedWatch);
+    QCOMPARE(impl.m_objectWatches.value(nestedId), nestedWatch);
 
     // The churning goes on, and the collapsed item of the parentless objects
     // must stay collapsed and empty while the new objects come.
     const WatchItem *ticking = inspectRoot->findAnyChild(named("tickingOrphan"));
     QVERIFY(ticking);
     const QString parentlessIName = ticking->parent()->iname;
+    WatchModelBase *model = engine->watchHandler()->model();
     model->setData(model->indexForItem(ticking->parent()), false, LocalsExpandedRole);
     QVERIFY(!engine->watchHandler()->isExpandedIName(parentlessIName));
-    for (int i = 0; i < 2; ++i) {
-        const qint64 rebuilt = agent.m_lastRebuild.msecsSinceReference();
-        QVERIFY2(QTest::qWaitFor([&] {
-            return agent.m_lastRebuild.msecsSinceReference() != rebuilt;
-        }, 30000), "the tree was not rebuilt while the objects kept coming");
-    }
+    // Changed values come unasked, without a request id.
+    int rebuilds = 0;
+    QObject guard;
+    connect(&impl, &DebuggerEngineInterface::refreshDataReceived, &guard,
+            [&rebuilds](quint64 requestId, RefreshKind kind) {
+                if (kind == RefreshKind::InspectorTree && requestId != 0)
+                    ++rebuilds;
+            });
+    QVERIFY2(QTest::qWaitFor([&rebuilds] { return rebuilds >= 2; }, 30000),
+             "the tree was not rebuilt while the objects kept coming");
     QVERIFY2(!engine->watchHandler()->isExpandedIName(parentlessIName),
              "the collapsed item was expanded again");
     const WatchItem *parentless = engine->watchHandler()->findItem(parentlessIName);
@@ -10622,8 +10587,6 @@ Window {
 
 void DebuggerUnitTests::testInspectorDefersManyDelegates()
 {
-    if (DebuggerEngine::isUsingGenericDebugger())
-        QSKIP("The generic debugger has no QmlInspectorAgent to check.");
     Kit *kit = kitWithAQt();
     if (!kit)
         QSKIP("This test needs a kit with a Qt to run qml from.");
@@ -10676,7 +10639,8 @@ void DebuggerUnitTests::testInspectorDefersManyDelegates()
         }
         return engine && engine->state() == InferiorRunOk;
     }, 60000), "the QML session never came up");
-    const QmlInspectorAgent &agent = static_cast<QmlEngine *>(engine.data())->inspectorAgent();
+    const QmlImpl &impl = *static_cast<QmlImpl *>(
+        static_cast<GenericDebuggerEngine *>(engine.data())->m_backend.get());
 
     // The scene is complete once its root says so, and the inspector has
     // caught up once it neither rebuilds nor waits for any answers.
@@ -10684,10 +10648,9 @@ void DebuggerUnitTests::testInspectorDefersManyDelegates()
         const WatchItem *ready = inspectedItem(engine, "root", "ready");
         return ready && ready->value == "true";
     }, 120000), "the scene never got ready");
-    const auto settled = [&agent] {
-        return !agent.m_delayQueryTimer.isActive() && !agent.m_rebuildPending
-               && agent.m_rootContextQueryIds.isEmpty() && agent.m_delegateQueryIds.isEmpty()
-               && agent.m_objectTreeQueryIds.isEmpty();
+    const auto settled = [&impl] {
+        return !impl.m_objectCreatedTimer->isActive()
+               && impl.m_inspectorCallbackForQueryId.isEmpty();
     };
     QVERIFY2(QTest::qWaitFor(settled, 120000), "the inspector never settled");
 
@@ -10695,14 +10658,14 @@ void DebuggerUnitTests::testInspectorDefersManyDelegates()
     QVERIFY(inspectRoot);
     int shownDelegates = 0;
     inspectRoot->forAllChildren([&](WatchItem *item) {
-        if (agent.m_knownDelegateIds.contains(item->id))
+        if (impl.m_knownDelegateIds.contains(item->id))
             ++shownDelegates;
     });
     QVERIFY2(shownDelegates < delegateCount / 10,
              qPrintable(QString("%1 delegates were fetched without being asked for")
                             .arg(shownDelegates)));
-    QVERIFY2(agent.m_objectWatches.size() < delegateCount / 10,
-             qPrintable(QString("%1 objects are watched").arg(agent.m_objectWatches.size())));
+    QVERIFY2(impl.m_objectWatches.size() < delegateCount / 10,
+             qPrintable(QString("%1 objects are watched").arg(impl.m_objectWatches.size())));
 
     // Collapsing while the answers are still on their way drops them, and the
     // next expansion has to fetch what is missing.
@@ -10712,8 +10675,7 @@ void DebuggerUnitTests::testInspectorDefersManyDelegates()
     QVERIFY(handler->findItem(otherIname));
     WatchModelBase *model = handler->model();
     model->setData(model->indexForItem(handler->findItem(otherIname)), false, LocalsExpandedRole);
-    QVERIFY2(QTest::qWaitFor([&agent] { return agent.m_delegateQueryIds.isEmpty(); }, 120000),
-             "the answers never arrived");
+    QVERIFY2(QTest::qWaitFor(settled, 120000), "the answers never arrived");
     expandParentlessObjects(engine);
     int count = 0;
     const bool expanded = QTest::qWaitFor([&] {

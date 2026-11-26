@@ -20904,12 +20904,15 @@ void tst_backends::fillsTheInspectorTreeOnlyWhileItIsShown()
         if (kind == RefreshKind::InspectorTree)
             trees.append({requestId, data});
     });
-    // Counts the trees that show the object, either those nobody asked for
-    // or those answering a request.
-    const auto treesShowingTheObject = [&trees, &testData](bool requested) {
+    int outdated = 0;
+    connect(engine, &DebuggerEngineInterface::inspectorTreeOutdated, this, [&outdated] {
+        ++outdated;
+    });
+    // Counts the trees answering a request that show the object.
+    const auto treesShowingTheObject = [&trees, &testData] {
         int count = 0;
         for (const auto &[id, tree] : trees) {
-            if ((id != 0) != requested)
+            if (id == 0)
                 continue;
             for (const GdbMi &item : tree["data"]) {
                 if (item["name"].data() == testData.inspectorObject) {
@@ -20928,10 +20931,10 @@ void tst_backends::fillsTheInspectorTreeOnlyWhileItIsShown()
              qPrintable(debuggerBackend->lastMessages()));
 
     // A request answered with the object went out after the inspector service
-    // came up, and so after any tree the backend would have fetched by itself.
+    // came up, and so after the backend would have found its tree outdated.
     quint64 nextRequestId = 300;
     QTRY_VERIFY_WITH_TIMEOUT([&] {
-        if (treesShowingTheObject(true) > 0)
+        if (treesShowingTheObject() > 0)
             return true;
         const auto answered = std::count_if(trees.cbegin(), trees.cend(),
                                             [](const auto &tree) { return tree.first != 0; });
@@ -20943,10 +20946,10 @@ void tst_backends::fillsTheInspectorTreeOnlyWhileItIsShown()
         }
         return false;
     }(), s_timeout);
-    QCOMPARE(treesShowingTheObject(false), 0);
+    QCOMPARE(outdated, 0);
 
     engine->showInspectorTree(true);
-    QTRY_VERIFY_WITH_TIMEOUT(treesShowingTheObject(false) > 0, s_timeout);
+    QTRY_VERIFY_WITH_TIMEOUT(outdated > 0, s_timeout);
 
     inferiorProcess.kill();
     inferiorProcess.waitForFinished();
@@ -20980,6 +20983,13 @@ void tst_backends::reportsInspectorObjectTree()
             [&trees](quint64 requestId, RefreshKind kind, const GdbMi &data) {
         if (kind == RefreshKind::InspectorTree)
             trees.append({requestId, data});
+    });
+    // Like the front end, which knows what is expanded, fetch the tree again
+    // when the backend says it is outdated.
+    connect(engine, &DebuggerEngineInterface::inspectorTreeOutdated, this, [engine] {
+        RefreshRequest request;
+        request.kind = RefreshKind::InspectorTree;
+        engine->refresh(request);
     });
 
     engine->start();

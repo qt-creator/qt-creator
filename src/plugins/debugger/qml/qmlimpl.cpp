@@ -1305,6 +1305,11 @@ std::function<void()> QmlImpl::legFinisher(const std::shared_ptr<RefreshCollecto
     return [this, pending] {
         if (--pending->remaining > 0)
             return;
+        if (pending->kind == RefreshKind::InspectorTree && pending->items.childCount() > 0) {
+            for (const int debugId : std::as_const(pending->seenDebugIds))
+                addObjectWatch(debugId);
+            removeObjectWatchesExcept(pending->seenDebugIds);
+        }
         GdbMi all;
         all.m_type = GdbMi::Tuple;
         if (pending->partialVariable.isEmpty()) {
@@ -1665,8 +1670,22 @@ void QmlImpl::addObjectWatch(int debugId)
 {
     if (debugId == -1 || m_objectWatches.contains(debugId))
         return;
-    if (m_engineClient->addWatch(debugId))
-        m_objectWatches.append(debugId);
+    if (const quint32 watch = m_engineClient->addWatch(debugId))
+        m_objectWatches.insert(debugId, watch);
+}
+
+// The protocol does not report destroyed objects, so whatever a complete tree
+// no longer has is gone or out of sight, and its changes are of no interest.
+void QmlImpl::removeObjectWatchesExcept(const QSet<int> &debugIds)
+{
+    for (auto it = m_objectWatches.begin(); it != m_objectWatches.end();) {
+        if (debugIds.contains(it.key())) {
+            ++it;
+        } else {
+            m_engineClient->removeWatch(it.value());
+            it = m_objectWatches.erase(it);
+        }
+    }
 }
 
 void QmlImpl::appendObjectItems(const QmlDebug::ObjectReference &object,
@@ -1743,8 +1762,6 @@ void QmlImpl::appendObjectItems(const QmlDebug::ObjectReference &object,
 
 void QmlImpl::refreshInspectorTree(const RefreshRequest &request)
 {
-    m_expandedInspectorINames = request.expandedINames;
-
     const quint64 requestId = request.requestId;
     if (!m_engineClient || m_engineClient->state() != QmlDebug::QmlDebugClient::Enabled) {
         emit refreshDataReceived(requestId, RefreshKind::InspectorTree, emptyLocalsData());
@@ -1858,12 +1875,8 @@ void QmlImpl::appendParentlessObjects(const QString &engineIName, int engineId,
 
 void QmlImpl::rebuildInspectorTree()
 {
-    if (!m_inspectorTreeShown)
-        return;
-    RefreshRequest request;
-    request.kind = RefreshKind::InspectorTree;
-    request.expandedINames = m_expandedInspectorINames;
-    refreshInspectorTree(request);
+    if (m_inspectorTreeShown)
+        emit inspectorTreeOutdated();
 }
 
 void QmlImpl::showInspectorTree(bool shown)

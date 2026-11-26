@@ -356,6 +356,10 @@ signals:
 
     void refreshDataReceived(quint64 requestId, RefreshKind kind, const GdbMi &data);
 
+    // The inspected objects changed in a way only fetching the inspector tree
+    // again shows. The front end knows what is expanded, so it fetches it.
+    void inspectorTreeOutdated();
+
     // A refresh the backend could not answer, with the path the request named.
     void refreshFailed(quint64 requestId, RefreshKind kind, const Utils::FilePath &path);
 

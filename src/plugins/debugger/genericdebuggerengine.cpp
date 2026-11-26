@@ -306,6 +306,8 @@ GenericDebuggerEngine::GenericDebuggerEngine(const QString &debuggerTypeName,
         AsynchronousMessageBox::critical(Tr::tr("Cannot Read Symbols"),
             Tr::tr("Cannot read symbols for module \"%1\".").arg(path.toUserOutput()));
     });
+    connect(m_backend.get(), &DebuggerEngineInterface::inspectorTreeOutdated,
+            this, &GenericDebuggerEngine::refreshInspectorTree);
     connect(m_backend.get(), &DebuggerEngineInterface::refreshDataReceived, this,
             [this](quint64 requestId, RefreshKind kind, const GdbMi &data) {
         switch (kind) {

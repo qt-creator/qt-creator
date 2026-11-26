@@ -2532,9 +2532,6 @@ FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
 
 DebuggerEngine *createQmlEngine(const DebuggerRunParameters &rp, bool isCompanion)
 {
-    if (!DebuggerEngine::isUsingGenericDebugger())
-        return new QmlEngine;
-
     QmlImplStartData startData;
     const DebuggerStartMode startMode = rp.startMode();
     if (isCompanion || startMode == AttachToQmlServer || startMode == AttachToRemoteServer
