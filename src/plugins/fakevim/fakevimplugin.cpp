@@ -1542,6 +1542,9 @@ void FakeVimPlugin::moveSomewhere(FakeVimHandler *handler, DistFunction f, int c
         int bestValue = -1;
         for (IEditor *editor : std::as_const(editors)) {
             QWidget *w = editor->widget();
+            // Editor areas of other modes keep their editors while hidden.
+            if (!w->isVisible())
+                continue;
             QRect editorRect(w->mapToGlobal(w->geometry().topLeft()),
                     w->mapToGlobal(w->geometry().bottomRight()));
             //qDebug() << "   EDITOR: " << editorRect << editor;

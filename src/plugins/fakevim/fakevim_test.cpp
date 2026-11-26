@@ -16,6 +16,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/imode.h>
+#include <coreplugin/modemanager.h>
 
 #include <mcp/server/toolregistry.h>
 
@@ -28,6 +30,7 @@
 
 #include <vcsbase/vcsbaseeditor.h>
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/multitextcursor.h>
@@ -251,6 +254,7 @@ private slots:
     void test_vim_plugin_window_events();
     void test_vim_plugin_close_split_in_visual_mode();
     void test_vim_plugin_switch_split_in_visual_mode();
+    void test_vim_plugin_move_to_split_ignores_other_modes();
     void test_vim_plugin_exit_events();
     void test_vim_visual_selection_focus_out();
     void test_vim_tagstack();
@@ -14029,6 +14033,84 @@ void FakeVimTester::test_vim_plugin_switch_split_in_visual_mode()
     trigger(Core::Constants::GOTO_NEXT_SPLIT);
     QCOMPARE(Core::EditorManager::currentEditor()->widget(), split);
     trigger(Core::Constants::REMOVE_CURRENT_SPLIT);
+}
+
+class ModeWithEditorArea final : public Core::IMode
+{
+public:
+    ModeWithEditorArea()
+    {
+        setId(id);
+        setDisplayName("FakeVimTestMode");
+        setContext(Core::Context(Core::Constants::C_EDITORMANAGER));
+        Core::ModeManager::setModeKeepsOwnLayout(id);
+        setWidgetCreator([] { return Core::EditorManager::createEditorArea(id); });
+    }
+
+    static inline const Utils::Id id{"FakeVim.TestModeWithEditorArea"};
+};
+
+void FakeVimTester::test_vim_plugin_move_to_split_ignores_other_modes()
+{
+    // Like the Profile mode, a mode can have an editor area of its own. Its
+    // editors are not visible from the Edit mode and are no target of
+    // <C-W> with a direction.
+    FvBoolAspect &useFakeVim = FakeVim::Internal::settings().useFakeVim;
+    const bool savedUseFakeVim = useFakeVim.value();
+    useFakeVim.setValue(true);
+
+    TestData data;
+    setup(&data);
+
+    auto mode = new ModeWithEditorArea;
+    const QScopeGuard restore([&] {
+        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::REMOVE_ALL_SPLITS))
+            cmd->action()->trigger();
+        Core::EditorManager::closeAllEditors(false);
+        Core::ModeManager::removeMode(mode);
+        delete mode;
+        useFakeVim.setValue(savedUseFakeVim);
+    });
+    QTRY_VERIFY(mode->widget()->parentWidget());
+    Core::ModeManager::activateMode(ModeWithEditorArea::id);
+    QString title = "other";
+    QVERIFY(Core::EditorManager::openEditorWithContents(
+        Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, "other"));
+
+    Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+    Core::IEditor *left = Utils::findOrDefault(Core::EditorManager::visibleEditors(),
+                                               [&](Core::IEditor *editor) {
+                                                   return editor->widget() == data.edit;
+                                               });
+    QVERIFY(left);
+    Core::EditorManager::activateEditor(left);
+    QCOMPARE(Core::ModeManager::currentModeId(), Utils::Id(Core::Constants::MODE_EDIT));
+    Core::EditorManager::splitSideBySide();
+    QWidget *right = Core::EditorManager::currentEditor()->widget();
+    QVERIFY(right != data.edit);
+
+    const auto windowCommand = [](QWidget *widget, Qt::Key key) {
+        QTest::keyClick(widget, Qt::Key_W, Utils::HostOsInfo::controlModifier());
+        QTest::keyClick(widget, key);
+    };
+    const auto check = [](QWidget *expected) {
+        QCOMPARE(Core::ModeManager::currentModeId(), Utils::Id(Core::Constants::MODE_EDIT));
+        QCOMPARE(Core::EditorManager::currentEditor()->widget(), expected);
+    };
+
+    for (Qt::Key key : {Qt::Key_L, Qt::Key_J, Qt::Key_K}) {
+        windowCommand(right, key);
+        check(right);
+    }
+    windowCommand(right, Qt::Key_H);
+    check(data.edit);
+    for (Qt::Key key : {Qt::Key_H, Qt::Key_J, Qt::Key_K}) {
+        windowCommand(data.edit, key);
+        check(data.edit);
+    }
+    windowCommand(data.edit, Qt::Key_L);
+    check(right);
 }
 
 void FakeVimTester::test_vim_visual_block_corners()
