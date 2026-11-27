@@ -21,12 +21,14 @@ Tool
   measures how much each result differs from SOURCE, with the DSSIM
   metric of ImageMagick: 0 means identical. It keeps the result with
   the lowest cost: the file size, doubled for each DSSIM_DOUBLING_STEP
-  of difference. TARGET is a .webp file or a directory. It defaults to
-  SOURCE with the suffix .webp. The script prints the size, the
-  difference and the cost for each preset, and the preset it kept. It
-  exits with 3 if a requirement listed at the end of --help is not met;
-  then stop and ask the user to provide what is missing. If it fails
-  otherwise, fix the script rather than converting by hand.
+  of difference. A dithered result is only kept if it differs less from
+  SOURCE than the same reduction without dithering. TARGET is a .webp
+  file or a directory. It defaults to SOURCE with the suffix .webp. The
+  script prints the size, the difference and the cost for each preset,
+  and the preset it kept. It exits with 3 if a requirement listed at the
+  end of --help is not met; then stop and ask the user to provide what
+  is missing. If it fails otherwise, fix the script rather than
+  converting by hand.
 
 Procedure
 
@@ -59,11 +61,12 @@ COMMON_OPTIONS = ['-strip']
 # Method 6 is the most thorough of the libwebp encoding methods 0 to 6
 # (default: 4). It makes lossy files smaller, but not lossless ones.
 LOSSY_OPTIONS = ['-define', 'webp:lossless=false', '-define', 'webp:method=6']
+DITHERED = 'reduced colors'
+UNDITHERED = 'reduced colors, no dither'
 PRESETS = (
     ('lossless', ['-define', 'webp:lossless=true']),
-    ('reduced colors', ['-colors', '255', '-define', 'webp:lossless=true']),
-    ('reduced colors, no dither',
-     ['+dither', '-colors', '255', '-define', 'webp:lossless=true']),
+    (DITHERED, ['-colors', '255', '-define', 'webp:lossless=true']),
+    (UNDITHERED, ['+dither', '-colors', '255', '-define', 'webp:lossless=true']),
     # Below quality 50, the cost often drops further, but text and thin
     # lines visibly blur. Above quality 75, the cost only grows.
     ('lossy, quality 50', ['-quality', '50'] + LOSSY_OPTIONS),
@@ -142,6 +145,30 @@ def cost(candidate):
     return candidate.size * 2 ** (candidate.difference / DSSIM_DOUBLING_STEP)
 
 
+def drop_needless_dithering(candidates):
+    """Returns candidates without the dithered one if dithering does not
+    bring the result closer to the source.
+
+    Dithering is only worth its noise if it hides what reducing the colors
+    loses. A source with at most 255 colors loses nothing, yet ImageMagick
+    still merges its colors and dithers them, which speckles flat areas.
+
+    With ImageMagick 7.1.2, "-colors 255" with dithering left 29 of the
+    222 grays of a screenshot, and 130 colors of a gradient with 175000.
+    Neither -treedepth nor -quantize changes that, and dithering with
+    -remap onto the palette of a reduction without dithering merges the
+    colors just the same, so the merging happens while dithering.
+
+    The check uses DSSIM, like the cost. SSIMULACRA2, which is fitted to
+    human ratings, preferred dithering only on fractal noise, where both
+    reductions were far too lossy to win against the lossless preset. It
+    is not worth the extra dependency."""
+    differences = {c.preset: c.difference for c in candidates}
+    if differences.get(DITHERED, 0) < differences.get(UNDITHERED, 0):
+        return candidates
+    return [c for c in candidates if c.preset != DITHERED]
+
+
 def choose_winner(candidates):
     """Returns the candidate with the lowest cost, the first one on a tie."""
     return min(candidates, key=cost)
@@ -195,7 +222,10 @@ def main():
             print(f'{candidate.size:>10}  {candidate.difference:>10.6f}  '
                   f'{cost(candidate):>10.0f}  {candidate.preset}')
             candidates.append(candidate)
-        winner = choose_winner(candidates)
+        allowed = drop_needless_dithering(candidates)
+        if len(allowed) < len(candidates):
+            print(f'Skipped "{DITHERED}": it differs no less from SOURCE than "{UNDITHERED}".')
+        winner = choose_winner(allowed)
         shutil.copyfile(winner.path, target)
     print(f'Wrote {target} with preset "{winner.preset}": {winner.size} bytes, '
           f'source {source.stat().st_size} bytes.')
