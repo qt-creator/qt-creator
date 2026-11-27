@@ -97,7 +97,7 @@ def main() -> int:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--qt", type=absolute, required=True,
                         help="the installer's Qt for HarmonyOS, such as "
-                             "~/Qt/6.12.0/harmonyos_arm64_v8a")
+                             "~/Qt/6.12.1/harmonyos_arm64_v8a")
     parser.add_argument("--host-path", type=absolute,
                         help="desktop Qt of the same version, \"gcc_64\" beside --qt by "
                              "default")

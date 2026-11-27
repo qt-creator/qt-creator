@@ -74,7 +74,7 @@ def main() -> int:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--qt", type=absolute, required=True,
                         help="the installer's Qt for HarmonyOS, such as "
-                             "~/Qt/6.12.0/harmonyos_arm64_v8a, with the desktop Qt beside it")
+                             "~/Qt/6.12.1/harmonyos_arm64_v8a, with the desktop Qt beside it")
     parser.add_argument("--sdk", type=absolute, required=True,
                         help="HarmonyOS command-line tools, the directory or the zip they "
                              "are downloaded as")
@@ -127,7 +127,7 @@ def main() -> int:
         raise SystemExit("No sha1s.txt beside {}".format(args.qt))
     # Before the hours the stages ahead of the tools take.
     if "tools" in stages:
-        build_qt_tools.check_release(args.qt, build_qt_tools.recorded(args.qt, "qtbase"))
+        build_qt_tools.check_version(args.qt)
     # A wrong profile would otherwise only show when the last stages sign.
     if args.profile and "hap" in stages:
         build_hap.check_profile_bundle(args.profile, args.bundle or build_hap.BUNDLE)

@@ -1,0 +1,13 @@
+diff --git a/src/corelib/kernel/qcoreapplication.cpp b/src/corelib/kernel/qcoreapplication.cpp
+index 52bcb6cbcbb..1d5f361b182 100644
+--- a/src/corelib/kernel/qcoreapplication.cpp
++++ b/src/corelib/kernel/qcoreapplication.cpp
+@@ -3398,7 +3398,7 @@ void *QCoreApplication::resolveInterface(const char *name, int revision) const
+     static AndroidApplication androidApplication;
+     QT_NATIVE_INTERFACE_RETURN_IF(QAndroidApplication, &androidApplication);
+ #endif
+-#if defined(Q_OS_HARMONY)
++#if defined(Q_OS_HARMONY) && !defined(QT_BOOTSTRAPPED)
+     using namespace QNativeInterface;
+     struct HarmonyApplication : public QHarmonyApplication {};
+     static HarmonyApplication harmonyApplication;

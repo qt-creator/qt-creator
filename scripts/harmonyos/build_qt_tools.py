@@ -20,14 +20,12 @@ librcc.so and friends rather than executables, since on HarmonyOS every
 executable is a loadable module. The copies of qtchost in Qt Creator's package
 map and run them.
 
-The tools are built with QT_FORCE_BUILD_TOOLS, which does not configure for
-HarmonyOS before qtbase 0107b66097d ("CMake: Record the Qt module deps of
-plugins only for Android"). That change is applied to older sources.
+The Qt for HarmonyOS has to be 6.12.1 or later. Older ones do not configure
+with QT_FORCE_BUILD_TOOLS, and their tools crash without a JS thread.
 
-Without the HarmonyOS platform plugin, QtCore asks a JS thread that does not
-exist for the application and OS versions and the standard paths, and
-crashes. The fixes for that, which are in qtbase 6.12.1 (QTBUG-150323), are
-applied to older sources as well.
+qtbase 6.12.1 resolves QHarmonyApplication in QCoreApplication also in the
+Bootstrap library, which lacks it, so the tools do not link.
+patches/qtbase-bootstrap-harmony-application.patch leaves it out there.
 
 Building needs git, cmake, ninja and a host compiler, the desktop Qt of the
 same version, and the node-addon-api headers, which install_third_party.py
@@ -66,15 +64,9 @@ QTBASE_URL = "https://code.qt.io/qt/qtbase.git"
 QTDECLARATIVE_URL = "https://code.qt.io/qt/qtdeclarative.git"
 QTLANGUAGESERVER_URL = "https://code.qt.io/qt/qtlanguageserver.git"
 
-BACKPORT = "0107b66097dda8bdd25d020cca1da3d4edf5c931"
+MINIMUM_VERSION = (6, 12, 1)
 
-# In the order they were integrated in the 6.12 branch.
-NO_JS_THREAD = [
-    "5001441b5a2ec6d5009208900841f4a45280c0b3",
-    "032ca114a1bc24f9904f2b9273fb5c4596c63e78",
-    "39d3b1523cdc1703a829d485ec2beedc6501ff67",
-    "599c8f65fbfd870e31d3e6e2dfff6f9b2cff42b0",
-]
+BOOTSTRAP_PATCH = "qtbase-bootstrap-harmony-application.patch"
 
 # Build target, and where its library lands relative to the build directory.
 TOOLS = {
@@ -179,34 +171,12 @@ def recorded(qt: Path, module: str) -> str | None:
     return None
 
 
-def check_release(qt: Path, sha: str | None) -> None:
-    """Refuse a pre-release qtbase once its release is out, which is the Qt that Qt Creator
-    on the device installs, and which therefore refuses tools built from other sources."""
+def check_version(qt: Path) -> None:
     version = qt_version(qt)
-    try:
-        result = subprocess.run(["git", "ls-remote", "--tags", QTBASE_URL,
-                                 "v{}".format(version), "v{}^{{}}".format(version),
-                                 "v{}-*".format(version)],
-                                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-    except OSError:
-        result = None
-    if not result or result.returncode != 0:
-        print("Could not list the qtbase tags, so whether {} is a release is not checked"
-              .format(qt))
-        return
-    # The commit an annotated tag points to is listed as "<tag>^{}".
-    tags = {}
-    for line in result.stdout.splitlines():
-        commit, ref = line.split("\t")
-        tags[ref.removeprefix("refs/tags/").removesuffix("^{}")] = commit
-    release = "v" + version
-    if release not in tags or tags[release] == sha:
-        return
-    for tag, commit in tags.items():
-        if commit == sha:
-            raise SystemExit("The Qt at {} is {}, but {} is released, and that is what Qt "
-                             "Creator on the device installs. Update the Qt in the Qt Online "
-                             "Installer first.".format(qt, tag, release))
+    if tuple(int(part) for part in re.findall(r"\d+", version)[:3]) < MINIMUM_VERSION:
+        raise SystemExit("The Qt at {} is {}, the tools need {} or later. Update it in the "
+                         "Qt Online Installer first."
+                         .format(qt, version, ".".join(map(str, MINIMUM_VERSION))))
 
 
 def qt_version(qt: Path) -> str:
@@ -240,28 +210,16 @@ def apply(source: Path, patch: Path, name: str) -> None:
         raise SystemExit("{} applies to {} neither way".format(name, source.name))
 
 
-def fetch(source: Path, url: str, sha: str, commits: list[str]) -> None:
-    """Check the repository at url out at sha, with commits applied where they are
-    missing."""
+def fetch(source: Path, url: str, sha: str) -> None:
+    """Check the repository at url out at sha."""
     if not (source / ".git").is_dir():
         source.mkdir(parents=True, exist_ok=True)
         run(["git", "init", "--quiet"], cwd=source)
     head = subprocess.run(["git", "rev-parse", "--verify", "--quiet", "HEAD"], cwd=source,
                           stdout=subprocess.PIPE, text=True).stdout.strip()
-    missing = [commit for commit in commits
-               if not succeeds(["git", "cat-file", "-e", commit + "^{commit}"], source)]
-    if head != sha or missing:
-        # The parents come along, so that the commits can be turned into patches.
-        run(["git", "fetch", "--quiet", "--depth", "2", url, sha] + commits,
-            cwd=source)
     if head != sha:
+        run(["git", "fetch", "--quiet", "--depth", "1", url, sha], cwd=source)
         run(["git", "checkout", "--quiet", "--force", "--detach", sha], cwd=source)
-
-    for commit in commits:
-        patch = source.parent / "{}.patch".format(commit[:11])
-        patch.write_text(run(["git", "format-patch", "-1", "--stdout", commit], cwd=source,
-                             capture=True))
-        apply(source, patch, commit[:11])
 
 
 def unprefix_zlib(source: Path) -> None:
@@ -317,7 +275,7 @@ def main() -> int:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--qt", type=absolute, required=True,
                         help="the installer's Qt for HarmonyOS, the directory holding its "
-                             "lib and mkspecs, such as ~/Qt/6.12.0/harmonyos_arm64_v8a")
+                             "lib and mkspecs, such as ~/Qt/6.12.1/harmonyos_arm64_v8a")
     parser.add_argument("--host-path", type=absolute,
                         help="desktop Qt of the same version, \"gcc_64\" beside --qt by "
                              "default")
@@ -349,12 +307,11 @@ def main() -> int:
     host_path = args.host_path or args.qt.parent / "gcc_64"
     if not (host_path / "lib" / "cmake").is_dir():
         raise SystemExit("No desktop Qt at {}".format(host_path))
+    check_version(args.qt)
     sha = args.qtbase_sha or recorded(args.qt, "qtbase")
     if not sha:
         raise SystemExit("No sha1s.txt beside {} names qtbase, give --qtbase-sha"
                          .format(args.qt))
-    if not args.qtbase_sha:
-        check_release(args.qt, sha)
     host_sha = recorded(host_path, "qtbase")
     if host_sha and host_sha != sha:
         raise SystemExit("The desktop Qt is qtbase {}, the tools would be {}"
@@ -374,7 +331,9 @@ def main() -> int:
     work = args.work_path or Path(str(args.path) + "-work")
     source = work / "qtbase"
     build = work / "build"
-    fetch(source, QTBASE_URL, sha, [BACKPORT] + NO_JS_THREAD)
+    fetch(source, QTBASE_URL, sha)
+    apply(source, Path(__file__).resolve().parent / "patches" / BOOTSTRAP_PATCH,
+          BOOTSTRAP_PATCH)
     unprefix_zlib(source)
 
     configure([args.cmake, "-S", source, "-B", build, "-GNinja",
@@ -402,7 +361,7 @@ def main() -> int:
     languageserver_source = work / "qtlanguageserver"
     languageserver_build = work / "build-qtlanguageserver"
     languageserver = work / "qtlanguageserver-install"
-    fetch(languageserver_source, QTLANGUAGESERVER_URL, languageserver_sha, [])
+    fetch(languageserver_source, QTLANGUAGESERVER_URL, languageserver_sha)
     configure_against_qt(languageserver_source, languageserver_build, [args.packages])
     run([args.cmake, "--build", languageserver_build]
         + (["--parallel", str(args.jobs)] if args.jobs else []))
@@ -410,7 +369,7 @@ def main() -> int:
 
     declarative_source = work / "qtdeclarative"
     declarative_build = work / "build-qtdeclarative"
-    fetch(declarative_source, QTDECLARATIVE_URL, declarative_sha, [])
+    fetch(declarative_source, QTDECLARATIVE_URL, declarative_sha)
     configure_against_qt(declarative_source, declarative_build,
                          [args.packages, languageserver])
     build_targets(args, declarative_build, QML_TOOLS)
