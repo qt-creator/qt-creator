@@ -382,7 +382,7 @@ void DebuggerModel::autoDetectGdbOrLldbDebuggers(
             DebuggerItem existingItem = item(existingRow);
             if (command.lastModified() != existingItem.lastModified()) {
                 existingItem.reinitializeFromFile();
-                if (isItemDirty(existingRow)) {
+                if (isDirty(existingRow)) {
                     setVolatileItem(existingRow, existingItem);
                     notifyRowChanged(existingRow);
                 } else {
