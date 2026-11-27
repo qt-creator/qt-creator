@@ -138,6 +138,12 @@ QmlProfilerTraceBackend::QmlProfilerTraceBackend(Timeline::TimelineDetailsWidget
             }
         }
     });
+    connect(&d->stateManager, &QmlProfilerStateManager::requestedFeaturesChanged,
+            this, [this](quint64 features) {
+        const QList<QAction *> actions = d->recordFeaturesMenu.actions();
+        for (QAction *action : actions)
+            action->setChecked(features & (1ULL << action->data().toUInt()));
+    });
     connect(&d->stateManager, &QmlProfilerStateManager::recordedFeaturesChanged,
             this, [this](quint64 features) {
         const QList<QAction *> actions = d->displayFeaturesMenu.actions();

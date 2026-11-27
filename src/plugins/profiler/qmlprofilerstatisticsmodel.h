@@ -14,6 +14,8 @@
 #include <QPointer>
 #include <QAbstractTableModel>
 
+#include <optional>
+
 namespace Profiler::Internal {
 
 class QmlProfilerModelManager;
@@ -58,56 +60,81 @@ enum RelativeField {
     MaxRelativeField
 };
 
+struct QmlEventStats
+{
+    std::vector<std::chrono::nanoseconds> durations;
+    std::chrono::nanoseconds total{0};
+    std::chrono::nanoseconds self{0};
+    std::chrono::nanoseconds recursive{0};
+    std::chrono::nanoseconds minimum{0};
+    std::chrono::nanoseconds maximum{0};
+    std::chrono::nanoseconds median{0};
+    qint64 calls = 0;
+
+    void finalize()
+    {
+        static const qint64 qint64Max = std::numeric_limits<qint64>::max();
+        size_t size = durations.size();
+        QTC_ASSERT(sizeof(size_t) < sizeof(qint64) || size <= qint64Max, size = qint64Max);
+        calls = static_cast<qint64>(size);
+
+        if (size == 0)
+            return;
+
+        std::sort(durations.begin(), durations.end());
+        const auto avg = [](std::chrono::nanoseconds a, std::chrono::nanoseconds b) {
+            return a / 2 + b / 2
+                   + std::chrono::nanoseconds(((a.count() & 1) + (b.count() & 1)) / 2);
+        };
+
+        const size_t half = size / 2;
+        median = (size & 1) == 0 ? avg(durations[half - 1], durations[half]) : durations[half];
+        minimum = durations.front();
+        maximum = durations.back();
+
+        // One entry per call adds up to gigabytes over a long trace; clear() would
+        // keep all of it allocated.
+        std::vector<std::chrono::nanoseconds>().swap(durations);
+    }
+
+    std::chrono::nanoseconds average() const
+    {
+        return calls == 0 ? std::chrono::nanoseconds(0)
+                          : std::chrono::nanoseconds(total / calls);
+    }
+
+    std::chrono::nanoseconds totalNonRecursive() const
+    {
+        return total - recursive;
+    }
+};
+
+// Per-type statistics of the range events fed to it, as the Statistics view
+// shows them.
+class QmlRangeStatistics
+{
+public:
+    // Whether the event was taken into account and, if it ended a call,
+    // whether that call was recursive; nullopt if it was ignored.
+    std::optional<bool> load(const QmlDebug::QmlEvent &event, const QmlDebug::QmlEventType &type,
+                             int numEventTypes);
+    void finalize();
+    void clear();
+
+    const QList<QmlEventStats> &stats() const { return m_stats; }
+    std::chrono::nanoseconds rootDuration() const { return m_rootDuration; }
+
+private:
+    QList<QmlEventStats> m_stats;
+    QStack<QmlDebug::QmlEvent> m_callStack;
+    QStack<QmlDebug::QmlEvent> m_compileStack;
+    std::chrono::nanoseconds m_rootDuration{0};
+};
+
 class QmlProfilerStatisticsModel final : public QAbstractTableModel
 {
 public:
-    struct QmlEventStats {
-        std::vector<std::chrono::nanoseconds> durations;
-        std::chrono::nanoseconds total{0};
-        std::chrono::nanoseconds self{0};
-        std::chrono::nanoseconds recursive{0};
-        std::chrono::nanoseconds minimum{0};
-        std::chrono::nanoseconds maximum{0};
-        std::chrono::nanoseconds median{0};
-        qint64 calls = 0;
-
-        void finalize()
-        {
-            static const qint64 qint64Max = std::numeric_limits<qint64>::max();
-            size_t size = durations.size();
-            QTC_ASSERT(sizeof(size_t) < sizeof(qint64) || size <= qint64Max, size = qint64Max);
-            calls = static_cast<qint64>(size);
-
-            if (size == 0)
-                return;
-
-            std::sort(durations.begin(), durations.end());
-            const auto avg = [](std::chrono::nanoseconds a, std::chrono::nanoseconds b) {
-                return a / 2 + b / 2
-                       + std::chrono::nanoseconds(((a.count() & 1) + (b.count() & 1)) / 2);
-            };
-
-            const size_t half = size / 2;
-            median = (size & 1) == 0 ? avg(durations[half - 1], durations[half]) : durations[half];
-            minimum = durations.front();
-            maximum = durations.back();
-
-            // One entry per call adds up to gigabytes over a long trace; clear() would
-            // keep all of it allocated.
-            std::vector<std::chrono::nanoseconds>().swap(durations);
-        }
-
-        std::chrono::nanoseconds average() const
-        {
-            return calls == 0 ? std::chrono::nanoseconds(0)
-                              : std::chrono::nanoseconds(total / calls);
-        }
-
-        std::chrono::nanoseconds totalNonRecursive() const
-        {
-            return total - recursive;
-        }
-    };
+    using QmlEventStats = Internal::QmlEventStats;
 
     QmlProfilerStatisticsModel(QmlProfilerModelManager *modelManager);
     ~QmlProfilerStatisticsModel() override = default;
@@ -144,7 +171,7 @@ private:
     double durationPercent(int typeId) const;
     double durationSelfPercent(int typeId) const;
 
-    QList<QmlEventStats> m_data;
+    QmlRangeStatistics m_ranges;
 
     QPointer<QmlProfilerStatisticsRelativesModel> m_calleesModel;
     QPointer<QmlProfilerStatisticsRelativesModel> m_callersModel;
@@ -152,11 +179,6 @@ private:
 
     QList<QmlDebug::RangeType> m_acceptedTypes;
     QHash<int, QString> m_notes;
-
-    QStack<QmlDebug::QmlEvent> m_callStack;
-    QStack<QmlDebug::QmlEvent> m_compileStack;
-
-    std::chrono::nanoseconds m_rootDuration{0};
 };
 
 class QmlProfilerStatisticsRelativesModel final : public QAbstractTableModel

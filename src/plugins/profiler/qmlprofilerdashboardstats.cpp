@@ -27,10 +27,46 @@ QmlProfilerDashboardStats::QmlProfilerDashboardStats(QmlProfilerModelManager *ma
                               [this] { reset(); emit changed(); });
 }
 
-static QmlProfilerDashboardStats::FrameTime frameDuration(int framesPerSecond)
+FrameTime frameDuration(int framesPerSecond)
 {
-    using FrameTime = QmlProfilerDashboardStats::FrameTime;
     return framesPerSecond > 0 ? FrameTime(1s) / framesPerSecond : FrameTime(0);
+}
+
+FrameRating rateFrames(const QMap<qint32, int> &frameRates, int targetFrameRate)
+{
+    const FrameTime onTarget = frameDuration(targetFrameRate);
+    const FrameTime nearTarget = onTarget * kNearTargetFrameBudgets;
+    const FrameTime stutter = onTarget * kStutterFrameBudgets;
+
+    FrameRating rating;
+    for (auto it = frameRates.constBegin(), end = frameRates.constEnd(); it != end; ++it) {
+        const FrameTime frameTime = frameDuration(it.key());
+        if (frameTime <= onTarget)
+            rating.onTarget += it.value();
+        else if (frameTime <= nearTarget)
+            rating.nearTarget += it.value();
+        else
+            rating.failed += it.value();
+
+        if (frameTime > stutter)
+            rating.stuttering += it.value();
+    }
+    return rating;
+}
+
+int medianFrameRate(const QMap<qint32, int> &frameRates)
+{
+    int total = 0;
+    for (const int count : frameRates)
+        total += count;
+    const int middle = total / 2;
+    int seen = 0;
+    for (auto it = frameRates.constBegin(), end = frameRates.constEnd(); it != end; ++it) {
+        seen += it.value();
+        if (seen > middle)
+            return it.key();
+    }
+    return 0;
 }
 
 void QmlProfilerDashboardStats::loadEvent(const QmlEvent &event, const QmlEventType &type)
@@ -52,23 +88,11 @@ void QmlProfilerDashboardStats::loadEvent(const QmlEvent &event, const QmlEventT
 
 void QmlProfilerDashboardStats::rate()
 {
-    m_framesOnTarget = 0;
-    m_framesNearTarget = 0;
-    m_framesFailed = 0;
-    m_framesStuttering = 0;
-
-    for (auto it = m_frameRates.constBegin(), end = m_frameRates.constEnd(); it != end; ++it) {
-        const FrameTime frameTime = frameDuration(it.key());
-        if (frameTime <= onTargetFrameTime())
-            m_framesOnTarget += it.value();
-        else if (frameTime <= nearTargetFrameTime())
-            m_framesNearTarget += it.value();
-        else
-            m_framesFailed += it.value();
-
-        if (frameTime > stutterFrameTime())
-            m_framesStuttering += it.value();
-    }
+    const FrameRating rating = rateFrames(m_frameRates, m_targetFrameRate);
+    m_framesOnTarget = rating.onTarget;
+    m_framesNearTarget = rating.nearTarget;
+    m_framesFailed = rating.failed;
+    m_framesStuttering = rating.stuttering;
 }
 
 void QmlProfilerDashboardStats::setTargetFrameRate(int framesPerSecond)
@@ -136,14 +160,7 @@ int QmlProfilerDashboardStats::framesTotal() const
 
 int QmlProfilerDashboardStats::medianFrameRate() const
 {
-    const int middle = framesTotal() / 2;
-    int seen = 0;
-    for (auto it = m_frameRates.constBegin(), end = m_frameRates.constEnd(); it != end; ++it) {
-        seen += it.value();
-        if (seen > middle)
-            return it.key();
-    }
-    return 0;
+    return Internal::medianFrameRate(m_frameRates);
 }
 
 bool QmlProfilerDashboardStats::hasData() const

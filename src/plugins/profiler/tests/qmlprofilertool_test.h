@@ -15,6 +15,7 @@ private slots:
     void testAttachToWaitingApplication();
     void testClearEvents();
     void testCancelBeforeConnectReportsOnce();
+    void testOptionsStayWithTheirRun();
 };
 
 } // namespace Profiler::Internal

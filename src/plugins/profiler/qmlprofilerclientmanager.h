@@ -31,6 +31,7 @@ public:
     void clearEvents();
     void setModelManager(QmlProfilerModelManager *modelManager);
     void setFlushInterval(std::chrono::milliseconds flushInterval);
+    std::chrono::milliseconds flushInterval() const { return m_flushInterval; }
     void clearBufferedData();
     void stopRecording();
 

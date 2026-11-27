@@ -8,11 +8,14 @@
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <profiler/qmlprofilerattachdialog.h>
 #include <profiler/qmlprofilerclientmanager.h>
 #include <profiler/qmlprofilermodelmanager.h>
+#include <profiler/qmlprofilerruncontrol.h>
 #include <profiler/qmlprofilerstatemanager.h>
 #include <profiler/qmlprofilertool.h>
 #include <profiler/qmlprofilertracebackend.h>
@@ -22,6 +25,7 @@
 #include <utils/qtcsettings.h>
 #include <utils/url.h>
 
+#include <QPointer>
 #include <QScopeGuard>
 #include <QSignalSpy>
 #include <QTcpServer>
@@ -159,6 +163,58 @@ void QmlProfilerToolTest::testCancelBeforeConnectReportsOnce()
     backend.handleStop();
 
     QCOMPARE(errors.count(), 1);
+}
+
+// Options asked for a run that never starts must not end up on the next QML
+// profiler run, which may have been started some other way, such as the Re-run
+// button in Application Output.
+void QmlProfilerToolTest::testOptionsStayWithTheirRun()
+{
+    if (ProjectManager::startupProject())
+        QSKIP("A startup project is open, so the first run would start.");
+
+    Kit *const kit = KitManager::registerKit({}, "optionskit");
+    QVERIFY(kit);
+    const auto deregisterKit = qScopeGuard([kit] { KitManager::deregisterKit(kit); });
+
+    QmlProfilerTool &profilerTool = *QmlProfilerTool::instance();
+    QmlRecordingOptions options;
+    options.features = 1ULL << ProfileBinding;
+    options.flushInterval = 250ms;
+    profilerTool.profileStartupProject(options);
+
+    QPointer<QmlProfilerTraceBackend> backend;
+    const QMetaObject::Connection backendConnection = connect(
+        &profilerTool, &QmlProfilerTool::liveBackendChanged, this,
+        [&backend](QmlProfilerTraceBackend *live) {
+            backend = live;
+            live->clientManager()->setRetryInterval(10);
+            live->clientManager()->setMaximumRetries(10);
+        });
+    const auto disconnectFromTool = qScopeGuard([&] { disconnect(backendConnection); });
+
+    const QUrl serverUrl = Utils::urlFromLocalHostAndFreePort();
+    QTcpServer server;
+    QVERIFY(server.listen(QHostAddress::LocalHost, quint16(serverUrl.port())));
+    QScopedPointer<QTcpSocket> connection;
+    connect(&server, &QTcpServer::newConnection, this, [&] {
+        connection.reset(server.nextPendingConnection());
+        fakeDebugServer(connection.data());
+    });
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    runControl->setKit(kit);
+    runControl->setQmlChannel(serverUrl);
+    runControl->setRunRecipe(qmlProfilerRecipe(runControl));
+    runControl->start();
+
+    QTRY_VERIFY(backend);
+    QTRY_VERIFY(backend->clientManager()->isConnected());
+    QVERIFY(backend->stateManager()->requestedFeatures() != options.features);
+    QCOMPARE(backend->clientManager()->flushInterval(), 0ms);
+
+    connection.reset();
+    QTRY_VERIFY(runControl->isStopped());
 }
 
 } // namespace Profiler::Internal

@@ -39,6 +39,7 @@
 #include <utils/url.h>
 
 #include <QAction>
+#include <QHash>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPointer>
@@ -60,6 +61,8 @@ public:
     // aggregate-traces setting asks for the recordings to be merged.
     QPointer<ProfilerTraceDocument> liveDocument;
     int runCount = 0;
+    // The options runs were started with, until they record.
+    QHash<const RunControl *, QmlRecordingOptions> runOptions;
 
     QAction startAction;
     QAction runAction;
@@ -77,14 +80,14 @@ QmlProfilerTool::QmlProfilerTool()
 
     d->startAction.setText(Tr::tr("Start"));
     d->startAction.setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR.icon());
-    connect(&d->startAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
+    connect(&d->startAction, &QAction::triggered, this, [this] { profileStartupProject(); });
 
     const QString description = Tr::tr("QML profiling can be used to find performance "
                                        "bottlenecks in applications using QML.");
 
     d->runAction.setText(Tr::tr("QML Profiling"));
     d->runAction.setToolTip(description);
-    connect(&d->runAction, &QAction::triggered, this, &QmlProfilerTool::profileStartupProject);
+    connect(&d->runAction, &QAction::triggered, this, [this] { profileStartupProject(); });
     connect(&d->startAction, &QAction::changed, this, [this] {
         d->runAction.setEnabled(d->startAction.isEnabled());
     });
@@ -157,6 +160,11 @@ QmlProfilerTraceBackend *QmlProfilerTool::liveBackend() const
     return qobject_cast<QmlProfilerTraceBackend *>(d->liveDocument->backends().first());
 }
 
+ProfilerTraceDocument *QmlProfilerTool::liveDocument() const
+{
+    return d->liveDocument;
+}
+
 // Opens the trace a run records into. Successive runs each get their own
 // editor, unless the trace being recorded aggregates them.
 static ProfilerTraceDocument *openRunDocument(int runNumber)
@@ -167,6 +175,7 @@ static ProfilerTraceDocument *openRunDocument(int runNumber)
 
 void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
 {
+    const QmlRecordingOptions options = d->runOptions.take(runControl);
     bool aggregateTraces = false;
     std::chrono::milliseconds flushInterval{0};
     if (auto aspect = runControl->aspectData<QmlProfilerRunConfigurationAspect>()) {
@@ -176,6 +185,8 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
             aggregateTraces = settings->aggregateTraces();
         }
     }
+    if (options.flushInterval)
+        flushInterval = *options.flushInterval;
 
     QmlProfilerTraceBackend *backend = liveBackend();
     if (!backend || !aggregateTraces) {
@@ -186,6 +197,8 @@ void QmlProfilerTool::finalizeRunControl(RunControl *runControl)
     emit liveBackendChanged(backend);
 
     backend->prepareRun(runControl->buildConfiguration(), aggregateTraces, flushInterval);
+    if (options.features)
+        backend->stateManager()->setRequestedFeatures(*options.features);
     updateRunActions();
 }
 
@@ -269,10 +282,23 @@ void QmlProfilerTool::showLoadDialog()
         loadFile(filePath);
 }
 
-void QmlProfilerTool::profileStartupProject()
+void QmlProfilerTool::setRunOptions(RunControl *runControl, const QmlRecordingOptions &options)
+{
+    d->runOptions.insert(runControl, options);
+    connect(runControl, &QObject::destroyed, this, [this, runControl] {
+        d->runOptions.remove(runControl);
+    });
+}
+
+void QmlProfilerTool::profileStartupProject(const QmlRecordingOptions &options)
 {
     activateProfilerMode();
-    ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    ProjectExplorerPlugin::runStartupProjectWithCallback(
+        ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
+        [this, options](RunControl *runControl) {
+            if (runControl)
+                setRunOptions(runControl, options);
+        });
 }
 
 RunControl *QmlProfilerTool::attachToWaitingApplication()
@@ -304,8 +330,16 @@ RunControl *QmlProfilerTool::attachToWaitingApplication()
     serverUrl.setScheme(Utils::urlTcpScheme());
     serverUrl.setHost(toolControl.host());
     serverUrl.setPort(port);
+    return attachToApplication(kit, serverUrl);
+}
+
+RunControl *QmlProfilerTool::attachToApplication(Kit *kit, const QUrl &serverUrl,
+                                                 const QmlRecordingOptions &options)
+{
+    QTC_ASSERT(kit, return nullptr);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    setRunOptions(runControl, options);
     RunConfiguration *activeRunConfig = activeRunConfigForActiveProject();
     if (activeRunConfig && activeRunConfig->kit() == kit)
         runControl->copyDataFromRunConfiguration(activeRunConfig);

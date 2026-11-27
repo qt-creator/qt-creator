@@ -53,6 +53,7 @@ if(WITH_TESTS)
     tests/qmlprofilerstatisticsmodel_test.cpp tests/qmlprofilerstatisticsmodel_test.h
     tests/qmlprofilertool_test.cpp tests/qmlprofilertool_test.h
     tests/qmlprofilertracefile_test.cpp tests/qmlprofilertracefile_test.h
+    tests/qmlprofilertracesummary_test.cpp tests/qmlprofilertracesummary_test.h
     tests/qmlprofilertraceview_test.cpp tests/qmlprofilertraceview_test.h
     tests/quick3dframemodel_test.cpp tests/quick3dframemodel_test.h
     tests/quick3dmodel_test.cpp tests/quick3dmodel_test.h
@@ -141,6 +142,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilertimelinemodel.cpp qmlprofilertimelinemodel.h
   qmlprofilertracebackend.cpp qmlprofilertracebackend.h
   qmlprofilertracefile.cpp qmlprofilertracefile.h
+  qmlprofilertracesummary.cpp qmlprofilertracesummary.h
   qmlprofilertraceview.cpp qmlprofilertraceview.h
   qmlrecordingtimeline.h
   scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
@@ -273,6 +275,11 @@ extend_qtc_plugin(Profiler
   CONDITION NOT QTPROFILER_STANDALONE
   SOURCES mcpsupport.cpp mcpsupport.h
   DEPENDS McpServerLib
+)
+
+extend_qtc_plugin(Profiler
+  CONDITION WITH_TESTS AND NOT QTPROFILER_STANDALONE
+  SOURCES tests/mcpsupport_test.cpp tests/mcpsupport_test.h
 )
 
 # The Windows sampler backend is only compiled on Windows (its sources use

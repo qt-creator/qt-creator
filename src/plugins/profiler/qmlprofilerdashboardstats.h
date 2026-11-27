@@ -70,6 +70,26 @@ public:
     int points = 0;
 };
 
+using FrameTime = std::chrono::duration<double, std::milli>;
+
+// The time a frame took at the measured frame rate, or zero for no rate.
+FrameTime frameDuration(int framesPerSecond);
+
+// How many frames met the target frame rate, given the number of frames that
+// reported each measured frame rate.
+class FrameRating
+{
+public:
+    int onTarget = 0;
+    int nearTarget = 0;
+    int failed = 0;
+    int stuttering = 0;
+};
+
+FrameRating rateFrames(const QMap<qint32, int> &frameRates, int targetFrameRate);
+// The frame rate reached most of the time.
+int medianFrameRate(const QMap<qint32, int> &frameRates);
+
 // Frame timing statistics derived from the ProfileAnimations trace events,
 // for QmlProfilerDashboardView.
 class QmlProfilerDashboardStats : public QObject
@@ -85,7 +105,7 @@ public:
     // Changing it re-rates the frames already loaded.
     void setTargetFrameRate(int framesPerSecond);
     int targetFrameRate() const;
-    using FrameTime = std::chrono::duration<double, std::milli>;
+    using FrameTime = Internal::FrameTime;
 
     FrameTime onTargetFrameTime() const;
     FrameTime nearTargetFrameTime() const;

@@ -36,6 +36,7 @@
 #include "tests/flamegraphview_test.h"
 #include "tests/inputeventsmodel_test.h"
 #include "tests/localqmlprofilerrunner_test.h"
+#include "tests/mcpsupport_test.h"
 #include "tests/memoryusagemodel_test.h"
 #include "tests/pixmapcachemodel_test.h"
 #include "tests/profilerrecorder_test.h"
@@ -54,6 +55,7 @@
 #include "tests/qmlprofilerstatisticsmodel_test.h"
 #include "tests/qmlprofilertool_test.h"
 #include "tests/qmlprofilertracefile_test.h"
+#include "tests/qmlprofilertracesummary_test.h"
 #include "tests/qmlprofilertraceview_test.h"
 #include "tests/quick3dframemodel_test.h"
 #include "tests/quick3dmodel_test.h"
@@ -106,6 +108,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<CpuFlameGraphViewTest>();
         addTest<InputEventsModelTest>();
         addTest<LocalQmlProfilerRunnerTest>();
+        addTest<ProfilerMcpSupportTest>();
         addTest<MemoryUsageModelTest>();
         addTest<PixmapCacheModelTest>();
         addTest<ProfilerRecorderTest>();
@@ -124,6 +127,7 @@ class ProfilerPlugin final : public ExtensionSystem::IPlugin
         addTest<QmlProfilerStatisticsModelTest>();
         addTest<QmlProfilerToolTest>();
         addTest<QmlProfilerTraceFileTest>();
+        addTest<QmlProfilerTraceSummaryTest>();
         addTest<QmlProfilerTraceViewTest>();
         addTest<Quick3DFrameModelTest>();
         addTest<Quick3DModelTest>();
