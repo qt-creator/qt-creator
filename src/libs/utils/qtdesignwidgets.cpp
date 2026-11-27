@@ -1197,7 +1197,9 @@ void QtcIconButton::paintEvent(QPaintEvent *e)
     QPainter p(this);
     QRect r(QPoint(), size());
 
-    if (underMouse() && isEnabled()) {
+    if (isChecked()) {
+        StyleHelper::drawPanelBgRect(&p, r, creatorColor(Theme::Token_Foreground_Muted));
+    } else if (underMouse() && isEnabled()) {
         QColor c = creatorColor(Theme::TextColorDisabled);
         c.setAlphaF(c.alphaF() * .5);
         StyleHelper::drawPanelBgRect(&p, r, c);
