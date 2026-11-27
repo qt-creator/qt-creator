@@ -170,14 +170,19 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(BuildConfiguratio
             Tr::tr("<a href=\""
                    "qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
                    "\">What are the prerequisites?</a>"));
-        builder.addRow({m_languagesAspect, info});
+        builder.addRow({m_languagesAspect});
+        // Below the selection rather than beside it: a column of its own would narrow all the
+        // other rows whenever the link shows.
+        builder.addRow({Layouting::empty, info});
         connect(info, &QLabel::linkActivated, [](const QString &link) {
             Core::HelpManager::showHelpUrl(link);
         });
         const auto updateInfoVisibility = [this, info] { info->setVisible(useQmlDebugger()); };
         connect(&m_languagesAspect, &BaseAspect::changed, info, updateInfoVisibility);
         builder.addRow({m_overrideStartupAspect});
-        builder.addRow({*m_sourcePathMapAspect});
+        // The mapping brings no label of its own: let it take the label column, too, rather
+        // than widen that one to its size.
+        builder.addRow({Layouting::Span(2, *m_sourcePathMapAspect)});
 
         static const QString env = qtcEnvironmentVariable("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
