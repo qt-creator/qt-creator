@@ -9888,6 +9888,112 @@
          transform="matrix(0.63636373,0,0,1.7142865,291.63632,-295)" />
     </g>
     <g
+       id="src/libs/utils/images/rotateleft">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="device_rotateleft_background"
+         transform="translate(304,-152)"
+         style="display:inline" />
+      <rect
+         id="device_rotateleft_phone"
+         style="fill:none;stroke:#000000"
+         width="7"
+         height="9"
+         x="295.5"
+         y="289.5"
+         ry="1" />
+      <path
+         id="device_rotateleft_arrow"
+         style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round"
+         d="m 297.5,286.5 h -1 c -3,0 -5,2 -5,5.5 v 2 m -2,-1.5 2,2 2,-2"
+         sodipodi:nodetypes="csscccc" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/rotateleft"
+       id="src/libs/utils/images/rotateright"
+       transform="matrix(-1,0,0,1,609,0)" />
+    <g
+       id="src/libs/utils/images/deviceframe">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="device_deviceframe_background"
+         transform="translate(338,-152)"
+         style="display:inline" />
+      <rect
+         id="device_deviceframe_bezel"
+         style="fill:none;stroke:#000000"
+         width="9"
+         height="13"
+         x="325.5"
+         y="285.5"
+         ry="2" />
+      <rect
+         id="device_deviceframe_screen"
+         style="fill:none;stroke:#000000;stroke-linejoin:round"
+         width="5"
+         height="9"
+         x="327.5"
+         y="287.5" />
+    </g>
+    <g
+       id="src/libs/utils/images/power">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="device_power_background"
+         transform="translate(355,-152)"
+         style="display:inline" />
+      <path
+         id="device_power_ring"
+         style="fill:none;stroke:#000000;stroke-linecap:round"
+         d="M 349.5,288.5 A 5 5 0 1 1 343.5,288.5" />
+      <path
+         id="device_power_line"
+         style="fill:none;stroke:#000000;stroke-linejoin:round"
+         d="M 346.5,285 V 291" />
+    </g>
+    <g
+       id="src/libs/utils/images/foldable">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="device_foldable_background"
+         transform="translate(389,-152)"
+         style="display:inline" />
+      <path
+         id="device_foldable_panels"
+         style="fill:none;stroke:#000000;stroke-linejoin:round"
+         d="M 380.5,288.5 L 374.5,286.5 V 295.5 L 380.5,297.5 L 386.5,295.5 V 286.5 L 380.5,288.5 V 297.5" />
+    </g>
+    <g
+       id="src/libs/utils/images/popout">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="device_popout_background"
+         transform="translate(423,-152)"
+         style="display:inline" />
+      <path
+         id="device_popout_frame"
+         style="fill:none;stroke:#000000;stroke-linejoin:round"
+         d="m 415,288.5 h -5.5 v 9 h 9 V 292"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="device_popout_arrow"
+         style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round"
+         d="m 414.5,292.5 6,-6 m -4,0 h 4 v 4"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
        transform="translate(-230,-42)"
        id="src/plugins/android/images/androiddevice">
       <use

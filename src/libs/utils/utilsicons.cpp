@@ -252,6 +252,18 @@ const Icon CONTINUE_SMALL_TOOLBAR({
         {":/utils/images/continue_2_small.png", Theme::IconsRunToolBarColor}});
 const Icon BOUNDING_RECT({
         {":/utils/images/boundingrect.png", Theme::IconsBaseColor}});
+const Icon DEVICE_FRAME_TOOLBAR({
+        {":/utils/images/deviceframe.png", Theme::IconsBaseColor}});
+const Icon FOLDABLE_TOOLBAR({
+        {":/utils/images/foldable.png", Theme::IconsBaseColor}});
+const Icon POP_OUT_TOOLBAR({
+        {":/utils/images/popout.png", Theme::IconsBaseColor}});
+const Icon POWER_TOOLBAR({
+        {":/utils/images/power.png", Theme::IconsBaseColor}});
+const Icon ROTATE_LEFT_TOOLBAR({
+        {":/utils/images/rotateleft.png", Theme::IconsBaseColor}});
+const Icon ROTATE_RIGHT_TOOLBAR({
+        {":/utils/images/rotateright.png", Theme::IconsBaseColor}});
 const Icon EYE_OPEN({
         {":/utils/images/eye_open.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon EYE_OPEN_TOOLBAR({
@@ -353,6 +365,7 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(CRITICAL),
     MAKE_ENTRY(CUT_TOOLBAR),
     MAKE_ENTRY(CUT),
+    MAKE_ENTRY(DEVICE_FRAME_TOOLBAR),
     MAKE_ENTRY(DIR),
     MAKE_ENTRY(DOWNLOAD),
     MAKE_ENTRY(EDIT_CLEAR_TOOLBAR),
@@ -370,6 +383,7 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(FILE),
     MAKE_ENTRY(FILTER),
     MAKE_ENTRY(FITTOVIEW_TOOLBAR),
+    MAKE_ENTRY(FOLDABLE_TOOLBAR),
     MAKE_ENTRY(HELP),
     MAKE_ENTRY(HOME_TOOLBAR),
     MAKE_ENTRY(HOME),
@@ -407,6 +421,8 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(PINNED),
     MAKE_ENTRY(PLUS_TOOLBAR),
     MAKE_ENTRY(PLUS),
+    MAKE_ENTRY(POP_OUT_TOOLBAR),
+    MAKE_ENTRY(POWER_TOOLBAR),
     MAKE_ENTRY(PREV_TOOLBAR),
     MAKE_ENTRY(PREV),
     MAKE_ENTRY(PROJECT),
@@ -418,6 +434,8 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(REPLACE),
     MAKE_ENTRY(RESET_TOOLBAR),
     MAKE_ENTRY(RESET),
+    MAKE_ENTRY(ROTATE_LEFT_TOOLBAR),
+    MAKE_ENTRY(ROTATE_RIGHT_TOOLBAR),
     MAKE_ENTRY(RUN_FILE_TOOLBAR),
     MAKE_ENTRY(RUN_FILE),
     MAKE_ENTRY(RUN_SELECTED_TOOLBAR),
